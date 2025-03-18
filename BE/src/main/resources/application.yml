@@ -1,0 +1,23 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: boney
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/boney?serverTimezone=UTC&characterEncoding=UTF-8
+    username: root
+    password: root
+
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: update  # none, update, create, create-drop
+    properties:
+      hibernate:
+        show_sql: true  # SQL ?? ??
+        format_sql: true  # SQL ?? ???
+        use_sql_comments: true  # SQL ?? ?? ??
+        dialect: org.hibernate.dialect.MySQLDialect
