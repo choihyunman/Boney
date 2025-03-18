@@ -1,13 +1,13 @@
-package com.laphayen;
+package com.ssafy.boney;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
-public class Ec2TestApplication {
+@SpringBootApplication()
+public class BoneyApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(Ec2TestApplication.class, args);
+		SpringApplication.run(BoneyApplication.class, args);
 	}
 
 }
