@@ -28,7 +28,6 @@ ENV JAVA_OPTS="\
     --add-opens=java.base/java.util.concurrent=ALL-UNNAMED \
     --add-opens=java.base/java.net=ALL-UNNAMED \
     --add-opens=java.base/jdk.internal.misc=ALL-UNNAMED \
-    -Dio.netty.tryReflectionSetAccessible=true \
     -Djava.security.egd=file:/dev/./urandom"
 
 # Java 17의 접근 제한 문제 해결을 위한 옵션 추가
