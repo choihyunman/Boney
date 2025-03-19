@@ -1,6 +1,7 @@
 package com.ssafy.boney.domain.transaction.entity;
 
 import com.ssafy.boney.domain.account.entity.Account;
+import com.ssafy.boney.domain.transaction.entity.enums.TransactionType;
 import com.ssafy.boney.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
