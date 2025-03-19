@@ -6,21 +6,18 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "transaction_category")
+@Table(name = "hashtag")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class TransactionCategory {
+public class Hashtag {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "transaction_category_id")
-    private Integer transactionCategoryId;  // PK
+    @Column(name = "hashtag_id")
+    private Integer hashtagId;  // PK
 
-    @Column(name = "transaction_category_name", nullable = false, length = 100)
-    private String transactionCategoryName; // 카테고리명
-
-    @Column(name = "is_custom", nullable = false)
-    private Boolean isCustom; // 사용자가 추가한 카테고리 여부
+    @Column(name = "name", nullable = false, length = 25)
+    private String name;
 
     @Column(name = "created_at", nullable = false, updatable = false,
             columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
