@@ -45,6 +45,7 @@ public class UserController {
         return response;
     }
 
+    // 카카오 로그인 토큰 발급
     @PostMapping("/login/kakao/token")
     public ResponseEntity<Map> getToken(@RequestParam("code") String code) {
         RestTemplate restTemplate = new RestTemplate();
@@ -70,6 +71,26 @@ public class UserController {
         );
 
         // 응답 반환 (Access Token 포함)
+        return ResponseEntity.ok(responseEntity.getBody());
+    }
+
+    // 카카오 사용자 정보 조회
+    @PostMapping("/login/kakao/user")
+    public ResponseEntity<Map> getUserInfo(@RequestParam("access_token") String accessToken) {
+        RestTemplate restTemplate = new RestTemplate();
+        String userInfoUrl = "https://kapi.kakao.com/v2/user/me";
+
+        // HTTP 요청 헤더 설정 (Bearer Token 포함)
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + accessToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<String> requestEntity = new HttpEntity<>(headers);
+
+        // 카카오 API 요청 (사용자 정보 가져오기)
+        ResponseEntity<Map> responseEntity = restTemplate.exchange(userInfoUrl, HttpMethod.GET, requestEntity, Map.class);
+
+        // 응답 반환 (사용자 정보 포함)
         return ResponseEntity.ok(responseEntity.getBody());
     }
 
