@@ -1,5 +1,6 @@
 package com.ssafy.boney.domain.user.entity;
 
+import com.ssafy.boney.domain.account.entity.Bank;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -26,8 +27,9 @@ public class Favorite {
     @Column(name = "favorite_account", nullable = false, length = 60)
     private String favoriteAccount;
 
-    @Column(name = "bank_name", nullable = false, length = 50)
-    private String bankName;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "bank_id", nullable = false)
+    private Bank bank;
 
     @Column(name = "created_at", nullable = false, updatable = false,
             columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")

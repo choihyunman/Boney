@@ -4,6 +4,7 @@ import com.google.cloud.storage.transfermanager.TransferStatus;
 import com.ssafy.boney.domain.account.entity.Account;
 import com.ssafy.boney.domain.scheduled_transfer.entity.enums.TransferCycle;
 import com.ssafy.boney.domain.scheduled_transfer.entity.enums.TransferWeekday;
+import com.ssafy.boney.domain.user.entity.ParentChild;
 import com.ssafy.boney.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -23,12 +24,13 @@ public class ScheduledTransfer {
     private Integer scheduledTransferId;  // PK
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_id", nullable = false)
-    private Account account;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    // DDL: parent_child_id INT NOT NULL
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_child_id", nullable = false)
+    private ParentChild parentChild;
 
     @Column(name = "transfer_amount", nullable = false)
     private Long transferAmount;
@@ -46,15 +48,6 @@ public class ScheduledTransfer {
 
     @Column(name = "transfer_memo", length = 100)
     private String transferMemo;
-
-    @Column(name = "counterparty_account", nullable = false, length = 60)
-    private String counterpartyAccount;
-
-    @Column(name = "counterparty_bank", nullable = false, length = 50)
-    private String counterpartyBank;
-
-    @Column(name = "counterparty_name", nullable = false, length = 50)
-    private String counterpartyName;
 
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;

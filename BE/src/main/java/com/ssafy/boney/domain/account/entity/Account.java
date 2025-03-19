@@ -22,6 +22,10 @@ public class Account {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "bank_id", nullable = false)
+    private Bank bank;
+
     @Column(name = "account_number", nullable = false, length = 60, unique = true)
     private String accountNumber;
 
@@ -30,9 +34,6 @@ public class Account {
 
     @Column(name = "account_balance", nullable = false)
     private Long accountBalance;
-
-    @Column(name = "bank_name", nullable = false, length = 50)
-    private String bankName;
 
     @Column(name = "created_at", nullable = false, updatable = false,
             columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
