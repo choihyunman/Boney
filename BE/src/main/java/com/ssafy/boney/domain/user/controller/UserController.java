@@ -110,5 +110,11 @@ public class UserController {
         return ResponseEntity.ok(result);
     }
 
+    // 회원 탈퇴 API (카카오 ID 기반)
+    @DeleteMapping("/delete/{kakaoId}")
+    public ResponseEntity<Map<String, Object>> deleteUser(@PathVariable("kakaoId") Long kakaoId) {
+        return userService.deleteUserByKakaoId(kakaoId);
+    }
+
 
 }

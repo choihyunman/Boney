@@ -15,5 +15,8 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     // 카카오 ID로 사용자 검색
     Optional<User> findByKakaoId(Long kakaoId);
 
+    // 카카오 ID를 기반으로 사용자 삭제
+    void deleteByKakaoId(Long kakaoId);
+
 
 }
