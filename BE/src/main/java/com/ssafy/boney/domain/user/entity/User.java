@@ -48,9 +48,6 @@ public class User {
     @Column(name = "user_gender", nullable = false)
     private Gender userGender;
 
-    @Column(name = "send_password", nullable = false, length = 100)
-    private String sendPassword;
-
     @Column(name = "created_at", nullable = false, updatable = false,
             columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt = LocalDateTime.now();
