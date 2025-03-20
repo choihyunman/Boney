@@ -105,9 +105,10 @@ public class UserController {
 
     // 회원 가입 API
     @PostMapping("/signup")
-    public ResponseEntity<String> registerUser(@RequestBody UserSignupRequest request) {
-        String result = userService.registerUser(request);
-        return ResponseEntity.ok(result);
+    public ResponseEntity<Map<String, Object>> registerUser(
+            @RequestHeader("Authorization") String token,
+            @RequestBody UserSignupRequest request) {
+        return userService.registerUser(request);
     }
 
     // 회원 탈퇴 API (카카오 ID 기반)

@@ -22,15 +22,23 @@ public class UserService {
     }
 
     @Transactional
-    public String registerUser(UserSignupRequest request) {
+    public ResponseEntity<Map<String, Object>> registerUser(UserSignupRequest request) {
         // 이메일 중복 체크
         if (userRepository.findByUserEmail(request.getUserEmail()).isPresent()) {
-            return "이미 가입된 이메일입니다.";
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of(
+                            "status", 400,
+                            "message", "이미 존재하는 이메일입니다."
+                    ));
         }
 
         // 카카오 ID 중복 체크
         if (userRepository.findByKakaoId(request.getKakaoId()).isPresent()) {
-            return "이미 가입된 카카오 계정입니다.";
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of(
+                            "status", 400,
+                            "message", "이미 존재하는 카카오 ID입니다."
+                    ));
         }
 
         // 사용자 생성 (Builder 패턴 사용)
@@ -45,8 +53,21 @@ public class UserService {
                 .createdAt(LocalDateTime.now()) // 회원가입 시간 설정
                 .build();
 
-        userRepository.save(newUser);
-        return "회원가입 성공";
+        // 데이터베이스 저장
+        User savedUser = userRepository.save(newUser);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Map.of(
+                        "status", 201,
+                        "message", "회원가입이 완료되었습니다.",
+                        "data", Map.of(
+                                "userId", savedUser.getUserId(),
+                                "userName", savedUser.getUserName(),
+                                "role", savedUser.getRole().toString(),
+                                "userEmail", savedUser.getUserEmail(),
+                                "kakaoId", savedUser.getKakaoId()
+                        )
+                ));
     }
 
     @Transactional
