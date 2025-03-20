@@ -1,5 +1,7 @@
 package com.ssafy.boney.domain.user.controller;
 
+import com.ssafy.boney.domain.user.dto.UserSignupRequest;
+import com.ssafy.boney.domain.user.service.UserService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
@@ -24,6 +26,12 @@ public class UserController {
     private String redirectUri;
 
     private final String tokenUrl = "https://kauth.kakao.com/oauth/token";
+
+    private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     // 로그인 버튼 클릭 -> 카카오 인증 페이지 이동
     @GetMapping("/login/kakao")
@@ -92,6 +100,15 @@ public class UserController {
 
         // 응답 반환 (사용자 정보 포함)
         return ResponseEntity.ok(responseEntity.getBody());
+
     }
+
+    // 회원 가입 API
+    @PostMapping("/signup")
+    public ResponseEntity<String> registerUser(@RequestBody UserSignupRequest request) {
+        String result = userService.registerUser(request);
+        return ResponseEntity.ok(result);
+    }
+
 
 }

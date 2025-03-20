@@ -1,7 +1,6 @@
 package com.ssafy.boney.domain.scheduled_transfer.entity;
 
 import com.google.cloud.storage.transfermanager.TransferStatus;
-import com.ssafy.boney.domain.account.entity.Account;
 import com.ssafy.boney.domain.scheduled_transfer.entity.enums.TransferCycle;
 import com.ssafy.boney.domain.scheduled_transfer.entity.enums.TransferWeekday;
 import com.ssafy.boney.domain.user.entity.ParentChild;
