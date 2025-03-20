@@ -2,8 +2,10 @@ services:
   frontend:
     build: ./FE
     container_name: frontend
-    expose:
-      - "8081"  # Metro Bundler (Expo Dev Server)
+    # expose:
+    #   - "8081"  # Metro Bundler (Expo Dev Server)
+    ports:
+      - "8081:8081"
     volumes:
       - ./FE:/FE
       - /FE/node_modules
@@ -21,9 +23,11 @@ services:
 
   backend:
     build: ./BE
-    container_name: BE
-    expose:
-      - "8080"
+    container_name: backend
+    # expose:
+    #   - "8080"
+    ports:
+      - "8080:8080"
     depends_on:
       mysql:
         condition: service_started
@@ -33,7 +37,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
       TZ: Asia/Seoul
-      JAVA_SECURITY_PROPERTIES:
+      JAVA_SECURITY_PROPERTIES: |
         jdk.internal.reflect.permitAll=true
         jdk.reflect.allowNativeAccess=true
     ulimits:

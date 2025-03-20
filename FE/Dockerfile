@@ -23,4 +23,4 @@ COPY . .
 EXPOSE 8081
 
 # Expo 실행 명령어 수정 (터미널 입력 필요 없도록 `--tunnel` 제거)
-ENTRYPOINT ["sh", "-c", "npx expo start --port 8081"]
+ENTRYPOINT ["sh", "-c", "npx expo start --web --port 8081 --host lan"]
