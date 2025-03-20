@@ -1,9 +1,8 @@
-package com.ssafy.boney.domain.scheduled_transfer.entity;
+package com.ssafy.boney.domain.scheduledTransfer.entity;
 
 import com.google.cloud.storage.transfermanager.TransferStatus;
-import com.ssafy.boney.domain.account.entity.Account;
-import com.ssafy.boney.domain.scheduled_transfer.entity.enums.TransferCycle;
-import com.ssafy.boney.domain.scheduled_transfer.entity.enums.TransferWeekday;
+import com.ssafy.boney.domain.scheduledTransfer.entity.enums.TransferCycle;
+import com.ssafy.boney.domain.scheduledTransfer.entity.enums.TransferWeekday;
 import com.ssafy.boney.domain.user.entity.ParentChild;
 import com.ssafy.boney.domain.user.entity.User;
 import jakarta.persistence.*;
