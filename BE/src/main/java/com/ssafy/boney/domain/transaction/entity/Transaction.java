@@ -43,6 +43,9 @@ public class Transaction {
     @Column(name = "transaction_content", length = 255)
     private String transactionContent; // 거래 내용
 
+    @Column(name = "external_transaction_no", nullable = false)
+    private Integer externalTransactionNo;
+
     @Column(name = "created_at", nullable = false, updatable = false,
             columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
