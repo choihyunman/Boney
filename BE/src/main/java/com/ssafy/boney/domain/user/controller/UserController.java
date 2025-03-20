@@ -1,7 +1,9 @@
 package com.ssafy.boney.domain.user.controller;
 
 import com.ssafy.boney.domain.user.dto.UserSignupRequest;
+import com.ssafy.boney.domain.user.entity.User;
 import com.ssafy.boney.domain.user.service.UserService;
+import com.ssafy.boney.global.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
@@ -11,6 +13,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -29,8 +32,11 @@ public class UserController {
 
     private final UserService userService;
 
-    public UserController(UserService userService) {
+    private final JwtTokenProvider jwtTokenProvider;
+
+    public UserController(UserService userService, JwtTokenProvider jwtTokenProvider) {
         this.userService = userService;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     // 로그인 버튼 클릭 -> 카카오 인증 페이지 이동
@@ -105,9 +111,58 @@ public class UserController {
 
     // 회원 가입 API
     @PostMapping("/signup")
-    public ResponseEntity<String> registerUser(@RequestBody UserSignupRequest request) {
-        String result = userService.registerUser(request);
-        return ResponseEntity.ok(result);
+    public ResponseEntity<Map<String, Object>> registerUser(
+            @RequestHeader(value = "Authorization", required = false) String token, // 🔹 Optional로 변경
+            @RequestBody UserSignupRequest request) {
+        return userService.registerUser(request);
+    }
+
+    // 회원 탈퇴 API (카카오 ID 기반)
+    @DeleteMapping("/delete/{kakaoId}")
+    public ResponseEntity<Map<String, Object>> deleteUser(@PathVariable("kakaoId") Long kakaoId) {
+        return userService.deleteUserByKakaoId(kakaoId);
+    }
+
+    // JWT 토큰 발급 (카카오 ID)
+    @PostMapping("/login/kakao/jwt")
+    public ResponseEntity<Map<String, Object>> generateJwtToken(@RequestBody Map<String, Long> requestBody) {
+        Long kakaoId = requestBody.get("kakao_id");
+
+        if (kakaoId == null) {
+            return ResponseEntity.status(400).body(Map.of(
+                    "status", 400,
+                    "message", "kakao_id가 필요합니다."
+            ));
+        }
+
+        Optional<User> userOpt = userService.findByKakaoId(kakaoId);
+
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(404).body(Map.of(
+                    "status", 404,
+                    "message", "사용자를 찾을 수 없습니다."
+            ));
+        }
+
+        User user = userOpt.get();
+
+        String token = jwtTokenProvider.createToken(Map.of(
+                "user_id", user.getUserId(),
+                "created_at", user.getCreatedAt(),
+                "kakao_id", user.getKakaoId(),
+                "role", user.getRole().toString(),
+                "user_name", user.getUserName(),
+                "user_email", user.getUserEmail(),
+                "user_phone", user.getUserPhone(),
+                "user_gender", user.getUserGender().toString(),
+                "user_birth", user.getUserBirth().toString()
+        ));
+
+        return ResponseEntity.ok(Map.of(
+                "status", 200,
+                "message", "JWT 토큰 발급 완료",
+                "token", token
+        ));
     }
 
 
