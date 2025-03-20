@@ -22,4 +22,9 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
         ORDER BY t.createdAt DESC
     """)
     List<Transaction> findWithHashtags(int year, int month, TransactionType type);
+
+    // 중복 저장 방지를 위한 메서드 (externalTransactionNo는 Transaction 엔티티에 추가되어야 합니다)
+    boolean existsByExternalTransactionNo(String externalTransactionNo);
+
+
 }
