@@ -21,6 +21,10 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
+    public Optional<User> findByKakaoId(Long kakaoId) {
+        return userRepository.findByKakaoId(kakaoId);
+    }
+
     @Transactional
     public ResponseEntity<Map<String, Object>> registerUser(UserSignupRequest request) {
         // 이메일 중복 체크
