@@ -5,9 +5,7 @@ import com.ssafy.boney.domain.fcm.entity.FcmTokens;
 import com.ssafy.boney.domain.user.entity.enums.Role;
 import com.ssafy.boney.domain.user.entity.enums.Gender;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -17,7 +15,10 @@ import java.util.List;
 @Entity
 @Table(name = "user")
 @Getter
+@Setter
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class User {
 
     @Id
