@@ -8,13 +8,14 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "credit_score")
 @Getter
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-
+@AllArgsConstructor
 public class CreditScore {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "creditscore_id")
+    @Column(name = "credit_score_id")
     private Integer creditScoreId;  // PK
 
     @OneToOne(fetch = FetchType.LAZY)
@@ -25,15 +26,8 @@ public class CreditScore {
     private Integer score;
 
     @Column(name = "updated_at", nullable = false,
-            columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+            columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
     private LocalDateTime updatedAt;
-
-    @PrePersist
-    protected void onCreate() {
-        if (score == null) {
-            score = 50;
-        }
-    }
 
 
 }
