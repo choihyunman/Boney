@@ -153,44 +153,58 @@ public class UserController {
 
     // JWT 토큰 발급 (카카오 ID)
     @PostMapping("/login/kakao/jwt")
-    public ResponseEntity<Map<String, Object>> generateJwtToken(@RequestBody Map<String, Long> requestBody) {
-        Long kakaoId = requestBody.get("kakao_id");
+    public ResponseEntity<Map<String, Object>> generateJwtToken(@RequestBody Map<String, Object> requestBody) {
+        try {
+            if (!requestBody.containsKey("kakao_id")) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                        "status", 400,
+                        "message", "요청 값이 잘못되었습니다."
+                ));
+            }
 
-        if (kakaoId == null) {
-            return ResponseEntity.status(400).body(Map.of(
+            Object kakaoIdObj = requestBody.get("kakao_id");
+            if (!(kakaoIdObj instanceof Number)) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                        "status", 400,
+                        "message", "요청 값이 잘못되었습니다."
+                ));
+            }
+
+            Long kakaoId = ((Number) kakaoIdObj).longValue();
+
+            Optional<User> userOpt = userService.findByKakaoId(kakaoId);
+            if (userOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                        "status", 404,
+                        "message", "해당 사용자를 찾을 수 없습니다."
+                ));
+            }
+
+            User user = userOpt.get();
+
+            String token = jwtTokenProvider.createToken(Map.of(
+                    "user_id", user.getUserId(),
+                    "created_at", user.getCreatedAt(),
+                    "kakao_id", user.getKakaoId(),
+                    "role", user.getRole().toString(),
+                    "user_name", user.getUserName(),
+                    "user_email", user.getUserEmail(),
+                    "user_phone", user.getUserPhone(),
+                    "user_gender", user.getUserGender().toString(),
+                    "user_birth", user.getUserBirth().toString()
+            ));
+
+            return ResponseEntity.ok(Map.of(
+                    "status", 200,
+                    "message", "JWT 토큰 발급 완료",
+                    "token", token
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
                     "status", 400,
-                    "message", "kakao_id가 필요합니다."
+                    "message", "요청 값이 잘못되었습니다."
             ));
         }
-
-        Optional<User> userOpt = userService.findByKakaoId(kakaoId);
-
-        if (userOpt.isEmpty()) {
-            return ResponseEntity.status(404).body(Map.of(
-                    "status", 404,
-                    "message", "사용자를 찾을 수 없습니다."
-            ));
-        }
-
-        User user = userOpt.get();
-
-        String token = jwtTokenProvider.createToken(Map.of(
-                "user_id", user.getUserId(),
-                "created_at", user.getCreatedAt(),
-                "kakao_id", user.getKakaoId(),
-                "role", user.getRole().toString(),
-                "user_name", user.getUserName(),
-                "user_email", user.getUserEmail(),
-                "user_phone", user.getUserPhone(),
-                "user_gender", user.getUserGender().toString(),
-                "user_birth", user.getUserBirth().toString()
-        ));
-
-        return ResponseEntity.ok(Map.of(
-                "status", 200,
-                "message", "JWT 토큰 발급 완료",
-                "token", token
-        ));
     }
 
     // 로그아웃
