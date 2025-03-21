@@ -165,5 +165,34 @@ public class UserController {
         ));
     }
 
+    // 로그아웃
+    @PostMapping("/logout")
+    public ResponseEntity<Map<String, Object>> logout(
+            @RequestHeader(value = "Authorization", required = false) String token) {
+
+        if (token == null || !token.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of(
+                            "status", 403,
+                            "message", "이미 로그아웃된 사용자입니다."
+                    ));
+        }
+
+        String jwt = token.substring(7);
+
+        if (!jwtTokenProvider.validateToken(jwt)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of(
+                            "status", 403,
+                            "message", "이미 로그아웃된 사용자입니다."
+                    ));
+        }
+
+        return ResponseEntity.ok(Map.of(
+                "status", 200,
+                "message", "로그아웃이 완료됐습니다."
+        ));
+    }
+
 
 }
