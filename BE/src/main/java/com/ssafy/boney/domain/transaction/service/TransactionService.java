@@ -1,13 +1,13 @@
 package com.ssafy.boney.domain.transaction.service;
 
 import com.ssafy.boney.domain.account.entity.Account;
-import com.ssafy.boney.domain.account.entity.repository.AccountRepository;
+import com.ssafy.boney.domain.account.repository.AccountRepository;
 import com.ssafy.boney.domain.transaction.dto.TransactionResponseDto;
 import com.ssafy.boney.domain.transaction.entity.Transaction;
 import com.ssafy.boney.domain.transaction.entity.TransactionCategory;
 import com.ssafy.boney.domain.transaction.entity.enums.TransactionType;
-import com.ssafy.boney.domain.transaction.entity.repository.TransactionCategoryRepository;
-import com.ssafy.boney.domain.transaction.entity.repository.TransactionRepository;
+import com.ssafy.boney.domain.transaction.repository.TransactionCategoryRepository;
+import com.ssafy.boney.domain.transaction.repository.TransactionRepository;
 import com.ssafy.boney.domain.transaction.exception.ResourceNotFoundException;
 import com.ssafy.boney.domain.user.entity.User;
 import jakarta.transaction.Transactional;
