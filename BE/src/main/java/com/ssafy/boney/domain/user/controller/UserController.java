@@ -9,6 +9,7 @@ import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
@@ -61,7 +62,7 @@ public class UserController {
 
     // 카카오 로그인 토큰 발급
     @PostMapping("/login/kakao/token")
-    public ResponseEntity<Map> getToken(@RequestParam("code") String code) {
+    public ResponseEntity<Map<String, Object>> getToken(@RequestParam("code") String code) {
         RestTemplate restTemplate = new RestTemplate();
 
         // 요청 파라미터 설정
@@ -79,18 +80,29 @@ public class UserController {
         // HTTP 요청 엔터티 생성
         HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(params, headers);
 
-        // 카카오 API 요청 (토큰 발급)
-        ResponseEntity<Map> responseEntity = restTemplate.exchange(
-                tokenUrl, HttpMethod.POST, requestEntity, Map.class
-        );
+        try {
+            ResponseEntity<Map> responseEntity = restTemplate.exchange(
+                    tokenUrl, HttpMethod.POST, requestEntity, Map.class
+            );
 
-        // 응답 반환 (Access Token 포함)
-        return ResponseEntity.ok(responseEntity.getBody());
+            Map<String, Object> body = responseEntity.getBody();
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
+                    "status", 201,
+                    "message", "카카오 엑세스 토큰이 발급되었습니다.",
+                    "data", body
+            ));
+        } catch (RestClientException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                    "status", 401,
+                    "message", "유효하지 않은 카카오 코드입니다."
+            ));
+        }
     }
 
     // 카카오 사용자 정보 조회
     @PostMapping("/login/kakao/user")
-    public ResponseEntity<Map> getUserInfo(@RequestParam("access_token") String accessToken) {
+    public ResponseEntity<Map<String, Object>> getUserInfo(@RequestParam("access_token") String accessToken) {
         RestTemplate restTemplate = new RestTemplate();
         String userInfoUrl = "https://kapi.kakao.com/v2/user/me";
 
@@ -101,14 +113,30 @@ public class UserController {
 
         HttpEntity<String> requestEntity = new HttpEntity<>(headers);
 
-        // 카카오 API 요청 (사용자 정보 가져오기)
-        ResponseEntity<Map> responseEntity = restTemplate.exchange(userInfoUrl, HttpMethod.GET, requestEntity, Map.class);
+        try {
+            ResponseEntity<Map> responseEntity = restTemplate.exchange(userInfoUrl, HttpMethod.GET, requestEntity, Map.class);
+            Map<String, Object> kakaoUser = responseEntity.getBody();
 
-        // 응답 반환 (사용자 정보 포함)
-        return ResponseEntity.ok(responseEntity.getBody());
+            if (kakaoUser == null || !kakaoUser.containsKey("id")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                        "status", 404,
+                        "message", "카카오 사용자 정보를 찾을 수 없습니다."
+                ));
+            }
 
+            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
+                    "status", 201,
+                    "message", "카카오 사용자의 정보가 조회되었습니다.",
+                    "data", kakaoUser
+            ));
+        } catch (RestClientException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                    "status", 401,
+                    "message", "유효하지 않은 액세스 토큰입니다."
+            ));
+        }
     }
-
+    
     // 회원 가입 API
     @PostMapping("/signup")
     public ResponseEntity<Map<String, Object>> registerUser(
@@ -125,43 +153,86 @@ public class UserController {
 
     // JWT 토큰 발급 (카카오 ID)
     @PostMapping("/login/kakao/jwt")
-    public ResponseEntity<Map<String, Object>> generateJwtToken(@RequestBody Map<String, Long> requestBody) {
-        Long kakaoId = requestBody.get("kakao_id");
+    public ResponseEntity<Map<String, Object>> generateJwtToken(@RequestBody Map<String, Object> requestBody) {
+        try {
+            if (!requestBody.containsKey("kakao_id")) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                        "status", 400,
+                        "message", "요청 값이 잘못되었습니다."
+                ));
+            }
 
-        if (kakaoId == null) {
-            return ResponseEntity.status(400).body(Map.of(
+            Object kakaoIdObj = requestBody.get("kakao_id");
+            if (!(kakaoIdObj instanceof Number)) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                        "status", 400,
+                        "message", "요청 값이 잘못되었습니다."
+                ));
+            }
+
+            Long kakaoId = ((Number) kakaoIdObj).longValue();
+
+            Optional<User> userOpt = userService.findByKakaoId(kakaoId);
+            if (userOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                        "status", 404,
+                        "message", "해당 사용자를 찾을 수 없습니다."
+                ));
+            }
+
+            User user = userOpt.get();
+
+            String token = jwtTokenProvider.createToken(Map.of(
+                    "user_id", user.getUserId(),
+                    "created_at", user.getCreatedAt(),
+                    "kakao_id", user.getKakaoId(),
+                    "role", user.getRole().toString(),
+                    "user_name", user.getUserName(),
+                    "user_email", user.getUserEmail(),
+                    "user_phone", user.getUserPhone(),
+                    "user_gender", user.getUserGender().toString(),
+                    "user_birth", user.getUserBirth().toString()
+            ));
+
+            return ResponseEntity.ok(Map.of(
+                    "status", 200,
+                    "message", "JWT 토큰 발급 완료",
+                    "token", token
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
                     "status", 400,
-                    "message", "kakao_id가 필요합니다."
+                    "message", "요청 값이 잘못되었습니다."
             ));
         }
+    }
 
-        Optional<User> userOpt = userService.findByKakaoId(kakaoId);
+    // 로그아웃
+    @PostMapping("/logout")
+    public ResponseEntity<Map<String, Object>> logout(
+            @RequestHeader(value = "Authorization", required = false) String token) {
 
-        if (userOpt.isEmpty()) {
-            return ResponseEntity.status(404).body(Map.of(
-                    "status", 404,
-                    "message", "사용자를 찾을 수 없습니다."
-            ));
+        if (token == null || !token.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of(
+                            "status", 403,
+                            "message", "이미 로그아웃된 사용자입니다."
+                    ));
         }
 
-        User user = userOpt.get();
+        String jwt = token.substring(7);
 
-        String token = jwtTokenProvider.createToken(Map.of(
-                "user_id", user.getUserId(),
-                "created_at", user.getCreatedAt(),
-                "kakao_id", user.getKakaoId(),
-                "role", user.getRole().toString(),
-                "user_name", user.getUserName(),
-                "user_email", user.getUserEmail(),
-                "user_phone", user.getUserPhone(),
-                "user_gender", user.getUserGender().toString(),
-                "user_birth", user.getUserBirth().toString()
-        ));
+        if (!jwtTokenProvider.validateToken(jwt)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of(
+                            "status", 403,
+                            "message", "이미 로그아웃된 사용자입니다."
+                    ));
+        }
 
         return ResponseEntity.ok(Map.of(
                 "status", 200,
-                "message", "JWT 토큰 발급 완료",
-                "token", token
+                "message", "로그아웃이 완료됐습니다."
         ));
     }
 
