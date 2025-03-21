@@ -7,6 +7,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "transaction")
@@ -47,4 +49,30 @@ public class Transaction {
     @Column(name = "created_at", nullable = false, updatable = false,
             columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
+
+    @OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TransactionHashtag> transactionHashtags = new ArrayList<>();
+
+    // 정적 팩토리 메서드
+    public static Transaction createTransaction(Integer externalTransactionNo,
+                                                Long transactionAmount,
+                                                String transactionContent,
+                                                LocalDateTime createdAt,
+                                                TransactionType transactionType,
+                                                Account account,
+                                                User user,
+                                                TransactionCategory transactionCategory) {
+        Transaction transaction = new Transaction();
+        transaction.externalTransactionNo = externalTransactionNo;
+        transaction.transactionAmount = transactionAmount;
+        transaction.transactionContent = transactionContent;
+        transaction.createdAt = createdAt;
+        transaction.transactionType = transactionType;
+        transaction.account = account;
+        transaction.user = user;
+        transaction.transactionCategory = transactionCategory;
+
+        return transaction;
+    }
+
 }
