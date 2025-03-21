@@ -9,6 +9,7 @@ import com.ssafy.boney.domain.transaction.entity.enums.TransactionType;
 import com.ssafy.boney.domain.transaction.entity.repository.TransactionCategoryRepository;
 import com.ssafy.boney.domain.transaction.entity.repository.TransactionRepository;
 import com.ssafy.boney.domain.transaction.exception.ResourceNotFoundException;
+import com.ssafy.boney.domain.user.entity.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -77,10 +78,10 @@ public class TransactionService {
     /**
      * 연도, 월, 타입으로 거래내역 조회
      */
-    public List<TransactionResponseDto> getTransactions(int year, int month, String typeStr) {
+    public List<TransactionResponseDto> getTransactions(int year, int month, String typeStr, User user) {
         TransactionType type = "all".equalsIgnoreCase(typeStr) ? null : TransactionType.valueOf(typeStr.toUpperCase());
 
-        List<Transaction> transactions = transactionRepository.findWithHashtags(year, month, type);
+        List<Transaction> transactions = transactionRepository.findWithHashtags(year, month, type, user.getUserId());
         if (transactions.isEmpty())
             throw new ResourceNotFoundException("조회할 거래 내역이 없습니다.");
 

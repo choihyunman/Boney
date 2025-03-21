@@ -41,7 +41,8 @@ public class ExternalApiService {
                 "accountNo", accountNo,
                 "startDate", startDate,
                 "endDate", endDate,
-                "transactionType", "A"
+                "transactionType", "A",
+                "orderByType","ASC"
         );
 
         HttpHeaders headers = new HttpHeaders();
