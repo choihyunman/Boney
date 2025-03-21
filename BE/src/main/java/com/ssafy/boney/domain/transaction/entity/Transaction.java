@@ -53,4 +53,26 @@ public class Transaction {
     @OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TransactionHashtag> transactionHashtags = new ArrayList<>();
 
+    // 정적 팩토리 메서드
+    public static Transaction createTransaction(Integer externalTransactionNo,
+                                                Long transactionAmount,
+                                                String transactionContent,
+                                                LocalDateTime createdAt,
+                                                TransactionType transactionType,
+                                                Account account,
+                                                User user,
+                                                TransactionCategory transactionCategory) {
+        Transaction transaction = new Transaction();
+        transaction.externalTransactionNo = externalTransactionNo;
+        transaction.transactionAmount = transactionAmount;
+        transaction.transactionContent = transactionContent;
+        transaction.createdAt = createdAt;
+        transaction.transactionType = transactionType;
+        transaction.account = account;
+        transaction.user = user;
+        transaction.transactionCategory = transactionCategory;
+
+        return transaction;
+    }
+
 }

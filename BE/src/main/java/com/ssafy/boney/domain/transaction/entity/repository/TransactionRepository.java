@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Integer> {
@@ -23,8 +24,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
     """)
     List<Transaction> findWithHashtags(int year, int month, TransactionType type);
 
-    // 중복 저장 방지를 위한 메서드 (externalTransactionNo는 Transaction 엔티티에 추가되어야 합니다)
-    boolean existsByExternalTransactionNo(String externalTransactionNo);
+    // 외부 거래번호(externalTransactionNo)가 이미 있는지 체크 (중복 방지)
+    Optional<Transaction> findByExternalTransactionNo(Integer externalTransactionNo);
 
 
 }
