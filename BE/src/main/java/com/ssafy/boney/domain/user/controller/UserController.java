@@ -9,6 +9,7 @@ import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
@@ -61,7 +62,7 @@ public class UserController {
 
     // 카카오 로그인 토큰 발급
     @PostMapping("/login/kakao/token")
-    public ResponseEntity<Map> getToken(@RequestParam("code") String code) {
+    public ResponseEntity<Map<String, Object>> getToken(@RequestParam("code") String code) {
         RestTemplate restTemplate = new RestTemplate();
 
         // 요청 파라미터 설정
@@ -79,13 +80,24 @@ public class UserController {
         // HTTP 요청 엔터티 생성
         HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(params, headers);
 
-        // 카카오 API 요청 (토큰 발급)
-        ResponseEntity<Map> responseEntity = restTemplate.exchange(
-                tokenUrl, HttpMethod.POST, requestEntity, Map.class
-        );
+        try {
+            ResponseEntity<Map> responseEntity = restTemplate.exchange(
+                    tokenUrl, HttpMethod.POST, requestEntity, Map.class
+            );
 
-        // 응답 반환 (Access Token 포함)
-        return ResponseEntity.ok(responseEntity.getBody());
+            Map<String, Object> body = responseEntity.getBody();
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
+                    "status", 201,
+                    "message", "카카오 엑세스 토큰이 발급되었습니다.",
+                    "data", body
+            ));
+        } catch (RestClientException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                    "status", 401,
+                    "message", "유효하지 않은 카카오 코드입니다."
+            ));
+        }
     }
 
     // 카카오 사용자 정보 조회
