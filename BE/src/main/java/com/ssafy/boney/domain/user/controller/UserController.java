@@ -102,7 +102,7 @@ public class UserController {
 
     // 카카오 사용자 정보 조회
     @PostMapping("/login/kakao/user")
-    public ResponseEntity<Map> getUserInfo(@RequestParam("access_token") String accessToken) {
+    public ResponseEntity<Map<String, Object>> getUserInfo(@RequestParam("access_token") String accessToken) {
         RestTemplate restTemplate = new RestTemplate();
         String userInfoUrl = "https://kapi.kakao.com/v2/user/me";
 
@@ -113,14 +113,30 @@ public class UserController {
 
         HttpEntity<String> requestEntity = new HttpEntity<>(headers);
 
-        // 카카오 API 요청 (사용자 정보 가져오기)
-        ResponseEntity<Map> responseEntity = restTemplate.exchange(userInfoUrl, HttpMethod.GET, requestEntity, Map.class);
+        try {
+            ResponseEntity<Map> responseEntity = restTemplate.exchange(userInfoUrl, HttpMethod.GET, requestEntity, Map.class);
+            Map<String, Object> kakaoUser = responseEntity.getBody();
 
-        // 응답 반환 (사용자 정보 포함)
-        return ResponseEntity.ok(responseEntity.getBody());
+            if (kakaoUser == null || !kakaoUser.containsKey("id")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                        "status", 404,
+                        "message", "카카오 사용자 정보를 찾을 수 없습니다."
+                ));
+            }
 
+            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
+                    "status", 201,
+                    "message", "카카오 사용자의 정보가 조회되었습니다.",
+                    "data", kakaoUser
+            ));
+        } catch (RestClientException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                    "status", 401,
+                    "message", "유효하지 않은 액세스 토큰입니다."
+            ));
+        }
     }
-
+    
     // 회원 가입 API
     @PostMapping("/signup")
     public ResponseEntity<Map<String, Object>> registerUser(
