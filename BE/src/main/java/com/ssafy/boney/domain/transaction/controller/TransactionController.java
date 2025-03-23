@@ -1,7 +1,7 @@
 package com.ssafy.boney.domain.transaction.controller;
 
 import com.ssafy.boney.domain.account.entity.Account;
-import com.ssafy.boney.domain.account.entity.repository.AccountRepository;
+import com.ssafy.boney.domain.account.repository.AccountRepository;
 import com.ssafy.boney.domain.transaction.dto.TransactionResponseDto;
 import com.ssafy.boney.domain.transaction.exception.ResourceNotFoundException;
 import com.ssafy.boney.domain.transaction.service.TransactionService;

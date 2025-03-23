@@ -1,12 +1,14 @@
 package com.ssafy.boney.domain.user.service;
 
 import com.ssafy.boney.domain.user.dto.UserSignupRequest;
+import com.ssafy.boney.domain.user.entity.CreditScore;
 import com.ssafy.boney.domain.user.entity.User;
 import com.ssafy.boney.domain.user.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.ssafy.boney.domain.user.entity.enums.Role;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -57,7 +59,16 @@ public class UserService {
                 .createdAt(LocalDateTime.now()) // 회원가입 시간 설정
                 .build();
 
-        // 데이터베이스 저장
+        // 사용자가 CHILD일 경우, CreditScore Entity에 데이터 추가
+        if (newUser.getRole() == Role.CHILD) {
+            CreditScore creditScore = CreditScore.builder()
+                    .user(newUser)
+                    .score(50)
+                    .updatedAt(LocalDateTime.now())
+                    .build();
+            newUser.setCreditScore(creditScore);
+        }
+
         User savedUser = userRepository.save(newUser);
 
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -92,6 +103,7 @@ public class UserService {
                         "status", 200,
                         "message", "회원탈퇴를 완료했습니다."
                 ));
-    }
 
+
+    }
 }

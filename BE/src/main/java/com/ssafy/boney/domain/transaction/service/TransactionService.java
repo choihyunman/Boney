@@ -1,7 +1,7 @@
 package com.ssafy.boney.domain.transaction.service;
 
 import com.ssafy.boney.domain.account.entity.Account;
-import com.ssafy.boney.domain.account.entity.repository.AccountRepository;
+import com.ssafy.boney.domain.account.repository.AccountRepository;
 import com.ssafy.boney.domain.transaction.dto.TransactionResponseDto;
 import com.ssafy.boney.domain.transaction.entity.Transaction;
 import com.ssafy.boney.domain.transaction.entity.TransactionCategory;
@@ -34,14 +34,17 @@ public class TransactionService {
     private final TransactionCategoryRepository transactionCategoryRepository;
     private final TransactionContentRepository transactionContentRepository;
 
+    /**
+     * 외부 API와 데이터를 동기화하고, 트랜잭션 데이터를 DB에 저장
+     */
     public void syncExternalTransactions(String accountNo, int year, int month) {
-        // 1) 날짜 범위 설정
+        // 요청 날짜 범위 생성 (월의 시작일~말일)
         String startDate = String.format("%04d%02d01", year, month);
         String endDate = LocalDate.of(year, month, 1)
                 .withDayOfMonth(LocalDate.of(year, month, 1).lengthOfMonth())
                 .format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 
-        // 2) 외부 API 호출
+        // 외부 API 데이터 호출
         Map<String, Object> externalData = externalApiService.getExternalTransactionHistory(accountNo, startDate, endDate);
         Map<String, Object> rec = (Map<String, Object>) externalData.get("REC");
         List<Map<String, String>> transactions = (List<Map<String, String>>) rec.get("list");
@@ -107,6 +110,9 @@ public class TransactionService {
         }
     }
 
+    /**
+     * 연도, 월, 타입으로 거래내역 조회
+     */
     public List<TransactionResponseDto> getTransactions(int year, int month, String typeStr, User user) {
         TransactionType type = "all".equalsIgnoreCase(typeStr)
                 ? null
