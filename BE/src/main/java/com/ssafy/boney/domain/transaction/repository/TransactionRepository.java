@@ -1,4 +1,4 @@
-package com.ssafy.boney.domain.transaction.entity.repository;
+package com.ssafy.boney.domain.transaction.repository;
 import com.ssafy.boney.domain.transaction.entity.Transaction;
 import com.ssafy.boney.domain.transaction.entity.enums.TransactionType;
 import org.springframework.data.jpa.repository.JpaRepository;
