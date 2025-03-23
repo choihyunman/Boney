@@ -30,6 +30,10 @@ public class Transaction {
     private User user; // 거래한 사용자
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "transaction_content_id", nullable = false)
+    private TransactionContent transactionContent;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "transaction_category_id", nullable = false)
     private TransactionCategory transactionCategory; // 거래 카테고리
 
@@ -40,8 +44,8 @@ public class Transaction {
     @Column(name = "transaction_amount", nullable = false)
     private Long transactionAmount; // 거래 금액
 
-    @Column(name = "transaction_content", length = 255)
-    private String transactionContent; // 거래 내용
+    @Column(name = "transaction_after_balance")
+    private Long transactionAfterBalance;
 
     @Column(name = "external_transaction_no", nullable = false)
     private Integer externalTransactionNo;
@@ -53,25 +57,27 @@ public class Transaction {
     @OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TransactionHashtag> transactionHashtags = new ArrayList<>();
 
-    // 정적 팩토리 메서드
-    public static Transaction createTransaction(Integer externalTransactionNo,
-                                                Long transactionAmount,
-                                                String transactionContent,
-                                                LocalDateTime createdAt,
-                                                TransactionType transactionType,
-                                                Account account,
-                                                User user,
-                                                TransactionCategory transactionCategory) {
+    public static Transaction createTransaction(
+            Integer externalTransactionNo,
+            Long transactionAmount,
+            Long transactionAfterBalance,
+            LocalDateTime createdAt,
+            TransactionType transactionType,
+            Account account,
+            User user,
+            TransactionContent transactionContent,
+            TransactionCategory transactionCategory
+    ) {
         Transaction transaction = new Transaction();
         transaction.externalTransactionNo = externalTransactionNo;
         transaction.transactionAmount = transactionAmount;
-        transaction.transactionContent = transactionContent;
+        transaction.transactionAfterBalance = transactionAfterBalance;
         transaction.createdAt = createdAt;
         transaction.transactionType = transactionType;
         transaction.account = account;
         transaction.user = user;
-        transaction.transactionCategory = transactionCategory;
-
+        transaction.transactionContent = transactionContent;   // 가맹점/입출금 유형
+        transaction.transactionCategory = transactionCategory; // 매핑된 카테고리
         return transaction;
     }
 

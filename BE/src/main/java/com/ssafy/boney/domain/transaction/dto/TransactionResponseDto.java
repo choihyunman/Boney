@@ -19,4 +19,5 @@ public class TransactionResponseDto {
     private String transactionType;
     private String transactionCategoryName;
     private List<String> hashtags;
+    private Long transactionAfterBalance;
 }
