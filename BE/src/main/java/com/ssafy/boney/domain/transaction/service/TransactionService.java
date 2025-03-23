@@ -125,7 +125,7 @@ public class TransactionService {
 
         return transactions.stream()
                 .map(t -> new TransactionResponseDto(
-                        t.getTransactionId().longValue(),
+                        t.getTransactionId(),
                         t.getCreatedAt(),
                         // 가맹점명 or 기타
                         t.getTransactionContent().getContentName(),
@@ -138,5 +138,25 @@ public class TransactionService {
                         t.getTransactionAfterBalance()
                 ))
                 .collect(Collectors.toList());
+    }
+
+    public TransactionResponseDto getTransactionDetail(Integer transactionId, User user) {
+        // userId(로그인 유저)의 거래내역 중 transactionId가 맞는 것만 조회
+        Transaction transaction = transactionRepository
+                .findByTransactionIdAndUser_UserId(transactionId, user.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("해당 거래 내역을 찾을 수 없습니다."));
+
+        return new TransactionResponseDto(
+                transaction.getTransactionId(),
+                transaction.getCreatedAt(),
+                transaction.getTransactionContent().getContentName(),
+                transaction.getTransactionAmount(),
+                transaction.getTransactionType().name(),
+                transaction.getTransactionCategory().getTransactionCategoryName(),
+                transaction.getTransactionHashtags().stream()
+                        .map(th -> th.getHashtag().getName())
+                        .collect(Collectors.toList()),
+                transaction.getTransactionAfterBalance()
+        );
     }
 }

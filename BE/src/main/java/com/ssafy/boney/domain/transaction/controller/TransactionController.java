@@ -52,4 +52,24 @@ public class TransactionController {
                 "data", data
         ));
     }
+
+    // ★ 추가: 단일 거래 상세 조회
+    @GetMapping("{transactionId}")
+    public ResponseEntity<?> getTransactionDetail(
+            @PathVariable Integer transactionId,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        // 로그인 사용자 정보 확인
+        String userEmail = userDetails.getUsername();
+        User user = userRepository.findByUserEmail(userEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("사용자를 찾을 수 없습니다."));
+
+        // Service 호출
+        TransactionResponseDto detailDto = transactionService.getTransactionDetail(transactionId, user);
+
+        return ResponseEntity.ok(Map.of(
+                "status", "200",
+                "data", detailDto
+        ));
+    }
 }
