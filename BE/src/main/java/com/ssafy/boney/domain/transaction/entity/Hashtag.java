@@ -21,5 +21,9 @@ public class Hashtag {
 
     @Column(name = "created_at", nullable = false, updatable = false,
             columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt = LocalDateTime.now();;
+
+    public Hashtag(String name) {
+        this.name = name;
+    }
 }

@@ -2,6 +2,8 @@ package com.ssafy.boney.domain.transaction.controller;
 
 import com.ssafy.boney.domain.account.entity.Account;
 import com.ssafy.boney.domain.account.repository.AccountRepository;
+import com.ssafy.boney.domain.transaction.dto.CategoryUpdateRequest;
+import com.ssafy.boney.domain.transaction.dto.HashtagUpdateRequest;
 import com.ssafy.boney.domain.transaction.dto.TransactionResponseDto;
 import com.ssafy.boney.domain.transaction.exception.ResourceNotFoundException;
 import com.ssafy.boney.domain.transaction.service.TransactionService;
@@ -53,7 +55,7 @@ public class TransactionController {
         ));
     }
 
-    // ★ 추가: 단일 거래 상세 조회
+    // 단일 거래 상세 조회
     @GetMapping("{transactionId}")
     public ResponseEntity<?> getTransactionDetail(
             @PathVariable Integer transactionId,
@@ -70,6 +72,43 @@ public class TransactionController {
         return ResponseEntity.ok(Map.of(
                 "status", "200",
                 "data", detailDto
+        ));
+    }
+
+    // 카테고리 수정
+    @PatchMapping("/{transactionId}/category")
+    public ResponseEntity<?> updateTransactionCategory(
+            @PathVariable Integer transactionId,
+            @RequestBody CategoryUpdateRequest dto,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        // 로그인 사용자 식별
+        String userEmail = userDetails.getUsername();
+
+        // Service 로직 호출
+        transactionService.updateTransactionCategory(transactionId, userEmail, dto.getTransactionCategoryId());
+
+        // 보통 성공 시 갱신된 내용 조회 후 반환하는 경우가 많음
+        return ResponseEntity.ok(Map.of(
+                "status", "200",
+                "message", "카테고리 수정 완료"
+        ));
+    }
+
+    // 해시태그 수정
+    @PatchMapping("/{transactionId}/hashtags")
+    public ResponseEntity<?> updateTransactionHashtags(
+            @PathVariable Integer transactionId,
+            @RequestBody HashtagUpdateRequest dto,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        String userEmail = userDetails.getUsername();
+
+        transactionService.updateTransactionHashtags(transactionId, userEmail, dto.getHashtags());
+
+        return ResponseEntity.ok(Map.of(
+                "status", "200",
+                "message", "해시태그 수정 완료"
         ));
     }
 }

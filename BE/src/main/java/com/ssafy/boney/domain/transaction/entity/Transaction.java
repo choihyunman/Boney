@@ -81,4 +81,7 @@ public class Transaction {
         return transaction;
     }
 
+    public void updateCategory(TransactionCategory newCategory) {
+        this.transactionCategory = newCategory;
+    }
 }

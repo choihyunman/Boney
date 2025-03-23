@@ -3,15 +3,12 @@ package com.ssafy.boney.domain.transaction.service;
 import com.ssafy.boney.domain.account.entity.Account;
 import com.ssafy.boney.domain.account.repository.AccountRepository;
 import com.ssafy.boney.domain.transaction.dto.TransactionResponseDto;
-import com.ssafy.boney.domain.transaction.entity.Transaction;
-import com.ssafy.boney.domain.transaction.entity.TransactionCategory;
-import com.ssafy.boney.domain.transaction.entity.TransactionContent;
+import com.ssafy.boney.domain.transaction.entity.*;
 import com.ssafy.boney.domain.transaction.entity.enums.TransactionType;
-import com.ssafy.boney.domain.transaction.repository.TransactionCategoryRepository;
-import com.ssafy.boney.domain.transaction.repository.TransactionContentRepository;
-import com.ssafy.boney.domain.transaction.repository.TransactionRepository;
+import com.ssafy.boney.domain.transaction.repository.*;
 import com.ssafy.boney.domain.transaction.exception.ResourceNotFoundException;
 import com.ssafy.boney.domain.user.entity.User;
+import com.ssafy.boney.domain.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -33,6 +30,9 @@ public class TransactionService {
     private final AccountRepository accountRepository;
     private final TransactionCategoryRepository transactionCategoryRepository;
     private final TransactionContentRepository transactionContentRepository;
+    private final UserRepository userRepository;
+    private final HashtagRepository hashtagRepository;
+    private final TransactionHashtagRepository transactionHashtagRepository;
 
     /**
      * 외부 API와 데이터를 동기화하고, 트랜잭션 데이터를 DB에 저장
@@ -158,5 +158,59 @@ public class TransactionService {
                         .collect(Collectors.toList()),
                 transaction.getTransactionAfterBalance()
         );
+    }
+
+    public void updateTransactionCategory(Integer transactionId, String userEmail, Integer categoryId) {
+        // 1) 유저 조회 (또는 SecurityContext 로부터 userId 직접 얻을 수도 있음)
+        User user = userRepository.findByUserEmail(userEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("사용자를 찾을 수 없습니다."));
+
+        // 2) 해당 거래가 user의 소유인지 확인
+        Transaction transaction = transactionRepository
+                .findByTransactionIdAndUser_UserId(transactionId, user.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("거래내역을 찾을 수 없습니다."));
+
+        // 3) 새 카테고리 찾기
+        TransactionCategory newCategory = transactionCategoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("해당 카테고리를 찾을 수 없습니다."));
+
+        // 4) 수정
+        transaction.updateCategory(newCategory);
+        // @Transactional이므로 flush 시점에 DB에 반영
+    }
+
+    public void updateTransactionHashtags(Integer transactionId, String userEmail, List<String> newHashtags) {
+        User user = userRepository.findByUserEmail(userEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("사용자를 찾을 수 없습니다."));
+
+        Transaction transaction = transactionRepository
+                .findByTransactionIdAndUser_UserId(transactionId, user.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("거래내역을 찾을 수 없습니다."));
+
+        // 해시태그는 최대 3개 예시
+        if (newHashtags.size() > 3) {
+            throw new IllegalArgumentException("최대 3개의 해시태그만 가능합니다.");
+        }
+
+        // 1) 기존 해시태그 관계 삭제 or 업데이트
+        // 완전히 교체 로직이라면, 기존 TransactionHashtag를 전부 삭제 후 새로 추가
+        transactionHashtagRepository.deleteAllByTransaction(transaction);
+
+        // 2) 새로운 해시태그 엔티티 찾거나 생성 후 TransactionHashtag로 연결
+        for (String tagName : newHashtags) {
+            // '#' 문자를 떼어내거나, 프로젝트 정책에 맞게 처리
+            String cleanName = tagName.startsWith("#") ? tagName.substring(1) : tagName;
+
+            Hashtag hashtag = hashtagRepository.findByName(cleanName)
+                    .orElseGet(() -> {
+                        // 없으면 새로 만듦
+                        Hashtag h = new Hashtag(cleanName);
+                        return hashtagRepository.save(h);
+                    });
+
+            // TransactionHashtag 연결
+            TransactionHashtag newRelation = new TransactionHashtag(transaction, hashtag);
+            transactionHashtagRepository.save(newRelation);
+        }
     }
 }
