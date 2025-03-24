@@ -39,9 +39,16 @@ dependencies {
 	// 알림
 	implementation 'com.google.firebase:firebase-admin:9.4.3'
 
+	// 계좌 관리 - 실시간 비동기 처리
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'com.mysql:mysql-connector-j'
+
+	// macOS 전용 네이티브 DNS 리졸버 - ARM 맥북일 경우
+	runtimeOnly 'io.netty:netty-resolver-dns-native-macos:4.1.118.Final:osx-aarch_64'
+
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
