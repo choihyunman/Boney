@@ -1,4 +1,4 @@
-package com.ssafy.boney.domain.transaction.entity.repository;
+package com.ssafy.boney.domain.transaction.repository;
 import com.ssafy.boney.domain.transaction.entity.Transaction;
 import com.ssafy.boney.domain.transaction.entity.enums.TransactionType;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -26,6 +26,5 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
 
     // 외부 거래번호(externalTransactionNo)가 이미 있는지 체크 (중복 방지)
     Optional<Transaction> findByExternalTransactionNo(Integer externalTransactionNo);
-
-
+    Optional<Transaction> findByTransactionIdAndUser_UserId(Integer transactionId, Integer userId);
 }

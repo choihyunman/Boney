@@ -21,4 +21,9 @@ public class TransactionHashtag {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "hashtag_id", nullable = false)
     private Hashtag hashtag; // 해시태그
+
+    public TransactionHashtag(Transaction transaction, Hashtag hashtag) {
+        this.transaction = transaction;
+        this.hashtag = hashtag;
+    }
 }
