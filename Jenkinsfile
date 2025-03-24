@@ -10,19 +10,27 @@ pipeline {
     }
 
     stages {
+        stage('Clean Workspace') {
+            steps {
+                echo "🧹 워크스페이스 정리 중..."
+                deleteDir()
+            }
+        }
+
         stage('Checkout Source') {
             steps {
+                echo "📦 Git 리포지토리 클론 중..."
                 git branch: 'release',
                     url: 'https://lab.ssafy.com/s12-fintech-finance-sub1/S12P21B208.git',
                     credentialsId: 'choihyunman'
             }
         }
 
-         stage('Load .env File') {
+        stage('Load .env File') {
             steps {
-                 withCredentials([file(credentialsId: 'choi', variable: 'ENV_FILE')]) {
+                echo "🔐 .env 파일 로딩 중..."
+                withCredentials([file(credentialsId: 'choi', variable: 'ENV_FILE')]) {
                     sh '''
-                    echo "📦 .env 로딩 중..."
                     rm -f .env
                     cp $ENV_FILE .env
                     '''
@@ -32,17 +40,19 @@ pipeline {
 
         stage('Stop Existing Containers') {
             steps {
+                echo "🛑 기존 컨테이너 중지 및 삭제 중..."
                 sh '''
-                docker compose down || true
+                docker compose down --remove-orphans || true
                 docker rm -f frontend || true
                 docker rm -f backend || true
                 docker rm -f mysql || true
-            '''
+                '''
             }
         }
 
         stage('Build & Deploy') {
             steps {
+                echo "⚙️ 이미지 빌드 & 컨테이너 실행 중..."
                 sh 'docker compose build'
                 sh 'docker compose up -d'
             }
@@ -52,6 +62,7 @@ pipeline {
     post {
         success {
             echo '✅ 배포 성공!'
+            // 여기에 Mattermost 알림도 넣을 수 있음
         }
         failure {
             echo '❌ 배포 실패!'
