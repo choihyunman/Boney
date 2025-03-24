@@ -9,6 +9,7 @@ build/
 
 BE/src/main/resources/application.yml
 
+jenkins_home
 
 ### STS ###
 .apt_generated

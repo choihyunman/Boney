@@ -1,0 +1,20 @@
+services:
+  jenkins:
+    image: jenkins/jenkins:lts-jdk17
+    user: root
+    container_name: jenkins
+    expose:
+      - "8080"
+    volumes:
+      - ./jenkins_home:/var/jenkins_home:rw
+      - /usr/local/bin/docker-compose:/usr/local/bin/docker-compose
+    networks:
+      - app_network
+    restart: unless-stopped
+    environment:
+      TZ: Asia/Seoul
+      JENKINS_OPTS: "--httpPort=8080 --prefix=/jenkins"
+      
+networks:
+  app_network:
+    external: true
