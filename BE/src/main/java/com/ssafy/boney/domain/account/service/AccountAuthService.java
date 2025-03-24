@@ -95,5 +95,38 @@ public class AccountAuthService {
                 .block();
     }
 
+    public Map<String, Object> createDemandDepositAccount() {
+        LocalDateTime now = LocalDateTime.now();
+        String transmissionDate = now.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        String transmissionTime = now.format(DateTimeFormatter.ofPattern("HHmmss"));
+        String random6 = String.format("%06d", new Random().nextInt(1_000_000));
+        String institutionTransactionUniqueNo = transmissionDate + transmissionTime + random6;
+
+        Map<String, Object> header = Map.of(
+                "apiName", "createDemandDepositAccount",
+                "transmissionDate", transmissionDate,
+                "transmissionTime", transmissionTime,
+                "institutionCode", externalApiProperties.getInstitutionCode(),
+                "fintechAppNo", externalApiProperties.getFintechAppNo(),
+                "apiServiceCode", "createDemandDepositAccount",
+                "institutionTransactionUniqueNo", institutionTransactionUniqueNo,
+                "apiKey", externalApiProperties.getApiKey(),
+                "userKey", externalApiProperties.getUserKey()
+        );
+
+        Map<String, Object> body = Map.of(
+                "Header", header,
+                "accountTypeUniqueNo", externalApiProperties.getAccountTypeUniqueNo()
+        );
+
+        return webClient.post()
+                .uri(externalApiProperties.getUrlAccountCreate())
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .bodyValue(body)
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {})
+                .block();
+    }
+
     
 }
