@@ -18,6 +18,20 @@ pipeline {
             }
         }
 
+         stage('Load .env File') {
+            steps {
+                withCredentials([file(credentialsId: 'choi', variable: 'ENV_FILE')]) {
+                    sh '''
+                    echo "📦 .env 로딩 중..."
+                    cp $ENV_FILE .env
+                    set -a
+                    source .env
+                    set +a
+                    '''
+                }
+            }
+        }
+
         stage('Stop Existing Containers') {
             steps {
                 sh 'docker compose down || true'
