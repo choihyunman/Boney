@@ -9,9 +9,9 @@ VALUES (1, '테스트은행');
 INSERT INTO account (account_id, bank_id, user_id, account_number, account_password, account_balance, created_at) 
 VALUES (
   1,
-  1,   -- bank_id=1
+  5,   -- bank_id=1
   1,   -- user_id=1
-  '0014393451249553',
+  '001439345124955',
   'testpw',
   500000,
   NOW()
@@ -64,4 +64,45 @@ INSERT INTO transaction (
   '2025-03-24 02:00:00',
   10001,
   485000  -- 거래 후 잔액 (500000 - 15000)
+);
+
+INSERT INTO account (
+  account_id,
+  bank_id,
+  user_id,
+  account_number,
+  account_password,
+  account_balance,
+  created_at
+) VALUES (
+  2,               -- 새 account_id
+  1,               -- 기존 테스트은행
+  5,               -- user_id = 5
+  '555555555555555',
+  'user5pw',
+  300000,
+  NOW()
+);
+
+-- (D) Transaction 내역
+INSERT INTO transaction (
+  account_id,
+  user_id,
+  transaction_content_id,
+  transaction_category_id,
+  transaction_type,
+  transaction_amount,
+  created_at,
+  external_transaction_no,
+  transaction_after_balance
+) VALUES (
+  2,
+  5,
+  4,
+  4,
+  'WITHDRAWAL',
+  4800,
+  '2025-03-24 10:00:00',
+  10002,
+  295200
 );
