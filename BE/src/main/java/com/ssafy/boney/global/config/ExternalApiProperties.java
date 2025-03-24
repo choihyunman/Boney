@@ -11,10 +11,12 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "external-api.account-auth")
 public class ExternalApiProperties {
     private String urlOneCoin;
+    private String urlOneCoinCheck;
     private String institutionCode;
     private String fintechAppNo;
     private String apiServiceCode;
     private String apiKey;
     private String userKey;
+
 
 }

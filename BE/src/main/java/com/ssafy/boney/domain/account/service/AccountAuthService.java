@@ -87,7 +87,7 @@ public class AccountAuthService {
         );
 
         return webClient.post()
-                .uri("https://finopenapi.ssafy.io/ssafy/api/v1/edu/accountAuth/checkAuthCode")
+                .uri(externalApiProperties.getUrlOneCoinCheck()) // 🔹 이 부분 변경됨
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .bodyValue(body)
                 .retrieve()
