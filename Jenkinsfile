@@ -14,7 +14,21 @@ pipeline {
             steps {
                 git branch: 'release',
                     url: 'https://lab.ssafy.com/s12-fintech-finance-sub1/S12P21B208.git',
-                    credentialsId: 'choihyunman'
+                    credentialsId: 'gitlab'
+            }
+        }
+
+         stage('Load .env File') {
+            steps {
+                withCredentials([file(credentialsId: 'choi', variable: 'ENV_FILE')]) {
+                    sh '''
+                    echo "📦 .env 로딩 중..."
+                    cp $ENV_FILE .env
+                    set -a
+                    source .env
+                    set +a
+                    '''
+                }
             }
         }
 
