@@ -16,7 +16,6 @@ pipeline {
             }
         }
 
-
         stage('Checkout Source') {
             steps {
                 echo "📦 Git 리포지토리 클론 중..."
@@ -33,6 +32,18 @@ pipeline {
                     sh '''
                     rm -f .env
                     cp $ENV_FILE .env
+                    '''
+                }
+            }
+        }
+
+        stage('Copy application.yml') {
+            steps {
+                echo "📄 application.yml 복사 중..."
+                withCredentials([file(credentialsId: 'app-yml', variable: 'APP_YML')]) {
+                    sh '''
+                    mkdir -p backend/src/main/resources
+                    cp $APP_YML backend/src/main/resources/application.yml
                     '''
                 }
             }
@@ -62,7 +73,6 @@ pipeline {
     post {
         success {
             echo '✅ 배포 성공!'
-            // 여기에 Mattermost 알림도 넣을 수 있음
         }
         failure {
             echo '❌ 배포 실패!'
