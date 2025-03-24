@@ -10,13 +10,6 @@ pipeline {
     }
 
     stages {
-        stage('Clean Workspace') {
-            steps {
-                echo "🧹 워크스페이스 정리 중..."
-                deleteDir()
-            }
-        }
-
         stage('Checkout Source') {
             steps {
                 echo "📦 Git 리포지토리 클론 중..."
