@@ -42,6 +42,8 @@ pipeline {
                 echo "📄 application.yml 복사 중..."
                 dir('S12P21B208') {
                     withCredentials([file(credentialsId: 'app-yml', variable: 'APP_YML')]) {
+                        echo "APP_YML 경로: $APP_YML"
+                        sh 'ls -alh BE/src/main/resources'
                         sh '''
                         mkdir -p BE/src/main/resources
                         cp $APP_YML BE/src/main/resources/application.yml
