@@ -12,11 +12,12 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 public class TransactionResponseDto {
-    private Long transactionId;
+    private Integer transactionId;
     private LocalDateTime transactionDate;
     private String transactionContent;
     private Long transactionAmount;
     private String transactionType;
     private String transactionCategoryName;
     private List<String> hashtags;
+    private Long transactionAfterBalance;
 }
