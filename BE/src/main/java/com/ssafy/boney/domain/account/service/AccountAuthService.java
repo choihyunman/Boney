@@ -49,7 +49,7 @@ public class AccountAuthService {
         );
 
         return webClient.post()
-                .uri(externalApiProperties.getUrl())
+                .uri(externalApiProperties.getUrlOneCoin())
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .bodyValue(body)
                 .retrieve()
