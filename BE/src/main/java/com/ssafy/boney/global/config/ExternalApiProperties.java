@@ -17,6 +17,8 @@ public class ExternalApiProperties {
     private String apiServiceCode;
     private String apiKey;
     private String userKey;
+    private String urlAccountCreate;
+    private String accountTypeUniqueNo;
 
 
 }
