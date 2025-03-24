@@ -1,6 +1,7 @@
 package com.ssafy.boney.domain.account.controller;
 
 import com.ssafy.boney.domain.account.dto.AccountAuthRequest;
+import com.ssafy.boney.domain.account.dto.AccountVerifyRequest;
 import com.ssafy.boney.domain.account.service.AccountAuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,11 @@ public class AccountAuthController {
     public ResponseEntity<?> authenticateAccount(@RequestBody AccountAuthRequest request) {
 
         return ResponseEntity.ok(accountAuthService.sendAuthRequest(request.getAccountNo()));
+    }
+
+    @PostMapping("/verify")
+    public ResponseEntity<?> verifyAccountAuthCode(@RequestBody AccountVerifyRequest request) {
+        return ResponseEntity.ok(accountAuthService.verifyAuthCode(request.getAccountNo(), request.getAuthCode()));
     }
 
 
