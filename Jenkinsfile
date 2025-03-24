@@ -10,6 +10,13 @@ pipeline {
     }
 
     stages {
+        stage('Fix Permissions') {
+            steps {
+                sh 'sudo chown -R ubuntu:ubuntu $WORKSPACE || true'
+            }
+        }
+
+
         stage('Checkout Source') {
             steps {
                 echo "📦 Git 리포지토리 클론 중..."
