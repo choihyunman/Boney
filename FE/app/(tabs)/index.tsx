@@ -5,7 +5,7 @@ import { Text, View } from "react-native";
 export default function TabOneScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Hello Jenkins Test입니다.</Text>
+      <Text style={styles.title}>Hello Jenkins Test입니다!! 제발 돼라</Text>
       <View
         style={styles.separator}
       />
