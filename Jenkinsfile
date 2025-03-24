@@ -14,7 +14,7 @@ pipeline {
             steps {
                 git branch: 'release',
                     url: 'https://lab.ssafy.com/s12-fintech-finance-sub1/S12P21B208.git',
-                    credentialsId: 'gitlab'
+                    credentialsId: 'choihyunman'
             }
         }
 
