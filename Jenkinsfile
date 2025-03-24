@@ -40,11 +40,13 @@ pipeline {
         stage('Copy application.yml') {
             steps {
                 echo "📄 application.yml 복사 중..."
-                withCredentials([file(credentialsId: 'app-yml', variable: 'APP_YML')]) {
-                    sh '''
-                    mkdir -p backend/src/main/resources
-                    cp $APP_YML backend/src/main/resources/application.yml
-                    '''
+                dir('S12P21B208') {
+                    withCredentials([file(credentialsId: 'app-yml', variable: 'APP_YML')]) {
+                        sh '''
+                        mkdir -p BE/src/main/resources
+                        cp $APP_YML BE/src/main/resources/application.yml
+                        '''
+                    }
                 }
             }
         }
