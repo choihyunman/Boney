@@ -99,7 +99,7 @@ public class AccountAuthController {
             ));
         }
 
-        // 🔎 사용자 식별
+        // 사용자 식별
         Integer userId = (Integer) httpRequest.getAttribute("userId");
         Optional<User> userOpt = userRepository.findById(userId);
         if (userOpt.isEmpty()) {
@@ -118,15 +118,14 @@ public class AccountAuthController {
         }
 
         User user = userOpt.get();
-        Bank bank = bankRepository.findByBankName("OneCoin")
-                .orElseGet(() -> bankRepository.save(new Bank(null, "OneCoin")));
+        Bank bank = bankRepository.findByBankName("boney")
+                .orElseGet(() -> bankRepository.save(new Bank(null, "boney")));
 
         Account account = Account.builder()
                 .user(user)
                 .bank(bank)
                 .accountNumber(accountNo)
                 .accountPassword(null)
-                .accountBalance(0L)
                 .createdAt(LocalDateTime.now())
                 .build();
 
@@ -137,7 +136,6 @@ public class AccountAuthController {
                 "message", "계좌가 성공적으로 등록되었습니다.",
                 "data", Map.of(
                         "accountNo", account.getAccountNumber(),
-                        "account_balance", account.getAccountBalance(),
                         "bank_id", bank.getBankId()
                 )
         ));
