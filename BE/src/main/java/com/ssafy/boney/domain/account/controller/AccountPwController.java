@@ -24,12 +24,14 @@ public class AccountPwController {
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
 
+    // 앱 비밀번호 설정 API
     @PostMapping("/password")
     public ResponseEntity<Map<String, Object>> updateAccountPassword(
             @RequestHeader(value = "Authorization", required = false) String token,
             @RequestBody Map<String, String> requestBody,
             HttpServletRequest httpRequest) {
 
+        // JWT 검증
         if (token == null || !token.startsWith("Bearer ")) {
             return ResponseEntity.status(401).body(Map.of(
                     "status", 401,
@@ -45,6 +47,7 @@ public class AccountPwController {
             ));
         }
 
+        // 사용자 정보
         Integer userId = (Integer) httpRequest.getAttribute("userId");
         Optional<User> userOpt = userRepository.findById(userId);
         if (userOpt.isEmpty()) {
@@ -54,17 +57,18 @@ public class AccountPwController {
             ));
         }
 
-        String accountNumber = requestBody.get("account_number");
+        // 비밀번호 유효성 검사
         String rawPassword = requestBody.get("send_password");
-
-        if (accountNumber == null || rawPassword == null || accountNumber.isBlank() || rawPassword.isBlank()) {
+        if (rawPassword == null || rawPassword.isBlank()) {
             return ResponseEntity.status(400).body(Map.of(
                     "status", 400,
-                    "message", "요청 값이 잘못되었습니다."
+                    "message", "send_password는 필수이며, 올바른 형식이어야 합니다."
             ));
         }
 
-        Optional<Account> accountOpt = accountRepository.findByAccountNumber(accountNumber);
+        // 사용자 계좌 찾기 (1인 1계좌)
+        User user = userOpt.get();
+        Optional<Account> accountOpt = accountRepository.findByUser(user);
         if (accountOpt.isEmpty()) {
             return ResponseEntity.status(404).body(Map.of(
                     "status", 404,
@@ -72,30 +76,22 @@ public class AccountPwController {
             ));
         }
 
+        // 비밀번호 저장
         Account account = accountOpt.get();
-        if (!account.getUser().getUserId().equals(userId)) {
-            return ResponseEntity.status(403).body(Map.of(
-                    "status", 403,
-                    "message", "계좌 소유자가 아닙니다."
-            ));
-        }
-
-        // 비밀번호 암호화 후 저장
-        String encodedPassword = passwordEncoder.encode(rawPassword);
-        account.setAccountPassword(encodedPassword);
+        account.setAccountPassword(passwordEncoder.encode(rawPassword));
         accountRepository.save(account);
 
         return ResponseEntity.ok(Map.of(
                 "status", 200,
-                "message", "계좌 비밀번호가 성공적으로 변경되었습니다."
+                "message", "계좌 비밀번호가 성공적으로 설정되었습니다."
         ));
     }
 
     // null 확인 api
     @PostMapping("/password/check")
-    public ResponseEntity<Map<String, Object>> checkAccountPasswordNull(
+    public ResponseEntity<Map<String, Object>> checkPasswordIsNull(
             @RequestHeader(value = "Authorization", required = false) String token,
-            @RequestBody Map<String, String> requestBody) {
+            HttpServletRequest httpRequest) {
 
         // JWT 누락
         if (token == null || !token.startsWith("Bearer ")) {
@@ -105,7 +101,6 @@ public class AccountPwController {
             ));
         }
 
-        // JWT 검증 실패
         String jwt = token.substring(7);
         if (!jwtTokenProvider.validateToken(jwt)) {
             return ResponseEntity.status(401).body(Map.of(
@@ -114,17 +109,18 @@ public class AccountPwController {
             ));
         }
 
-        // 요청 필드 검증
-        String accountNumber = requestBody.get("account_number");
-        if (accountNumber == null || accountNumber.isBlank()) {
-            return ResponseEntity.status(400).body(Map.of(
-                    "status", 400,
-                    "message", "account_number는 필수이며, 올바른 형식이어야 합니다."
+        // 사용자 식별
+        Integer userId = (Integer) httpRequest.getAttribute("userId");
+        Optional<User> userOpt = userRepository.findById(userId);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(404).body(Map.of(
+                    "status", 404,
+                    "message", "사용자를 찾을 수 없습니다."
             ));
         }
 
-        // 계좌 존재 여부 확인
-        Optional<Account> accountOpt = accountRepository.findByAccountNumber(accountNumber);
+        // 사용자 연결된 계좌 찾기
+        Optional<Account> accountOpt = accountRepository.findByUser(userOpt.get());
         if (accountOpt.isEmpty()) {
             return ResponseEntity.status(404).body(Map.of(
                     "status", 404,
@@ -132,22 +128,15 @@ public class AccountPwController {
             ));
         }
 
-        Account account = accountOpt.get();
-        boolean isPasswordNull = (account.getAccountPassword() == null);
+        boolean isPasswordNull = (accountOpt.get().getAccountPassword() == null);
 
-        if (isPasswordNull) {
-            return ResponseEntity.ok(Map.of(
-                    "status", 200,
-                    "message", "계좌는 아직 비밀번호가 설정되지 않았습니다.",
-                    "data", Map.of("isPasswordNull", true)
-            ));
-        } else {
-            return ResponseEntity.ok(Map.of(
-                    "status", 200,
-                    "message", "계좌에 비밀번호가 설정되어 있습니다.",
-                    "data", Map.of("isPasswordNull", false)
-            ));
-        }
+        return ResponseEntity.ok(Map.of(
+                "status", 200,
+                "message", isPasswordNull ?
+                        "계좌는 아직 비밀번호가 설정되지 않았습니다." :
+                        "계좌에 비밀번호가 설정되어 있습니다.",
+                "data", Map.of("isPasswordNull", isPasswordNull)
+        ));
     }
 
     // 앱 비밀번호 검증
