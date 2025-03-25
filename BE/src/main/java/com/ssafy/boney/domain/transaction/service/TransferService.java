@@ -25,7 +25,7 @@ public class TransferService {
     private final BankingApiService bankingApiService;
     private final PasswordEncoder passwordEncoder;
 
-    // 1. 예금주 조회
+    // 예금주 조회
     public HolderCheckResponseDto getAccountHolder(String accountNo) {
         String accountHolderName;
         try {
