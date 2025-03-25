@@ -4,6 +4,7 @@ import com.ssafy.boney.domain.user.dto.UserSignupRequest;
 import com.ssafy.boney.domain.user.entity.User;
 import com.ssafy.boney.domain.user.service.UserService;
 import com.ssafy.boney.global.security.JwtTokenProvider;
+import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
@@ -233,6 +234,58 @@ public class UserController {
         return ResponseEntity.ok(Map.of(
                 "status", 200,
                 "message", "로그아웃이 완료됐습니다."
+        ));
+    }
+
+    @PostMapping("/check")
+    public ResponseEntity<Map<String, Object>> checkUser(
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of(
+                            "status", 401,
+                            "message", "JWT 토큰이 없거나 만료되었거나 위조되었습니다."
+                    ));
+        }
+
+        String token = authHeader.substring(7);
+        if (!jwtTokenProvider.validateToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of(
+                            "status", 401,
+                            "message", "JWT 토큰이 없거나 만료되었거나 위조되었습니다."
+                    ));
+        }
+
+        Claims claims = jwtTokenProvider.parseToken(token);
+        Long kakaoId = claims.get("kakao_id", Long.class);
+        Optional<User> userOpt = userService.findByKakaoId(kakaoId);
+
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of(
+                            "status", 404,
+                            "message", "토큰에는 존재하지만 DB에 등록된 사용자가 없습니다."
+                    ));
+        }
+
+        User user = userOpt.get();
+
+        return ResponseEntity.ok(Map.of(
+                "status", "200",
+                "message", "회원 등록 여부가 확인되었습니다.",
+                "data", Map.of(
+                        "is_registered", true,
+                        "user_id", user.getUserId(),
+                        "kakao_id", user.getKakaoId(),
+                        "role", user.getRole().toString(),
+                        "user_birth", user.getUserBirth().toString(),
+                        "user_name", user.getUserName(),
+                        "user_gender", user.getUserGender().toString(),
+                        "user_email", user.getUserEmail(),
+                        "user_phone", user.getUserPhone()
+                )
         ));
     }
 

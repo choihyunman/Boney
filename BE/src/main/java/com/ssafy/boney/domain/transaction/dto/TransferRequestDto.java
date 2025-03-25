@@ -1,0 +1,15 @@
+package com.ssafy.boney.domain.transaction.dto;
+
+import lombok.Data;
+
+
+// 송금 request dto
+@Data
+public class TransferRequestDto {
+    private String sendPassword;
+    private long amount;
+    private String recipientBank;
+    private String recipientAccountNumber;
+
+
+}
