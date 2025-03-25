@@ -12,6 +12,8 @@ import java.time.LocalDateTime;
 @Table(name = "monthly_report")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
 public class MonthlyReport {
 
     @Id
@@ -47,7 +49,38 @@ public class MonthlyReport {
     @Column(name = "expense_ratio")
     private Integer expenseRatio;
 
+    @Column(name = "three_months_transition", columnDefinition = "JSON")
+    private String threeMonthsTransition;
+
     @Column(name = "created_at", nullable = false, updatable = false,
             columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
+
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
+    }
+
+    public MonthlyReport(
+            User child,
+            LocalDate reportMonth,
+            Long totalIncome,
+            Long totalExpense,
+            String categoryExpense,
+            Integer questCompleted,
+            Long questIncome,
+            Integer incomeRatio,
+            Integer expenseRatio
+    ) {
+        this.child = child;
+        this.reportMonth = reportMonth;
+        this.totalIncome = totalIncome;
+        this.totalExpense = totalExpense;
+        this.categoryExpense = categoryExpense;
+        this.questCompleted = questCompleted;
+        this.questIncome = questIncome;
+        this.incomeRatio = incomeRatio;
+        this.expenseRatio = expenseRatio;
+        this.createdAt = LocalDateTime.now();
+    }
 }
