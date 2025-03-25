@@ -28,7 +28,7 @@ public class BankingApiServiceImpl implements BankingApiService {
     // 계좌 송금
     @Override
     public void transfer(String fromAccount, String toAccount, Long amount, String summary) {
-        String url = baseUrl + "/edu/demandDeposit/updateDemandDepositAccountTransfer";
+        String url = baseUrl + "/demandDeposit/updateDemandDepositAccountTransfer";
 
         Map<String, Object> body = new HashMap<>();
         body.put("depositAccountNo", toAccount);
@@ -48,7 +48,7 @@ public class BankingApiServiceImpl implements BankingApiService {
     // 예금주 확인
     @Override
     public String getAccountHolderName(String accountNumber) {
-        String url = baseUrl + "/edu/demandDeposit/inquireDemandDepositAccountHolderName";
+        String url = baseUrl + "/demandDeposit/inquireDemandDepositAccountHolderName";
 
         Map<String, Object> body = new HashMap<>();
         body.put("accountNo", accountNumber);
@@ -74,7 +74,7 @@ public class BankingApiServiceImpl implements BankingApiService {
     // SSAFY API 잔액 조회
     @Override
     public Long getAccountBalance(String accountNumber) {
-        String url = baseUrl + "/edu/demandDeposit/inquireDemandDepositAccountBalance";
+        String url = baseUrl + "/demandDeposit/inquireDemandDepositAccountBalance";
 
         Map<String, Object> body = new HashMap<>();
         body.put("accountNo", accountNumber);
