@@ -22,7 +22,6 @@ const REDIRECT_URI =
 
 export default function KakaoLogin() {
   const { kakaoLogin } = useAuthStore();
-  const user = useAuthStore((state) => state.user);
   const [showWebView, setShowWebView] = useState(false);
   const webViewRef = useRef(null);
   const { signIn } = useSession();
@@ -47,11 +46,8 @@ export default function KakaoLogin() {
           const user = await kakaoLogin(code);
           if (user) {
             await signIn({
-              token: null,
-              signedUp: false, // 가입 여부는 아직 false
               kakaoId: user.kakaoId,
               userEmail: user.userEmail,
-              hasPin: false,
             });
             console.log("✅ 세션 저장 완료");
             router.replace("/auth/SignUp"); // 가입 페이지로 이동

@@ -20,6 +20,7 @@ export const useAuthRedirect = () => {
 
       if (!session?.token) {
         // 🔑 token이 없는 경우 → kakaoId로 jwt 발급 시도
+        console.log("🔑 token이 없는 경우 → kakaoId로 jwt 발급 시도");
         if (session?.kakaoId) {
           try {
             const res = await api.post("/auth/login/kakao/jwt", {
@@ -27,13 +28,13 @@ export const useAuthRedirect = () => {
             });
 
             const newToken = res.data.token;
+            console.log("🔓 토큰 재발급 완료 → 인증 재시도");
 
             await signIn({
               ...session,
               token: newToken,
             });
 
-            console.log("🔓 토큰 재발급 완료 → 인증 재시도");
             return; // signIn 후 재렌더링 → useEffect 다시 실행됨
           } catch (err: any) {
             const status = err?.response?.status;
