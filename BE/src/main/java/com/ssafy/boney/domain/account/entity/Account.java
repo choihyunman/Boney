@@ -2,16 +2,17 @@ package com.ssafy.boney.domain.account.entity;
 
 import com.ssafy.boney.domain.user.entity.User;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "account")
 @Getter
+@Setter
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,9 +32,6 @@ public class Account {
 
     @Column(name = "account_password", length = 100)
     private String accountPassword;
-
-    @Column(name = "account_balance", nullable = false)
-    private Long accountBalance;
 
     @Column(name = "created_at", nullable = false, updatable = false,
             columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")

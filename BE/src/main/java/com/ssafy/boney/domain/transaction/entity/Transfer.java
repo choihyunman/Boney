@@ -8,6 +8,8 @@ import lombok.*;
 @Table(name = "transfer")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
+@AllArgsConstructor
 public class Transfer {
 
     @Id
