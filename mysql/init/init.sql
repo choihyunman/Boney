@@ -6,12 +6,11 @@ INSERT INTO bank (bank_id, bank_name)
 VALUES (1, '테스트은행');
 
 -- (C) Account 테이블
-INSERT INTO account (account_id, bank_id, user_id, account_number, account_password, account_balance, created_at) 
+INSERT INTO account (bank_id, user_id, account_number, account_password, account_balance, created_at) 
 VALUES (
-  1,
-  5,   -- bank_id=1
-  1,   -- user_id=1
-  '001439345124955',
+  1,   -- bank_id=1
+  14,   -- user_id=1
+  '001439345124956',
   'testpw',
   500000,
   NOW()
@@ -32,18 +31,16 @@ INSERT INTO transaction_category (
 
 -- (B) Transaction_Content
 INSERT INTO transaction_content (
-  transaction_content_id,
   content_name,
   default_transaction_category_id
 ) VALUES
-(1, '입금', 1),
-(2, '출금', 2),
-(3, '기타', 3),
-(4, '스타벅스', 4),
-(5, '다이소', 5);
+('입금', 1),
+('출금', 2),
+('기타', 3),
+('스타벅스', 4),
+('다이소', 5);
 
 INSERT INTO transaction (
-  transaction_id,
   account_id,
   user_id,
   transaction_content_id,
@@ -54,9 +51,8 @@ INSERT INTO transaction (
   external_transaction_no,
   transaction_after_balance
 ) VALUES (
-  1,
-  1,   -- account_id=1
-  1,   -- user_id=1
+  7,   -- account_id=1
+  14,   -- user_id=1
   5,   -- transaction_content_id=2 (ex: '스타벅스')
   5,   -- transaction_category_id=4 (ex: '식비')
   'WITHDRAWAL',
@@ -67,17 +63,15 @@ INSERT INTO transaction (
 );
 
 INSERT INTO account (
-  account_id,
   bank_id,
   user_id,
   account_number,
   account_password,
   account_balance,
   created_at
-) VALUES (
-  2,               -- 새 account_id
+) VALUES (               -- 새 account_id
   1,               -- 기존 테스트은행
-  5,               -- user_id = 5
+  14,               -- user_id = 5
   '555555555555555',
   'user5pw',
   300000,
@@ -96,8 +90,8 @@ INSERT INTO transaction (
   external_transaction_no,
   transaction_after_balance
 ) VALUES (
-  2,
-  5,
+  6,
+  14,
   4,
   4,
   'WITHDRAWAL',
