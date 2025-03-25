@@ -154,9 +154,10 @@ public class AccountPwController {
     @PostMapping("/password/verify")
     public ResponseEntity<Map<String, Object>> verifyAccountPassword(
             @RequestHeader(value = "Authorization", required = false) String token,
-            @RequestBody Map<String, String> requestBody) {
+            @RequestBody Map<String, String> requestBody,
+            HttpServletRequest httpRequest) {
 
-        // JWT 누락/형식 오류
+        // JWT 검증
         if (token == null || !token.startsWith("Bearer ")) {
             return ResponseEntity.status(401).body(Map.of(
                     "status", 401,
@@ -164,26 +165,36 @@ public class AccountPwController {
             ));
         }
 
-        if (!jwtTokenProvider.validateToken(token.substring(7))) {
+        String jwt = token.substring(7);
+        if (!jwtTokenProvider.validateToken(jwt)) {
             return ResponseEntity.status(401).body(Map.of(
                     "status", 401,
                     "message", "인증되지 않은 요청입니다."
             ));
         }
 
-        // 요청 바디 유효성 검증
-        String accountNumber = requestBody.get("account_number");
-        String sendPassword = requestBody.get("send_password");
-
-        if (accountNumber == null || accountNumber.isBlank() || sendPassword == null || sendPassword.isBlank()) {
-            return ResponseEntity.status(400).body(Map.of(
-                    "status", 400,
-                    "message", "account_number는 필수이며, 올바른 형식이어야 합니다."
+        // 사용자 조회
+        Integer userId = (Integer) httpRequest.getAttribute("userId");
+        Optional<User> userOpt = userRepository.findById(userId);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(404).body(Map.of(
+                    "status", 404,
+                    "message", "사용자를 찾을 수 없습니다."
             ));
         }
 
-        // 계좌 조회
-        Optional<Account> accountOpt = accountRepository.findByAccountNumber(accountNumber);
+        // 비밀번호 유효성 검사
+        String sendPassword = requestBody.get("send_password");
+        if (sendPassword == null || sendPassword.isBlank()) {
+            return ResponseEntity.status(400).body(Map.of(
+                    "status", 400,
+                    "message", "send_password는 필수이며, 올바른 형식이어야 합니다."
+            ));
+        }
+
+        // 계좌 조회 (1인 1계좌)
+        User user = userOpt.get();
+        Optional<Account> accountOpt = accountRepository.findByUser(user);
         if (accountOpt.isEmpty()) {
             return ResponseEntity.status(404).body(Map.of(
                     "status", 404,
@@ -194,7 +205,7 @@ public class AccountPwController {
         Account account = accountOpt.get();
         String storedPassword = account.getAccountPassword();
 
-        // 비밀번호 검증
+        // 비밀번호 설정 여부 확인
         if (storedPassword == null) {
             return ResponseEntity.ok(Map.of(
                     "status", 200,
@@ -203,8 +214,8 @@ public class AccountPwController {
             ));
         }
 
+        // 비밀번호 일치 여부 판단
         boolean isMatched = passwordEncoder.matches(sendPassword, storedPassword);
-
         return ResponseEntity.ok(Map.of(
                 "status", 200,
                 "message", isMatched ? "계좌 비밀번호가 일치합니다." : "계좌 비밀번호가 일치하지 않습니다.",
