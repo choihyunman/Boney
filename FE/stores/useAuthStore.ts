@@ -4,7 +4,7 @@ import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 
 interface UserInfo {
-  kakaoId: string;
+  kakaoId: number;
   userEmail: string;
   userName?: string;
   userBirth?: string;
@@ -20,6 +20,7 @@ interface AuthStore {
   kakaoLogin: (code: string) => Promise<void>;
   signUp: (userInfo: Omit<UserInfo, "kakaoId" | "userEmail">) => Promise<void>;
   logout: () => void;
+  getUserInfo: () => Promise<UserInfo>;
 }
 
 async function fetchAccessTokenFromKakao(code: string): Promise<string> {
@@ -33,8 +34,7 @@ async function fetchAccessTokenFromKakao(code: string): Promise<string> {
     throw new Error("access_token이 문자열이 아닙니다!");
   }
 
-  await SecureStore.setItemAsync("userToken", accessToken);
-  console.log("🔐 access_token 저장 완료:", accessToken);
+  console.log("🔐 access_token 조회 완료:", accessToken);
 
   return accessToken;
 }
@@ -44,8 +44,41 @@ async function fetchUserInfoFromKakao(token: string): Promise<UserInfo> {
   const { data } = res.data;
 
   const user: UserInfo = {
-    kakaoId: String(data.id),
+    kakaoId: data.id,
     userEmail: data.kakao_account.email,
+  };
+
+  console.log("✅ 사용자 정보 수신:", user);
+  return user;
+}
+
+async function fetchJWTFromServer(kakaoId: number): Promise<string> {
+  console.log("🚀 백엔드에 kakaoId 전송:", kakaoId, typeof kakaoId);
+
+  const res = await api.post(`/auth/login/kakao/jwt`, {
+    kakao_id: kakaoId,
+  });
+  const { token } = res.data;
+
+  await SecureStore.setItemAsync("userToken", token);
+  console.log("🔐 jwt 저장 완료:", token);
+
+  return token;
+}
+
+async function fetchUserInfoFromServer(jwt: string): Promise<UserInfo> {
+  const res = await api.post("/auth/check");
+
+  const { data } = res.data;
+
+  const user: UserInfo = {
+    kakaoId: data.kakao_id,
+    userEmail: data.user_email,
+    userName: data.user_name,
+    userBirth: data.user_birth,
+    userGender: data.user_gender,
+    userPhone: data.user_phone,
+    role: data.role,
   };
 
   console.log("✅ 사용자 정보 수신:", user);
@@ -61,6 +94,16 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     set({ user });
   },
 
+  getUserInfo: async () => {
+    const token = await SecureStore.getItemAsync("userToken");
+    if (!token) {
+      throw new Error("로그인이 필요합니다.");
+    }
+    const userInfo = await fetchUserInfoFromServer(token);
+    set({ user: userInfo, token });
+    return userInfo;
+  },
+
   kakaoLogin: async (code) => {
     console.log("🚀 백엔드에 카카오 인가 코드 전송:", code);
 
@@ -68,8 +111,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       const token = await fetchAccessTokenFromKakao(code);
       const user = await fetchUserInfoFromKakao(token);
 
-      await SecureStore.setItemAsync("userToken", token);
-      set({ user, token });
+      set({ user });
 
       router.replace({
         pathname: "/(auth)/SignUp",
@@ -86,36 +128,34 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     }
   },
 
- signUp: async (userInfo) => {
-  const { user } = get();
-   const token = await SecureStore.getItemAsync("userToken");
+  signUp: async (userInfo) => {
+    const { user } = get();
 
-    console.log("🔐 토큰:", token);
     console.log("🧠 사용자:", user);
 
-  if (!user || !token) {
-    throw new Error("인증되지 않은 상태입니다.");
-  }
+    if (!user) {
+      throw new Error("카카오 로그인 되지 않은 상태입니다.");
+    }
 
-  const payload = {
-    ...userInfo,
-    kakaoId: user.kakaoId,
-    userEmail: user.userEmail,
-  };
+    const payload = {
+      ...userInfo,
+      kakaoId: user.kakaoId,
+      userEmail: user.userEmail,
+    };
 
-  try {
-    const res = await api.post("/auth/signup", payload, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    try {
+      const res = await api.post("/auth/signup", payload);
+      console.log("🎉 회원가입 성공:", res.data);
+      const token = await fetchJWTFromServer(user.kakaoId);
+      console.log("🔐 JWT 토큰:", token);
 
-    console.log("🎉 회원가입 성공:", res.data);
-    router.replace("/(app)/index" as any);
-  } catch (err) {
-    console.error("❌ 회원가입 실패:", err);
-    throw err;
-  }
+      set({ user, token });
+
+      router.replace("/(app)/index" as any);
+    } catch (err) {
+      console.error("❌ 회원가입 실패:", err);
+      throw err;
+    }
   },
 
   logout: async () => {

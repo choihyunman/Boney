@@ -1,73 +1,99 @@
-import React, { useState } from "react";
-import { View, TouchableOpacity, StyleSheet, Dimensions } from "react-native";
-import { Home, FileText, Trophy, Menu } from "lucide-react-native";
-import { router } from "expo-router";
+import React from "react";
+import { View, TouchableOpacity, Dimensions } from "react-native";
+import { router, usePathname } from "expo-router";
 import GlobalText from "./GlobalText";
+import { clsx } from "clsx";
+import { Home, FileText, Trophy, Menu } from "lucide-react-native";
 
 const { width } = Dimensions.get("window");
 
 const Nav = () => {
-  const [activeTab, setActiveTab] = useState(0);
+  const pathname = usePathname();
+
+  // 현재 경로에 따라 activeTab 설정
+  const getActiveTab = () => {
+    if (pathname === "/") return 0;
+    if (pathname.startsWith("/(transaction)")) return 1;
+    if (pathname === "/quest") return 2;
+    if (pathname === "/menu") return 3;
+    return 0;
+  };
+
+  const activeColor = "#4FC985";
+  const inactiveColor = "#9CA3AF";
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity style={styles.navItem} onPress={() => setActiveTab(0)}>
+    <View
+      className="absolute bottom-0 left-0 right-0 w-full bg-white rounded-t-2xl flex-row justify-around py-3"
+      style={{ width }}
+    >
+      <TouchableOpacity
+        className="items-center"
+        onPress={() => router.push("/")}
+      >
         <Home
           size={24}
-          color={activeTab === 0 ? "#4FC985" : "#9CA3AF"}
-          strokeWidth={2}
+          color={getActiveTab() === 0 ? activeColor : inactiveColor}
         />
         <GlobalText
-          weight="regular"
-          style={[styles.navText, activeTab === 0 && styles.activeText]}
+          className={clsx(
+            "text-xs mt-1",
+            getActiveTab() === 0 ? "text-[#4FC985]" : "text-[#9CA3AF]"
+          )}
         >
           홈
         </GlobalText>
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={styles.navItem}
-        onPress={() => {
-          setActiveTab(1);
-          router.push("/transaction/TransactionHistory");
-        }}
+        className="items-center"
+        onPress={() => router.push("/(transaction)")}
       >
         <FileText
           size={24}
-          color={activeTab === 1 ? "#4FC985" : "#9CA3AF"}
-          strokeWidth={2}
+          color={getActiveTab() === 1 ? activeColor : inactiveColor}
         />
         <GlobalText
-          weight="regular"
-          style={[styles.navText, activeTab === 1 && styles.activeText]}
+          className={clsx(
+            "text-xs mt-1",
+            getActiveTab() === 1 ? "text-[#4FC985]" : "text-[#9CA3AF]"
+          )}
         >
           거래내역
         </GlobalText>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.navItem} onPress={() => setActiveTab(2)}>
+      <TouchableOpacity
+        className="items-center"
+        onPress={() => router.push("/quest")}
+      >
         <Trophy
           size={24}
-          color={activeTab === 2 ? "#4FC985" : "#9CA3AF"}
-          strokeWidth={2}
+          color={getActiveTab() === 2 ? activeColor : inactiveColor}
         />
         <GlobalText
-          weight="regular"
-          style={[styles.navText, activeTab === 2 && styles.activeText]}
+          className={clsx(
+            "text-xs mt-1",
+            getActiveTab() === 2 ? "text-[#4FC985]" : "text-[#9CA3AF]"
+          )}
         >
           퀘스트
         </GlobalText>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.navItem} onPress={() => setActiveTab(3)}>
+      <TouchableOpacity
+        className="items-center"
+        onPress={() => router.push("/menu")}
+      >
         <Menu
           size={24}
-          color={activeTab === 3 ? "#4FC985" : "#9CA3AF"}
-          strokeWidth={2}
+          color={getActiveTab() === 3 ? activeColor : inactiveColor}
         />
         <GlobalText
-          weight="regular"
-          style={[styles.navText, activeTab === 3 && styles.activeText]}
+          className={clsx(
+            "text-xs mt-1",
+            getActiveTab() === 3 ? "text-[#4FC985]" : "text-[#9CA3AF]"
+          )}
         >
           메뉴
         </GlobalText>
@@ -75,32 +101,5 @@ const Nav = () => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    width: width,
-    backgroundColor: "white",
-    borderTopWidth: 1,
-    borderTopColor: "#E5E7EB",
-    flexDirection: "row",
-    justifyContent: "space-around",
-    paddingVertical: 12,
-  },
-  navItem: {
-    alignItems: "center",
-  },
-  navText: {
-    fontSize: 12,
-    marginTop: 4,
-    color: "#9CA3AF",
-  },
-  activeText: {
-    color: "#4FC985",
-  },
-});
 
 export default Nav;

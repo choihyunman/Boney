@@ -13,18 +13,19 @@ import { useAccountStore } from "@/stores/useAccountStore";
 import { BankDropdown } from "@/components/BankDropdown";
 
 export default function LinkAccount() {
-  const { bank, accountNumber, setAccountNumber, submitAccountInfo } =
-    useAccountStore();
-  
+  const accountStore = useAccountStore();
+  const { bank, accountNumber, setAccountNumber } = accountStore;
+
   const handleSubmit = async () => {
     if (!bank || !accountNumber) {
-      Alert.alert('입력 오류', '은행과 계좌번호를 모두 입력해주세요.');
+      Alert.alert("입력 오류", "은행과 계좌번호를 모두 입력해주세요.");
       return;
     }
-  }
-  
+    await accountStore.submitAccountInfo();
+  };
+
   return (
-   <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity>
           <ArrowLeft size={24} color="#000" />
@@ -35,7 +36,7 @@ export default function LinkAccount() {
       <View style={styles.card}>
         <Text style={styles.cardHeader}>은행 계좌 인증을 진행해 주세요.</Text>
         <Text style={styles.cardSubtitle}>
-          회원님의 실명과 계좌에 등록된 이름이 일치해야{'\n'}인증이 가능합니다.
+          회원님의 실명과 계좌에 등록된 이름이 일치해야{"\n"}인증이 가능합니다.
         </Text>
 
         <Text style={styles.label}>은행 선택</Text>
@@ -59,7 +60,7 @@ export default function LinkAccount() {
       </View>
     </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {

@@ -1,19 +1,32 @@
 import { Stack, useRouter } from "expo-router";
 import { useSession } from "../../ctx";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { View, Text } from "react-native";
 
 export default function AuthLayout() {
   const { session, isLoading } = useSession();
   const router = useRouter();
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    // 로그인 되어 있으면 홈으로 보내기
-    if (!isLoading && session) {
-      console.log("✅ [AUTH] 세션 있음 → (app) 내부 접근 허용");
-      router.replace("/"); // 또는 "/(app)"으로도 가능
+    if (!isLoading) {
+      setIsInitialized(true);
+      console.log("🔑 [AUTH] 현재 세션 상태:", {
+        isLoading,
+        hasToken: !!session,
+        token: session || "none",
+      });
     }
-  }, [isLoading, session]);
+  }, [isLoading]);
+
+  useEffect(() => {
+    if (isInitialized && session) {
+      console.log("✅ [AUTH] 유효한 토큰 확인됨:", session);
+      router.replace("/(home)");
+    } else if (isInitialized) {
+      console.log("❌ [AUTH] 유효한 토큰 없음");
+    }
+  }, [isInitialized, session]);
 
   if (isLoading) {
     return (
@@ -23,5 +36,11 @@ export default function AuthLayout() {
     );
   }
 
-  return <Stack />;
+  return (
+    <Stack
+      screenOptions={{
+        headerShown: false,
+      }}
+    />
+  );
 }

@@ -40,7 +40,10 @@
       "output": "static",
       "favicon": "./assets/icons/logo.png"
     },
-    "plugins": ["expo-router", "expo-font"],
+    "plugins": [
+      "expo-router",
+      "expo-secure-store"
+    ],
     "experiments": {
       "router": true,
       "typedRoutes": true
