@@ -87,7 +87,7 @@ public class AccountAuthService {
         );
 
         return webClient.post()
-                .uri(externalApiProperties.getUrlOneCoinCheck()) // 🔹 이 부분 변경됨
+                .uri(externalApiProperties.getUrlOneCoinCheck())
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .bodyValue(body)
                 .retrieve()
