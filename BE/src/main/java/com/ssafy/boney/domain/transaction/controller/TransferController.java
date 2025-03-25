@@ -24,6 +24,16 @@ public class TransferController {
                 .body(new ApiResponse(200, "예금주 조회 성공", response));
     }
 
+
+    // 잔액 조회
+    @GetMapping("/balance")
+    public ResponseEntity<BalanceResponseDto> getBalance(HttpServletRequest request) {
+        Integer senderUserId = (Integer) request.getAttribute("userId");
+        BalanceResponseDto response = transferService.getSenderBalance(senderUserId);
+        return ResponseEntity.ok(response);
+    }
+
+
     // 송금 진행
     @PostMapping
     public ResponseEntity<TransferResponseDto> send(@RequestBody TransferRequestDto request,
@@ -33,13 +43,6 @@ public class TransferController {
         return ResponseEntity.ok(response);
     }
 
-    // 잔액 조회
-    @GetMapping("/balance")
-    public ResponseEntity<BalanceResponseDto> getBalance(HttpServletRequest request) {
-        Integer senderUserId = (Integer) request.getAttribute("userId");
-        BalanceResponseDto response = transferService.getSenderBalance(senderUserId);
-        return ResponseEntity.ok(response);
-    }
 
 
 }
