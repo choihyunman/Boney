@@ -30,4 +30,15 @@ public class GlobalExceptionHandler {
                 "data", Map.of()
         ));
     }
+
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<Map<String, Object>> handleCustomException(CustomException ex) {
+        return ResponseEntity
+                .status(ex.getErrorCode().getStatus())
+                .body(Map.of(
+                        "status", ex.getErrorCode().getStatus().value(),
+                        "message", ex.getErrorCode().getMessage(),
+                        "data", Map.of()
+                ));
+    }
 }

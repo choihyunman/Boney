@@ -14,6 +14,8 @@ import java.util.List;
 @Table(name = "transaction")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
+@AllArgsConstructor
 public class Transaction {
 
     @Id

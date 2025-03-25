@@ -33,9 +33,6 @@ public class Account {
     @Column(name = "account_password", length = 100)
     private String accountPassword;
 
-    @Column(name = "account_balance", nullable = false)
-    private Long accountBalance;
-
     @Column(name = "created_at", nullable = false, updatable = false,
             columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
