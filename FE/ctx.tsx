@@ -10,7 +10,7 @@ import { Platform } from "react-native";
 
 // 사용자 세션 타입
 interface UserSession {
-  token: string;
+  token: string | null;
   signedUp: boolean;
   kakaoId: number;
   userName?: string;
@@ -75,7 +75,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
 
   const signIn = async (user: UserSession) => {
     if (Platform.OS !== "web") {
-      await SecureStore.setItemAsync("userToken", user.token);
+      await SecureStore.setItemAsync("userToken", user.token || "");
       await SecureStore.setItemAsync("userInfo", JSON.stringify(user));
     }
     setSession(user);

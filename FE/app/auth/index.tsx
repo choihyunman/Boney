@@ -15,21 +15,27 @@ import fullLogo from "../../assets/icons/full-logo.png";
 import GlobalText from "../../components/GlobalText";
 import { useAuthStore } from "../../stores/useAuthStore";
 import { router } from "expo-router";
-
+import { useSession } from "../../ctx";
 const KAKAO_REST_API_KEY = process.env.EXPO_PUBLIC_KAKAO_CLIENT_ID!;
 const REDIRECT_URI =
   "https://j12b208.p.ssafy.io/api/v1/auth/login/kakao/callback";
 
 export default function KakaoLogin() {
   const { kakaoLogin } = useAuthStore();
+  const user = useAuthStore((state) => state.user);
   const [showWebView, setShowWebView] = useState(false);
   const webViewRef = useRef(null);
+  const { signIn } = useSession();
 
   const handleKakaoLogin = () => {
     setShowWebView(true);
   };
 
-  const handleWebViewNavigationStateChange = ({ url }: { url: string }) => {
+  const handleWebViewNavigationStateChange = async ({
+    url,
+  }: {
+    url: string;
+  }) => {
     if (url.startsWith(REDIRECT_URI) && url.includes("code=")) {
       const codeMatch = url.match(/code=([^&]+)/);
       const code = codeMatch?.[1];
@@ -37,15 +43,25 @@ export default function KakaoLogin() {
         console.log("✅ 인가 코드 감지:", code);
         setShowWebView(false); // WebView 닫기
 
-        kakaoLogin(code)
-          .then(() => {
-            console.log("✅ 백엔드 로그인 완료");
-            router.replace("/auth/SignUp"); // 로그인 성공 후 이동할 페이지
-          })
-          .catch((err) => {
-            console.error("❌ 백엔드 로그인 실패:", err);
-            Alert.alert("로그인 실패", "서버 통신 중 오류가 발생했습니다.");
-          });
+        try {
+          const user = await kakaoLogin(code);
+          if (user) {
+            await signIn({
+              token: null,
+              signedUp: false, // 가입 여부는 아직 false
+              kakaoId: user.kakaoId,
+              userEmail: user.userEmail,
+              hasPin: false,
+            });
+            console.log("✅ 세션 저장 완료");
+            router.replace("/auth/SignUp"); // 가입 페이지로 이동
+          } else {
+            throw new Error("user 또는 token이 존재하지 않음");
+          }
+        } catch (err) {
+          console.error("❌ 카카오 로그인 실패:", err);
+          Alert.alert("로그인 실패", "서버 통신 중 오류가 발생했습니다.");
+        }
       }
     }
   };
