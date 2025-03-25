@@ -105,5 +105,47 @@ public class TransferService {
         return new TransferResponseDto("200", "성공적으로 송금되었습니다.", data);
     }
 
+    // 보호자 -> 아이 용돈 지급
+    @Transactional
+    public ParentChildTransferResponseDto processParentChildTransfer(ParentChildTransferRequestDto request, Integer parentUserId) {
+        // 1. 보호자 조회
+        User parent = userRepository.findById(parentUserId)
+                .orElseThrow(() -> new CustomException(TransactionErrorCode.USER_NOT_FOUND));
+
+        // 2. 보호자 계좌 조회
+        Account parentAccount = accountRepository.findByUser(parent)
+                .orElseThrow(() -> new CustomException(TransactionErrorCode.ACCOUNT_NOT_FOUND));
+
+        // 3. 보호자 계좌 잔액 확인
+        Long availableBalance = bankingApiService.getAccountBalance(parentAccount.getAccountNumber());
+        if (availableBalance < request.getAmount()) {
+            throw new CustomException(TransactionErrorCode.INSUFFICIENT_BALANCE);
+        }
+
+        // 4. 아이 조회
+        User child = userRepository.findById(request.getChildId())
+                .orElseThrow(() -> new CustomException(TransactionErrorCode.USER_NOT_FOUND));
+
+        // 5. 아이 계좌 조회
+        Account childAccount = accountRepository.findByUser(child)
+                .orElseThrow(() -> new CustomException(TransactionErrorCode.ACCOUNT_NOT_FOUND));
+
+        // 6. SSAFY API 계좌 이체
+        String summary = child.getUserName();
+        bankingApiService.transfer(
+                parentAccount.getAccountNumber(),
+                childAccount.getAccountNumber(),
+                request.getAmount(),
+                summary
+        );
+
+        // 7. 응답 생성
+        ParentChildTransferResponseDto response = new ParentChildTransferResponseDto();
+        response.setAccountNumber(childAccount.getAccountNumber());
+        response.setChildName(child.getUserName());
+
+        return response;
+    }
+
 
 }
