@@ -16,13 +16,13 @@ public class BankingApiServiceImpl implements BankingApiService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    @Value("${bank.api.base-url}")
+    @Value("${external-api.account-auth.base-url}")
     private String baseUrl;
 
-    @Value("${bank.api.api-key}")
+    @Value("${external-api.account-auth.api-key}")
     private String apiKey;
 
-    @Value("${bank.api.user-key}")
+    @Value("${external-api.account-auth.user-key}")
     private String userKey;
 
     // 계좌 송금
