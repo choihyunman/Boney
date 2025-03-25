@@ -91,5 +91,126 @@ public class AccountPwController {
         ));
     }
 
+    // null 확인 api
+    @PostMapping("/password/check")
+    public ResponseEntity<Map<String, Object>> checkAccountPasswordNull(
+            @RequestHeader(value = "Authorization", required = false) String token,
+            @RequestBody Map<String, String> requestBody) {
+
+        // JWT 누락
+        if (token == null || !token.startsWith("Bearer ")) {
+            return ResponseEntity.status(401).body(Map.of(
+                    "status", 401,
+                    "message", "인증되지 않은 요청입니다."
+            ));
+        }
+
+        // JWT 검증 실패
+        String jwt = token.substring(7);
+        if (!jwtTokenProvider.validateToken(jwt)) {
+            return ResponseEntity.status(401).body(Map.of(
+                    "status", 401,
+                    "message", "인증되지 않은 요청입니다."
+            ));
+        }
+
+        // 요청 필드 검증
+        String accountNumber = requestBody.get("account_number");
+        if (accountNumber == null || accountNumber.isBlank()) {
+            return ResponseEntity.status(400).body(Map.of(
+                    "status", 400,
+                    "message", "account_number는 필수이며, 올바른 형식이어야 합니다."
+            ));
+        }
+
+        // 계좌 존재 여부 확인
+        Optional<Account> accountOpt = accountRepository.findByAccountNumber(accountNumber);
+        if (accountOpt.isEmpty()) {
+            return ResponseEntity.status(404).body(Map.of(
+                    "status", 404,
+                    "message", "해당 계좌를 찾을 수 없습니다."
+            ));
+        }
+
+        Account account = accountOpt.get();
+        boolean isPasswordNull = (account.getAccountPassword() == null);
+
+        if (isPasswordNull) {
+            return ResponseEntity.ok(Map.of(
+                    "status", 200,
+                    "message", "계좌는 아직 비밀번호가 설정되지 않았습니다.",
+                    "data", Map.of("isPasswordNull", true)
+            ));
+        } else {
+            return ResponseEntity.ok(Map.of(
+                    "status", 200,
+                    "message", "계좌에 비밀번호가 설정되어 있습니다.",
+                    "data", Map.of("isPasswordNull", false)
+            ));
+        }
+    }
+
+    // 앱 비밀번호 검증
+    @PostMapping("/password/verify")
+    public ResponseEntity<Map<String, Object>> verifyAccountPassword(
+            @RequestHeader(value = "Authorization", required = false) String token,
+            @RequestBody Map<String, String> requestBody) {
+
+        // JWT 누락/형식 오류
+        if (token == null || !token.startsWith("Bearer ")) {
+            return ResponseEntity.status(401).body(Map.of(
+                    "status", 401,
+                    "message", "인증되지 않은 요청입니다."
+            ));
+        }
+
+        if (!jwtTokenProvider.validateToken(token.substring(7))) {
+            return ResponseEntity.status(401).body(Map.of(
+                    "status", 401,
+                    "message", "인증되지 않은 요청입니다."
+            ));
+        }
+
+        // 요청 바디 유효성 검증
+        String accountNumber = requestBody.get("account_number");
+        String sendPassword = requestBody.get("send_password");
+
+        if (accountNumber == null || accountNumber.isBlank() || sendPassword == null || sendPassword.isBlank()) {
+            return ResponseEntity.status(400).body(Map.of(
+                    "status", 400,
+                    "message", "account_number는 필수이며, 올바른 형식이어야 합니다."
+            ));
+        }
+
+        // 계좌 조회
+        Optional<Account> accountOpt = accountRepository.findByAccountNumber(accountNumber);
+        if (accountOpt.isEmpty()) {
+            return ResponseEntity.status(404).body(Map.of(
+                    "status", 404,
+                    "message", "해당 계좌를 찾을 수 없습니다."
+            ));
+        }
+
+        Account account = accountOpt.get();
+        String storedPassword = account.getAccountPassword();
+
+        // 비밀번호 검증
+        if (storedPassword == null) {
+            return ResponseEntity.ok(Map.of(
+                    "status", 200,
+                    "message", "계좌에 비밀번호가 설정되어 있지 않습니다.",
+                    "data", Map.of("isPasswordNull", true)
+            ));
+        }
+
+        boolean isMatched = passwordEncoder.matches(sendPassword, storedPassword);
+
+        return ResponseEntity.ok(Map.of(
+                "status", 200,
+                "message", isMatched ? "계좌 비밀번호가 일치합니다." : "계좌 비밀번호가 일치하지 않습니다.",
+                "data", Map.of("isMatched", isMatched)
+        ));
+    }
+
 
 }
