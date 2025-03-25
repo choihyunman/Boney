@@ -25,7 +25,7 @@ public class TransferService {
     private final BankingApiService bankingApiService;
     private final PasswordEncoder passwordEncoder;
 
-    // 1. 예금주 조회
+    // 예금주 조회
     public HolderCheckResponseDto getAccountHolder(String accountNo) {
         String accountHolderName;
         try {
@@ -37,6 +37,24 @@ public class TransferService {
         dto.setAccountHolderName(accountHolderName);
         return dto;
     }
+
+
+    // 잔액 확인
+    public BalanceResponseDto getSenderBalance(Integer senderUserId) {
+        User sender = userRepository.findById(senderUserId)
+                .orElseThrow(() -> new CustomException(TransactionErrorCode.USER_NOT_FOUND));
+        Account senderAccount = accountRepository.findByUser(sender)
+                .orElseThrow(() -> new CustomException(TransactionErrorCode.ACCOUNT_NOT_FOUND));
+
+        Long balance = bankingApiService.getAccountBalance(senderAccount.getAccountNumber());
+
+        BalanceResponseDto dto = new BalanceResponseDto();
+        dto.setBalance(balance);
+        dto.setAccountNumber(senderAccount.getAccountNumber());
+        dto.setBankName(senderAccount.getBank().getBankName());
+        return dto;
+    }
+
 
     // 송금
     @Transactional
@@ -87,20 +105,47 @@ public class TransferService {
         return new TransferResponseDto("200", "성공적으로 송금되었습니다.", data);
     }
 
-    // 잔액 확인
-    public BalanceResponseDto getSenderBalance(Integer senderUserId) {
-        User sender = userRepository.findById(senderUserId)
+    // 보호자 -> 아이 용돈 지급
+    @Transactional
+    public ParentChildTransferResponseDto processParentChildTransfer(ParentChildTransferRequestDto request, Integer parentUserId) {
+        // 1. 보호자 조회
+        User parent = userRepository.findById(parentUserId)
                 .orElseThrow(() -> new CustomException(TransactionErrorCode.USER_NOT_FOUND));
-        Account senderAccount = accountRepository.findByUser(sender)
+
+        // 2. 보호자 계좌 조회
+        Account parentAccount = accountRepository.findByUser(parent)
                 .orElseThrow(() -> new CustomException(TransactionErrorCode.ACCOUNT_NOT_FOUND));
 
-        Long balance = bankingApiService.getAccountBalance(senderAccount.getAccountNumber());
+        // 3. 보호자 계좌 잔액 확인
+        Long availableBalance = bankingApiService.getAccountBalance(parentAccount.getAccountNumber());
+        if (availableBalance < request.getAmount()) {
+            throw new CustomException(TransactionErrorCode.INSUFFICIENT_BALANCE);
+        }
 
-        BalanceResponseDto dto = new BalanceResponseDto();
-        dto.setBalance(balance);
-        dto.setAccountNumber(senderAccount.getAccountNumber());
-        dto.setBankName(senderAccount.getBank().getBankName());
-        return dto;
+        // 4. 아이 조회
+        User child = userRepository.findById(request.getChildId())
+                .orElseThrow(() -> new CustomException(TransactionErrorCode.USER_NOT_FOUND));
+
+        // 5. 아이 계좌 조회
+        Account childAccount = accountRepository.findByUser(child)
+                .orElseThrow(() -> new CustomException(TransactionErrorCode.ACCOUNT_NOT_FOUND));
+
+        // 6. SSAFY API 계좌 이체
+        String summary = child.getUserName();
+        bankingApiService.transfer(
+                parentAccount.getAccountNumber(),
+                childAccount.getAccountNumber(),
+                request.getAmount(),
+                summary
+        );
+
+        // 7. 응답 생성
+        ParentChildTransferResponseDto response = new ParentChildTransferResponseDto();
+        response.setAccountNumber(childAccount.getAccountNumber());
+        response.setChildName(child.getUserName());
+
+        return response;
     }
+
 
 }
