@@ -4,6 +4,9 @@ import { useEffect } from "react";
 import { useFonts } from "expo-font";
 import { View } from "react-native";
 import { SessionProvider } from "../ctx";
+import * as WebBrowser from "expo-web-browser";
+
+WebBrowser.maybeCompleteAuthSession();
 
 SplashScreen.preventAutoHideAsync();
 

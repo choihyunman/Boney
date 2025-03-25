@@ -13,11 +13,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { User, Calendar, Phone } from "lucide-react-native";
 import GlobalText from "../../components/GlobalText";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { useRouter } from "expo-router";
+import * as SecureStore from "expo-secure-store";
+import { useSession } from "../../ctx";
+import { router } from "expo-router";
 
 const SignupScreen = () => {
-  const router = useRouter();
-
+  const { signIn } = useSession();
   const [userType, setUserType] = useState("PARENT");
   const [formData, setFormData] = useState({
     name: "",
@@ -104,6 +105,13 @@ const SignupScreen = () => {
     if (!validateForm()) return;
     setIsSubmitting(true);
 
+    console.log("📨 [signUp] 회원가입 요청 시작");
+
+    if (isSubmitting) {
+      console.log("🚫 이미 가입 요청 중이므로 무시");
+      return;
+    }
+
     const payload = {
       userName: formData.name,
       userBirth: `${formData.birthYear}-${formData.birthMonth}-${formData.birthDay}`,
@@ -118,17 +126,29 @@ const SignupScreen = () => {
       await useAuthStore.getState().signUp(payload);
 
       setIsSubmitting(false);
-      Alert.alert(
-        "회원가입 완료",
-        `${
-          userType === "PARENT" ? "보호자" : "아이"
-        } 회원가입이 완료되었습니다!`,
-        [{ text: "확인", onPress: () => router.replace("/(auth)/LinkAccount") }]
-      );
+
+      const currentUser = useAuthStore.getState().user;
+      const token = await SecureStore.getItemAsync("userToken");
+
+      if (currentUser && token) {
+        await signIn({
+          token,
+          signedUp: true,
+          kakaoId: currentUser.kakaoId,
+          userEmail: currentUser.userEmail,
+          userName: payload.userName,
+          userType: payload.role,
+          hasPin: false,
+        });
+
+        router.replace("/auth/CreatePin");
+      }
     } catch (error) {
       setIsSubmitting(false);
       console.error("❌ 회원가입 실패:", error);
       Alert.alert("오류", "회원가입 중 오류가 발생했습니다.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -331,7 +351,7 @@ const SignupScreen = () => {
                 disabled={isSubmitting}
               >
                 <GlobalText style={styles.submitButtonText}>
-                  {isSubmitting ? "가입 중..." : "가입하기"}
+                  {isSubmitting ? "가입 중..." : "다음"}
                 </GlobalText>
               </TouchableOpacity>
             </View>
