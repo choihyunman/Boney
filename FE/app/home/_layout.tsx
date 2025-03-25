@@ -1,10 +1,13 @@
-import { Stack } from "expo-router";
-import { Text, View } from "react-native";
+import { View, Text } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { StatusBar } from "expo-status-bar";
 import { useSession } from "../../ctx";
-import { useAuthRedirect } from "../../hooks/useAuthRedirect";
+import { Slot } from "expo-router";
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 
-export default function AppLayout() {
-  const { isLoading } = useSession();
+export default function HomeLayout() {
+  const { session, isLoading } = useSession();
+
   useAuthRedirect();
 
   if (isLoading) {
@@ -17,10 +20,9 @@ export default function AppLayout() {
   }
 
   return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-      }}
-    />
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
+      <StatusBar style="auto" />
+      {session !== undefined && <Slot />}
+    </SafeAreaView>
   );
 }

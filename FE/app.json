@@ -2,7 +2,6 @@
   "expo": {
     "name": "FE",
     "slug": "FE",
-    "owner": "msunny",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icons/full-logo.png",
@@ -19,17 +18,7 @@
       "supportsTablet": true
     },
     "android": {
-      "package": "com.msunny.FE",
-      "intentFilters": [
-        {
-          "action": "VIEW",
-          "data": {
-            "scheme": "myapp",
-            "host": "redirect"
-          },
-          "category": ["BROWSABLE", "DEFAULT"]
-        }
-      ],
+      "package": "com.boney.FE",
       "adaptiveIcon": {
         "foregroundImage": "./assets/icons/logo.png",
         "backgroundColor": "#ffffff"
@@ -40,7 +29,7 @@
       "output": "static",
       "favicon": "./assets/icons/logo.png"
     },
-    "plugins": ["expo-router", "expo-font"],
+    "plugins": ["expo-router", "expo-secure-store"],
     "experiments": {
       "router": true,
       "typedRoutes": true
@@ -48,9 +37,6 @@
     "extra": {
       "router": {
         "origin": false
-      },
-      "eas": {
-        "projectId": "b86f83f8-7551-4ebf-bfe8-642fe56764b9"
       }
     }
   }
