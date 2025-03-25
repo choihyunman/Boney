@@ -6,6 +6,8 @@ import * as SecureStore from "expo-secure-store";
 const noAuthRequiredUrls = [
   "/auth/login/kakao/token",
   "/auth/login/kakao/user",
+  "/auth/login/kakao/jwt",
+  "/auth/signup",
 ];
 
 export const api = axios.create({
@@ -20,7 +22,9 @@ api.interceptors.request.use(async (config) => {
   const url = config.url || "";
 
   // ❌ 인증 제외 URL이면 토큰 붙이지 않음
-  const isPublic = noAuthRequiredUrls.some((publicUrl) => url.includes(publicUrl));
+  const isPublic = noAuthRequiredUrls.some((publicUrl) =>
+    url.includes(publicUrl)
+  );
   if (isPublic) {
     return config;
   }
@@ -31,11 +35,11 @@ api.interceptors.request.use(async (config) => {
     config.headers.Authorization = `Bearer ${token}`;
   }
 
-   if (!isPublic && token) {
-     config.headers.Authorization = `Bearer ${token}`;
-   } else if (!isPublic && !token) {
-     console.warn("❗️인증 토큰이 없습니다.");
-   }
+  if (!isPublic && token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  } else if (!isPublic && !token) {
+    console.warn("❗️인증 토큰이 없습니다.");
+  }
 
   return config;
 });

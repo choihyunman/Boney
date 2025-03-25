@@ -8,13 +8,18 @@
       "@/*": ["./*"],
       "app/*": ["./app/*"],
       "expo-router": ["./node_modules/expo-router"] // ✅ 이걸 추가해야 함
-    }
+    },
+    "types": [
+      "nativewind/types"
+    ]
+
   },
   "include": [
     "**/*.ts",
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
-    "types"
+    "types",
+    "nativewind-env.d.ts"
   ]
 }
