@@ -38,6 +38,24 @@ public class TransferService {
         return dto;
     }
 
+
+    // 잔액 확인
+    public BalanceResponseDto getSenderBalance(Integer senderUserId) {
+        User sender = userRepository.findById(senderUserId)
+                .orElseThrow(() -> new CustomException(TransactionErrorCode.USER_NOT_FOUND));
+        Account senderAccount = accountRepository.findByUser(sender)
+                .orElseThrow(() -> new CustomException(TransactionErrorCode.ACCOUNT_NOT_FOUND));
+
+        Long balance = bankingApiService.getAccountBalance(senderAccount.getAccountNumber());
+
+        BalanceResponseDto dto = new BalanceResponseDto();
+        dto.setBalance(balance);
+        dto.setAccountNumber(senderAccount.getAccountNumber());
+        dto.setBankName(senderAccount.getBank().getBankName());
+        return dto;
+    }
+
+
     // 송금
     @Transactional
     public TransferResponseDto processTransfer(TransferRequestDto request, Integer senderUserId) {
@@ -87,20 +105,5 @@ public class TransferService {
         return new TransferResponseDto("200", "성공적으로 송금되었습니다.", data);
     }
 
-    // 잔액 확인
-    public BalanceResponseDto getSenderBalance(Integer senderUserId) {
-        User sender = userRepository.findById(senderUserId)
-                .orElseThrow(() -> new CustomException(TransactionErrorCode.USER_NOT_FOUND));
-        Account senderAccount = accountRepository.findByUser(sender)
-                .orElseThrow(() -> new CustomException(TransactionErrorCode.ACCOUNT_NOT_FOUND));
-
-        Long balance = bankingApiService.getAccountBalance(senderAccount.getAccountNumber());
-
-        BalanceResponseDto dto = new BalanceResponseDto();
-        dto.setBalance(balance);
-        dto.setAccountNumber(senderAccount.getAccountNumber());
-        dto.setBankName(senderAccount.getBank().getBankName());
-        return dto;
-    }
 
 }
