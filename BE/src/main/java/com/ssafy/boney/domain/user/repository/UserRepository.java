@@ -1,9 +1,11 @@
 package com.ssafy.boney.domain.user.repository;
 
 import com.ssafy.boney.domain.user.entity.User;
+import com.ssafy.boney.domain.user.entity.enums.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -24,6 +26,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     // 이메일 + 전화번호로 사용자 검색
     Optional<User> findByUserEmailAndUserPhone(String userEmail, String userPhone);
 
-
+    List<User> findAllByRole(Role role);
 
 }
