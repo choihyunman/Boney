@@ -21,7 +21,7 @@ export default function TransactionHistory() {
     if (!token) {
       console.log("❌ 인증 토큰 없음");
       setError("로그인이 필요합니다.");
-      router.replace("/(auth)"); // 로그인 페이지로 리다이렉트 추가
+      router.replace("/auth"); // 로그인 페이지로 리다이렉트 추가
       return;
     }
 
@@ -53,7 +53,7 @@ export default function TransactionHistory() {
     } catch (err) {
       console.error("❌ 거래내역 조회 실패:", err);
       if (err instanceof Error && err.message.includes("권한")) {
-        router.replace("/(auth)"); // 권한 관련 에러시 로그인 페이지로 이동
+        router.replace("/auth"); // 권한 관련 에러시 로그인 페이지로 이동
       }
       setError(
         err instanceof Error
@@ -177,7 +177,7 @@ export default function TransactionHistory() {
           )}
         </TouchableOpacity>
       </View>
-      거래 내역 목록
+      {/* 거래 내역 목록 */}
       <ScrollView className="flex-1 bg-white">
         {loading ? (
           <Text className="text-center py-5 text-base text-gray-500">
@@ -202,7 +202,7 @@ export default function TransactionHistory() {
                     if (!transactionId) return;
 
                     router.push({
-                      pathname: "/(transaction)/[transactionId]",
+                      pathname: "/transaction/[transactionId]",
                       params: { transactionId: transactionId },
                     });
                   }}

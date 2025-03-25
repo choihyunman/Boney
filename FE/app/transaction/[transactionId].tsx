@@ -40,7 +40,7 @@ export default function TransactionDetail() {
         await getUserInfo();
       } catch (err) {
         setError("로그인이 필요합니다.");
-        router.replace("/(auth)");
+        router.replace("/auth");
         return;
       }
     }
@@ -78,7 +78,7 @@ export default function TransactionDetail() {
 
       if (err instanceof Error) {
         if (err.message.includes("권한")) {
-          router.replace("/(auth)"); // 권한 관련 에러시 로그인 페이지로 이동
+          router.replace("/auth"); // 권한 관련 에러시 로그인 페이지로 이동
         } else if (err.message.includes("찾을 수 없습니다")) {
           router.back(); // 존재하지 않는 거래의 경우 이전 페이지로
         }

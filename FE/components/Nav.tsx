@@ -47,7 +47,7 @@ const Nav = () => {
 
       <TouchableOpacity
         className="items-center"
-        onPress={() => router.push("/(transaction)")}
+        onPress={() => router.push("/transaction")}
       >
         <FileText
           size={24}

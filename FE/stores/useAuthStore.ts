@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { api } from "../lib/api";
-import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
+import { router } from "expo-router";
 
 interface UserInfo {
   kakaoId: number;
@@ -16,11 +16,11 @@ interface UserInfo {
 interface AuthStore {
   user: UserInfo | null;
   token: string | null;
+  account: string | null;
   setUser: (user: UserInfo) => void;
   kakaoLogin: (code: string) => Promise<void>;
   signUp: (userInfo: Omit<UserInfo, "kakaoId" | "userEmail">) => Promise<void>;
   logout: () => void;
-  getUserInfo: () => Promise<UserInfo>;
 }
 
 async function fetchAccessTokenFromKakao(code: string): Promise<string> {
@@ -66,42 +66,34 @@ async function fetchJWTFromServer(kakaoId: number): Promise<string> {
   return token;
 }
 
-async function fetchUserInfoFromServer(jwt: string): Promise<UserInfo> {
-  const res = await api.post("/auth/check");
+async function createAccount(): Promise<string> {
+  try {
+    const res = await api.post("/account/create");
+    const account = res.data.data.accountNo;
+    return account;
+  } catch (err) {
+    console.error("❌ 계좌 생성 실패:", err);
+    throw err;
+  }
+}
 
-  const { data } = res.data;
-
-  const user: UserInfo = {
-    kakaoId: data.kakao_id,
-    userEmail: data.user_email,
-    userName: data.user_name,
-    userBirth: data.user_birth,
-    userGender: data.user_gender,
-    userPhone: data.user_phone,
-    role: data.role,
-  };
-
-  console.log("✅ 사용자 정보 수신:", user);
-  return user;
+async function registerAccount(account: string): Promise<void> {
+  try {
+    await api.post("/account/register", { accountNo: account });
+  } catch (err) {
+    console.error("❌ 계좌 등록 실패:", err);
+    throw err;
+  }
 }
 
 export const useAuthStore = create<AuthStore>((set, get) => ({
   user: null,
   token: null,
+  account: null,
 
   setUser: (user) => {
     console.log("🧠 사용자 상태 설정:", user);
     set({ user });
-  },
-
-  getUserInfo: async () => {
-    const token = await SecureStore.getItemAsync("userToken");
-    if (!token) {
-      throw new Error("로그인이 필요합니다.");
-    }
-    const userInfo = await fetchUserInfoFromServer(token);
-    set({ user: userInfo, token });
-    return userInfo;
   },
 
   kakaoLogin: async (code) => {
@@ -112,25 +104,15 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       const user = await fetchUserInfoFromKakao(token);
 
       set({ user });
-
-      router.replace({
-        pathname: "/(auth)/SignUp",
-        params: {
-          kakaoId: user.kakaoId,
-          userEmail: user.userEmail,
-        },
-      });
-
-      console.log("➡️ 회원가입 페이지로 이동:", user);
     } catch (err) {
       console.error("❌ 카카오 로그인 실패:", err);
+      router.replace("/auth");
       throw err;
     }
   },
 
   signUp: async (userInfo) => {
     const { user } = get();
-
     console.log("🧠 사용자:", user);
 
     if (!user) {
@@ -145,13 +127,15 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
     try {
       const res = await api.post("/auth/signup", payload);
-      console.log("🎉 회원가입 성공:", res.data);
+      console.log("🎉 회원가입 성공: ", res.data);
       const token = await fetchJWTFromServer(user.kakaoId);
-      console.log("🔐 JWT 토큰:", token);
+      console.log("🔐 토큰: ", token);
+      const account = await createAccount();
+      console.log("💳 계좌: ", account);
+      await registerAccount(account);
+      console.log("💳 계좌 등록 완료");
 
-      set({ user, token });
-
-      router.replace("/(app)/index" as any);
+      set({ user, token, account });
     } catch (err) {
       console.error("❌ 회원가입 실패:", err);
       throw err;

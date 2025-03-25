@@ -4,7 +4,7 @@ import * as WebBrowser from "expo-web-browser";
 import { useEffect } from "react";
 import { useFonts } from "expo-font";
 import { View } from "react-native";
-import { SessionProvider, useSession } from "../ctx";
+import { SessionProvider } from "../ctx";
 import { SafeAreaView } from "react-native-safe-area-context";
 import "./global.css";
 import { StatusBar } from "expo-status-bar";
@@ -35,7 +35,6 @@ function RootLayoutNav() {
     "NEXONLv1Gothic-Regular": require("../assets/fonts/NEXONLv1GothicRegular.ttf"),
   });
 
-  const { session, isLoading } = useSession();
   const pathname = usePathname();
 
   useEffect(() => {
