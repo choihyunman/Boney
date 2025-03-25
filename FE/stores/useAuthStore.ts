@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { api } from "../lib/api";
 import * as SecureStore from "expo-secure-store";
 import { router } from "expo-router";
+import { useSession } from "../ctx";
 
 interface UserInfo {
   kakaoId: number;
@@ -18,7 +19,7 @@ interface AuthStore {
   token: string | null;
   account: string | null;
   setUser: (user: UserInfo) => void;
-  kakaoLogin: (code: string) => Promise<void>;
+  kakaoLogin: (code: string) => Promise<UserInfo>;
   signUp: (userInfo: Omit<UserInfo, "kakaoId" | "userEmail">) => Promise<void>;
   logout: () => void;
 }
@@ -96,7 +97,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     set({ user });
   },
 
-  kakaoLogin: async (code) => {
+  kakaoLogin: async (code): Promise<UserInfo> => {
     console.log("🚀 백엔드에 카카오 인가 코드 전송:", code);
 
     try {
@@ -104,6 +105,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       const user = await fetchUserInfoFromKakao(token);
 
       set({ user });
+      return user;
     } catch (err) {
       console.error("❌ 카카오 로그인 실패:", err);
       router.replace("/auth");

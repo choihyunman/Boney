@@ -10,13 +10,13 @@ import { Platform } from "react-native";
 
 // 사용자 세션 타입
 interface UserSession {
-  token: string;
-  signedUp: boolean;
+  token?: string;
+  signedUp?: boolean;
   kakaoId: number;
   userName?: string;
   userEmail: string;
   userType?: string;
-  hasPin: boolean;
+  hasPin?: boolean;
 }
 
 // 인증 컨텍스트 타입 정의
@@ -75,7 +75,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
 
   const signIn = async (user: UserSession) => {
     if (Platform.OS !== "web") {
-      await SecureStore.setItemAsync("userToken", user.token);
+      await SecureStore.setItemAsync("userToken", user.token || "");
       await SecureStore.setItemAsync("userInfo", JSON.stringify(user));
     }
     setSession(user);
