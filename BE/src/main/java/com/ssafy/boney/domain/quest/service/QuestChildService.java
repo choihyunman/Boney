@@ -11,7 +11,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-// 자녀 목록 조회
+// 보호자 아이 목록 조회
 @Service
 @RequiredArgsConstructor
 public class QuestChildService {
@@ -23,7 +23,6 @@ public class QuestChildService {
 
         // 생년월일 오름차순 정렬
         parentChildList.sort(Comparator.comparing(pc -> pc.getChild().getUserBirth()));
-
         return parentChildList.stream()
                 .map(pc -> new QuestChildResponseDto(
                         pc.getChild().getUserId(),

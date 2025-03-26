@@ -27,7 +27,6 @@ public class QuestChildController {
             @RequestAttribute("userId") Integer parentId) {
 
         User parent = userService.findById(parentId);
-
         List<QuestChildResponseDto> children = questChildService.getChildrenForQuest(parent);
 
         if (children.isEmpty()) {
