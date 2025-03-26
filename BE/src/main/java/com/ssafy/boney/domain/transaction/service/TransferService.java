@@ -86,8 +86,8 @@ public class TransferService {
             throw new CustomException(TransactionErrorCode.ACCOUNT_NOT_FOUND);
         }
 
-        // 6. SSAFY API 계좌 이체 - summary에 받는 사람 이름 포함
-        String summary = recipientName;
+        // 6. SSAFY API 계좌 이체 - summary에 보낸 사람(부모)의 이름 포함
+        String summary = "이체 " + sender.getUserName();
         bankingApiService.transfer(
                 senderAccount.getAccountNumber(),
                 request.getRecipientAccountNumber(),
@@ -116,22 +116,27 @@ public class TransferService {
         Account parentAccount = accountRepository.findByUser(parent)
                 .orElseThrow(() -> new CustomException(TransactionErrorCode.ACCOUNT_NOT_FOUND));
 
-        // 3. 보호자 계좌 잔액 확인
+        // 3. 보호자 계좌 비밀번호 확인
+        if (!passwordEncoder.matches(request.getSendPassword(), parentAccount.getAccountPassword())) {
+            throw new CustomException(TransactionErrorCode.INVALID_PASSWORD);
+        }
+
+        // 4. 보호자 계좌 잔액 확인
         Long availableBalance = bankingApiService.getAccountBalance(parentAccount.getAccountNumber());
         if (availableBalance < request.getAmount()) {
             throw new CustomException(TransactionErrorCode.INSUFFICIENT_BALANCE);
         }
 
-        // 4. 아이 조회
+        // 5. 아이 조회
         User child = userRepository.findById(request.getChildId())
                 .orElseThrow(() -> new CustomException(TransactionErrorCode.USER_NOT_FOUND));
 
-        // 5. 아이 계좌 조회
+        // 6. 아이 계좌 조회
         Account childAccount = accountRepository.findByUser(child)
                 .orElseThrow(() -> new CustomException(TransactionErrorCode.ACCOUNT_NOT_FOUND));
 
-        // 6. SSAFY API 계좌 이체
-        String summary = child.getUserName();
+        // 7. SSAFY API 계좌 이체
+        String summary = "용돈 " + parent.getUserName();
         bankingApiService.transfer(
                 parentAccount.getAccountNumber(),
                 childAccount.getAccountNumber(),
@@ -139,7 +144,7 @@ public class TransferService {
                 summary
         );
 
-        // 7. 응답 생성
+        // 8. 응답 생성
         ParentChildTransferResponseDto response = new ParentChildTransferResponseDto();
         response.setAccountNumber(childAccount.getAccountNumber());
         response.setChildName(child.getUserName());
