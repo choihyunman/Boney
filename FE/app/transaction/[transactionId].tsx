@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity } from "react-native";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronRight, Wallet } from "lucide-react-native";
 import IncomeCategory from "./IncomeCategory";
 import ExpenseCategory from "./ExpenseCategory";
@@ -34,6 +34,17 @@ export default function TransactionDetail() {
   const [isHashtagModalOpen, setIsHashtagModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
 
+  useEffect(() => {
+    console.log("🔄 TransactionDetail mounted:", {
+      transactionId,
+      hasToken: !!token,
+      tokenLength: token?.length,
+    });
+    if (transactionId && token) {
+      fetchTransactionDetail();
+    }
+  }, [transactionId, token]);
+
   const fetchTransactionDetail = async () => {
     if (!transactionId || !/^\d+$/.test(transactionId)) {
       console.log("❌ 잘못된 거래 ID:", transactionId);
@@ -43,25 +54,26 @@ export default function TransactionDetail() {
       return;
     }
 
+    if (!token) {
+      console.log("❌ 인증 토큰 없음");
+      setError("로그인이 필요합니다.");
+      router.replace("/auth");
+      return;
+    }
+
     try {
       setIsLoading(true);
       setError(null);
 
-      const currentToken = useAuthStore.getState().token;
       console.log("📡 거래 상세 조회 요청:", {
         transactionId: transactionId,
-        hasToken: !!currentToken,
-        token: currentToken,
+        hasToken: !!token,
+        tokenLength: token?.length,
       });
 
-      if (!currentToken) {
-        throw new Error("인증 토큰이 없습니다.");
-      }
+      const response = await getTransactionDetail(Number(transactionId), token);
 
-      const response = await getTransactionDetail(
-        Number(transactionId),
-        currentToken
-      );
+      console.log("📥 거래 상세 조회 응답:", response);
       setTransaction(response.data);
     } catch (err) {
       console.error("❌ 거래 상세 조회 실패:", err);
