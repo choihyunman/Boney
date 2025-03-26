@@ -3,6 +3,7 @@ package com.ssafy.boney.domain.loan.controller;
 import com.ssafy.boney.domain.loan.dto.LoanApproveRequest;
 import com.ssafy.boney.domain.loan.dto.LoanRejectRequest;
 import com.ssafy.boney.domain.loan.dto.LoanRequest;
+import com.ssafy.boney.domain.loan.dto.LoanTransferRequest;
 import com.ssafy.boney.domain.loan.service.LoanService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +44,14 @@ public class LoanController {
                                         HttpServletRequest httpRequest) {
         Integer parentId = (Integer) httpRequest.getAttribute("userId");
         return loanService.rejectLoan(request, parentId);
+    }
+
+    // 대출 송금 api
+    @PostMapping("/transfer")
+    public ResponseEntity<?> transferLoanAmount(@RequestBody LoanTransferRequest request,
+                                                HttpServletRequest httpRequest) {
+        Integer parentId = (Integer) httpRequest.getAttribute("userId");
+        return loanService.transferLoanAmount(request, parentId);
     }
 
 
