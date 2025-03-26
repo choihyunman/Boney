@@ -31,7 +31,7 @@ public class QuestChildController {
 
         if (children.isEmpty()) {
             return ResponseEntity.status(404).body(
-                    new ApiResponse<>(404, "자녀 목록을 찾을 수 없습니다.", null)
+                    new ApiResponse<>(404, "아이 목록을 찾을 수 없습니다.", null)
             );
         }
 
