@@ -1,5 +1,6 @@
 package com.ssafy.boney.domain.loan.controller;
 
+import com.ssafy.boney.domain.loan.dto.LoanApproveRequest;
 import com.ssafy.boney.domain.loan.dto.LoanRequest;
 import com.ssafy.boney.domain.loan.service.LoanService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,6 +26,14 @@ public class LoanController {
     public ResponseEntity<?> getRequestedLoansForParent(HttpServletRequest request) {
         Integer parentId = (Integer) request.getAttribute("userId");
         return loanService.getRequestedLoansByParent(parentId);
+    }
+
+    // 대출 승인 상태로 변경 api
+    @PostMapping("/approve")
+    public ResponseEntity<?> approveLoan(@RequestBody LoanApproveRequest request,
+                                         HttpServletRequest httpRequest) {
+        Integer parentId = (Integer) httpRequest.getAttribute("userId");
+        return loanService.approveLoan(request, parentId);
     }
 
 
