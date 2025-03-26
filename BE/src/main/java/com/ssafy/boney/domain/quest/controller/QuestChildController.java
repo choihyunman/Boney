@@ -2,7 +2,7 @@ package com.ssafy.boney.domain.quest.controller;
 
 import com.ssafy.boney.domain.quest.dto.QuestChildResponseDto;
 import com.ssafy.boney.domain.quest.service.QuestChildService;
-import com.ssafy.boney.domain.user.dto.ApiResponse;
+import com.ssafy.boney.global.dto.ApiResponse;
 import com.ssafy.boney.domain.user.entity.User;
 import com.ssafy.boney.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
