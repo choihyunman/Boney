@@ -1,6 +1,7 @@
 package com.ssafy.boney.domain.loan.service;
 
 import com.ssafy.boney.domain.loan.dto.LoanApproveRequest;
+import com.ssafy.boney.domain.loan.dto.LoanRejectRequest;
 import com.ssafy.boney.domain.loan.dto.LoanRequest;
 import com.ssafy.boney.domain.loan.dto.LoanResponse;
 import com.ssafy.boney.domain.loan.entity.Loan;
@@ -171,6 +172,50 @@ public class LoanService {
         return ResponseEntity.ok(Map.of(
                 "status", "200",
                 "message", "대출 요청이 승인되었습니다.",
+                "data", Map.of(
+                        "loan_id", loan.getLoanId(),
+                        "approved_at", loan.getApprovedAt(),
+                        "loan_status", loan.getStatus().name()
+                )
+        ));
+    }
+
+    // 대출 요청 거절
+    @Transactional
+    public ResponseEntity<?> rejectLoan(LoanRejectRequest request, Integer parentId) {
+        if (request.getLoanId() == null) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", 400,
+                    "message", "loan_id는 필수입니다."
+            ));
+        }
+
+        Loan loan = loanRepository.findById(request.getLoanId()).orElse(null);
+
+        if (loan == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                    "status", 400,
+                    "message", "해당 loan_id에 대한 대출 정보를 찾을 수 없습니다."
+            ));
+        }
+
+        // 부모 검증
+        ParentChild relation = loan.getParentChild();
+        if (!relation.getParent().getUserId().equals(parentId)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                    "status", 401,
+                    "message", "토큰이 없거나 만료되었습니다."
+            ));
+        }
+
+        // 상태 변경
+        loan.setStatus(LoanStatus.REJECTED);
+        // 승인 시간에 거절 시간도 함께 저장
+        loan.setApprovedAt(LocalDateTime.now());
+
+        return ResponseEntity.ok(Map.of(
+                "status", "200",
+                "message", "대출 요청이 거절되었습니다.",
                 "data", Map.of(
                         "loan_id", loan.getLoanId(),
                         "approved_at", loan.getApprovedAt(),
