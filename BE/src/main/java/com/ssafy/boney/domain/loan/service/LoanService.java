@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -78,6 +80,44 @@ public class LoanService {
                 "status", "200",
                 "message", "대출 요청이 성공적으로 접수되었습니다.",
                 "data", response
+        ));
+    }
+
+    public ResponseEntity<?> getRequestedLoansByParent(Integer parentId) {
+        // 보호자 조회
+        User parent = userRepository.findById(parentId)
+                .orElseThrow(() -> new UserNotFoundException(UserErrorCode.NOT_FOUND));
+
+        // 보호자의 모든 자녀 관계 조회
+        List<ParentChild> relations = parentChildRepository.findByParent(parent);
+
+        // 모든 REQUESTED 상태의 대출 수집
+        List<Map<String, Object>> loanList = new ArrayList<>();
+
+        for (ParentChild relation : relations) {
+            User child = relation.getChild();
+
+            List<Loan> requestedLoans = loanRepository.findByParentChild(relation).stream()
+                    .filter(loan -> loan.getStatus() == LoanStatus.REQUESTED)
+                    .toList();
+
+            for (Loan loan : requestedLoans) {
+                Map<String, Object> loanInfo = Map.of(
+                        "loan_id", loan.getLoanId(),
+                        "child_name", child.getUserName(),
+                        "loan_amount", loan.getLoanAmount(),
+                        "request_date", loan.getRequestedAt().toLocalDate().toString(),
+                        "due_date", loan.getDueDate().toLocalDate().toString(),
+                        "child_credit_score", child.getCreditScore() != null ? child.getCreditScore().getScore() : 0
+                );
+                loanList.add(loanInfo);
+            }
+        }
+
+        return ResponseEntity.ok(Map.of(
+                "status", "200",
+                "message", "대출 요청이 성공적으로 확인되었습니다.",
+                "data", Map.of("loan_list", loanList)
         ));
     }
 
