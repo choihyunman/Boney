@@ -86,14 +86,18 @@ export const useAuthRedirect = () => {
 
         // zustand store에도 저장
         setUser({
-          kakaoId: session.kakaoId,
+          kakaoId: userData.kakao_id,
           userId: userData.user_id,
-          userEmail: session.userEmail,
+          userEmail: userData.user_email,
           userName: userData.user_name,
           userGender: userData.user_gender, // 필요 시
           userBirth: userData.user_birth, // 필요 시
           userPhone: userData.user_phone, // 필요 시
           role: userData.role,
+        });
+
+        useAuthStore.setState({
+          token: session.token,
         });
 
         if (pinData.isPasswordNull) {

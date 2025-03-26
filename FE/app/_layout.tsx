@@ -124,7 +124,7 @@ function RootLayoutNav() {
         <Header {...getHeaderConfig()} />
       )}
       <Slot />
-      {!isAuthPage && <Nav />}
+      {!pathname.includes("auth") && <Nav />}
     </SafeAreaView>
   );
 }
