@@ -1,12 +1,14 @@
 package com.ssafy.boney.domain.loan.service;
 
-import com.ssafy.boney.domain.loan.dto.LoanApproveRequest;
-import com.ssafy.boney.domain.loan.dto.LoanRejectRequest;
-import com.ssafy.boney.domain.loan.dto.LoanRequest;
-import com.ssafy.boney.domain.loan.dto.LoanResponse;
+import com.ssafy.boney.domain.account.entity.Account;
+import com.ssafy.boney.domain.account.repository.AccountRepository;
+import com.ssafy.boney.domain.account.service.BankingApiService;
+import com.ssafy.boney.domain.loan.dto.*;
 import com.ssafy.boney.domain.loan.entity.Loan;
 import com.ssafy.boney.domain.loan.entity.enums.LoanStatus;
 import com.ssafy.boney.domain.loan.repository.LoanRepository;
+import com.ssafy.boney.domain.transaction.exception.CustomException;
+import com.ssafy.boney.domain.transaction.exception.TransactionErrorCode;
 import com.ssafy.boney.domain.user.entity.ParentChild;
 import com.ssafy.boney.domain.user.entity.User;
 import com.ssafy.boney.domain.user.exception.UserErrorCode;
@@ -32,6 +34,8 @@ public class LoanService {
     private final UserRepository userRepository;
     private final ParentChildRepository parentChildRepository;
     private final LoanRepository loanRepository;
+    private final AccountRepository accountRepository;
+    private final BankingApiService bankingApiService;
 
     @Transactional
     public ResponseEntity<?> createLoan(Integer childId, LoanRequest request) {
@@ -220,6 +224,74 @@ public class LoanService {
                         "loan_id", loan.getLoanId(),
                         "approved_at", loan.getApprovedAt(),
                         "loan_status", loan.getStatus().name()
+                )
+        ));
+    }
+
+    @Transactional
+    public ResponseEntity<?> transferLoanAmount(LoanTransferRequest request, Integer parentId) {
+        if (request.getLoanId() == null || request.getLoanAmount() == null) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", 400,
+                    "message", "loan_id와 loan_amount는 필수입니다."
+            ));
+        }
+
+        Loan loan = loanRepository.findById(request.getLoanId())
+                .orElse(null);
+
+        if (loan == null || loan.getStatus() != LoanStatus.APPROVED) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                    "status", 400,
+                    "message", "존재하지 않거나 승인되지 않은 대출입니다."
+            ));
+        }
+
+        ParentChild relation = loan.getParentChild();
+
+        if (!relation.getParent().getUserId().equals(parentId)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                    "status", 401,
+                    "message", "권한이 없습니다."
+            ));
+        }
+
+        // 계좌 정보 조회
+        User child = relation.getChild();
+        Account parentAccount = accountRepository.findByUser(relation.getParent())
+                .orElseThrow(() -> new CustomException(TransactionErrorCode.ACCOUNT_NOT_FOUND));
+        Account childAccount = accountRepository.findByUser(child)
+                .orElseThrow(() -> new CustomException(TransactionErrorCode.ACCOUNT_NOT_FOUND));
+
+        // 🔐 잔액 확인
+        Long balance = bankingApiService.getAccountBalance(parentAccount.getAccountNumber());
+        if (balance < request.getLoanAmount()) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", 400,
+                    "message", "부모 계좌의 잔액이 부족합니다.",
+                    "data", Map.of(
+                            "available_balance", balance,
+                            "required_amount", request.getLoanAmount()
+                    )
+            ));
+        }
+
+        // 송금 처리
+        String summary = "대출지급 " + relation.getParent().getUserName();
+        bankingApiService.transfer(
+                parentAccount.getAccountNumber(),
+                childAccount.getAccountNumber(),
+                request.getLoanAmount(),
+                summary
+        );
+
+        return ResponseEntity.ok(Map.of(
+                "status", "200",
+                "message", "대출금이 성공적으로 송금되었습니다.",
+                "data", Map.of(
+                        "loan_id", loan.getLoanId(),
+                        "child_name", child.getUserName(),
+                        "transferred_amount", request.getLoanAmount()
                 )
         ));
     }
