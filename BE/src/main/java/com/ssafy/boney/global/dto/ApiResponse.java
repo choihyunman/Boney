@@ -1,4 +1,4 @@
-package com.ssafy.boney.domain.user.dto;
+package com.ssafy.boney.global.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
