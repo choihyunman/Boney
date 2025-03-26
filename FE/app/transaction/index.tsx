@@ -10,7 +10,7 @@ import GlobalText from "@/components/GlobalText";
 
 export default function TransactionHistory() {
   const router = useRouter();
-  const { token } = useAuthStore();
+  const token = useAuthStore((state) => state.token);
   const [activeTab, setActiveTab] = useState<"all" | "out" | "in">("all");
   const [currentMonth, setCurrentMonth] = useState<string>(() => {
     const now = new Date();
