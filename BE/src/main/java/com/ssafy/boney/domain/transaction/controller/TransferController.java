@@ -2,7 +2,7 @@ package com.ssafy.boney.domain.transaction.controller;
 
 import com.ssafy.boney.domain.transaction.dto.*;
 import com.ssafy.boney.domain.transaction.service.TransferService;
-import com.ssafy.boney.domain.user.dto.ApiResponse;
+import com.ssafy.boney.global.dto.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
