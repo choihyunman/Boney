@@ -1,5 +1,6 @@
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
+import GlobalText from "./GlobalText";
 
 interface HeaderProps {
   title?: string;
@@ -35,16 +36,18 @@ export default function Header({
             {leftButton.icon ? (
               leftButton.icon
             ) : (
-              <Text className="text-[#9CA3AF] text-base">
+              <GlobalText weight="regular" className="text-[#9CA3AF] text-base">
                 {leftButton.text}
-              </Text>
+              </GlobalText>
             )}
           </TouchableOpacity>
         )}
       </View>
 
       <View className="flex-1 items-center">
-        <Text className="text-xl font-bold text-gray-800">{title}</Text>
+        <GlobalText weight="bold" className="text-xl text-gray-800">
+          {title}
+        </GlobalText>
       </View>
 
       <View className="w-16 items-end">
@@ -53,9 +56,9 @@ export default function Header({
             {rightButton.icon ? (
               rightButton.icon
             ) : (
-              <Text className="text-[#000000] text-base">
+              <GlobalText weight="regular" className="text-[#000000] text-base">
                 {rightButton.text}
-              </Text>
+              </GlobalText>
             )}
           </TouchableOpacity>
         )}

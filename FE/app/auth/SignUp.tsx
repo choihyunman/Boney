@@ -1,9 +1,8 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import {
   View,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
   ScrollView,
   Alert,
   KeyboardAvoidingView,
@@ -36,6 +35,9 @@ const SignupScreen = () => {
     [key: string]: string | undefined;
   }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const yearRef = useRef<TextInput>(null);
+  const monthRef = useRef<TextInput>(null);
+  const dayRef = useRef<TextInput>(null);
 
   const handleChange = useCallback(
     (name: keyof typeof formData, value: string) => {
@@ -54,6 +56,19 @@ const SignupScreen = () => {
     },
     [errors]
   );
+
+  const handleBirthChange = (
+    field: "birthYear" | "birthMonth" | "birthDay",
+    value: string
+  ) => {
+    handleChange(field, value);
+
+    if (field === "birthYear" && value.length === 4) {
+      monthRef.current?.focus();
+    } else if (field === "birthMonth" && value.length === 2) {
+      dayRef.current?.focus();
+    }
+  };
 
   const handlePhoneChange = useCallback(
     (value: string) => {
@@ -161,28 +176,69 @@ const SignupScreen = () => {
   ) => {
     const isPhone = key === "phoneNumber";
     return (
-      <View style={styles.inputGroup}>
-        <GlobalText style={styles.label}>{label}</GlobalText>
-        <View style={styles.inputContainer}>
-          {iconType && renderIcon(iconType)}
-          <TextInput
-            style={[styles.input, { paddingLeft: iconType ? 40 : 12 }]}
-            placeholder={placeholder || label}
-            placeholderTextColor="#9CA3AF"
-            keyboardType={keyboardType}
-            maxLength={maxLength}
-            value={formData[key]}
-            onChangeText={(text) => {
-              // console.log(`📥 [${key}] 입력값:`, text);
-              isPhone ? handlePhoneChange(text) : handleChange(key, text);
-            }}
-            onFocus={() => {
-              // console.log(`🧲 [${key}] 포커스 됨`);
-            }}
-          />
-        </View>
+      <View className="mb-5">
+        <GlobalText className="text-sm font-medium mb-2 text-gray-700">
+          {label}
+        </GlobalText>
+        <TouchableOpacity
+          activeOpacity={1}
+          onPress={() => {
+            // TextInput ref를 사용하여 포커스
+            if (key === "birthYear") {
+              yearRef.current?.focus();
+            } else if (key === "birthMonth") {
+              monthRef.current?.focus();
+            } else if (key === "birthDay") {
+              dayRef.current?.focus();
+            }
+          }}
+          style={{ width: "100%" }}
+        >
+          <View style={{ width: "100%", position: "relative" }}>
+            {iconType && (
+              <View
+                className="absolute left-3 z-10"
+                style={{ top: (48 - 18) / 2 }}
+              >
+                {renderIcon(iconType)}
+              </View>
+            )}
+            <TextInput
+              className={`text-base text-gray-800 px-3 bg-white border border-gray-300 rounded-lg h-12 ${
+                iconType ? "pl-10" : ""
+              }`}
+              style={{
+                fontFamily: "NEXONLv1Gothic-Regular",
+                height: 48,
+                width: "100%",
+              }}
+              keyboardType={keyboardType}
+              maxLength={maxLength}
+              value={formData[key]}
+              onChangeText={(text) => {
+                isPhone ? handlePhoneChange(text) : handleChange(key, text);
+              }}
+            />
+            {formData[key].length === 0 && (
+              <GlobalText
+                style={{
+                  position: "absolute",
+                  left: iconType ? 40 : 12,
+                  top: (48 - 16) / 2,
+                  color: "#9CA3AF",
+                  fontSize: 16,
+                }}
+                weight="regular"
+              >
+                {placeholder}
+              </GlobalText>
+            )}
+          </View>
+        </TouchableOpacity>
         {errors[key] && (
-          <GlobalText style={styles.errorText}>{errors[key]}</GlobalText>
+          <GlobalText className="text-red-500 text-xs mt-1">
+            {errors[key]}
+          </GlobalText>
         )}
       </View>
     );
@@ -193,7 +249,11 @@ const SignupScreen = () => {
 
   // 아이콘 렌더링 함수
   const renderIcon = (iconType: IconType) => {
-    const iconProps = { size: 18, color: "#9CA3AF", style: styles.inputIcon };
+    const iconProps = {
+      size: 18,
+      color: "#9CA3AF",
+      className: "absolute left-3 z-10",
+    };
 
     switch (iconType) {
       case "user":
@@ -208,41 +268,49 @@ const SignupScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView className="flex-1 bg-gray-50" edges={["left", "right"]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
-        style={{ flex: 1 }}
+        className="flex-1"
         keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
       >
         <ScrollView
-          contentContainerStyle={styles.scrollContainer}
+          className="flex-1"
           keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{ paddingTop: 0 }}
         >
-          {/* 헤더 */}
-          <View style={styles.header}>
-            <GlobalText style={styles.headerTitle}>회원가입</GlobalText>
-            <View style={{ width: 40 }} />
-          </View>
-
           {/* 폼 카드 */}
-          <View style={styles.formContainer}>
-            <View style={styles.card}>
+          <View className="p-4">
+            <View className="bg-white rounded-2xl p-5 shadow-sm">
               {/* 사용자 유형 선택 */}
-              <View style={styles.userTypeContainer}>
+              <View className="flex-row bg-gray-100 rounded-xl mb-6 p-1">
                 {["PARENT", "CHILD"].map((type) => (
                   <TouchableOpacity
                     key={type}
                     style={[
-                      styles.userTypeButton,
-                      userType === type && styles.userTypeButtonActive,
+                      {
+                        flex: 1,
+                        paddingVertical: 12,
+                        alignItems: "center",
+                        borderRadius: 12,
+                      },
+                      userType === type
+                        ? {
+                            backgroundColor: "white",
+                            shadowColor: "#000",
+                            shadowOpacity: 0.1,
+                            shadowRadius: 2,
+                          }
+                        : {},
                     ]}
                     onPress={() => setUserType(type)}
                   >
                     <GlobalText
-                      style={[
-                        styles.userTypeText,
-                        userType === type && styles.userTypeTextActive,
-                      ]}
+                      weight={userType === type ? "bold" : "regular"}
+                      style={{
+                        color: userType === type ? "#22C55E" : "#6B7280",
+                        fontSize: 16, // 원하는 크기
+                      }}
                     >
                       {type === "PARENT" ? "보호자" : "아이"}
                     </GlobalText>
@@ -250,82 +318,166 @@ const SignupScreen = () => {
                 ))}
               </View>
 
-              {renderInput("name", "이름", "이름을 입력해주세요.")}
+              {renderInput("name", "이름", "이름을 입력해주세요.", "user")}
 
-              <View style={styles.inputGroup}>
-                <GlobalText style={styles.label}>생년월일</GlobalText>
-                <View style={styles.birthInputContainer}>
-                  <View style={{ flex: 2 }}>
-                    <View style={styles.inputContainer}>
-                      <Calendar
-                        size={18}
-                        color="#9CA3AF"
-                        style={styles.inputIcon}
-                      />
-                      <TextInput
-                        style={[styles.input, { paddingLeft: 40 }]}
-                        placeholder="YYYY"
-                        placeholderTextColor="#9CA3AF"
-                        keyboardType="number-pad"
-                        maxLength={4}
-                        value={formData.birthYear}
-                        onChangeText={(text) => handleChange("birthYear", text)}
-                      />
-                    </View>
+              <View className="mb-5">
+                <GlobalText className="text-sm font-medium mb-2 text-gray-700">
+                  생년월일
+                </GlobalText>
+                <View className="flex-row">
+                  <View className="flex-[2]">
+                    <TouchableOpacity
+                      activeOpacity={1}
+                      onPress={() => yearRef.current?.focus()}
+                    >
+                      <View className="relative">
+                        <View
+                          className="absolute left-3 z-10"
+                          style={{ top: (48 - 18) / 2 }}
+                        >
+                          <Calendar size={18} color="#9CA3AF" />
+                        </View>
+                        <TextInput
+                          ref={yearRef}
+                          className="text-base text-gray-800 px-3 bg-white border border-gray-300 rounded-lg h-12 pl-10 text-center"
+                          style={{
+                            fontFamily: "NEXONLv1Gothic-Regular",
+                            height: 48,
+                            textAlign: "center",
+                          }}
+                          keyboardType="number-pad"
+                          maxLength={4}
+                          value={formData.birthYear}
+                          onChangeText={(text) =>
+                            handleBirthChange("birthYear", text)
+                          }
+                        />
+                        {formData.birthYear.length === 0 && (
+                          <GlobalText
+                            weight="regular"
+                            style={{
+                              position: "absolute",
+                              left: 25,
+                              right: 0,
+                              textAlign: "center",
+                              top: (48 - 16) / 2,
+                              fontSize: 16,
+                              color: "#9CA3AF",
+                            }}
+                          >
+                            YYYY
+                          </GlobalText>
+                        )}
+                      </View>
+                    </TouchableOpacity>
                   </View>
 
-                  <View style={{ flex: 1, marginHorizontal: 8 }}>
-                    <View style={styles.inputContainer}>
-                      <TextInput
-                        style={[styles.input, { textAlign: "center" }]}
-                        placeholder="MM"
-                        placeholderTextColor="#9CA3AF"
-                        keyboardType="number-pad"
-                        maxLength={2}
-                        value={formData.birthMonth}
-                        onChangeText={(text) =>
-                          handleChange("birthMonth", text)
-                        }
-                      />
-                    </View>
+                  <View className="flex-1 mx-2">
+                    <TouchableOpacity
+                      activeOpacity={1}
+                      onPress={() => monthRef.current?.focus()}
+                    >
+                      <View className="relative">
+                        <TextInput
+                          ref={monthRef}
+                          className="text-base text-gray-800 px-3 bg-white border border-gray-300 rounded-lg h-12 text-center"
+                          style={{
+                            fontFamily: "NEXONLv1Gothic-Regular",
+                            height: 48,
+                            textAlign: "center",
+                          }}
+                          keyboardType="number-pad"
+                          maxLength={2}
+                          value={formData.birthMonth}
+                          onChangeText={(text) =>
+                            handleBirthChange("birthMonth", text)
+                          }
+                        />
+                        {formData.birthMonth.length === 0 && (
+                          <GlobalText
+                            weight="regular"
+                            style={{
+                              position: "absolute",
+                              left: 0,
+                              right: 0,
+                              textAlign: "center",
+                              top: (48 - 16) / 2,
+                              fontSize: 16,
+                              color: "#9CA3AF",
+                            }}
+                          >
+                            MM
+                          </GlobalText>
+                        )}
+                      </View>
+                    </TouchableOpacity>
                   </View>
 
-                  <View style={{ flex: 1 }}>
-                    <View style={styles.inputContainer}>
-                      <TextInput
-                        style={[styles.input, { textAlign: "center" }]}
-                        placeholder="DD"
-                        placeholderTextColor="#9CA3AF"
-                        keyboardType="number-pad"
-                        maxLength={2}
-                        value={formData.birthDay}
-                        onChangeText={(text) => handleChange("birthDay", text)}
-                      />
-                    </View>
+                  <View className="flex-1">
+                    <TouchableOpacity
+                      activeOpacity={1}
+                      onPress={() => dayRef.current?.focus()}
+                    >
+                      <View className="relative">
+                        <TextInput
+                          ref={dayRef}
+                          className="text-base text-gray-800 px-3 bg-white border border-gray-300 rounded-lg h-12 text-center"
+                          style={{
+                            fontFamily: "NEXONLv1Gothic-Regular",
+                            height: 48,
+                            textAlign: "center",
+                          }}
+                          keyboardType="number-pad"
+                          maxLength={2}
+                          value={formData.birthDay}
+                          onChangeText={(text) =>
+                            handleBirthChange("birthDay", text)
+                          }
+                        />
+                        {formData.birthDay.length === 0 && (
+                          <GlobalText
+                            weight="regular"
+                            style={{
+                              position: "absolute",
+                              left: 0,
+                              right: 0,
+                              textAlign: "center",
+                              top: (48 - 16) / 2,
+                              fontSize: 16,
+                              color: "#9CA3AF",
+                            }}
+                          >
+                            DD
+                          </GlobalText>
+                        )}
+                      </View>
+                    </TouchableOpacity>
                   </View>
                 </View>
                 {errors.birth && (
-                  <GlobalText style={styles.errorText}>
+                  <GlobalText className="text-red-500 text-xs mt-1">
                     {errors.birth}
                   </GlobalText>
                 )}
               </View>
 
-              <View style={styles.inputGroup}>
-                <GlobalText style={styles.label}>성별</GlobalText>
-                <View style={styles.genderContainer}>
+              <View className="mb-5">
+                <GlobalText className="text-sm font-medium mb-2 text-gray-700">
+                  성별
+                </GlobalText>
+                <View className="flex-row mt-1">
                   {["MALE", "FEMALE"].map((g) => (
                     <TouchableOpacity
                       key={g}
-                      style={styles.genderButton}
+                      className="flex-row items-center mr-6 py-2"
                       onPress={() => handleChange("gender", g)}
                     >
-                      <View style={styles.radioOuter}>
+                      <View className="w-5 h-5 rounded-full border-2 border-green-500 items-center justify-center mr-2">
                         {formData.gender === g && (
-                          <View style={styles.radioInner} />
+                          <View className="w-2.5 h-2.5 rounded-full bg-green-500" />
                         )}
                       </View>
-                      <GlobalText style={styles.genderText}>
+                      <GlobalText className="text-base text-gray-700">
                         {g === "MALE" ? "남성" : "여성"}
                       </GlobalText>
                     </TouchableOpacity>
@@ -342,14 +494,13 @@ const SignupScreen = () => {
               )}
 
               <TouchableOpacity
-                style={[
-                  styles.submitButton,
-                  isSubmitting && styles.submitButtonDisabled,
-                ]}
+                className={`bg-green-500 rounded-xl h-12 items-center justify-center mt-4 ${
+                  isSubmitting ? "bg-gray-400" : ""
+                }`}
                 onPress={handleSubmit}
                 disabled={isSubmitting}
               >
-                <GlobalText style={styles.submitButtonText}>
+                <GlobalText className="text-white text-base font-bold">
                   {isSubmitting ? "가입 중..." : "다음"}
                 </GlobalText>
               </TouchableOpacity>
@@ -362,157 +513,3 @@ const SignupScreen = () => {
 };
 
 export default SignupScreen;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#F9FAFB",
-  },
-  scrollContainer: {
-    flexGrow: 1,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: "white",
-    borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB",
-  },
-  backButton: {
-    padding: 8,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  formContainer: {
-    padding: 16,
-  },
-  userTypeContainer: {
-    flexDirection: "row",
-    backgroundColor: "#F3F4F6",
-    borderRadius: 12,
-    marginBottom: 24,
-    padding: 4,
-  },
-  userTypeButton: {
-    flex: 1,
-    paddingVertical: 12,
-    alignItems: "center",
-    borderRadius: 10,
-  },
-  userTypeButtonActive: {
-    backgroundColor: "#FFFFFF",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 1,
-    elevation: 2,
-  },
-  userTypeText: {
-    fontSize: 16,
-    fontWeight: "500",
-    color: "#6B7280",
-  },
-  userTypeTextActive: {
-    color: "#4FC985",
-    fontWeight: "bold",
-  },
-  inputGroup: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: "500",
-    marginBottom: 8,
-    color: "#374151",
-  },
-  inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "white",
-    borderWidth: 1,
-    borderColor: "#D1D5DB",
-    borderRadius: 8,
-    height: 48,
-  },
-  inputIcon: {
-    position: "absolute",
-    left: 12,
-    zIndex: 1,
-  },
-  input: {
-    flex: 1,
-    height: 48,
-    paddingHorizontal: 12,
-    fontSize: 16,
-    color: "#1F2937",
-  },
-  birthInputContainer: {
-    flexDirection: "row",
-  },
-  genderContainer: {
-    flexDirection: "row",
-    marginTop: 4,
-  },
-  genderButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginRight: 24,
-    paddingVertical: 8,
-  },
-  radioOuter: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: "#4FC985",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 8,
-  },
-  radioInner: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: "#4FC985",
-  },
-  genderText: {
-    fontSize: 16,
-    color: "#374151",
-  },
-  errorText: {
-    color: "#EF4444",
-    fontSize: 12,
-    marginTop: 4,
-  },
-  submitButton: {
-    backgroundColor: "#4FC985",
-    borderRadius: 12,
-    height: 48,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 16,
-  },
-  submitButtonDisabled: {
-    backgroundColor: "#9CA3AF",
-  },
-  submitButtonText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  card: {
-    backgroundColor: "white",
-    borderRadius: 16,
-    padding: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 1,
-  },
-});

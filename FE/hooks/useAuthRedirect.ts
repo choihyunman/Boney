@@ -2,9 +2,11 @@ import { useSession } from "../ctx";
 import { useRouter } from "expo-router";
 import { useEffect, useRef } from "react";
 import { api } from "@/lib/api";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export const useAuthRedirect = () => {
   const { session, isLoading, signIn, signOut } = useSession();
+  const { setUser } = useAuthStore();
   const router = useRouter();
   const hasRun = useRef(false); // 세션 정보 조회가 한 번만 실행하도록 설정
 
@@ -80,6 +82,18 @@ export const useAuthRedirect = () => {
           userType: userData.role,
           signedUp: userData.is_registered,
           hasPin: !pinData.isPasswordNull,
+        });
+
+        // zustand store에도 저장
+        setUser({
+          kakaoId: session.kakaoId,
+          userId: userData.user_id,
+          userEmail: session.userEmail,
+          userName: userData.user_name,
+          userGender: userData.user_gender, // 필요 시
+          userBirth: userData.user_birth, // 필요 시
+          userPhone: userData.user_phone, // 필요 시
+          role: userData.role,
         });
 
         if (pinData.isPasswordNull) {
