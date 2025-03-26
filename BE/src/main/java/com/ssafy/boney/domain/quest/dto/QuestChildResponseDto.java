@@ -6,6 +6,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class QuestChildResponseDto {
+    private Integer parentChildId;
     private Integer childId;
     private String childName;
 }
