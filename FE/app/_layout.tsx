@@ -12,7 +12,7 @@ import Header from "@/components/Header";
 import { Bell, ArrowLeft, Search } from "lucide-react-native";
 import { Image } from "react-native";
 import Nav from "@/components/Nav";
-
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 interface HeaderButton {
   icon: React.ReactNode;
   onPress: () => void;
@@ -129,9 +129,15 @@ function RootLayoutNav() {
   );
 }
 
+function AuthRedirectWrapper() {
+  useAuthRedirect();
+  return null;
+}
+
 export default function RootLayout() {
   return (
     <SessionProvider>
+      <AuthRedirectWrapper />
       <RootLayoutNav />
     </SessionProvider>
   );
