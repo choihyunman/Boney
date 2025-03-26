@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { updateTransactionHashtags } from "../../apis/transactionApi";
 
+
 interface HashtagModalProps {
   visible: boolean;
   onClose: () => void;
@@ -112,6 +113,7 @@ const HashtagModal: React.FC<HashtagModalProps> = ({
             <View className="mt-3">
               <TextInput
                 className="border border-gray-200 rounded-md p-3 text-base"
+
                 value={newHashtag}
                 onChangeText={setNewHashtag}
                 placeholder="해시태그 입력 (최대 6글자)"

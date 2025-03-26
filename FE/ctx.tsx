@@ -9,74 +9,90 @@ import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 import { useRouter } from "expo-router";
 
-// 1️⃣ 인증 컨텍스트 타입 정의
+// 사용자 세션 타입
+interface UserSession {
+  token?: string;
+  signedUp?: boolean;
+  kakaoId: number;
+  userName?: string;
+  userEmail: string;
+  userType?: string;
+  hasPin?: boolean;
+}
+
+// 인증 컨텍스트 타입 정의
 interface SessionContextType {
-  session: string | null;
+  session: UserSession | null;
   isLoading: boolean;
-  signIn: (token: string) => Promise<void>;
+  signIn: (user: UserSession) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
-// 2️⃣ context 생성 시 타입 명시
+// context 생성
 const AuthContext = createContext<SessionContextType | null>(null);
 
-// 3️⃣ Provider의 props 타입 정의
+// provider props
 interface SessionProviderProps {
   children: ReactNode;
 }
 
 export function SessionProvider({ children }: SessionProviderProps) {
-  const [session, setSession] = useState<string | null>(null);
+  const [session, setSession] = useState<UserSession | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    const loadToken = async () => {
+    const loadSession = async () => {
       if (Platform.OS !== "web") {
-        const token = await SecureStore.getItemAsync("userToken");
-        setSession(token);
+        try {
+          const token = await SecureStore.getItemAsync("userToken");
+          const rawUser = await SecureStore.getItemAsync("userInfo");
+
+          if (!token || !rawUser) {
+            console.log("🪫 토큰 또는 사용자 정보 없음 → 로그인 필요");
+            setSession(null);
+            setIsLoading(false);
+            return;
+          }
+
+          const user = JSON.parse(rawUser);
+          setSession({ token, ...user });
+          console.log("📦 SecureStore로부터 세션 복원 완료:", {
+            token,
+            ...user,
+          });
+        } catch (err) {
+          console.warn("❌ 세션 복원 중 에러:", err);
+          setSession(null);
+        }
       } else {
-        console.warn("🌐 웹에서는 SecureStore를 사용하지 않습니다");
-        setSession(null);
+        console.warn("🌐 웹 환경에서는 SecureStore를 사용하지 않음");
       }
+
       setIsLoading(false);
     };
-    loadToken();
+
+    loadSession();
   }, []);
 
-  const signIn = async (token: string) => {
+  const signIn = async (user: UserSession) => {
     if (Platform.OS !== "web") {
-      await SecureStore.setItemAsync("userToken", token);
-    } else {
-      console.warn("🌐 웹에서는 SecureStore 저장 생략");
+      await SecureStore.setItemAsync("userToken", user.token || "");
+      await SecureStore.setItemAsync("userInfo", JSON.stringify(user));
     }
-    setSession(token);
-    console.log("🆕 [AUTH] session 상태 업데이트됨:", token);
+    setSession(user);
+    console.log("🆕 [AUTH] session 상태 저장됨:", user);
   };
-
-  useEffect(() => {
-    console.log("📦 [AUTH] session 값 변경 감지:", session);
-  }, [session]);
 
   const signOut = async () => {
     if (Platform.OS !== "web") {
       await SecureStore.deleteItemAsync("userToken");
-    } else {
-      console.warn("🌐 웹에서는 SecureStore 삭제 생략");
+      await SecureStore.deleteItemAsync("userInfo");
     }
     setSession(null);
+    console.log("👋 [AUTH] 세션 제거 완료");
   };
 
-  useEffect(() => {
-    if (session) {
-      console.log("✅ [AUTH] 유효한 토큰 확인됨:", session);
-      router.replace("/home");
-    } else if (!isLoading) {
-      console.log("❌ [AUTH] 유효한 토큰 없음");
-    }
-  }, [isLoading, session]);
-
-  // 4️⃣ Provider로 값 전달
   return (
     <AuthContext.Provider value={{ session, isLoading, signIn, signOut }}>
       {children}
@@ -84,7 +100,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
   );
 }
 
-// 5️⃣ 커스텀 훅에서 타입 체크
+// 커스텀 훅
 export const useSession = () => {
   const context = useContext(AuthContext);
   if (!context)

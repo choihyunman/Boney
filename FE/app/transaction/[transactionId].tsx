@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity } from "react-native";
-import { useState, useEffect } from "react";
-import { ArrowLeft, ChevronRight, Wallet } from "lucide-react-native";
+import { useState } from "react";
+import { ChevronRight, Wallet } from "lucide-react-native";
 import IncomeCategory from "./IncomeCategory";
 import ExpenseCategory from "./ExpenseCategory";
 import HashtagModal from "./Hashtag";
@@ -23,7 +23,7 @@ export default function TransactionDetail() {
   const params = useLocalSearchParams();
   const transactionId =
     typeof params.transactionId === "string" ? params.transactionId : undefined;
-  const { token, getUserInfo } = useAuthStore();
+  const { token } = useAuthStore();
   const [transaction, setTransaction] = useState<
     TransactionDetailResponse["data"] | null
   >(null);
@@ -35,18 +35,6 @@ export default function TransactionDetail() {
   const [selectedCategory, setSelectedCategory] = useState("");
 
   const fetchTransactionDetail = async () => {
-    if (!token) {
-      console.log("❌ 인증 토큰 없음");
-      try {
-        // 토큰이 없을 경우 getUserInfo를 통해 토큰을 다시 가져옵니다
-        await getUserInfo();
-      } catch (err) {
-        setError("로그인이 필요합니다.");
-        router.replace("/auth");
-        return;
-      }
-    }
-
     if (!transactionId || !/^\d+$/.test(transactionId)) {
       console.log("❌ 잘못된 거래 ID:", transactionId);
       console.log("🧐 useLocalSearchParams 결과:", params);
@@ -95,21 +83,6 @@ export default function TransactionDetail() {
       setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    const initializeData = async () => {
-      if (!token) {
-        try {
-          await getUserInfo();
-        } catch (err) {
-          console.error("Failed to get user info:", err);
-        }
-      }
-      fetchTransactionDetail();
-    };
-
-    initializeData();
-  }, [transactionId]);
 
   const handleCategorySelect = async (categoryId: string) => {
     try {

@@ -9,7 +9,7 @@ import { useAuthStore } from "@/stores/useAuthStore";
 
 export default function TransactionHistory() {
   const router = useRouter();
-  const { token, getUserInfo } = useAuthStore();
+  const { token } = useAuthStore();
   const [activeTab, setActiveTab] = useState<"all" | "out" | "in">("all");
   const [currentMonth, setCurrentMonth] = useState<string>("2025년 03월");
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -17,18 +17,7 @@ export default function TransactionHistory() {
   const [error, setError] = useState<string | null>(null);
   const isDebouncingRef = useRef(false);
 
-  // 컴포넌트 마운트 시 사용자 정보 및 토큰 가져오기
-  useEffect(() => {
-    const loadUserInfo = async () => {
-      try {
-        await getUserInfo();
-      } catch (err) {
-        console.error("❌ 사용자 정보 로드 실패:", err);
-        router.replace("/auth");
-      }
-    };
-    loadUserInfo();
-  }, []);
+  
 
   // 디바운스된 fetchTransactions 함수
   const debouncedFetchTransactions = useCallback(async () => {
@@ -37,7 +26,7 @@ export default function TransactionHistory() {
     if (!token) {
       console.log("❌ 인증 토큰 없음");
       setError("로그인이 필요합니다.");
-      router.replace("/auth");
+      router.replace("/auth"); // 로그인 페이지로 리다이렉트 추가
       return;
     }
 

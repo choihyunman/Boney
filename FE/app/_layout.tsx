@@ -37,7 +37,7 @@ function RootLayoutNav() {
   });
 
   const pathname = usePathname();
-  const { session, isLoading } = useSession();
+  const { isLoading } = useSession();
 
   useEffect(() => {
     if (fontsLoaded) {
