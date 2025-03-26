@@ -1,6 +1,7 @@
 package com.ssafy.boney.domain.loan.controller;
 
 import com.ssafy.boney.domain.loan.dto.LoanApproveRequest;
+import com.ssafy.boney.domain.loan.dto.LoanRejectRequest;
 import com.ssafy.boney.domain.loan.dto.LoanRequest;
 import com.ssafy.boney.domain.loan.service.LoanService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,6 +35,14 @@ public class LoanController {
                                          HttpServletRequest httpRequest) {
         Integer parentId = (Integer) httpRequest.getAttribute("userId");
         return loanService.approveLoan(request, parentId);
+    }
+
+    // 대출 요청 거절 api
+    @PostMapping("/reject")
+    public ResponseEntity<?> rejectLoan(@RequestBody LoanRejectRequest request,
+                                        HttpServletRequest httpRequest) {
+        Integer parentId = (Integer) httpRequest.getAttribute("userId");
+        return loanService.rejectLoan(request, parentId);
     }
 
 
