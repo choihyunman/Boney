@@ -1,11 +1,10 @@
 package com.ssafy.boney.domain.user.controller;
 
-import com.ssafy.boney.domain.user.dto.ApiResponse;
+import com.ssafy.boney.global.dto.ApiResponse;
 import com.ssafy.boney.domain.user.dto.ChildRegisterRequest;
 import com.ssafy.boney.domain.user.dto.ChildResponse;
 import com.ssafy.boney.domain.user.service.ParentChildService;
 import com.ssafy.boney.global.security.JwtTokenProvider;
-import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

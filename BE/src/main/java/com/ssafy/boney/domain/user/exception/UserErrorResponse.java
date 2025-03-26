@@ -6,8 +6,8 @@ import lombok.ToString;
 @Getter
 @ToString
 public class UserErrorResponse {
-    private int status;
-    private String message;
+    private final int status;
+    private final String message;
 
     public UserErrorResponse(UserErrorCode errorCode) {
         this.status = errorCode.getStatus();

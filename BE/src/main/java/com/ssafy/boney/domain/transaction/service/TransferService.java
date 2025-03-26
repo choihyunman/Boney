@@ -39,7 +39,7 @@ public class TransferService {
     }
 
 
-    // 잔액 확인
+    // 잔액 조회
     public BalanceResponseDto getSenderBalance(Integer senderUserId) {
         User sender = userRepository.findById(senderUserId)
                 .orElseThrow(() -> new CustomException(TransactionErrorCode.USER_NOT_FOUND));
