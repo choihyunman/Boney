@@ -11,20 +11,23 @@ export default function TransactionHistory() {
   const router = useRouter();
   const { token } = useAuthStore();
   const [activeTab, setActiveTab] = useState<"all" | "out" | "in">("all");
-  const [currentMonth, setCurrentMonth] = useState<string>("2025년 03월");
+  const [currentMonth, setCurrentMonth] = useState<string>(() => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    return `${year}년 ${month}월`;
+  });
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const isDebouncingRef = useRef(false);
-
-  
 
   // 디바운스된 fetchTransactions 함수
   const debouncedFetchTransactions = useCallback(async () => {
     if (isDebouncingRef.current) return;
 
     if (!token) {
-      console.log("❌ 인증 토큰 없음");
+      console.log("❌ 인증 토큰 없음:", { token });
       setError("로그인이 필요합니다.");
       router.replace("/auth"); // 로그인 페이지로 리다이렉트 추가
       return;
@@ -48,6 +51,7 @@ export default function TransactionHistory() {
         month,
         type,
         hasToken: !!token,
+        tokenLength: token?.length,
       });
 
       const response = await getTransactionHistory(
