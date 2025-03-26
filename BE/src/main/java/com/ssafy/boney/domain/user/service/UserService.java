@@ -3,6 +3,8 @@ package com.ssafy.boney.domain.user.service;
 import com.ssafy.boney.domain.user.dto.UserSignupRequest;
 import com.ssafy.boney.domain.user.entity.CreditScore;
 import com.ssafy.boney.domain.user.entity.User;
+import com.ssafy.boney.domain.user.exception.UserErrorCode;
+import com.ssafy.boney.domain.user.exception.UserNotFoundException;
 import com.ssafy.boney.domain.user.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +27,12 @@ public class UserService {
 
     public Optional<User> findByKakaoId(Long kakaoId) {
         return userRepository.findByKakaoId(kakaoId);
+    }
+
+    @Transactional(readOnly = true)
+    public User findById(Integer userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(UserErrorCode.NOT_FOUND));
     }
 
     @Transactional
