@@ -1,14 +1,8 @@
 // 비밀번호 입력 페이지
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  SafeAreaView,
-  Dimensions,
-} from "react-native";
+import { View, TouchableOpacity, SafeAreaView, Dimensions } from "react-native";
 import { Lock, ArrowLeft } from "lucide-react-native";
+import GlobalText from "./GlobalText";
 
 const { width } = Dimensions.get("window");
 const BUTTON_SIZE = 56;
@@ -59,18 +53,22 @@ export const PinInput = ({
 
   const renderNumPad = () => {
     return NUM_PADS.map((row, rowIndex) => (
-      <View key={rowIndex} style={styles.row}>
+      <View key={rowIndex} className="flex-row justify-between mb-2">
         {row.map((num, colIndex) => (
           <TouchableOpacity
             key={`${rowIndex}-${colIndex}`}
-            style={styles.button}
+            className="bg-gray-100 rounded-lg justify-center items-center"
+            style={{
+              width: (width - 64 - BUTTON_MARGIN * 2) / 3,
+              height: BUTTON_SIZE,
+            }}
             onPress={() => {
               if (num === "←") handleDelete();
               else if (num === "전체 삭제") handleClear();
               else handleNumberPress(num);
             }}
           >
-            <Text style={styles.buttonText}>{num}</Text>
+            <GlobalText className="text-xl text-gray-800">{num}</GlobalText>
           </TouchableOpacity>
         ))}
       </View>
@@ -78,9 +76,9 @@ export const PinInput = ({
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView className="flex-1 bg-white">
       {showBackButton && (
-        <View style={styles.header}>
+        <View className="h-[54px] px-3 justify-center">
           <TouchableOpacity onPress={onBackPress}>
             <ArrowLeft size={22} color="#333" />
           </TouchableOpacity>
@@ -88,126 +86,38 @@ export const PinInput = ({
       )}
 
       <View
-        style={[styles.content, !showBackButton && styles.contentWithoutHeader]}
+        className={`flex-1 items-center ${!showBackButton ? "pt-16" : "pt-8"}`}
       >
-        <View style={styles.iconContainer}>
-          <View style={styles.iconWrapper}>
+        <View className="w-16 h-16 bg-[#49DB8A1A] rounded-full justify-center items-center mb-4">
+          <View className="w-7 h-7">
             <Lock size={28} color="#4FC885" />
           </View>
         </View>
 
-        <Text style={styles.title}>{title}</Text>
-        <Text style={styles.subtitle}>{subtitle}</Text>
+        <GlobalText className="text-lg text-gray-800 mb-2">{title}</GlobalText>
+        <GlobalText className="text-sm text-gray-600 mb-8">
+          {subtitle}
+        </GlobalText>
 
-        <View style={styles.passwordDots}>
+        <View className="flex-row gap-3 mb-8">
           {[...Array(6)].map((_, index) => (
             <View
               key={index}
-              style={[styles.dot, index < password.length && styles.dotActive]}
+              className={`w-12 h-12 rounded-lg border-2 ${
+                index < password.length ? "border-[#4FC885]" : "border-gray-200"
+              }`}
             />
           ))}
         </View>
 
-        <View style={styles.numPadContainer}>{renderNumPad()}</View>
+        <View className="w-[calc(100%-32px)] px-4">{renderNumPad()}</View>
 
-        <TouchableOpacity
-          style={styles.forgotPassword}
-          onPress={onForgotPasswordPress}
-        >
-          <Text style={styles.forgotPasswordText}>비밀번호를 잊으셨나요?</Text>
+        <TouchableOpacity className="mt-6" onPress={onForgotPasswordPress}>
+          <GlobalText className="text-sm text-gray-600 underline">
+            비밀번호를 잊으셨나요?
+          </GlobalText>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
-  header: {
-    height: 54,
-    paddingHorizontal: 12,
-    justifyContent: "center",
-  },
-  content: {
-    flex: 1,
-    alignItems: "center",
-    paddingTop: 32,
-  },
-  contentWithoutHeader: {
-    paddingTop: 64, // 헤더가 없을 때는 상단 여백을 더 크게
-  },
-  iconContainer: {
-    width: 64,
-    height: 64,
-    backgroundColor: "#49DB8A1A",
-    borderRadius: 32,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  iconWrapper: {
-    width: 28,
-    height: 28,
-  },
-  title: {
-    fontSize: 18,
-    color: "#333",
-    marginBottom: 8,
-    fontFamily: "NEXON_Lv1_Gothic-Regular",
-  },
-  subtitle: {
-    fontSize: 14,
-    color: "#666",
-    marginBottom: 32,
-    fontFamily: "NEXON_Lv1_Gothic-Regular",
-  },
-  passwordDots: {
-    flexDirection: "row",
-    gap: 12,
-    marginBottom: 32,
-  },
-  dot: {
-    width: 48,
-    height: 48,
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: "#E5E5E5",
-  },
-  dotActive: {
-    borderColor: "#4FC885",
-  },
-  numPadContainer: {
-    width: width - 32,
-    paddingHorizontal: 16,
-  },
-  row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: BUTTON_MARGIN,
-  },
-  button: {
-    width: (width - 64 - BUTTON_MARGIN * 2) / 3,
-    height: BUTTON_SIZE,
-    backgroundColor: "#F5F5F5",
-    borderRadius: 8,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  buttonText: {
-    fontSize: 20,
-    color: "#333",
-    fontFamily: "NEXON_Lv1_Gothic-Regular",
-  },
-  forgotPassword: {
-    marginTop: 24,
-  },
-  forgotPasswordText: {
-    fontSize: 14,
-    color: "#666",
-    textDecorationLine: "underline",
-    fontFamily: "NEXON_Lv1_Gothic-Regular",
-  },
-});

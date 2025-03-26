@@ -3,7 +3,6 @@ import {
   View,
   TouchableOpacity,
   Image,
-  StyleSheet,
   ImageSourcePropType,
   Alert,
   ActivityIndicator,
@@ -16,6 +15,7 @@ import GlobalText from "../../components/GlobalText";
 import { useAuthStore } from "../../stores/useAuthStore";
 import { router } from "expo-router";
 import { useSession } from "../../ctx";
+
 const KAKAO_REST_API_KEY = process.env.EXPO_PUBLIC_KAKAO_CLIENT_ID!;
 const REDIRECT_URI =
   "https://j12b208.p.ssafy.io/api/v1/auth/login/kakao/callback";
@@ -65,25 +65,30 @@ export default function KakaoLogin() {
   const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_REST_API_KEY}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=account_email`;
 
   return (
-    <View style={styles.container}>
-      <View style={styles.innerContainer}>
-        <TouchableOpacity style={styles.kakaoButton} onPress={handleKakaoLogin}>
+    <View className="flex-1 bg-white items-center">
+      <View className="w-[412px] h-[917px] bg-white relative">
+        <TouchableOpacity
+          className="absolute top-[669px] left-8 w-[348px] h-12 items-center justify-center"
+          onPress={handleKakaoLogin}
+        >
           <Image
             source={kakaoLoginBtn as ImageSourcePropType}
-            style={styles.kakaoButtonImage}
+            className="w-full h-full"
             resizeMode="contain"
           />
         </TouchableOpacity>
 
-        <View style={styles.logoContainer}>
-          <View style={styles.logoIconContainer}>
+        <View className="absolute w-[294px] h-[127px] top-[301px] left-[61px] items-center">
+          <View className="w-[294px] h-[116px] items-center justify-center">
             <Image
               source={fullLogo as ImageSourcePropType}
-              style={styles.kakaoButtonImage}
+              className="w-full h-full"
               resizeMode="contain"
             />
           </View>
-          <GlobalText weight="bold">돈과 친구되는 습관</GlobalText>
+          <GlobalText className="text-xl text-black/60 text-center mt-2.5">
+            돈과 친구되는 습관
+          </GlobalText>
         </View>
       </View>
 
@@ -94,7 +99,7 @@ export default function KakaoLogin() {
           onNavigationStateChange={handleWebViewNavigationStateChange}
           startInLoadingState
           renderLoading={() => (
-            <View style={styles.loading}>
+            <View className="flex-1 justify-center items-center">
               <ActivityIndicator size="large" />
             </View>
           )}
@@ -103,56 +108,3 @@ export default function KakaoLogin() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "white",
-    alignItems: "center",
-  },
-  innerContainer: {
-    width: 412,
-    height: 917,
-    backgroundColor: "white",
-    position: "relative",
-  },
-  kakaoButton: {
-    position: "absolute",
-    top: 669,
-    left: 32,
-    width: 348,
-    height: 48,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  kakaoButtonImage: {
-    width: "100%",
-    height: "100%",
-  },
-  logoContainer: {
-    position: "absolute",
-    width: 294,
-    height: 127,
-    top: 301,
-    left: 61,
-    alignItems: "center",
-  },
-  logoIconContainer: {
-    width: 294,
-    height: 116,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  logoText: {
-    fontFamily: "NEXON_Lv1_Gothic-Bold",
-    fontSize: 20,
-    color: "rgba(0, 0, 0, 0.61)",
-    textAlign: "center",
-    marginTop: 10,
-  },
-  loading: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-});

@@ -68,6 +68,11 @@ function RootLayoutNav() {
             onPress: () => console.log("알림 버튼 클릭"),
           },
         };
+      case "/auth/SignUp":
+        return {
+          title: "회원가입",
+          backgroundColor: "#F9FAFB",
+        };
       case "/transaction":
         return {
           title: "거래내역",
@@ -109,11 +114,13 @@ function RootLayoutNav() {
     }
   };
 
-  // auth 페이지에서는 헤더를 표시하지 않음
+  // auth 페이지 중 SignUp 페이지에서만 헤더를 표시
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
       <StatusBar style="auto" />
-      {!pathname.includes("auth") && <Header {...getHeaderConfig()} />}
+      {(!pathname.includes("auth") || pathname === "/auth/SignUp") && (
+        <Header {...getHeaderConfig()} />
+      )}
       <Slot />
     </SafeAreaView>
   );

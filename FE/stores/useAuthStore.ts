@@ -1,11 +1,12 @@
 import { create } from "zustand";
+import { persist, PersistStorage } from "zustand/middleware";
 import { api } from "../lib/api";
 import * as SecureStore from "expo-secure-store";
 import { router } from "expo-router";
-import { useSession } from "../ctx";
 
 interface UserInfo {
   kakaoId: number;
+  userId?: number;
   userEmail: string;
   userName?: string;
   userBirth?: string;
@@ -87,66 +88,86 @@ async function registerAccount(account: string): Promise<void> {
   }
 }
 
-export const useAuthStore = create<AuthStore>((set, get) => ({
-  user: null,
-  token: null,
-  account: null,
-
-  setUser: (user) => {
-    console.log("🧠 사용자 상태 설정:", user);
-    set({ user });
+// Zustand에서 사용할 보안 스토리지
+const zustandSecureStorage: PersistStorage<AuthStore> = {
+  getItem: async (key) => {
+    const value = await SecureStore.getItemAsync(key);
+    return value ? JSON.parse(value) : null;
   },
+  setItem: async (key, value) => {
+    await SecureStore.setItemAsync(key, JSON.stringify(value));
+  },
+  removeItem: async (key) => {
+    await SecureStore.deleteItemAsync(key);
+  },
+};
 
-  kakaoLogin: async (code): Promise<UserInfo> => {
-    console.log("🚀 백엔드에 카카오 인가 코드 전송:", code);
+export const useAuthStore = create<AuthStore>()(
+  persist(
+    (set, get) => ({
+      user: null,
+      token: null,
+      account: null,
+      setUser: (user) => {
+        set({ user });
+      },
 
-    try {
-      const token = await fetchAccessTokenFromKakao(code);
-      const user = await fetchUserInfoFromKakao(token);
+      kakaoLogin: async (code): Promise<UserInfo> => {
+        console.log("🚀 백엔드에 카카오 인가 코드 전송:", code);
 
-      set({ user });
-      return user;
-    } catch (err) {
-      console.error("❌ 카카오 로그인 실패:", err);
-      router.replace("/auth");
-      throw err;
+        try {
+          const token = await fetchAccessTokenFromKakao(code);
+          const user = await fetchUserInfoFromKakao(token);
+
+          set({ user });
+          return user;
+        } catch (err) {
+          console.error("❌ 카카오 로그인 실패:", err);
+          router.replace("/auth");
+          throw err;
+        }
+      },
+
+      signUp: async (userInfo) => {
+        const { user } = get();
+        console.log("🧠 사용자:", user);
+
+        if (!user) {
+          throw new Error("카카오 로그인 되지 않은 상태입니다.");
+        }
+
+        const payload = {
+          ...userInfo,
+          kakaoId: user.kakaoId,
+          userEmail: user.userEmail,
+        };
+
+        try {
+          const res = await api.post("/auth/signup", payload);
+          console.log("🎉 회원가입 성공: ", res.data);
+          const token = await fetchJWTFromServer(user.kakaoId);
+          console.log("🔐 토큰: ", token);
+          const account = await createAccount();
+          console.log("💳 계좌: ", account);
+          await registerAccount(account);
+          console.log("💳 계좌 등록 완료");
+
+          set({ user, token, account });
+        } catch (err) {
+          console.error("❌ 회원가입 실패:", err);
+          throw err;
+        }
+      },
+
+      logout: async () => {
+        console.log("👋 로그아웃 실행");
+        await SecureStore.deleteItemAsync("userToken");
+        set({ user: null, token: null });
+      },
+    }),
+    {
+      name: "auth-storage", // 저장될 키 이름
+      storage: zustandSecureStorage,
     }
-  },
-
-  signUp: async (userInfo) => {
-    const { user } = get();
-    console.log("🧠 사용자:", user);
-
-    if (!user) {
-      throw new Error("카카오 로그인 되지 않은 상태입니다.");
-    }
-
-    const payload = {
-      ...userInfo,
-      kakaoId: user.kakaoId,
-      userEmail: user.userEmail,
-    };
-
-    try {
-      const res = await api.post("/auth/signup", payload);
-      console.log("🎉 회원가입 성공: ", res.data);
-      const token = await fetchJWTFromServer(user.kakaoId);
-      console.log("🔐 토큰: ", token);
-      const account = await createAccount();
-      console.log("💳 계좌: ", account);
-      await registerAccount(account);
-      console.log("💳 계좌 등록 완료");
-
-      set({ user, token, account });
-    } catch (err) {
-      console.error("❌ 회원가입 실패:", err);
-      throw err;
-    }
-  },
-
-  logout: async () => {
-    console.log("👋 로그아웃 실행");
-    await SecureStore.deleteItemAsync("userToken");
-    set({ user: null, token: null });
-  },
-}));
+  )
+);

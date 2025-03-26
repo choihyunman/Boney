@@ -1,9 +1,16 @@
 import { Text, View, TouchableOpacity } from "react-native";
 import Nav from "@/components/Nav";
 import { useRouter } from "expo-router";
+import { useEffect } from "react";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export default function Home() {
   const router = useRouter();
+
+  useEffect(() => {
+    const user = useAuthStore.getState().user;
+    console.log("📦 앱 재실행 후 유저 상태:", user);
+  }, []);
 
   return (
     <View className="flex-1">
