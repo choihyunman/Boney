@@ -2,7 +2,6 @@ import { create } from "zustand";
 import { api } from "../lib/api";
 import * as SecureStore from "expo-secure-store";
 import { router } from "expo-router";
-import { useSession } from "../ctx";
 
 interface UserInfo {
   kakaoId: number;
@@ -105,6 +104,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       const user = await fetchUserInfoFromKakao(token);
 
       set({ user });
+
       return user;
     } catch (err) {
       console.error("❌ 카카오 로그인 실패:", err);
@@ -128,6 +128,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     };
 
     try {
+
       const res = await api.post("/auth/signup", payload);
       console.log("🎉 회원가입 성공: ", res.data);
       const token = await fetchJWTFromServer(user.kakaoId);

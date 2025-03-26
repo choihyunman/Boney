@@ -123,3 +123,85 @@ export const getTransactionDetail = async (
     throw error;
   }
 };
+
+export interface UpdateHashtagsResponse {
+  status: string;
+  message: string;
+  data: {
+    transactionId: number;
+    hashtags: string[];
+  };
+}
+
+// 해시태그 수정 API
+export const updateTransactionHashtags = async (
+  transactionId: number,
+  hashtags: string[],
+  token: string
+): Promise<UpdateHashtagsResponse> => {
+  if (!token) {
+    throw new Error("인증 토큰이 없습니다.");
+  }
+
+  try {
+    const response = await axios.patch(
+      `${API_BASE_URL}/api/v1/transaction/${transactionId}/hashtags`,
+      { hashtags },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(
+        error.response?.data?.message || "해시태그 수정 중 오류가 발생했습니다."
+      );
+    }
+    throw error;
+  }
+};
+
+export interface UpdateCategoryResponse {
+  status: string;
+  message: string;
+  data: {
+    transactionId: number;
+    transactionCategoryId: number;
+  };
+}
+
+// 거래 카테고리 수정 API
+export const updateTransactionCategory = async (
+  transactionId: number,
+  categoryId: number,
+  token: string
+): Promise<UpdateCategoryResponse> => {
+  if (!token) {
+    throw new Error("인증 토큰이 없습니다.");
+  }
+
+  try {
+    const response = await axios.patch(
+      `${API_BASE_URL}/api/v1/transaction/${transactionId}/category`,
+      { transactionCategoryId: categoryId },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(
+        error.response?.data?.message || "카테고리 수정 중 오류가 발생했습니다."
+      );
+    }
+    throw error;
+  }
+};

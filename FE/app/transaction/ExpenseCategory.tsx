@@ -136,10 +136,10 @@ const ExpenseCategoryModal: React.FC<ExpenseCategoryProps> = ({
     iconColor,
   }) => (
     <View
-      className="w-8 h-8 rounded-full items-center justify-center mb-1.5"
+      className="w-12 h-12 rounded-full items-center justify-center mb-2"
       style={{ backgroundColor: color }}
     >
-      <Icon color={iconColor} />
+      <Icon color={iconColor} size={24} />
     </View>
   );
 
@@ -151,21 +151,21 @@ const ExpenseCategoryModal: React.FC<ExpenseCategoryProps> = ({
       onRequestClose={onClose}
     >
       <View className="flex-1 bg-black/50 justify-center items-center p-5">
-        <View className="bg-white rounded-lg w-full max-w-[360px] overflow-hidden shadow-lg">
-          <View className="p-3.5 border-b border-gray-200 flex-row justify-between items-center">
-            <Text className="text-lg font-semibold text-gray-900">
+        <View className="bg-white rounded-lg w-full max-w-[400px] overflow-hidden shadow-lg">
+          <View className="p-4 border-b border-gray-200 flex-row justify-between items-center">
+            <Text className="text-xl font-semibold text-gray-900">
               출금 카테고리 선택
             </Text>
-            <TouchableOpacity className="p-1" onPress={onClose}>
-              <Text className="text-base text-gray-500">✕</Text>
+            <TouchableOpacity className="p-2" onPress={onClose}>
+              <Text className="text-lg text-gray-500">✕</Text>
             </TouchableOpacity>
           </View>
           <ScrollView>
-            <View className="flex-row flex-wrap p-3.5">
+            <View className="flex-row flex-wrap p-4 gap-4">
               {categories.map((category) => (
                 <TouchableOpacity
                   key={category.id}
-                  className={`w-1/3 p-1.5 items-center ${
+                  className={`w-1/3 p-3 items-center ${
                     selectedCategory === category.id
                       ? "bg-primary/10 border-2 border-primary rounded-lg"
                       : ""
@@ -177,7 +177,7 @@ const ExpenseCategoryModal: React.FC<ExpenseCategoryProps> = ({
                     color={category.color}
                     iconColor={category.iconColor}
                   />
-                  <Text className="text-xs font-medium text-gray-700 text-center">
+                  <Text className="text-base font-medium text-gray-700 text-center">
                     {category.name}
                   </Text>
                 </TouchableOpacity>

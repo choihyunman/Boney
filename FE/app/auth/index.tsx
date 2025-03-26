@@ -41,7 +41,6 @@ export default function KakaoLogin() {
       if (code) {
         console.log("✅ 인가 코드 감지:", code);
         setShowWebView(false); // WebView 닫기
-
         try {
           const user = await kakaoLogin(code);
           if (user) {

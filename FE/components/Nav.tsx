@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, TouchableOpacity, Dimensions } from "react-native";
 import { router, usePathname } from "expo-router";
 import GlobalText from "./GlobalText";
@@ -10,12 +10,16 @@ const { width } = Dimensions.get("window");
 const Nav = () => {
   const pathname = usePathname();
 
+  useEffect(() => {
+    console.log("📍 Nav - Current Path:", pathname);
+  }, [pathname]);
+
   // 현재 경로에 따라 activeTab 설정
   const getActiveTab = () => {
-    if (pathname === "/") return 0;
-    if (pathname.startsWith("/(transaction)")) return 1;
-    if (pathname === "/quest") return 2;
-    if (pathname === "/menu") return 3;
+    if (pathname === "/" || pathname === "/home") return 0;
+    if (pathname.startsWith("/transaction")) return 1;
+    if (pathname.startsWith("/quest")) return 2;
+    if (pathname.startsWith("/menu")) return 3;
     return 0;
   };
 
@@ -29,7 +33,7 @@ const Nav = () => {
     >
       <TouchableOpacity
         className="items-center"
-        onPress={() => router.push("/")}
+        onPress={() => router.push("/home")}
       >
         <Home
           size={24}
@@ -65,7 +69,7 @@ const Nav = () => {
 
       <TouchableOpacity
         className="items-center"
-        onPress={() => router.push("/quest")}
+        // onPress={() => router.push("/quest")}
       >
         <Trophy
           size={24}
@@ -83,7 +87,7 @@ const Nav = () => {
 
       <TouchableOpacity
         className="items-center"
-        onPress={() => router.push("/menu")}
+        // onPress={() => router.push("/menu")}
       >
         <Menu
           size={24}

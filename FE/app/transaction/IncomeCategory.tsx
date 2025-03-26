@@ -88,10 +88,10 @@ const IncomeCategory: React.FC<IncomeCategoryProps> = ({
     iconColor,
   }) => (
     <View
-      className="w-9 h-9 rounded-full items-center justify-center mb-1.5"
+      className="w-12 h-12 rounded-full items-center justify-center mb-2"
       style={{ backgroundColor: color }}
     >
-      <Icon color={iconColor} size={18} />
+      <Icon color={iconColor} size={24} />
     </View>
   );
 
@@ -103,23 +103,23 @@ const IncomeCategory: React.FC<IncomeCategoryProps> = ({
       onRequestClose={onClose}
     >
       <View className="flex-1 bg-black/50 justify-center items-center p-5">
-        <View className="bg-white rounded-lg w-full max-w-[360px] overflow-hidden shadow-lg">
-          <View className="p-3.5 border-b border-gray-200 flex-row justify-between items-center">
-            <Text className="text-lg font-semibold text-gray-900">
+        <View className="bg-white rounded-lg w-full max-w-[400px] overflow-hidden shadow-lg">
+          <View className="p-4 border-b border-gray-200 flex-row justify-between items-center">
+            <Text className="text-xl font-semibold text-gray-900">
               입금 카테고리 선택
             </Text>
-            <TouchableOpacity className="p-1 rounded" onPress={onClose}>
-              <Text className="text-base text-gray-500">✕</Text>
+            <TouchableOpacity className="p-2 rounded" onPress={onClose}>
+              <Text className="text-lg text-gray-500">✕</Text>
             </TouchableOpacity>
           </View>
 
-          <View className="flex-row flex-wrap p-3.5 gap-2.5">
+          <View className="flex-row flex-wrap p-4 gap-4">
             {categories.map((category) => (
               <TouchableOpacity
                 key={category.id}
                 className={`w-[${
-                  (Dimensions.get("window").width - 68) / 3
-                }px] items-center p-2.5 rounded-lg border ${
+                  (Dimensions.get("window").width - 88) / 3
+                }px] items-center p-4 rounded-lg border ${
                   selectedCategory === category.id
                     ? "bg-[rgba(79,201,133,0.1)] border-2 border-[#4FC985]"
                     : "border-gray-200"
@@ -131,7 +131,7 @@ const IncomeCategory: React.FC<IncomeCategoryProps> = ({
                   color={category.backgroundColor}
                   iconColor={category.iconColor}
                 />
-                <Text className="text-sm font-medium text-gray-700 text-center">
+                <Text className="text-base font-medium text-gray-700 text-center">
                   {category.name}
                 </Text>
               </TouchableOpacity>

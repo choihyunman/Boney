@@ -126,7 +126,6 @@ const SignupScreen = () => {
       await useAuthStore.getState().signUp(payload);
 
       setIsSubmitting(false);
-
       const currentUser = useAuthStore.getState().user;
       const token = await SecureStore.getItemAsync("userToken");
 

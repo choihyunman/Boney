@@ -19,10 +19,14 @@ export default function HomeLayout() {
     );
   }
 
+  if (!session) {
+    return null;
+  }
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
       <StatusBar style="auto" />
-      {session !== undefined && <Slot />}
+      <Slot />
     </SafeAreaView>
   );
 }

@@ -16,6 +16,7 @@ type TransactionItemProps = {
 };
 
 export default function TransactionItem({ item }: TransactionItemProps) {
+  console.log("🎯 TransactionItem received data:", item);
   // 아이콘 선택 함수
   const getIcon = (iconType: string) => {
     let IconComponent = DollarSign;
@@ -77,7 +78,7 @@ export default function TransactionItem({ item }: TransactionItemProps) {
   };
 
   return (
-    <View className="w-[412px] h-[89px] flex-row px-4 py-3 bg-white">
+    <View className="w-[412px] h-[89px] flex-row px-6 py-3 bg-white">
       {/* 왼쪽 아이콘 */}
       {getIcon(item.icon)}
 
@@ -96,7 +97,7 @@ export default function TransactionItem({ item }: TransactionItemProps) {
           {formatTime(item.transactionDate)}
         </Text>
 
-        {/* 태그 컨테이너 */}
+        {/* 해시시태그 컨테이너 */}
         {item.hashtags && item.hashtags.length > 0 && (
           <View className="flex-row mt-2 gap-1">
             {item.hashtags.map((tag, index) => (
@@ -104,7 +105,7 @@ export default function TransactionItem({ item }: TransactionItemProps) {
                 key={index}
                 className="bg-[#49db8a1a] rounded-xl px-2 py-0.5"
               >
-                <Text className="text-xs text-primary leading-[18px]">
+                <Text className="text-xs text-[#4FC985] leading-[18px]">
                   # {tag}
                 </Text>
               </View>
@@ -117,7 +118,7 @@ export default function TransactionItem({ item }: TransactionItemProps) {
       <View className="items-end justify-start mt-0.5">
         <Text
           className={`text-base leading-6 ${
-            item.transactionAmount > 0 ? "text-primary" : "text-black"
+            item.transactionAmount > 0 ? "text-[#4FC985]" : "text-black"
           }`}
         >
           {formatAmount(item.transactionAmount)}
