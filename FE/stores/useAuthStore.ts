@@ -114,7 +114,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       set({ user });
 
       router.replace({
-        pathname: "/(auth)/SignUp",
+        pathname: "/auth/SignUp",
         params: {
           kakaoId: user.kakaoId,
           userEmail: user.userEmail,
@@ -144,14 +144,14 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     };
 
     try {
-      const res = await api.post("/auth/signup", payload);
+      const res = await api.post("/auth/Signup", payload);
       console.log("🎉 회원가입 성공:", res.data);
       const token = await fetchJWTFromServer(user.kakaoId);
       console.log("🔐 JWT 토큰:", token);
 
       set({ user, token });
 
-      router.replace("/(app)/index" as any);
+      router.replace("/home");
     } catch (err) {
       console.error("❌ 회원가입 실패:", err);
       throw err;

@@ -12,7 +12,7 @@ export default function HomeLayout() {
 
   useEffect(() => {
     if (!isLoading && !session) {
-      router.replace("/(auth)/KakaoLogin");
+      router.replace("/auth");
     }
   }, [isLoading, session]);
 
@@ -24,10 +24,14 @@ export default function HomeLayout() {
     );
   }
 
+  if (!session) {
+    return null;
+  }
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
       <StatusBar style="auto" />
-      {session !== undefined && <Slot />}
+      <Slot />
     </SafeAreaView>
   );
 }

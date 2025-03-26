@@ -40,7 +40,7 @@ export default function KakaoLogin() {
         kakaoLogin(code)
           .then(() => {
             console.log("✅ 백엔드 로그인 완료");
-            router.replace("/(auth)/SignUp"); // 로그인 성공 후 이동할 페이지
+            router.replace("/auth/SignUp"); // 로그인 성공 후 이동할 페이지
           })
           .catch((err) => {
             console.error("❌ 백엔드 로그인 실패:", err);

@@ -123,7 +123,7 @@ const SignupScreen = () => {
         `${
           userType === "PARENT" ? "보호자" : "아이"
         } 회원가입이 완료되었습니다!`,
-        [{ text: "확인", onPress: () => router.replace("/(auth)/LinkAccount") }]
+        [{ text: "확인", onPress: () => router.replace("/auth/LinkAccount") }]
       );
     } catch (error) {
       setIsSubmitting(false);

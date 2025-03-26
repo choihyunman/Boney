@@ -7,13 +7,15 @@ import HashtagModal from "./Hashtag";
 import {
   getTransactionDetail,
   TransactionDetailResponse,
+  updateTransactionCategory,
 } from "../../apis/transactionApi";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useAuthStore } from "@/stores/useAuthStore";
 
 // formatAmount 함수 추가
-const formatAmount = (amount: number) => {
-  return `${amount.toLocaleString()}원`;
+const formatAmount = (amount: number, type: "WITHDRAWAL" | "DEPOSIT") => {
+  const prefix = type === "DEPOSIT" ? "+" : "-";
+  return `${prefix}${Math.abs(amount).toLocaleString()}원`;
 };
 
 export default function TransactionDetail() {
@@ -40,7 +42,7 @@ export default function TransactionDetail() {
         await getUserInfo();
       } catch (err) {
         setError("로그인이 필요합니다.");
-        router.replace("/(auth)");
+        router.replace("/auth");
         return;
       }
     }
@@ -78,7 +80,7 @@ export default function TransactionDetail() {
 
       if (err instanceof Error) {
         if (err.message.includes("권한")) {
-          router.replace("/(auth)"); // 권한 관련 에러시 로그인 페이지로 이동
+          router.replace("/auth"); // 권한 관련 에러시 로그인 페이지로 이동
         } else if (err.message.includes("찾을 수 없습니다")) {
           router.back(); // 존재하지 않는 거래의 경우 이전 페이지로
         }
@@ -111,11 +113,15 @@ export default function TransactionDetail() {
 
   const handleCategorySelect = async (categoryId: string) => {
     try {
-      // API 호출 예시 (실제 API endpoint로 수정 필요)
-      // await fetch(`/api/transactions/${id}/category`, {
-      //   method: 'PUT',
-      //   body: JSON.stringify({ categoryId })
-      // });
+      if (!token || !transactionId) {
+        throw new Error("인증 토큰 또는 거래 ID가 없습니다.");
+      }
+
+      await updateTransactionCategory(
+        Number(transactionId),
+        Number(categoryId),
+        token
+      );
       setSelectedCategory(categoryId);
       setIsCategoryModalOpen(false);
       // 성공 시 데이터 다시 불러오기
@@ -123,22 +129,14 @@ export default function TransactionDetail() {
     } catch (err) {
       console.error("Error updating category:", err);
       // 에러 처리 로직 추가
+      if (err instanceof Error) {
+        alert(err.message);
+      }
     }
   };
 
   const handleHashtagSave = async (hashtags: string[]) => {
-    try {
-      // API 호출 예시 (실제 API endpoint로 수정 필요)
-      // await fetch(`/api/transactions/${id}/hashtags`, {
-      //   method: 'PUT',
-      //   body: JSON.stringify({ hashtags })
-      // });
-      // 성공 시 데이터 다시 불러오기
-      fetchTransactionDetail();
-    } catch (err) {
-      console.error("Error updating hashtags:", err);
-      // 에러 처리 로직 추가
-    }
+    fetchTransactionDetail();
   };
 
   const handleBack = () => {
@@ -174,29 +172,21 @@ export default function TransactionDetail() {
 
   return (
     <View className="flex-1 bg-white">
-      {/* Header */}
-      <View className="flex-row items-center p-4">
-        <TouchableOpacity className="p-2" onPress={handleBack}>
-          <ArrowLeft size={24} color="black" />
-        </TouchableOpacity>
-        <Text className="flex-1 text-center text-lg font-medium">
-          상세 내역
-        </Text>
-        <View className="w-10" />
-      </View>
-
       {/* Main Top: Amount */}
       <View className="items-center justify-center py-12 px-4">
         <View className="bg-[#E8F7EF] rounded-full p-4 mb-4">
           <Wallet size={32} color="#4FC985" />
         </View>
         <Text className="text-[#4FC985] text-3xl font-semibold">
-          {formatAmount(transaction.transactionAmount)}
+          {formatAmount(
+            transaction.transactionAmount,
+            transaction.transactionType
+          )}
         </Text>
       </View>
 
       {/* Main Bottom: Transaction Info */}
-      <View className="p-4">
+      <View className="px-6">
         <View className="bg-white rounded-lg border border-gray-200">
           {/* Category */}
           <TouchableOpacity
@@ -230,7 +220,7 @@ export default function TransactionDetail() {
           <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
             <Text className="text-gray-600">잔액</Text>
             <Text className="mr-2">
-              {formatAmount(transaction.transactionAmount)}
+              {Math.abs(transaction.transactionAmount).toLocaleString()}원
             </Text>
           </View>
 
@@ -269,11 +259,16 @@ export default function TransactionDetail() {
         />
       )}
 
-      <HashtagModal
-        visible={isHashtagModalOpen}
-        onClose={() => setIsHashtagModalOpen(false)}
-        onSave={handleHashtagSave}
-      />
+      {token && (
+        <HashtagModal
+          visible={isHashtagModalOpen}
+          onClose={() => setIsHashtagModalOpen(false)}
+          onSave={handleHashtagSave}
+          transactionId={Number(transactionId)}
+          token={token}
+          initialHashtags={transaction.hashtags}
+        />
+      )}
     </View>
   );
 }

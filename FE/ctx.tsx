@@ -7,6 +7,7 @@ import React, {
 } from "react";
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
+import { useRouter } from "expo-router";
 
 // 1️⃣ 인증 컨텍스트 타입 정의
 interface SessionContextType {
@@ -27,6 +28,7 @@ interface SessionProviderProps {
 export function SessionProvider({ children }: SessionProviderProps) {
   const [session, setSession] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const loadToken = async () => {
@@ -64,6 +66,15 @@ export function SessionProvider({ children }: SessionProviderProps) {
     }
     setSession(null);
   };
+
+  useEffect(() => {
+    if (session) {
+      console.log("✅ [AUTH] 유효한 토큰 확인됨:", session);
+      router.replace("/home");
+    } else if (!isLoading) {
+      console.log("❌ [AUTH] 유효한 토큰 없음");
+    }
+  }, [isLoading, session]);
 
   // 4️⃣ Provider로 값 전달
   return (
