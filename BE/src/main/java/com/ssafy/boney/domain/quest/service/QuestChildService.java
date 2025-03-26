@@ -25,6 +25,7 @@ public class QuestChildService {
         parentChildList.sort(Comparator.comparing(pc -> pc.getChild().getUserBirth()));
         return parentChildList.stream()
                 .map(pc -> new QuestChildResponseDto(
+                        pc.getParentChildId(),
                         pc.getChild().getUserId(),
                         pc.getChild().getUserName()))
                 .collect(Collectors.toList());
