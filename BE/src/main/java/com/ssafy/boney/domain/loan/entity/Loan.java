@@ -11,7 +11,10 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "loan")
 @Getter
+@Setter
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class Loan {
 
     @Id
