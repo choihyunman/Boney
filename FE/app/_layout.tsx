@@ -4,13 +4,14 @@ import * as WebBrowser from "expo-web-browser";
 import { useEffect } from "react";
 import { useFonts } from "expo-font";
 import { View } from "react-native";
-import { SessionProvider } from "../ctx";
+import { SessionProvider, useSession } from "../ctx";
 import { SafeAreaView } from "react-native-safe-area-context";
 import "./global.css";
 import { StatusBar } from "expo-status-bar";
 import Header from "@/components/Header";
 import { Bell, ArrowLeft, Search } from "lucide-react-native";
 import { Image } from "react-native";
+import Nav from "@/components/Nav";
 
 interface HeaderButton {
   icon: React.ReactNode;
@@ -36,6 +37,7 @@ function RootLayoutNav() {
   });
 
   const pathname = usePathname();
+  const { isLoading } = useSession();
 
   useEffect(() => {
     if (fontsLoaded) {
@@ -43,14 +45,14 @@ function RootLayoutNav() {
     }
   }, [fontsLoaded]);
 
-  if (!fontsLoaded) {
+  if (!fontsLoaded || isLoading) {
     return <View style={{ flex: 1, backgroundColor: "white" }} />;
   }
 
   // 헤더 설정
   const getHeaderConfig = (): HeaderConfig => {
     switch (pathname) {
-      case "/":
+      case "/home":
         return {
           backgroundColor: "#F9FAFB",
           leftButton: {
@@ -61,7 +63,7 @@ function RootLayoutNav() {
                 resizeMode="contain"
               />
             ),
-            onPress: () => router.back(),
+            onPress: () => {},
           },
           rightButton: {
             icon: <Bell size={24} color="#9CA3AF" />,
@@ -75,7 +77,7 @@ function RootLayoutNav() {
         };
       case "/transaction":
         return {
-          title: "거래내역",
+          title: "거래 내역",
           backgroundColor: "#FFFFFF",
           leftButton: {
             icon: <ArrowLeft size={24} color="#000000" />,
@@ -86,10 +88,10 @@ function RootLayoutNav() {
             onPress: () => console.log("검색 버튼 클릭"),
           },
         };
-      case "/transaction/[id]":
+      case pathname.startsWith("/transaction/") ? pathname : "":
         return {
-          title: "거래 상세",
-          backgroundColor: "#F9FAFB",
+          title: "상세 내역",
+          backgroundColor: "#FFFFFF",
           leftButton: {
             icon: <ArrowLeft size={24} color="#000000" />,
             onPress: () => router.back(),
@@ -122,6 +124,7 @@ function RootLayoutNav() {
         <Header {...getHeaderConfig()} />
       )}
       <Slot />
+      {!isAuthPage && <Nav />}
     </SafeAreaView>
   );
 }

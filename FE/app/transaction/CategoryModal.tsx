@@ -1,10 +1,15 @@
 import React from "react";
-import { View, Text, TouchableOpacity, Modal, ScrollView } from "react-native";
+import { View, TouchableOpacity, Modal, ScrollView } from "react-native";
 import {
   Wallet,
+  PiggyBank,
+  GraduationCap,
+  Briefcase,
+  Gift,
+  MoreHorizontal,
+  LucideIcon,
   Utensils,
   Bus,
-  GraduationCap,
   Pencil,
   Film,
   Coffee,
@@ -12,19 +17,18 @@ import {
   Stethoscope,
   Home,
   ArrowRightLeft,
-  MoreHorizontal,
-  LucideIcon,
 } from "lucide-react-native";
+import GlobalText from "@/components/GlobalText";
 
-interface ExpenseCategoryProps {
+interface CategoryModalProps {
   visible: boolean;
   onClose: () => void;
-  selectedCategory: string;
-  onSelectCategory: (categoryId: string) => void;
+  selectedCategory: number;
+  onSelectCategory: (categoryId: number, categoryName: string) => void;
 }
 
 interface Category {
-  id: string;
+  id: number;
   name: string;
   icon: LucideIcon;
   color: string;
@@ -37,92 +41,127 @@ interface CategoryIconProps {
   iconColor: string;
 }
 
-const ExpenseCategoryModal: React.FC<ExpenseCategoryProps> = ({
+const CategoryModal: React.FC<CategoryModalProps> = ({
   visible,
   onClose,
   selectedCategory,
   onSelectCategory,
 }) => {
-  const categories = [
+  const categories: Category[] = [
     {
-      id: "repayment",
-      name: "대출상환",
+      id: 1,
+      name: "입금",
+      icon: PiggyBank,
+      color: "#e2f8ed",
+      iconColor: "#4FC985",
+    },
+    {
+      id: 2,
+      name: "출금",
       icon: Wallet,
       color: "#dbeafe",
       iconColor: "#3b82f6",
     },
     {
-      id: "food",
-      name: "식사",
-      icon: Utensils,
-      color: "#fef3c7",
-      iconColor: "#f59e0b",
-    },
-    {
-      id: "transport",
-      name: "교통비",
-      icon: Bus,
-      color: "#e0e7ff",
-      iconColor: "#6366f1",
-    },
-    {
-      id: "education",
-      name: "학습",
-      icon: GraduationCap,
-      color: "#dbeafe",
-      iconColor: "#3b82f6",
-    },
-    {
-      id: "stationery",
-      name: "문구",
-      icon: Pencil,
-      color: "#fee2e2",
-      iconColor: "#ef4444",
-    },
-    {
-      id: "culture",
-      name: "문화",
-      icon: Film,
+      id: 3,
+      name: "용돈",
+      icon: Gift,
       color: "#fce7f3",
       iconColor: "#ec4899",
     },
     {
-      id: "cafe",
-      name: "카페/간식",
-      icon: Coffee,
-      color: "#fef3c7",
-      iconColor: "#d97706",
+      id: 4,
+      name: "대출",
+      icon: Wallet,
+      color: "#dbeafe",
+      iconColor: "#3b82f6",
     },
     {
-      id: "fashion",
-      name: "의류/미용",
-      icon: Shirt,
-      color: "#f3e8ff",
-      iconColor: "#a855f7",
+      id: 5,
+      name: "퀘스트",
+      icon: Briefcase,
+      color: "#e0e7ff",
+      iconColor: "#6366f1",
     },
     {
-      id: "medical",
-      name: "의료",
-      icon: Stethoscope,
-      color: "#dcfce7",
-      iconColor: "#22c55e",
-    },
-    {
-      id: "living",
-      name: "생활",
-      icon: Home,
-      color: "#e0f2fe",
-      iconColor: "#0ea5e9",
-    },
-    {
-      id: "transfer",
+      id: 6,
       name: "이체",
       icon: ArrowRightLeft,
       color: "#e0e7ff",
       iconColor: "#6366f1",
     },
     {
-      id: "etc",
+      id: 7,
+      name: "대출상환",
+      icon: Wallet,
+      color: "#dbeafe",
+      iconColor: "#3b82f6",
+    },
+    {
+      id: 8,
+      name: "식사",
+      icon: Utensils,
+      color: "#fef3c7",
+      iconColor: "#f59e0b",
+    },
+    {
+      id: 9,
+      name: "교통비",
+      icon: Bus,
+      color: "#e0e7ff",
+      iconColor: "#6366f1",
+    },
+    {
+      id: 10,
+      name: "학습",
+      icon: GraduationCap,
+      color: "#dbeafe",
+      iconColor: "#3b82f6",
+    },
+    {
+      id: 11,
+      name: "문구",
+      icon: Pencil,
+      color: "#fee2e2",
+      iconColor: "#ef4444",
+    },
+    {
+      id: 12,
+      name: "문화",
+      icon: Film,
+      color: "#fce7f3",
+      iconColor: "#ec4899",
+    },
+    {
+      id: 13,
+      name: "카페/간식",
+      icon: Coffee,
+      color: "#fef3c7",
+      iconColor: "#d97706",
+    },
+    {
+      id: 14,
+      name: "의류/미용",
+      icon: Shirt,
+      color: "#f3e8ff",
+      iconColor: "#a855f7",
+    },
+    {
+      id: 15,
+      name: "의료",
+      icon: Stethoscope,
+      color: "#dcfce7",
+      iconColor: "#22c55e",
+    },
+    {
+      id: 16,
+      name: "생활/잡화",
+      icon: Home,
+      color: "#e0f2fe",
+      iconColor: "#0ea5e9",
+    },
+    {
+      id: 17,
       name: "기타",
       icon: MoreHorizontal,
       color: "#f3f4f6",
@@ -136,10 +175,10 @@ const ExpenseCategoryModal: React.FC<ExpenseCategoryProps> = ({
     iconColor,
   }) => (
     <View
-      className="w-8 h-8 rounded-full items-center justify-center mb-1.5"
+      className="w-10 h-10 rounded-full items-center justify-center mb-1"
       style={{ backgroundColor: color }}
     >
-      <Icon color={iconColor} />
+      <Icon color={iconColor} size={20} />
     </View>
   );
 
@@ -151,35 +190,35 @@ const ExpenseCategoryModal: React.FC<ExpenseCategoryProps> = ({
       onRequestClose={onClose}
     >
       <View className="flex-1 bg-black/50 justify-center items-center p-5">
-        <View className="bg-white rounded-lg w-full max-w-[360px] overflow-hidden shadow-lg">
-          <View className="p-3.5 border-b border-gray-200 flex-row justify-between items-center">
-            <Text className="text-lg font-semibold text-gray-900">
-              출금 카테고리 선택
-            </Text>
-            <TouchableOpacity className="p-1" onPress={onClose}>
-              <Text className="text-base text-gray-500">✕</Text>
+        <View className="bg-white rounded-lg w-full max-w-[400px] overflow-hidden shadow-lg">
+          <View className="p-3 border-b border-gray-200 flex-row justify-between items-center">
+            <GlobalText className="text-lg font-semibold text-gray-900">
+              카테고리 선택
+            </GlobalText>
+            <TouchableOpacity className="p-2" onPress={onClose}>
+              <GlobalText className="text-lg text-gray-500">✕</GlobalText>
             </TouchableOpacity>
           </View>
-          <ScrollView>
-            <View className="flex-row flex-wrap p-3.5">
+          <ScrollView className="max-h-[70vh]">
+            <View className="flex-row flex-wrap p-3 gap-2">
               {categories.map((category) => (
                 <TouchableOpacity
                   key={category.id}
-                  className={`w-1/3 p-1.5 items-center ${
+                  className={`w-[31%] p-2 items-center rounded-lg border ${
                     selectedCategory === category.id
-                      ? "bg-primary/10 border-2 border-primary rounded-lg"
-                      : ""
+                      ? "bg-primary/10 border-primary"
+                      : "bg-white border-gray-200"
                   }`}
-                  onPress={() => onSelectCategory(category.id)}
+                  onPress={() => onSelectCategory(category.id, category.name)}
                 >
                   <CategoryIcon
                     Icon={category.icon}
                     color={category.color}
                     iconColor={category.iconColor}
                   />
-                  <Text className="text-xs font-medium text-gray-700 text-center">
+                  <GlobalText className="text-sm font-medium text-gray-700 text-center mt-1">
                     {category.name}
-                  </Text>
+                  </GlobalText>
                 </TouchableOpacity>
               ))}
             </View>
@@ -190,4 +229,4 @@ const ExpenseCategoryModal: React.FC<ExpenseCategoryProps> = ({
   );
 };
 
-export default ExpenseCategoryModal;
+export default CategoryModal;
