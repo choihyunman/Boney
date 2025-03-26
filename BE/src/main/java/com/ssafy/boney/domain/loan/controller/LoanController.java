@@ -1,14 +1,11 @@
-package com.ssafy.boney.domain.loan;
+package com.ssafy.boney.domain.loan.controller;
 
 import com.ssafy.boney.domain.loan.dto.LoanRequest;
 import com.ssafy.boney.domain.loan.service.LoanService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/loan")
@@ -22,6 +19,12 @@ public class LoanController {
                                          HttpServletRequest httpRequest) {
         Integer childId = (Integer) httpRequest.getAttribute("userId");
         return loanService.createLoan(childId, request);
+    }
+
+    @GetMapping("/parent/requested")
+    public ResponseEntity<?> getRequestedLoansForParent(HttpServletRequest request) {
+        Integer parentId = (Integer) request.getAttribute("userId");
+        return loanService.getRequestedLoansByParent(parentId);
     }
 
 
