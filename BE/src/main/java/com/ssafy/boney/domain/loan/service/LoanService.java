@@ -1,5 +1,6 @@
 package com.ssafy.boney.domain.loan.service;
 
+import com.ssafy.boney.domain.loan.dto.LoanApproveRequest;
 import com.ssafy.boney.domain.loan.dto.LoanRequest;
 import com.ssafy.boney.domain.loan.dto.LoanResponse;
 import com.ssafy.boney.domain.loan.entity.Loan;
@@ -45,7 +46,20 @@ public class LoanService {
         User child = userRepository.findById(childId)
                 .orElseThrow(() -> new UserNotFoundException(UserErrorCode.NOT_FOUND));
 
-        // 보호자 관계 조회
+        // 신용 점수 확인
+        int creditScore = (child.getCreditScore() != null) ? child.getCreditScore().getScore() : 0;
+        if (creditScore < 30) {
+            return ResponseEntity.ok(Map.of(
+                    "status", "200",
+                    "message", "신용 점수가 30 미만입니다. 대출을 신청할 수 없습니다.",
+                    "data", Map.of(
+                            "credit_score", creditScore,
+                            "is_loan_allowed", false
+                    )
+            ));
+        }
+
+        // 부모-자녀 관계 확인
         Optional<ParentChild> relationOpt = child.getParents().stream().findFirst();
         if (relationOpt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
@@ -118,6 +132,50 @@ public class LoanService {
                 "status", "200",
                 "message", "대출 요청이 성공적으로 확인되었습니다.",
                 "data", Map.of("loan_list", loanList)
+        ));
+    }
+
+    // 대출 승인 상태로 변경
+    @Transactional
+    public ResponseEntity<?> approveLoan(LoanApproveRequest request, Integer parentId) {
+        if (request.getLoanId() == null) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", 400,
+                    "message", "loan_id는 필수입니다."
+            ));
+        }
+
+        Loan loan = loanRepository.findById(request.getLoanId())
+                .orElse(null);
+
+        if (loan == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                    "status", 400,
+                    "message", "해당 loan_id에 대한 대출 정보를 찾을 수 없습니다."
+            ));
+        }
+
+        // 부모 권한 검증
+        ParentChild parentChild = loan.getParentChild();
+        if (!parentChild.getParent().getUserId().equals(parentId)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                    "status", 401,
+                    "message", "토큰이 없거나 만료되었습니다."
+            ));
+        }
+
+        // 상태 업데이트
+        loan.setStatus(LoanStatus.APPROVED);
+        loan.setApprovedAt(LocalDateTime.now());
+
+        return ResponseEntity.ok(Map.of(
+                "status", "200",
+                "message", "대출 요청이 승인되었습니다.",
+                "data", Map.of(
+                        "loan_id", loan.getLoanId(),
+                        "approved_at", loan.getApprovedAt(),
+                        "loan_status", loan.getStatus().name()
+                )
         ));
     }
 
