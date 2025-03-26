@@ -1,15 +1,16 @@
 import React from "react";
-import { View, Text } from "react-native";
-import { DollarSign, CreditCard, Zap, Award } from "lucide-react-native";
+import { View } from "react-native";
+import { getCategoryIcon } from "../../utils/categoryUtils";
+import GlobalText from "@/components/GlobalText";
 
 type TransactionItemProps = {
   item: {
     transactionId: number;
-    icon: string;
     transactionContent: string;
     transactionDate: string;
     transactionAmount: number;
     transactionCategoryName: string;
+    transactionCategoryId: number;
     transactionAfterBalance: number;
     hashtags: string[];
   };
@@ -17,43 +18,11 @@ type TransactionItemProps = {
 
 export default function TransactionItem({ item }: TransactionItemProps) {
   console.log("🎯 TransactionItem received data:", item);
-  // 아이콘 선택 함수
-  const getIcon = (iconType: string) => {
-    let IconComponent = DollarSign;
-    let backgroundColor = "bg-yellow-100";
-    let iconColor = "#EAB308";
 
-    switch (iconType) {
-      case "coin":
-        IconComponent = DollarSign;
-        backgroundColor = "bg-yellow-100";
-        iconColor = "#EAB308";
-        break;
-      case "allowance":
-        IconComponent = CreditCard;
-        backgroundColor = "bg-green-100";
-        iconColor = "#4FC985";
-        break;
-      case "bank":
-        IconComponent = Zap;
-        backgroundColor = "bg-blue-100";
-        iconColor = "#3B82F6";
-        break;
-      case "trophy":
-        IconComponent = Award;
-        backgroundColor = "bg-purple-100";
-        iconColor = "#9333EA";
-        break;
-    }
-
-    return (
-      <View
-        className={`w-10 h-10 rounded-full items-center justify-center mt-3 ${backgroundColor}`}
-      >
-        <IconComponent size={20} color={iconColor} />
-      </View>
-    );
-  };
+  // 카테고리 이름에 따른 아이콘 가져오기
+  const { Icon, backgroundColor, iconColor } = getCategoryIcon(
+    item.transactionCategoryName
+  );
 
   // 금액 포맷팅 함수
   const formatAmount = (amount: number) => {
@@ -80,22 +49,31 @@ export default function TransactionItem({ item }: TransactionItemProps) {
   return (
     <View className="w-[412px] h-[89px] flex-row px-6 py-3 bg-white">
       {/* 왼쪽 아이콘 */}
-      {getIcon(item.icon)}
+      <View
+        className="w-10 h-10 rounded-full items-center justify-center mt-3"
+        style={{
+          backgroundColor: backgroundColor.replace("bg-[", "").replace("]", ""),
+        }}
+      >
+        <Icon size={20} color={iconColor} />
+      </View>
 
       {/* 중앙 컨텐츠 */}
       <View className="ml-3 flex-1">
         <View className="flex-row items-center">
           <View className="relative pr-2 mr-2">
-            <Text className="text-sm leading-6">
+            <GlobalText className="text-sm leading-6">
               {item.transactionCategoryName}
-            </Text>
+            </GlobalText>
             <View className="absolute right-0 top-1/2 -translate-y-[7px] w-[1px] h-3.5 bg-black" />
           </View>
-          <Text className="text-base leading-6">{item.transactionContent}</Text>
+          <GlobalText className="text-base leading-6">
+            {item.transactionContent}
+          </GlobalText>
         </View>
-        <Text className="text-sm text-gray-500 leading-5">
+        <GlobalText className="text-sm text-gray-500 leading-5">
           {formatTime(item.transactionDate)}
-        </Text>
+        </GlobalText>
 
         {/* 해시시태그 컨테이너 */}
         {item.hashtags && item.hashtags.length > 0 && (
@@ -105,9 +83,9 @@ export default function TransactionItem({ item }: TransactionItemProps) {
                 key={index}
                 className="bg-[#49db8a1a] rounded-xl px-2 py-0.5"
               >
-                <Text className="text-xs text-[#4FC985] leading-[18px]">
+                <GlobalText className="text-xs text-[#4FC985] leading-[18px]">
                   # {tag}
-                </Text>
+                </GlobalText>
               </View>
             ))}
           </View>
@@ -116,18 +94,18 @@ export default function TransactionItem({ item }: TransactionItemProps) {
 
       {/* 오른쪽 금액 */}
       <View className="items-end justify-start mt-0.5">
-        <Text
+        <GlobalText
           className={`text-base leading-6 ${
             item.transactionAmount > 0 ? "text-[#4FC985]" : "text-black"
           }`}
         >
           {formatAmount(item.transactionAmount)}
-        </Text>
+        </GlobalText>
         {item.transactionAfterBalance !== undefined && (
-          <Text className="text-xs text-gray-500 leading-5">
-            {item.icon === "coin" ? "-" : ""}
+          <GlobalText className="text-xs text-gray-500 leading-5">
+            {item.transactionAmount < 0 ? "-" : ""}
             {item.transactionAfterBalance.toLocaleString()}원
-          </Text>
+          </GlobalText>
         )}
       </View>
     </View>

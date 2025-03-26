@@ -63,13 +63,6 @@ export const useAuthRedirect = () => {
         }
       }
 
-      // 🔒 로그인 + 회원가입 + PIN 여부 체크
-      if (session.signedUp && session.hasPin) {
-        console.log("✅ 모든 조건 통과 → 홈으로");
-        router.replace("/home");
-        return;
-      }
-
       hasRun.current = true;
 
       try {

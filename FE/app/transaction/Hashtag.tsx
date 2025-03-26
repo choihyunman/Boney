@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import {
   View,
-  Text,
   TextInput,
   TouchableOpacity,
   Modal,
@@ -9,7 +8,7 @@ import {
   Alert,
 } from "react-native";
 import { updateTransactionHashtags } from "../../apis/transactionApi";
-
+import GlobalText from "@/components/GlobalText";
 
 interface HashtagModalProps {
   visible: boolean;
@@ -82,11 +81,11 @@ const HashtagModal: React.FC<HashtagModalProps> = ({
       <SafeAreaView className="flex-1 bg-black/50 justify-center items-center p-5">
         <View className="bg-white rounded-lg w-full max-w-[400px] shadow-lg">
           <View className="p-4 border-b border-gray-200 flex-row justify-between items-center">
-            <Text className="text-xl font-semibold text-gray-900">
+            <GlobalText className="text-xl font-semibold text-gray-900">
               해시태그 수정
-            </Text>
+            </GlobalText>
             <TouchableOpacity className="p-2" onPress={onClose}>
-              <Text className="text-lg text-gray-500">✕</Text>
+              <GlobalText className="text-lg text-gray-500">✕</GlobalText>
             </TouchableOpacity>
           </View>
 
@@ -97,14 +96,16 @@ const HashtagModal: React.FC<HashtagModalProps> = ({
                   key={index}
                   className="flex-row items-center bg-gray-100 rounded-full py-2 px-3"
                 >
-                  <Text className="text-base font-medium text-[#4FC985]">
+                  <GlobalText className="text-base font-medium text-[#4FC985]">
                     #{tag}
-                  </Text>
+                  </GlobalText>
                   <TouchableOpacity
                     onPress={() => handleRemoveHashtag(index)}
                     className="ml-2"
                   >
-                    <Text className="text-base text-gray-500">✕</Text>
+                    <GlobalText className="text-base text-gray-500">
+                      ✕
+                    </GlobalText>
                   </TouchableOpacity>
                 </View>
               ))}
@@ -113,7 +114,6 @@ const HashtagModal: React.FC<HashtagModalProps> = ({
             <View className="mt-3">
               <TextInput
                 className="border border-gray-200 rounded-md p-3 text-base"
-
                 value={newHashtag}
                 onChangeText={setNewHashtag}
                 placeholder="해시태그 입력 (최대 6글자)"
@@ -127,7 +127,7 @@ const HashtagModal: React.FC<HashtagModalProps> = ({
                 className="px-4 py-3 rounded-md border border-gray-300"
                 onPress={handleAddHashtag}
               >
-                <Text className="text-base">+ 추가</Text>
+                <GlobalText className="text-base">+ 추가</GlobalText>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -135,9 +135,9 @@ const HashtagModal: React.FC<HashtagModalProps> = ({
                 onPress={handleSave}
                 disabled={isLoading}
               >
-                <Text className="text-base text-white font-medium">
+                <GlobalText className="text-base text-white font-medium">
                   {isLoading ? "저장 중..." : "저장하기"}
-                </Text>
+                </GlobalText>
               </TouchableOpacity>
             </View>
           </View>

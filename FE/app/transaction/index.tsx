@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { View, TouchableOpacity, ScrollView } from "react-native";
 import { ChevronLeft, ChevronRight } from "lucide-react-native";
 import TransactionItem from "./TransactionItem";
 import { getTransactionHistory, Transaction } from "../../apis/transactionApi";
-import { useRouter } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
 import Nav from "@/components/Nav";
 import { useAuthStore } from "@/stores/useAuthStore";
+import GlobalText from "@/components/GlobalText";
 
 export default function TransactionHistory() {
   const router = useRouter();
@@ -29,7 +30,7 @@ export default function TransactionHistory() {
     if (!token) {
       console.log("❌ 인증 토큰 없음:", { token });
       setError("로그인이 필요합니다.");
-      router.replace("/auth"); // 로그인 페이지로 리다이렉트 추가
+      router.replace("/auth");
       return;
     }
 
@@ -86,20 +87,20 @@ export default function TransactionHistory() {
       );
     } finally {
       setLoading(false);
-      // 500ms 후에 디바운스 상태 해제
       setTimeout(() => {
         isDebouncingRef.current = false;
       }, 500);
     }
   }, [activeTab, currentMonth, token]);
 
-  // 컴포넌트 마운트 시 및 탭/월 변경 시 거래 내역 조회
-  useEffect(() => {
-    console.log("🔄 useEffect triggered:", { token, activeTab, currentMonth });
-    if (token) {
-      debouncedFetchTransactions();
-    }
-  }, [activeTab, currentMonth, token, debouncedFetchTransactions]);
+  // 화면이 포커스될 때마다 거래 내역 새로고침
+  useFocusEffect(
+    useCallback(() => {
+      if (token) {
+        debouncedFetchTransactions();
+      }
+    }, [token, debouncedFetchTransactions])
+  );
 
   // 컴포넌트 마운트 시 초기 데이터 로드
   useEffect(() => {
@@ -163,7 +164,9 @@ export default function TransactionHistory() {
           <TouchableOpacity onPress={goToPreviousMonth} className="mr-2">
             <ChevronLeft size={20} color={"#000000"} />
           </TouchableOpacity>
-          <Text className="text-lg font-medium px-10">{currentMonth}</Text>
+          <GlobalText className="text-lg font-medium px-10">
+            {currentMonth}
+          </GlobalText>
           <TouchableOpacity onPress={goToNextMonth} className="ml-2">
             <ChevronRight size={20} color={"#000000"} />
           </TouchableOpacity>
@@ -175,13 +178,13 @@ export default function TransactionHistory() {
           onPress={() => handleTabChange("all")}
           className="flex-1 py-3 items-center relative"
         >
-          <Text
+          <GlobalText
             className={`text-base ${
               activeTab === "all" ? "text-black" : "text-gray-500"
             }`}
           >
             전체
-          </Text>
+          </GlobalText>
           {activeTab === "all" && (
             <View className="absolute bottom-[-2px] left-0 right-0 h-0.5 bg-[#4FC985]" />
           )}
@@ -190,13 +193,13 @@ export default function TransactionHistory() {
           onPress={() => handleTabChange("out")}
           className="flex-1 py-3 items-center relative"
         >
-          <Text
+          <GlobalText
             className={`text-base ${
               activeTab === "out" ? "text-black" : "text-gray-500"
             }`}
           >
             나간 돈
-          </Text>
+          </GlobalText>
           {activeTab === "out" && (
             <View className="absolute bottom-[-2px] left-0 right-0 h-0.5 bg-[#4FC985]" />
           )}
@@ -205,13 +208,13 @@ export default function TransactionHistory() {
           onPress={() => handleTabChange("in")}
           className="flex-1 py-3 items-center relative"
         >
-          <Text
+          <GlobalText
             className={`text-base ${
               activeTab === "in" ? "text-black" : "text-gray-500"
             }`}
           >
             들어온 돈
-          </Text>
+          </GlobalText>
           {activeTab === "in" && (
             <View className="absolute bottom-[-2px] left-0 right-0 h-0.5 bg-[#4FC985]" />
           )}
@@ -222,14 +225,16 @@ export default function TransactionHistory() {
         {loading ? (
           <View style={{ flex: 1, backgroundColor: "white" }} />
         ) : error ? (
-          <Text className="text-center py-5 text-base text-red-500">
+          <GlobalText className="text-center py-5 text-base text-red-500">
             {error}
-          </Text>
+          </GlobalText>
         ) : (
           Object.entries(groupedTransactions).map(([date, items]) => (
             <View key={date} className="pb-3">
               <View className="px-6 py-4 bg-[#F9FAFB]">
-                <Text className="text-base text-gray-500">{date}</Text>
+                <GlobalText className="text-base text-gray-500">
+                  {date}
+                </GlobalText>
               </View>
               {items.map((item) => (
                 <TouchableOpacity
@@ -247,10 +252,7 @@ export default function TransactionHistory() {
                   <TransactionItem
                     item={{
                       transactionId: item.transactionId,
-                      icon:
-                        item.transactionType === "DEPOSIT"
-                          ? "allowance"
-                          : "coin",
+                      transactionCategoryId: item.transactionCategoryId,
                       transactionContent: item.transactionContent,
                       transactionDate: item.transactionDate,
                       transactionAmount: item.transactionAmount,

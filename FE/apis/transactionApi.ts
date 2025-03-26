@@ -15,6 +15,7 @@ export interface Transaction {
   transactionAmount: number;
   transactionType: "WITHDRAWAL" | "DEPOSIT";
   transactionCategoryName: string;
+  transactionCategoryId: number;
   hashtags: string[];
   transactionAfterBalance: number;
 }
@@ -65,6 +66,7 @@ export interface TransactionDetailResponse {
     transactionAmount: number;
     transactionType: "WITHDRAWAL" | "DEPOSIT";
     transactionCategoryName: string;
+    transactionCategoryId: number;
     hashtags: string[];
     transactionAfterBalance: number;
   };
