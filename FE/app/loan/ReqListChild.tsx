@@ -58,7 +58,7 @@ export default function ChildLoanRequestsPage() {
 
   // 신용 점수에 따른 색상 결정
   const getCreditScoreColor = (score: number) => {
-    if (score >= 80) return "text-green-500";
+    if (score >= 80) return "text-[#4FC985]";
     if (score >= 50) return "text-yellow-500";
     return "text-red-500";
   };
