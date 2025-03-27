@@ -1,16 +1,13 @@
 import React, { useState } from "react";
 import { PinInput } from "../../components/PinInput";
 import { router, useLocalSearchParams } from "expo-router";
-import { Alert } from "react-native";
 import { usePinStore } from "@/stores/usePinStore";
-import { useAuthStore } from "@/stores/useAuthStore";
 import { CustomAlert } from "@/components/CustomAlert";
 
 export default function ConfirmPin() {
   const { password: originalPassword } = useLocalSearchParams<{
     password: string;
   }>();
-  const account = useAuthStore((state) => state.account);
   const setPin = usePinStore((state) => state.setPin);
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertConfig, setAlertConfig] = useState({
@@ -24,7 +21,6 @@ export default function ConfirmPin() {
       <PinInput
         title="비밀번호 확인"
         subtitle="비밀번호를 다시 입력해주세요."
-        showBackButton={false}
         onPasswordComplete={async (confirmPassword) => {
           if (confirmPassword === originalPassword) {
             try {
