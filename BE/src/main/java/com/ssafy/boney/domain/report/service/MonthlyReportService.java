@@ -2,10 +2,10 @@ package com.ssafy.boney.domain.report.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ssafy.boney.domain.report.dto.MonthlyReportResponseDto;
-import com.ssafy.boney.domain.report.dto.MonthlyReportResponseDto.CategoryExpenseDto;
-import com.ssafy.boney.domain.report.dto.MonthlyReportResponseDto.CompletedQuestsDto;
-import com.ssafy.boney.domain.report.dto.MonthlyReportResponseDto.ThreeMonthsTrendDto;
+import com.ssafy.boney.domain.report.dto.MonthlyReportResponse;
+import com.ssafy.boney.domain.report.dto.MonthlyReportResponse.CategoryExpenseDto;
+import com.ssafy.boney.domain.report.dto.MonthlyReportResponse.CompletedQuestsDto;
+import com.ssafy.boney.domain.report.dto.MonthlyReportResponse.ThreeMonthsTrendDto;
 import com.ssafy.boney.domain.report.entity.MonthlyReport;
 import com.ssafy.boney.domain.report.exception.MonthlyReportNotFoundException;
 import com.ssafy.boney.domain.report.repository.MonthlyReportRepository;
@@ -29,7 +29,7 @@ public class MonthlyReportService {
         this.objectMapper = objectMapper;
     }
 
-    public MonthlyReportResponseDto getMonthlyReport(User user, int year, int month) {
+    public MonthlyReportResponse getMonthlyReport(User user, int year, int month) {
         LocalDate reportMonth = LocalDate.of(year, month, 1);
 
         // 요청한 월의 레포트 조회
@@ -65,7 +65,7 @@ public class MonthlyReportService {
         ).collect(Collectors.toList());
 
         // 응답 DTO 구성
-        return MonthlyReportResponseDto.builder()
+        return MonthlyReportResponse.builder()
                 .reportMonth(report.getReportMonth().toString().substring(0, 7))
                 .totalIncome(report.getTotalIncome())
                 .totalExpense(report.getTotalExpense())

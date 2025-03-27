@@ -1,8 +1,8 @@
 package com.ssafy.boney.domain.user.controller;
 
-import com.ssafy.boney.domain.user.dto.FavoriteDeleteRequestDto;
-import com.ssafy.boney.domain.user.dto.FavoriteRequestDto;
-import com.ssafy.boney.domain.user.dto.FavoriteResponseDto;
+import com.ssafy.boney.domain.user.dto.FavoriteDeleteRequest;
+import com.ssafy.boney.domain.user.dto.FavoriteRequest;
+import com.ssafy.boney.domain.user.dto.FavoriteResponse;
 import com.ssafy.boney.domain.user.service.FavoriteService;
 import com.ssafy.boney.global.dto.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,18 +21,18 @@ public class FavoriteController {
 
     // 계좌 즐겨찾기 등록
     @PostMapping
-    public ResponseEntity<ApiResponse<FavoriteResponseDto>> registerFavorite(@RequestBody FavoriteRequestDto request,
-                                                                             HttpServletRequest httpRequest) {
+    public ResponseEntity<ApiResponse<FavoriteResponse>> registerFavorite(@RequestBody FavoriteRequest request,
+                                                                          HttpServletRequest httpRequest) {
         Integer userId = (Integer) httpRequest.getAttribute("userId");
-        FavoriteResponseDto responseDto = favoriteService.registerFavorite(userId, request.getBankName(), request.getFavoriteAccount());
+        FavoriteResponse responseDto = favoriteService.registerFavorite(userId, request.getBankName(), request.getFavoriteAccount());
         return ResponseEntity.ok(new ApiResponse<>(200, "즐겨찾기 등록 성공", responseDto));
     }
 
     // 계좌 즐겨찾기 목록 조회
     @GetMapping
-    public ResponseEntity<ApiResponse<List<FavoriteResponseDto>>> getFavoriteList(HttpServletRequest httpRequest) {
+    public ResponseEntity<ApiResponse<List<FavoriteResponse>>> getFavoriteList(HttpServletRequest httpRequest) {
         Integer userId = (Integer) httpRequest.getAttribute("userId");
-        List<FavoriteResponseDto> favorites = favoriteService.getFavoriteList(userId);
+        List<FavoriteResponse> favorites = favoriteService.getFavoriteList(userId);
         if (favorites.isEmpty()) {
             return ResponseEntity.status(404)
                     .body(new ApiResponse<>(404, "즐겨찾기로 등록된 계좌 정보가 존재하지 않습니다.", null));
@@ -42,10 +42,10 @@ public class FavoriteController {
 
     // 계좌 즐겨찾기 삭제
     @DeleteMapping
-    public ResponseEntity<ApiResponse<FavoriteResponseDto>> deleteFavorite(@RequestBody FavoriteDeleteRequestDto request,
-                                                                           HttpServletRequest httpRequest) {
+    public ResponseEntity<ApiResponse<FavoriteResponse>> deleteFavorite(@RequestBody FavoriteDeleteRequest request,
+                                                                        HttpServletRequest httpRequest) {
         Integer userId = (Integer) httpRequest.getAttribute("userId");
-        FavoriteResponseDto responseDto = favoriteService.deleteFavorite(userId, request.getFavoriteId());
+        FavoriteResponse responseDto = favoriteService.deleteFavorite(userId, request.getFavoriteId());
         return ResponseEntity.ok(new ApiResponse<>(200, "즐겨찾기 계좌가 성공적으로 삭제되었습니다.", responseDto));
     }
 }

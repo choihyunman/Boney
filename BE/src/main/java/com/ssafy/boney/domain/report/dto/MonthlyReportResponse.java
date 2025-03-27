@@ -9,7 +9,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class MonthlyReportResponseDto {
+public class MonthlyReportResponse {
     private String reportMonth;
     private Long totalIncome;
     private Long totalExpense;
