@@ -1,10 +1,10 @@
+import React from "react";
 import { Slot, router, usePathname } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import * as WebBrowser from "expo-web-browser";
 import { useEffect } from "react";
 import { useFonts } from "expo-font";
 import { View } from "react-native";
-import { SessionProvider, useSession } from "../ctx";
 import { SafeAreaView } from "react-native-safe-area-context";
 import "./global.css";
 import { StatusBar } from "expo-status-bar";
@@ -13,6 +13,7 @@ import { Bell, ArrowLeft, Search } from "lucide-react-native";
 import { Image } from "react-native";
 import Nav from "@/components/Nav";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
+import { useAuthStore } from "@/stores/useAuthStore";
 interface HeaderButton {
   icon: React.ReactNode;
   onPress: () => void;
@@ -37,7 +38,7 @@ function RootLayoutNav() {
   });
 
   const pathname = usePathname();
-  const { isLoading } = useSession();
+  const { hasHydrated } = useAuthStore();
 
   useEffect(() => {
     if (fontsLoaded) {
@@ -45,7 +46,7 @@ function RootLayoutNav() {
     }
   }, [fontsLoaded]);
 
-  if (!fontsLoaded || isLoading) {
+  if (!fontsLoaded || !hasHydrated) {
     return <View style={{ flex: 1, backgroundColor: "white" }} />;
   }
 
@@ -108,6 +109,33 @@ function RootLayoutNav() {
             onPress: () => router.back(),
           },
         };
+      case "/loan/ReqListParent":
+        return {
+          title: "요청 중인 대출 보기",
+          backgroundColor: "white",
+          leftButton: {
+            icon: <ArrowLeft size={24} color="#000000" />,
+            onPress: () => router.back(),
+          },
+        };
+      case "/loan/LoanListParent":
+        return {
+          title: "진행 중인 대출 보기",
+          backgroundColor: "white",
+          leftButton: {
+            icon: <ArrowLeft size={24} color="#000000" />,
+            onPress: () => router.back(),
+          },
+        };
+      case "/loan/ReqListChild":
+        return {
+          title: "대기 중인 대출 보기",
+          backgroundColor: "white",
+          leftButton: {
+            icon: <ArrowLeft size={24} color="#000000" />,
+            onPress: () => router.back(),
+          },
+        };
       default:
         return {
           title: "Boney",
@@ -136,9 +164,9 @@ function AuthRedirectWrapper() {
 
 export default function RootLayout() {
   return (
-    <SessionProvider>
+    <>
       <AuthRedirectWrapper />
       <RootLayoutNav />
-    </SessionProvider>
+    </>
   );
 }
