@@ -1,11 +1,11 @@
 package com.ssafy.boney.domain.report.controller;
 
-import com.ssafy.boney.domain.report.dto.ApiResponse;
-import com.ssafy.boney.domain.report.dto.MonthlyReportResponseDto;
+import com.ssafy.boney.domain.report.dto.MonthlyReportResponse;
 import com.ssafy.boney.domain.report.exception.MonthlyReportNotFoundException;
 import com.ssafy.boney.domain.report.service.MonthlyReportService;
 import com.ssafy.boney.domain.user.entity.User;
 import com.ssafy.boney.domain.user.repository.UserRepository;
+import com.ssafy.boney.global.dto.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +25,7 @@ public class MonthlyReportController {
     }
 
     @GetMapping("/monthly")
-    public ResponseEntity<ApiResponse<MonthlyReportResponseDto>> getMonthlyReport(
+    public ResponseEntity<ApiResponse<MonthlyReportResponse>> getMonthlyReport(
             @RequestParam int year,
             @RequestParam int month,
             HttpServletRequest request
@@ -37,9 +37,9 @@ public class MonthlyReportController {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
-        MonthlyReportResponseDto report = monthlyReportService.getMonthlyReport(user, year, month);
-        ApiResponse<MonthlyReportResponseDto> response = ApiResponse.<MonthlyReportResponseDto>builder()
-                .status("200")
+        MonthlyReportResponse report = monthlyReportService.getMonthlyReport(user, year, month);
+        ApiResponse<MonthlyReportResponse> response = ApiResponse.<MonthlyReportResponse>builder()
+                .status(200)
                 .message("월간 레포트 조회 성공")
                 .data(report)
                 .build();
@@ -49,7 +49,7 @@ public class MonthlyReportController {
     @ExceptionHandler(MonthlyReportNotFoundException.class)
     public ResponseEntity<ApiResponse<Object>> handleNotFoundException(MonthlyReportNotFoundException ex) {
         ApiResponse<Object> response = ApiResponse.builder()
-                .status("404")
+                .status(404)
                 .message(ex.getMessage())
                 .data(null)
                 .build();

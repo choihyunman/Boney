@@ -1,7 +1,7 @@
 package com.ssafy.boney.domain.quest.controller;
 
 
-import com.ssafy.boney.domain.quest.dto.QuestListParentResponseDto;
+import com.ssafy.boney.domain.quest.dto.QuestListParentResponse;
 import com.ssafy.boney.domain.quest.service.QuestListService;
 import com.ssafy.boney.global.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +27,7 @@ public class QuestListController {
     public ResponseEntity<ApiResponse<Map<String, Object>>> getOngoingQuests(
             @RequestAttribute("userId") Integer parentId
     ) {
-        List<QuestListParentResponseDto> quests = questListService.getOngoingQuests(parentId);
+        List<QuestListParentResponse> quests = questListService.getOngoingQuests(parentId);
 
         if (quests.isEmpty()) {
             return ResponseEntity.status(404)

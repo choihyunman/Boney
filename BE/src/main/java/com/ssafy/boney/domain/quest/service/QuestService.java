@@ -1,6 +1,6 @@
 package com.ssafy.boney.domain.quest.service;
 
-import com.ssafy.boney.domain.quest.dto.QuestCreateRequestDto;
+import com.ssafy.boney.domain.quest.dto.QuestCreateRequest;
 import com.ssafy.boney.domain.quest.entity.Quest;
 import com.ssafy.boney.domain.quest.entity.QuestCategory;
 import com.ssafy.boney.domain.quest.entity.enums.QuestStatus;
@@ -25,7 +25,7 @@ public class QuestService {
     private final UserService userService;
 
     // 퀘스트 생성
-    public void createQuest(Integer parentId, QuestCreateRequestDto requestDto) {
+    public void createQuest(Integer parentId, QuestCreateRequest requestDto) {
         // 1) 부모 엔티티 조회
         User parent = userService.findById(parentId);
         if (parent == null) {

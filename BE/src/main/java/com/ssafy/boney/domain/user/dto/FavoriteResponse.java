@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
-public class FavoriteResponseDto {
+public class FavoriteResponse {
     private Integer favoriteId;
     private Integer bankId;
     private String bankName;

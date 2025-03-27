@@ -8,7 +8,7 @@ import com.ssafy.boney.domain.transaction.entity.enums.TransactionType;
 import com.ssafy.boney.domain.transaction.repository.TransactionRepository;
 import com.ssafy.boney.domain.user.entity.User;
 import com.ssafy.boney.domain.user.entity.enums.Role;
-import com.ssafy.boney.domain.report.dto.MonthlyReportResponseDto;
+import com.ssafy.boney.domain.report.dto.MonthlyReportResponse;
 import com.ssafy.boney.domain.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,7 +87,7 @@ public class MonthlyReportScheduler {
                     ));
 
             // 카테고리별 지출 DTO 목록 구성 (거래 내역 포함)
-            List<MonthlyReportResponseDto.CategoryExpenseDto> categoryExpenseList = new ArrayList<>();
+            List<MonthlyReportResponse.CategoryExpenseDto> categoryExpenseList = new ArrayList<>();
             for (Map.Entry<String, Long> entry : categoryExpenseMap.entrySet()) {
                 int percentage = totalExpense > 0 ? (int) (entry.getValue() * 100 / totalExpense) : 0;
                 // 해당 카테고리에 속하는 거래 내역 조회
@@ -96,8 +96,8 @@ public class MonthlyReportScheduler {
                                 t.getTransactionCategory().getTransactionCategoryName().equals(entry.getKey()))
                         .collect(Collectors.toList());
                 // 거래 내역 DTO 변환
-                List<MonthlyReportResponseDto.TransactionDetailDto> transactionDetailList = transactionsForCategory.stream()
-                        .map(t -> MonthlyReportResponseDto.TransactionDetailDto.builder()
+                List<MonthlyReportResponse.TransactionDetailDto> transactionDetailList = transactionsForCategory.stream()
+                        .map(t -> MonthlyReportResponse.TransactionDetailDto.builder()
                                 .transactionId(t.getTransactionId())
                                 .amount(t.getTransactionAmount())
                                 .createdAt(t.getCreatedAt().toString())
@@ -109,7 +109,7 @@ public class MonthlyReportScheduler {
                         .collect(Collectors.toList());
 
 
-                categoryExpenseList.add(MonthlyReportResponseDto.CategoryExpenseDto.builder()
+                categoryExpenseList.add(MonthlyReportResponse.CategoryExpenseDto.builder()
                         .category(entry.getKey())
                         .amount(entry.getValue())
                         .percentage(percentage)

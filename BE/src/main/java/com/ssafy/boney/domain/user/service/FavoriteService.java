@@ -4,7 +4,7 @@ package com.ssafy.boney.domain.user.service;
 import com.ssafy.boney.domain.account.entity.Bank;
 import com.ssafy.boney.domain.account.repository.BankRepository;
 import com.ssafy.boney.domain.account.service.BankingApiService;
-import com.ssafy.boney.domain.user.dto.FavoriteResponseDto;
+import com.ssafy.boney.domain.user.dto.FavoriteResponse;
 import com.ssafy.boney.domain.user.entity.Favorite;
 import com.ssafy.boney.domain.user.entity.User;
 import com.ssafy.boney.domain.user.exception.UserConflictException;
@@ -31,7 +31,7 @@ public class FavoriteService {
 
     // 계좌 즐겨찾기 등록
     @Transactional
-    public FavoriteResponseDto registerFavorite(Integer userId, String bankName, String favoriteAccount) {
+    public FavoriteResponse registerFavorite(Integer userId, String bankName, String favoriteAccount) {
         // 사용자 조회
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(UserErrorCode.NOT_FOUND));
@@ -66,7 +66,7 @@ public class FavoriteService {
 
         Favorite savedFavorite = favoriteRepository.save(favorite);
 
-        return FavoriteResponseDto.builder()
+        return FavoriteResponse.builder()
                 .favoriteId(savedFavorite.getFavoriteId())
                 .bankId(bank.getBankId())
                 .bankName(bank.getBankName())
@@ -78,7 +78,7 @@ public class FavoriteService {
 
 
     // 계좌 즐겨찾기 조회
-    public List<FavoriteResponseDto> getFavoriteList(Integer userId) {
+    public List<FavoriteResponse> getFavoriteList(Integer userId) {
         // 사용자 조회
         userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(UserErrorCode.NOT_FOUND));
@@ -93,7 +93,7 @@ public class FavoriteService {
                     if (accountHolder == null || accountHolder.isEmpty()) {
                         return null;
                     }
-                    return FavoriteResponseDto.builder()
+                    return FavoriteResponse.builder()
                             .favoriteId(fav.getFavoriteId())
                             .bankId(fav.getBank().getBankId())
                             .bankName(fav.getBank().getBankName())
@@ -108,7 +108,7 @@ public class FavoriteService {
 
     // 계좌 즐겨찾기 삭제
     @Transactional
-    public FavoriteResponseDto deleteFavorite(Integer userId, Integer favoriteId) {
+    public FavoriteResponse deleteFavorite(Integer userId, Integer favoriteId) {
         // 사용자 조회
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(UserErrorCode.NOT_FOUND));
@@ -116,7 +116,7 @@ public class FavoriteService {
         Favorite favorite = favoriteRepository.findByFavoriteIdAndUser(favoriteId, user)
                 .orElseThrow(() -> new UserNotFoundException(UserErrorCode.NOT_FOUND));
 
-        FavoriteResponseDto responseDto = FavoriteResponseDto.builder()
+        FavoriteResponse responseDto = FavoriteResponse.builder()
                 .favoriteId(favorite.getFavoriteId())
                 .bankId(favorite.getBank().getBankId())
                 .bankName(favorite.getBank().getBankName())

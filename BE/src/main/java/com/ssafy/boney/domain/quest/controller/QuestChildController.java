@@ -1,6 +1,6 @@
 package com.ssafy.boney.domain.quest.controller;
 
-import com.ssafy.boney.domain.quest.dto.QuestChildResponseDto;
+import com.ssafy.boney.domain.quest.dto.QuestChildResponse;
 import com.ssafy.boney.domain.quest.service.QuestChildService;
 import com.ssafy.boney.global.dto.ApiResponse;
 import com.ssafy.boney.domain.user.entity.User;
@@ -27,7 +27,7 @@ public class QuestChildController {
             @RequestAttribute("userId") Integer parentId) {
 
         User parent = userService.findById(parentId);
-        List<QuestChildResponseDto> children = questChildService.getChildrenForQuest(parent);
+        List<QuestChildResponse> children = questChildService.getChildrenForQuest(parent);
 
         if (children.isEmpty()) {
             return ResponseEntity.status(404).body(
