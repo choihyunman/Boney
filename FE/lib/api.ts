@@ -1,6 +1,6 @@
 // lib/api.ts
+import { getToken } from "@/lib/token";
 import axios from "axios";
-import * as SecureStore from "expo-secure-store";
 
 // ✅ 토큰이 필요 없는 URL들
 const noAuthRequiredUrls = [
@@ -20,17 +20,18 @@ export const api = axios.create({
 // ✅ 요청 인터셉터 등록
 api.interceptors.request.use(async (config) => {
   const url = config.url || "";
-
-  // ❌ 인증 제외 URL이면 토큰 붙이지 않음
+  // 인증 제외 URL이면 토큰 붙이지 않음
   const isPublic = noAuthRequiredUrls.some((publicUrl) =>
     url.includes(publicUrl)
   );
+
   if (isPublic) {
     return config;
   }
 
-  // ✅ 그 외에는 토큰 추가
-  const token = await SecureStore.getItemAsync("userToken");
+  // 토큰 동적으로 불러오기
+  const token = await getToken();
+
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }

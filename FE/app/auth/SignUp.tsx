@@ -12,12 +12,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { User, Calendar, Phone } from "lucide-react-native";
 import GlobalText from "../../components/GlobalText";
 import { useAuthStore } from "@/stores/useAuthStore";
-import * as SecureStore from "expo-secure-store";
-import { useSession } from "../../ctx";
 import { router } from "expo-router";
 
 const SignupScreen = () => {
-  const { signIn } = useSession();
   const [userType, setUserType] = useState("PARENT");
   const [formData, setFormData] = useState({
     name: "",
@@ -141,28 +138,12 @@ const SignupScreen = () => {
       await useAuthStore.getState().signUp(payload);
 
       setIsSubmitting(false);
-      const currentUser = useAuthStore.getState().user;
-      const token = await SecureStore.getItemAsync("userToken");
-
-      if (currentUser && token) {
-        await signIn({
-          token,
-          signedUp: true,
-          kakaoId: currentUser.kakaoId,
-          userEmail: currentUser.userEmail,
-          userName: payload.userName,
-          userType: payload.role,
-          hasPin: false,
-        });
-
-        router.replace("/auth/CreatePin");
-      }
+      await useAuthStore.getState().user;
+      router.replace("/auth/CreatePin");
     } catch (error) {
       setIsSubmitting(false);
       console.error("❌ 회원가입 실패:", error);
       Alert.alert("오류", "회원가입 중 오류가 발생했습니다.");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -500,7 +481,7 @@ const SignupScreen = () => {
                 onPress={handleSubmit}
                 disabled={isSubmitting}
               >
-                <GlobalText className="text-white text-base font-bold">
+                <GlobalText className="text-white text-base">
                   {isSubmitting ? "가입 중..." : "다음"}
                 </GlobalText>
               </TouchableOpacity>
