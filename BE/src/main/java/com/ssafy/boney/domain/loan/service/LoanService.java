@@ -392,5 +392,61 @@ public class LoanService {
         ));
     }
 
+    @Transactional(readOnly = true)
+    public ResponseEntity<?> getRequestedLoansByChild(Integer childId) {
+        if (childId == null) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", 400,
+                    "message", "요청 형식 또는 파라미터가 잘못되었습니다."
+            ));
+        }
+
+        User child = userRepository.findById(childId)
+                .orElse(null);
+
+        if (child == null) {
+            return ResponseEntity.status(401).body(Map.of(
+                    "status", 401,
+                    "message", "유효한 액세스 토큰이 필요합니다."
+            ));
+        }
+
+        Optional<ParentChild> relationOpt = child.getParents().stream().findFirst();
+        if (relationOpt.isEmpty()) {
+            return ResponseEntity.status(404).body(Map.of(
+                    "status", 404,
+                    "message", "loan_id에 해당하는 대출 내역이 존재하지 않습니다."
+            ));
+        }
+
+        List<Loan> requestedLoans = loanRepository.findByParentChild(relationOpt.get()).stream()
+                .filter(loan -> loan.getStatus() == LoanStatus.REQUESTED)
+                .toList();
+
+        if (requestedLoans.isEmpty()) {
+            return ResponseEntity.status(404).body(Map.of(
+                    "status", 404,
+                    "message", "loan_id에 해당하는 대출 내역이 존재하지 않습니다."
+            ));
+        }
+
+        List<Map<String, Object>> loanList = new ArrayList<>();
+        for (Loan loan : requestedLoans) {
+            Map<String, Object> loanInfo = new HashMap<>();
+            loanInfo.put("loan_id", loan.getLoanId());
+            loanInfo.put("total_loan_amount", loan.getLoanAmount());
+            loanInfo.put("request_date", loan.getRequestedAt().toLocalDate().toString());
+            loanInfo.put("due_date", loan.getDueDate().toLocalDate().toString());
+            loanList.add(loanInfo);
+        }
+
+        return ResponseEntity.ok(Map.of(
+                "status", "200",
+                "message", "대출 대기 목록이 조회되었습니다.",
+                "data", Map.of("loan_pending_list", loanList)
+        ));
+    }
+
+
 
 }

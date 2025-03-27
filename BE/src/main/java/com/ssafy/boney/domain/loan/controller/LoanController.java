@@ -69,5 +69,12 @@ public class LoanController {
         return loanService.getLoanDetail(loanId, userId);
     }
 
+    // 대기 중인 대출 조회 api
+    @GetMapping("/child/requested")
+    public ResponseEntity<?> getRequestedLoansByChild(HttpServletRequest request) {
+        Integer childId = (Integer) request.getAttribute("userId");
+        return loanService.getRequestedLoansByChild(childId);
+    }
+
 
 }
