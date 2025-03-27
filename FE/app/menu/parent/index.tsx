@@ -5,6 +5,7 @@ import {
   Image,
   StyleSheet,
   ScrollView,
+  Alert,
 } from "react-native";
 import { router } from "expo-router";
 import {
@@ -19,16 +20,46 @@ import {
 import React from "react";
 import { useAuthStore } from "../../../stores/useAuthStore";
 import Nav from "@/components/Nav";
+import { deleteAccount } from "@/apis/authApi";
+
 export default function MenuPage() {
-  const { user } = useAuthStore();
+  const { user, token } = useAuthStore();
 
   const handleLogout = async () => {
     await useAuthStore.getState().logout();
     router.push("/auth");
   };
 
-  const handleDeleteAccount = () => {
-    alert("정말 탈퇴하시겠습니까?");
+  const handleDeleteAccount = async () => {
+    Alert.alert("회원탈퇴", "정말 탈퇴하시겠습니까?", [
+      {
+        text: "취소",
+        style: "cancel",
+      },
+      {
+        text: "탈퇴",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            if (!token) {
+              Alert.alert("오류", "인증 정보가 없습니다.");
+              return;
+            }
+            const response = await deleteAccount(token);
+            Alert.alert("성공", response.message);
+            await useAuthStore.getState().logout();
+            router.push("/auth");
+          } catch (error) {
+            Alert.alert(
+              "오류",
+              error instanceof Error
+                ? error.message
+                : "회원탈퇴 중 오류가 발생했습니다."
+            );
+          }
+        },
+      },
+    ]);
   };
 
   return (
@@ -39,7 +70,8 @@ export default function MenuPage() {
       {/* 프로필 섹션 */}
       <TouchableOpacity
         style={styles.profileSection}
-        onPress={() => router.push("/mypage")}
+        disabled={true}
+        // onPress={() => router.push("/mypage")}
       >
         <View style={styles.profileImageContainer}>
           <Image
@@ -67,7 +99,7 @@ export default function MenuPage() {
           </View>
           <View style={styles.subMenuContainer}>
             <TouchableOpacity
-              onPress={() => router.push("/transfer/Amount")}
+              onPress={() => router.push("/transfer")}
               style={styles.subMenuItem}
             >
               <ChevronRight size={16} color="#4FC985" />
@@ -122,14 +154,16 @@ export default function MenuPage() {
           </View>
           <View style={styles.subMenuContainer}>
             <TouchableOpacity
-              onPress={() => router.push("/quest/create")}
+              disabled={true}
+              // onPress={() => router.push("/quest/create")}
               style={styles.subMenuItem}
             >
               <ChevronRight size={16} color="#4FC985" />
               <Text style={styles.subMenuText}>퀘스트 만들기</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => router.push("/quest/list")}
+              disabled={true}
+              // onPress={() => router.push("/quest/list")}
               style={styles.subMenuItem}
             >
               <ChevronRight size={16} color="#4FC985" />
@@ -153,7 +187,8 @@ export default function MenuPage() {
               <Text style={styles.subMenuText}>요청 중인 대출</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => router.push("/loan/LoanListParent")}
+              disabled={true}
+              // onPress={() => router.push("/loan/LoanListParent")}
               style={styles.subMenuItem}
             >
               <ChevronRight size={16} color="#4FC985" />
