@@ -1,5 +1,6 @@
 package com.ssafy.boney.domain.user.controller;
 
+import com.ssafy.boney.domain.user.dto.FavoriteDeleteRequestDto;
 import com.ssafy.boney.domain.user.dto.FavoriteRequestDto;
 import com.ssafy.boney.domain.user.dto.FavoriteResponseDto;
 import com.ssafy.boney.domain.user.service.FavoriteService;
@@ -37,5 +38,14 @@ public class FavoriteController {
                     .body(new ApiResponse<>(404, "즐겨찾기로 등록된 계좌 정보가 존재하지 않습니다.", null));
         }
         return ResponseEntity.ok(new ApiResponse<>(200, "즐겨찾기로 등록된 계좌 조회 성공", favorites));
+    }
+
+    // 계좌 즐겨찾기 삭제
+    @DeleteMapping
+    public ResponseEntity<ApiResponse<FavoriteResponseDto>> deleteFavorite(@RequestBody FavoriteDeleteRequestDto request,
+                                                                           HttpServletRequest httpRequest) {
+        Integer userId = (Integer) httpRequest.getAttribute("userId");
+        FavoriteResponseDto responseDto = favoriteService.deleteFavorite(userId, request.getFavoriteId());
+        return ResponseEntity.ok(new ApiResponse<>(200, "즐겨찾기 계좌가 성공적으로 삭제되었습니다.", responseDto));
     }
 }
