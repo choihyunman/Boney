@@ -1,7 +1,6 @@
 package com.ssafy.boney.domain.quest.repository;
 
 import com.ssafy.boney.domain.quest.entity.Quest;
-import com.ssafy.boney.domain.quest.entity.enums.QuestStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -24,7 +23,7 @@ public interface QuestRepository extends JpaRepository<Quest, Integer> {
     List<Quest> findOngoingQuestsByParent(@Param("parentId") Integer parentId);
 
 
-    // 지난 퀘스트 목록
+    // 보호자 지난 퀘스트 목록
     // (1) 만료된 퀘스트 조회:
     // IN_PROGRESS 상태이면서, end_date가 현재 시각보다 이전인 항목
     @Query("SELECT q FROM Quest q " +
@@ -57,6 +56,29 @@ public interface QuestRepository extends JpaRepository<Quest, Integer> {
             "ORDER BY CASE WHEN q.questStatus = 'WAITING_REWARD' THEN 0 ELSE 1 END, " +
             "         q.endDate ASC")
     List<Quest> findOngoingQuestsByChild(@Param("childId") Integer childId);
+
+
+    // 아이 지난 퀘스트 목록
+    // (1) 만료된 퀘스트 조회
+    @Query("SELECT q FROM Quest q " +
+            "JOIN q.parentChild pc " +
+            "JOIN pc.child c " +
+            "WHERE c.userId = :childId " +
+            "  AND q.questStatus = 'IN_PROGRESS' " +
+            "  AND q.endDate < :now")
+    List<Quest> findExpiredQuestsForChild(@Param("childId") Integer childId,
+                                          @Param("now") LocalDateTime now);
+
+    // (2) 지난 퀘스트 조회
+    @Query("SELECT q FROM Quest q " +
+            "JOIN q.parentChild pc " +
+            "JOIN pc.child c " +
+            "WHERE c.userId = :childId " +
+            "  AND q.questStatus IN ('SUCCESS','FAILED') " +
+            "ORDER BY CASE WHEN q.finishDate IS NULL THEN 1 ELSE 0 END, " +
+            "         q.finishDate DESC")
+    List<Quest> findPastQuestsByChild(@Param("childId") Integer childId);
+
 }
 
 
