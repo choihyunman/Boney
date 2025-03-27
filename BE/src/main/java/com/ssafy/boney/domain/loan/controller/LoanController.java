@@ -61,6 +61,13 @@ public class LoanController {
         return loanService.getApprovedLoansByParent(parentId);
     }
 
+    // 대출 세부 사항 조회
+    @GetMapping("/{loanId}")
+    public ResponseEntity<?> getLoanDetail(@PathVariable("loanId") Integer loanId,
+                                           HttpServletRequest request) {
+        Integer userId = (Integer) request.getAttribute("userId");
+        return loanService.getLoanDetail(loanId, userId);
+    }
 
 
 }
