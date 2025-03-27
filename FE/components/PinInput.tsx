@@ -1,12 +1,19 @@
 // 비밀번호 입력 페이지
-import React, { useState } from "react";
-import { View, TouchableOpacity, SafeAreaView, Dimensions } from "react-native";
-import { Lock } from "lucide-react-native";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  TouchableOpacity,
+  SafeAreaView,
+  Dimensions,
+  Animated,
+} from "react-native";
+import { Lock, ArrowLeft } from "lucide-react-native";
 import GlobalText from "./GlobalText";
 
 const { width } = Dimensions.get("window");
 const BUTTON_SIZE = 56;
 const BUTTON_MARGIN = 8;
+const BUTTON_WIDTH = (width - 64 - BUTTON_MARGIN * 2) / 3.5;
 const NUM_PADS = [
   ["1", "2", "3"],
   ["4", "5", "6"],
@@ -28,6 +35,20 @@ export const PinInput = ({
   onPasswordComplete,
 }: PinInputProps) => {
   const [password, setPassword] = useState<string[]>([]);
+  const [animations] = useState(() =>
+    Array(6)
+      .fill(0)
+      .map(() => new Animated.Value(0))
+  );
+
+  useEffect(() => {
+    animations.forEach((anim, index) => {
+      Animated.spring(anim, {
+        toValue: index < password.length ? 1 : 0,
+        useNativeDriver: true,
+      }).start();
+    });
+  }, [password]);
 
   const handleNumberPress = (num: string) => {
     if (password.length < 6) {
@@ -49,13 +70,13 @@ export const PinInput = ({
 
   const renderNumPad = () => {
     return NUM_PADS.map((row, rowIndex) => (
-      <View key={rowIndex} className="flex-row justify-between mb-2">
+      <View key={rowIndex} className="flex-row gap-4 mb-2 mr-2">
         {row.map((num, colIndex) => (
           <TouchableOpacity
             key={`${rowIndex}-${colIndex}`}
             className="bg-gray-100 rounded-lg justify-center items-center"
             style={{
-              width: (width - 64 - BUTTON_MARGIN * 2) / 3,
+              width: (width - 64 - BUTTON_MARGIN * 2) / 3.5,
               height: BUTTON_SIZE,
             }}
             onPress={() => {
@@ -64,7 +85,13 @@ export const PinInput = ({
               else handleNumberPress(num);
             }}
           >
-            <GlobalText className="text-xl text-gray-800">{num}</GlobalText>
+            <GlobalText
+              className={`${
+                num === "전체 삭제" ? "text-base" : "text-xl"
+              } text-gray-800`}
+            >
+              {num}
+            </GlobalText>
           </TouchableOpacity>
         ))}
       </View>
@@ -85,14 +112,27 @@ export const PinInput = ({
           {subtitle}
         </GlobalText>
 
-        <View className="flex-row gap-3 mb-8">
+        <View className="flex-row gap-3 mb-8 mr4">
           {[...Array(6)].map((_, index) => (
-            <View
-              key={index}
-              className={`w-12 h-12 rounded-lg border-2 ${
-                index < password.length ? "border-[#4FC885]" : "border-gray-200"
-              }`}
-            />
+            <View key={index} className="w-5 h-10 justify-center items-center">
+              <Animated.View
+                className="absolute w-3 h-3 rounded-full bg-gray-300"
+                style={{
+                  transform: [
+                    {
+                      scale: animations[index].interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [1, 1.5],
+                      }),
+                    },
+                  ],
+                  backgroundColor: animations[index].interpolate({
+                    inputRange: [0, 1],
+                    outputRange: ["#D1D5DB", "#4FC885"],
+                  }),
+                }}
+              />
+            </View>
           ))}
         </View>
 

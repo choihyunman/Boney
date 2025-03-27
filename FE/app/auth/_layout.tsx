@@ -1,7 +1,6 @@
 import { Stack } from "expo-router";
-import { useSession } from "../../ctx";
 import { View, Text } from "react-native";
-import { useAuthRedirect } from "../../hooks/useAuthRedirect";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export type AuthStackParamList = {
   "/auth": undefined;
@@ -12,9 +11,9 @@ export type AuthStackParamList = {
 };
 
 export default function AuthLayout() {
-  const { isLoading } = useSession();
+  const { hasHydrated } = useAuthStore();
 
-  if (isLoading) {
+  if (!hasHydrated) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <Text>로딩 중입니다...</Text>
