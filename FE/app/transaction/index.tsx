@@ -4,7 +4,6 @@ import { ChevronLeft, ChevronRight } from "lucide-react-native";
 import TransactionItem from "./TransactionItem";
 import { getTransactionHistory, Transaction } from "../../apis/transactionApi";
 import { useRouter, useFocusEffect } from "expo-router";
-import Nav from "@/components/Nav";
 import { useAuthStore } from "@/stores/useAuthStore";
 import GlobalText from "@/components/GlobalText";
 
@@ -267,7 +266,6 @@ export default function TransactionHistory() {
           ))
         )}
       </ScrollView>
-      <Nav />
     </View>
   );
 }

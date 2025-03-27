@@ -15,7 +15,6 @@ export default function ConfirmPin() {
     <PinInput
       title="비밀번호 확인"
       subtitle="비밀번호를 다시 입력해주세요."
-      showBackButton={false}
       onPasswordComplete={async (confirmPassword) => {
         if (confirmPassword === originalPassword) {
           try {

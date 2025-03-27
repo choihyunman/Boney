@@ -1,7 +1,7 @@
 // 비밀번호 입력 페이지
 import React, { useState } from "react";
 import { View, TouchableOpacity, SafeAreaView, Dimensions } from "react-native";
-import { Lock, ArrowLeft } from "lucide-react-native";
+import { Lock } from "lucide-react-native";
 import GlobalText from "./GlobalText";
 
 const { width } = Dimensions.get("window");
@@ -17,8 +17,6 @@ const NUM_PADS = [
 interface PinInputProps {
   title: string;
   subtitle: string;
-  showBackButton?: boolean; // 뒤로가기 버튼 표시 여부
-  onBackPress?: () => void;
   onForgotPasswordPress?: () => void;
   onPasswordComplete?: (password: string) => void;
 }
@@ -26,8 +24,6 @@ interface PinInputProps {
 export const PinInput = ({
   title,
   subtitle,
-  showBackButton = false, // 기본값은 false
-  onBackPress,
   onForgotPasswordPress,
   onPasswordComplete,
 }: PinInputProps) => {
@@ -77,17 +73,7 @@ export const PinInput = ({
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      {showBackButton && (
-        <View className="h-[54px] px-3 justify-center">
-          <TouchableOpacity onPress={onBackPress}>
-            <ArrowLeft size={22} color="#333" />
-          </TouchableOpacity>
-        </View>
-      )}
-
-      <View
-        className={`flex-1 items-center ${!showBackButton ? "pt-16" : "pt-8"}`}
-      >
+      <View className="flex-1 items-center pt-16">
         <View className="w-16 h-16 bg-[#49DB8A1A] rounded-full justify-center items-center mb-4">
           <View className="w-7 h-7">
             <Lock size={28} color="#4FC885" />

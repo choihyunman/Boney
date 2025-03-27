@@ -15,15 +15,6 @@ const GlobalText: React.FC<GlobalTextProps> = ({
     light: "NEXONLv1Gothic-Light",
   };
 
-  return (
-    <Text
-      {...props}
-      style={[
-        style,
-        { fontFamily: fontMap[weight] },
-      ]}
-    />
-  );
+  return <Text {...props} style={[style, { fontFamily: fontMap[weight] }]} />;
 };
-
 export default GlobalText;

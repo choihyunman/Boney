@@ -1,10 +1,8 @@
 import { View, TouchableOpacity } from "react-native";
-import Nav from "@/components/Nav";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
 import { useAuthStore } from "@/stores/useAuthStore";
 import GlobalText from "@/components/GlobalText";
-
 
 export default function Home() {
   const router = useRouter();
@@ -23,7 +21,6 @@ export default function Home() {
         >
           <GlobalText className="text-white text-base">송금하기</GlobalText>
         </TouchableOpacity>
-        <Nav />
       </View>
     </View>
   );
