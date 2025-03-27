@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  ScrollView,
-  Pressable,
-  TouchableOpacity,
-} from "react-native";
+import { View, TextInput, ScrollView, Pressable, Alert } from "react-native";
 import { router } from "expo-router";
-import { ChevronLeft, Banknote, ChevronDown, Check } from "lucide-react-native";
-import * as SecureStore from "expo-secure-store";
+import { Banknote, ChevronDown, Check } from "lucide-react-native";
+import TransferProgress from "./TransferProgress";
+import { useTransferStore } from "@/stores/useTransferStore";
+import BottomButton from "@/components/Button";
+import GlobalText from "@/components/GlobalText";
+import { addFavoriteAccount } from "@/apis/transferApi";
 
 // Account type definition
 interface Account {
@@ -21,6 +18,7 @@ interface Account {
 
 // Bank list
 const bankList = [
+  { id: "boney", name: "버니은행" },
   { id: "kb", name: "KB국민은행" },
   { id: "shinhan", name: "신한은행" },
   { id: "woori", name: "우리은행" },
@@ -34,8 +32,12 @@ const bankList = [
 ];
 
 export default function AccountForm() {
+  const { setRecipient, saveTransferData, addSavedAccount, setAmount } =
+    useTransferStore();
   const [showBankList, setShowBankList] = useState(false);
   const [saveAccount, setSaveAccount] = useState(false);
+  const [isFormValid, setIsFormValid] = useState(false);
+  const [showErrors, setShowErrors] = useState(false);
 
   const [accountForm, setAccountForm] = useState({
     bankName: "",
@@ -114,12 +116,18 @@ export default function AccountForm() {
     }
 
     setErrors(newErrors);
+    setIsFormValid(isValid);
     return isValid;
   };
 
-  const handleNext = () => {
+  useEffect(() => {
+    validateForm();
+  }, [accountForm]);
+
+  const handleNext = async () => {
+    setShowErrors(true);
     if (validateForm()) {
-      const newAccount: Account = {
+      const newAccount = {
         id: Date.now().toString(),
         bankName: accountForm.bankName,
         accountNumber: accountForm.accountNumber,
@@ -127,80 +135,59 @@ export default function AccountForm() {
       };
 
       try {
-        SecureStore.setItemAsync(
-          "sendMoneyRecipient",
-          JSON.stringify(newAccount)
-        );
+        setRecipient(newAccount);
 
+        // 계좌 저장이 선택된 경우 API 호출
         if (saveAccount) {
-          SecureStore.getItemAsync("savedAccounts").then((savedAccounts) => {
-            const accounts = savedAccounts ? JSON.parse(savedAccounts) : [];
-            accounts.push(newAccount);
-            SecureStore.setItemAsync("savedAccounts", JSON.stringify(accounts));
-          });
+          try {
+            await addFavoriteAccount(
+              accountForm.bankName,
+              accountForm.accountNumber.replace(/-/g, "")
+            );
+            await addSavedAccount(newAccount);
+          } catch (error) {
+            console.error("계좌 등록 중 오류 발생:", error);
+            Alert.alert(
+              "오류",
+              "계좌 등록 중 오류가 발생했습니다. 다시 시도해주세요."
+            );
+            return;
+          }
         }
+
+        await saveTransferData();
+        router.push("/transfer/Amount");
       } catch (error) {
         console.error("계좌 저장 중 오류 발생:", error);
+        Alert.alert(
+          "오류",
+          "계좌 정보 저장 중 오류가 발생했습니다. 다시 시도해주세요."
+        );
       }
-
-      router.push("/transfer/Amount");
     }
   };
 
+  // 컴포넌트 마운트 시 이전 금액 초기화
   useEffect(() => {
-    SecureStore.deleteItemAsync("sendMoneyAmount");
+    setAmount("");
   }, []);
 
   return (
     <View className="flex-1 bg-gray-50">
       <ScrollView className="flex-1">
-        {/* Header */}
-        <View className="p-5 bg-white flex-row items-center justify-between">
-          <View className="flex-row items-center gap-2">
-            <Pressable onPress={() => router.back()}>
-              <ChevronLeft color="#374151" size={24} />
-            </Pressable>
-          </View>
-        </View>
-
         {/* Progress Steps */}
-        <View className="px-5 py-3 bg-white">
-          <View className="flex-row items-center justify-between">
-            <View className="items-center flex-1">
-              <View className="w-8 h-8 rounded-full bg-green-500 items-center justify-center">
-                <Text className="text-white font-bold">1</Text>
-              </View>
-              <Text className="text-xs mt-1 text-green-500 font-medium">
-                받는 사람
-              </Text>
-            </View>
-            <View className="flex-1 h-1 bg-gray-200" />
-            <View className="items-center flex-1">
-              <View className="w-8 h-8 rounded-full bg-gray-200 items-center justify-center">
-                <Text className="text-gray-600 font-bold">2</Text>
-              </View>
-              <Text className="text-xs mt-1 text-gray-600">금액</Text>
-            </View>
-            <View className="flex-1 h-1 bg-gray-200" />
-            <View className="items-center flex-1">
-              <View className="w-8 h-8 rounded-full bg-gray-200 items-center justify-center">
-                <Text className="text-gray-600 font-bold">3</Text>
-              </View>
-              <Text className="text-xs mt-1 text-gray-600">확인</Text>
-            </View>
-          </View>
-        </View>
+        <TransferProgress currentStep={1} />
 
         {/* Form Section */}
-        <View className="m-5 mt-6 bg-white rounded-xl p-6 border border-gray-100">
-          <Text className="font-bold text-lg mb-4">계좌 정보 입력</Text>
-
+        <View className="m-5 bg-white rounded-xl p-6 border border-gray-100">
           {/* Bank Selection */}
           <View className="mb-4">
-            <Text className="text-sm text-gray-600 mb-1">은행 선택</Text>
-            <TouchableOpacity
+            <GlobalText className="text-sm text-gray-600 mb-1">
+              은행 선택
+            </GlobalText>
+            <Pressable
               className={`p-3 border border-gray-200 rounded-lg flex-row items-center justify-between ${
-                errors.bankName ? "border-red-500" : ""
+                errors.bankName && showErrors ? "border-red-500" : ""
               }`}
               onPress={() => setShowBankList(!showBankList)}
             >
@@ -208,31 +195,48 @@ export default function AccountForm() {
                 {accountForm.bankName ? (
                   <View className="flex-row items-center gap-2">
                     <Banknote color="#49DB8A" size={18} />
-                    <Text className="text-black">{accountForm.bankName}</Text>
+                    <GlobalText className="text-black">
+                      {accountForm.bankName}
+                    </GlobalText>
                   </View>
                 ) : (
-                  <Text className="text-gray-400">은행을 선택하세요</Text>
+                  <GlobalText className="text-gray-400">
+                    은행을 선택하세요
+                  </GlobalText>
                 )}
               </View>
               <ChevronDown size={18} color="#9CA3AF" />
-            </TouchableOpacity>
-            {errors.bankName && (
-              <Text className="text-xs text-red-500 mt-1">
+            </Pressable>
+            {errors.bankName && showErrors && (
+              <GlobalText className="text-xs text-red-500 mt-1">
                 {errors.bankName}
-              </Text>
+              </GlobalText>
             )}
 
             {showBankList && (
               <View className="border border-gray-200 rounded-lg mt-1 bg-white">
                 {bankList.map((bank) => (
-                  <TouchableOpacity
+                  <Pressable
                     key={bank.id}
-                    className="p-3 flex-row items-center gap-2"
+                    className={`p-3 flex-row items-center gap-2 ${
+                      accountForm.bankName === bank.name ? "bg-[#4FC985]" : ""
+                    }`}
                     onPress={() => handleBankSelect(bank.name)}
                   >
-                    <Banknote color="#49DB8A" size={16} />
-                    <Text>{bank.name}</Text>
-                  </TouchableOpacity>
+                    <Banknote
+                      color={
+                        accountForm.bankName === bank.name ? "white" : "#49DB8A"
+                      }
+                      size={16}
+                    />
+                    <GlobalText
+                      className={
+                        accountForm.bankName === bank.name ? "text-white" : ""
+                      }
+                    >
+                      {bank.name}
+                    </GlobalText>
+                  </Pressable>
                 ))}
               </View>
             )}
@@ -240,78 +244,82 @@ export default function AccountForm() {
 
           {/* Account Number Input */}
           <View className="mb-4">
-            <Text className="text-sm text-gray-600 mb-1">계좌번호</Text>
+            <GlobalText className="text-sm text-gray-600 mb-1">
+              계좌번호
+            </GlobalText>
             <TextInput
               placeholder="숫자만 입력하세요"
+              placeholderTextColor="#9CA3AF"
               className={`p-3 border border-gray-200 rounded-lg ${
-                errors.accountNumber ? "border-red-500" : ""
+                errors.accountNumber && showErrors ? "border-red-500" : ""
               }`}
               value={accountForm.accountNumber}
               onChangeText={handleAccountNumberChange}
               keyboardType="numeric"
             />
-            {errors.accountNumber && (
-              <Text className="text-xs text-red-500 mt-1">
+            {errors.accountNumber && showErrors && (
+              <GlobalText className="text-xs text-red-500 mt-1">
                 {errors.accountNumber}
-              </Text>
+              </GlobalText>
             )}
           </View>
 
           {/* Account Owner Input */}
           <View className="mb-4">
-            <Text className="text-sm text-gray-600 mb-1">예금주명</Text>
+            <GlobalText className="text-sm text-gray-600 mb-1">
+              예금주명
+            </GlobalText>
             <TextInput
               placeholder="예금주명을 입력하세요"
+              placeholderTextColor="#9CA3AF"
               className={`p-3 border border-gray-200 rounded-lg ${
-                errors.ownerName ? "border-red-500" : ""
+                errors.ownerName && showErrors ? "border-red-500" : ""
               }`}
               value={accountForm.ownerName}
               onChangeText={(value) =>
                 setAccountForm({ ...accountForm, ownerName: value })
               }
             />
-            {errors.ownerName && (
-              <Text className="text-xs text-red-500 mt-1">
+            {errors.ownerName && showErrors && (
+              <GlobalText className="text-xs text-red-500 mt-1">
                 {errors.ownerName}
-              </Text>
+              </GlobalText>
             )}
           </View>
 
           {/* Save Account Option */}
-          <TouchableOpacity
+          <Pressable
             className="flex-row items-center gap-2 mb-4"
             onPress={() => setSaveAccount(!saveAccount)}
           >
             <View
               className={`w-5 h-5 rounded items-center justify-center ${
-                saveAccount ? "bg-green-500" : "border border-gray-300"
+                saveAccount ? "bg-[#4FC985]" : "border border-gray-300"
               }`}
             >
               {saveAccount && <Check size={14} color="white" />}
             </View>
-            <Text className="text-sm">이 계좌 정보를 저장하기</Text>
-          </TouchableOpacity>
+            <GlobalText className="text-sm">이 계좌 정보를 저장하기</GlobalText>
+          </Pressable>
 
           {/* Info Message */}
-          <View className="bg-gray-50 p-3 rounded-lg mb-4">
-            <Text className="text-xs text-gray-600">
+          <View className="bg-gray-50 p-3 mt-2 rounded-lg">
+            <GlobalText className="text-sm text-gray-600">
               • 계좌번호와 예금주명을 정확히 입력해주세요.{"\n"}• 잘못된 계좌로
               송금된 경우 되돌릴 수 없습니다.{"\n"}• 저장된 계좌는 '내 계좌
               목록'에서 확인할 수 있습니다.
-            </Text>
+            </GlobalText>
           </View>
         </View>
       </ScrollView>
 
       {/* Bottom Button */}
-      <View className="p-5 bg-white border-t border-gray-100">
-        <TouchableOpacity
-          className="p-3 bg-green-500 rounded-lg flex-row items-center justify-center gap-2"
-          onPress={handleNext}
-        >
-          <Text className="text-white font-medium">다음</Text>
-        </TouchableOpacity>
-      </View>
+      <BottomButton
+        onPress={handleNext}
+        disabled={!isFormValid}
+        text="다음"
+        variant={isFormValid ? "primary" : "secondary"}
+      />
     </View>
   );
 }

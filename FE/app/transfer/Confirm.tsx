@@ -1,17 +1,16 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  Alert,
-  ActivityIndicator,
-} from "react-native";
+import { View, TouchableOpacity, Alert, Pressable } from "react-native";
 import { router } from "expo-router";
 import { ChevronLeft, Send, Banknote } from "lucide-react-native";
 import * as SecureStore from "expo-secure-store";
+import TransferProgress from "./TransferProgress";
+import { useTransferStore } from "@/stores/useTransferStore";
+import BottomButton from "@/components/Button";
+import GlobalText from "@/components/GlobalText";
+import { PinInput } from "@/components/PinInput";
+import { verifyPassword } from "@/apis/pinApi";
 
 // Friend 인터페이스를 Account 인터페이스로 변경
 interface Account {
@@ -23,50 +22,20 @@ interface Account {
 }
 
 export default function SendMoneyConfirm() {
-  const [recipient, setRecipient] = useState<Account | null>(null);
-  const [amount, setAmount] = useState("");
+  const { transferData, clearTransferData } = useTransferStore();
   const [isLoading, setIsLoading] = useState(false);
+  const [showPinInput, setShowPinInput] = useState(false);
 
-  // 컴포넌트 마운트 시 이전 단계 데이터 로드
+  // 컴포넌트 마운트 시 데이터 확인
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        const savedRecipient = await SecureStore.getItemAsync(
-          "sendMoneyRecipient"
-        );
-        const savedAmount = await SecureStore.getItemAsync("sendMoneyAmount");
-
-        if (!savedRecipient || !savedAmount) {
-          router.push("/transfer/Account");
-          return;
-        }
-
-        setRecipient(JSON.parse(savedRecipient));
-        setAmount(savedAmount);
-      } catch (error) {
-        console.error("Error loading data:", error);
-        router.push("/transfer/Account");
-      }
-    };
-
-    loadData();
+    if (!transferData.recipient || !transferData.amount) {
+      router.push("/transfer/Account");
+    }
   }, []);
 
   // 송금 처리
   const handleSendMoney = () => {
-    router.push({
-      pathname: "../../components/AppPassword",
-      params: {
-        title: "송금 비밀번호 입력",
-        description: `${recipient?.ownerName}님에게 ${formatAmount(
-          amount
-        )}원을 송금합니다.`,
-        onSuccess: `(password) => {
-          const handlePasswordConfirm = ${handlePasswordConfirm.toString()};
-          handlePasswordConfirm(password);
-        }`,
-      },
-    });
+    setShowPinInput(true);
   };
 
   // 비밀번호 확인 후 송금 완료 처리
@@ -74,31 +43,28 @@ export default function SendMoneyConfirm() {
     setIsLoading(true);
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      // 비밀번호 검증 API 호출
+      const response = await verifyPassword(password);
 
-      // Clear stored data
-      await SecureStore.deleteItemAsync("sendMoneyRecipient");
-      await SecureStore.deleteItemAsync("sendMoneyAmount");
+      if (response.success) {
+        // Clear stored data
+        await SecureStore.deleteItemAsync("sendMoneyRecipient");
+        await SecureStore.deleteItemAsync("sendMoneyAmount");
+        clearTransferData();
 
-      setIsLoading(false);
-
-      Alert.alert(
-        "송금 완료",
-        `${recipient?.ownerName}님의 계좌로 ${Number.parseInt(
-          amount
-        ).toLocaleString()}원을 송금했습니다.`,
-        [
-          {
-            text: "확인",
-            onPress: () => router.push("/"),
-          },
-        ]
-      );
+        // 임시로 홈 화면으로 이동 (나중에 송금 완료 페이지로 변경)
+        router.push("/home");
+      } else {
+        Alert.alert(
+          "오류",
+          response.message || "비밀번호가 일치하지 않습니다."
+        );
+      }
     } catch (error) {
-      console.error("Error sending money:", error);
+      console.error("Error verifying password:", error);
+      Alert.alert("오류", "비밀번호 검증 중 오류가 발생했습니다.");
+    } finally {
       setIsLoading(false);
-      Alert.alert("오류", "송금 중 오류가 발생했습니다.");
     }
   };
 
@@ -121,124 +87,98 @@ export default function SendMoneyConfirm() {
     hour12: false,
   });
 
+  if (!transferData.recipient || !transferData.amount) {
+    return null;
+  }
+
+  if (showPinInput) {
+    return (
+      <PinInput
+        title="송금 비밀번호 입력"
+        subtitle={`${transferData.recipient?.ownerName}님에게 ${formatAmount(
+          transferData.amount
+        )}원을 송금합니다.`}
+        onPasswordComplete={handlePasswordConfirm}
+      />
+    );
+  }
+
   return (
     <View className="flex-1 bg-gray-50">
-      <View className="w-full max-w-md mx-auto">
-        {/* 헤더 */}
-        <View className="flex-row justify-between items-center p-5 bg-white">
-          <View className="flex-row items-center gap-2">
-            <TouchableOpacity
-              className="p-1"
-              onPress={() => router.push("/transfer/Amount")}
-            >
-              <ChevronLeft className="text-gray-700" size={24} />
-            </TouchableOpacity>
-            <Text className="text-xl font-bold">송금하기</Text>
-          </View>
-        </View>
+      <View className="flex-1">
+        {/* Progress Steps */}
+        <TransferProgress currentStep={3} />
 
-        {/* 진행 단계 표시 */}
-        <View className="px-5 py-3 bg-white">
-          <View className="flex-row items-center justify-between">
-            <View className="flex-col items-center flex-1">
-              <View className="w-8 h-8 rounded-full bg-[#49DB8A] items-center justify-center">
-                <Text className="text-white font-bold">✓</Text>
-              </View>
-              <Text className="text-xs mt-1 font-medium text-[#49DB8A]">
-                받는 사람
-              </Text>
-            </View>
-            <View className="flex-1 h-1 bg-[#49DB8A]">
-              <View
-                className="h-full bg-[#49DB8A]"
-                style={{ width: "100%" }}
-              ></View>
-            </View>
-            <View className="flex-col items-center flex-1">
-              <View className="w-8 h-8 rounded-full bg-[#49DB8A] items-center justify-center">
-                <Text className="text-white font-bold">✓</Text>
-              </View>
-              <Text className="text-xs mt-1 font-medium text-[#49DB8A]">
-                금액
-              </Text>
-            </View>
-            <View className="flex-1 h-1 bg-[#49DB8A]">
-              <View
-                className="h-full bg-[#49DB8A]"
-                style={{ width: "100%" }}
-              ></View>
-            </View>
-            <View className="flex-col items-center flex-1">
-              <View className="w-8 h-8 rounded-full bg-[#49DB8A] items-center justify-center">
-                <Text className="text-white font-bold">3</Text>
-              </View>
-              <Text className="text-xs mt-1 font-medium text-[#49DB8A]">
-                확인
-              </Text>
-            </View>
-          </View>
+        {/* 확인 메시지 */}
+        <View className="items-center py-16 px-6 mx-5 mt-8">
+          <GlobalText className="text-2xl font-medium text-center">
+            <GlobalText className="text-[#4FC985]">
+              {transferData.recipient.ownerName}
+            </GlobalText>
+            님에게{"\n"}
+            <GlobalText className="text-[#4FC985]">
+              {formatAmount(transferData.amount)}원
+            </GlobalText>
+            을 보낼까요?
+          </GlobalText>
         </View>
 
         {/* 송금 정보 확인 */}
-        <View className="mx-5 mt-6 bg-white rounded-xl p-6 border border-gray-100">
-          <Text className="font-bold text-lg mb-4">송금 정보 확인</Text>
-
+        <View className="mx-5 mt-5 bg-white rounded-xl p-6 border border-gray-100">
           {/* 받는 사람 정보 */}
-          {recipient && (
-            <View className="flex-row items-center gap-3 p-3 border-b border-gray-100">
-              <View className="w-10 h-10 rounded-full bg-[#49DB8A]/20 items-center justify-center">
-                <Banknote className="text-[#49DB8A]" size={18} />
-              </View>
-              <View>
-                <Text className="text-sm text-gray-500">받는 계좌</Text>
-                <View>
-                  <View className="flex-row items-center gap-2">
-                    <Text className="font-medium">{recipient.ownerName}</Text>
-                    <Text className="text-xs text-gray-500">
-                      {recipient.bankName}
-                    </Text>
-                  </View>
-                  <Text className="text-xs text-gray-500">
-                    {recipient.accountNumber}
-                  </Text>
-                </View>
-              </View>
+          <View>
+            {/* 받는 사람 */}
+            <View className="flex-row justify-between items-center py-4 border-b border-gray-100">
+              <GlobalText className="text-sm text-gray-500">
+                받는 사람
+              </GlobalText>
+              <GlobalText className="text-sm font-medium">
+                {transferData.recipient.ownerName}
+              </GlobalText>
             </View>
-          )}
 
-          {/* 송금 금액 */}
-          <View className="p-3 border-b border-gray-100">
-            <Text className="text-sm text-gray-500">송금 금액</Text>
-            <Text className="font-bold text-xl">{formatAmount(amount)}원</Text>
-          </View>
+            {/* 입금 계좌 */}
+            <View className="flex-row justify-between items-center py-4 border-b border-gray-100">
+              <GlobalText className="text-sm text-gray-500">
+                입금 계좌
+              </GlobalText>
+              <GlobalText className="text-sm font-medium">
+                {transferData.recipient.bankName}
+              </GlobalText>
+            </View>
 
-          {/* 송금 시간 */}
-          <View className="p-3">
-            <Text className="text-sm text-gray-500">송금 시간</Text>
-            <Text className="font-medium">
-              {currentDate} {currentTime}
-            </Text>
+            {/* 계좌 번호 */}
+            <View className="flex-row justify-between items-center py-4 border-b border-gray-100">
+              <GlobalText className="text-sm text-gray-500">
+                계좌 번호
+              </GlobalText>
+              <GlobalText className="text-sm font-medium">
+                {transferData.recipient.accountNumber}
+              </GlobalText>
+            </View>
+
+            {/* 송금 금액 */}
+            <View className="flex-row justify-between items-center py-4 border-b border-gray-100">
+              <GlobalText className="text-sm text-gray-500">
+                송금 금액
+              </GlobalText>
+              <GlobalText className="text-sm font-medium">
+                {formatAmount(transferData.amount)}원
+              </GlobalText>
+            </View>
           </View>
         </View>
 
         {/* 송금 수수료 안내 */}
         <View className="mx-5 mt-4 bg-gray-100 rounded-xl p-4">
-          <Text className="text-sm text-gray-600">
-            친구에게 송금 시 수수료는 없습니다.
-          </Text>
-        </View>
-
-        {/* 하단 버튼 */}
-        <View className="fixed bottom-0 left-0 right-0 p-5 bg-white border-t border-gray-100">
-          <TouchableOpacity
-            className="w-full py-3 bg-[#49DB8A] rounded-lg flex-row items-center justify-center gap-2"
-            onPress={handleSendMoney}
-          >
-            <Send size={18} color="white" />
-            <Text className="text-white font-medium">송금하기</Text>
-          </TouchableOpacity>
+          <GlobalText className="text-sm text-gray-600">
+            계좌 이체 시 수수료는 없습니다.
+          </GlobalText>
         </View>
       </View>
+
+      {/* 하단 버튼 */}
+      <BottomButton onPress={handleSendMoney} text="송금하기" />
     </View>
   );
 }

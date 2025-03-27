@@ -1,5 +1,4 @@
 import { View, TouchableOpacity } from "react-native";
-import Nav from "@/components/Nav";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
 import { useAuthStore } from "@/stores/useAuthStore";

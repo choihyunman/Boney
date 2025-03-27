@@ -9,7 +9,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import "./global.css";
 import { StatusBar } from "expo-status-bar";
 import Header from "@/components/Header";
-import { Bell, ArrowLeft, Search } from "lucide-react-native";
+import { Bell, ChevronLeft, Search } from "lucide-react-native";
 import { Image } from "react-native";
 import Nav from "@/components/Nav";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
@@ -81,7 +81,7 @@ function RootLayoutNav() {
           title: "거래 내역",
           backgroundColor: "#FFFFFF",
           leftButton: {
-            icon: <ArrowLeft size={24} color="#000000" />,
+            icon: <ChevronLeft size={24} color="#000000" />,
             onPress: () => router.back(),
           },
           rightButton: {
@@ -94,18 +94,42 @@ function RootLayoutNav() {
           title: "상세 내역",
           backgroundColor: "#FFFFFF",
           leftButton: {
-            icon: <ArrowLeft size={24} color="#000000" />,
+            icon: <ChevronLeft size={24} color="#000000" />,
+            onPress: () => router.back(),
+          },
+        };
+      case "/transfer":
+        return {
+          title: "계좌 선택",
+          backgroundColor: "F9FAFB",
+          leftButton: {
+            icon: <ChevronLeft size={24} color="#000000" />,
+            onPress: () => router.back(),
+          },
+        };
+      case "/transfer/Account":
+        return {
+          title: "계좌 입력",
+          backgroundColor: "F9FAFB",
+          leftButton: {
+            icon: <ChevronLeft size={24} color="#000000" />,
             onPress: () => router.back(),
           },
         };
       case "/transfer/Amount":
-      case "/transfer/Confirm":
-      case "/transfer/Account":
         return {
-          title: "송금하기",
-          backgroundColor: "white",
+          title: "금액 입력",
+          backgroundColor: "F9FAFB",
           leftButton: {
-            icon: <ArrowLeft size={24} color="#000000" />,
+            icon: <ChevronLeft size={24} color="#000000" />,
+            onPress: () => router.back(),
+          },
+        };
+      case "/transfer/Confirm":
+        return {
+          backgroundColor: "F9FAFB",
+          leftButton: {
+            icon: <ChevronLeft size={24} color="#000000" />,
             onPress: () => router.back(),
           },
         };
@@ -181,7 +205,7 @@ function RootLayoutNav() {
         <Header {...getHeaderConfig()} />
       )}
       <Slot />
-      {!pathname.includes("auth") && <Nav />}
+      {(pathname === "/home" || pathname === "/transaction") && <Nav />}
     </SafeAreaView>
   );
 }
