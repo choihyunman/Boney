@@ -1,6 +1,6 @@
 package com.ssafy.boney.domain.quest.service;
 
-import com.ssafy.boney.domain.quest.dto.QuestDetailResponse;
+import com.ssafy.boney.domain.quest.dto.ParentQuestDetailResponse;
 import com.ssafy.boney.domain.quest.entity.Quest;
 import com.ssafy.boney.domain.quest.entity.enums.QuestStatus;
 import com.ssafy.boney.domain.quest.exception.QuestNotFoundException;
@@ -20,7 +20,7 @@ public class QuestDetailService {
 
     // 퀘스트 상세 보기
     @Transactional(readOnly = true)
-    public QuestDetailResponse getQuestDetail(Integer parentId, Integer questId) {
+    public ParentQuestDetailResponse getQuestDetail(Integer parentId, Integer questId) {
         Quest quest = questRepository.findById(questId)
                 .orElseThrow(() -> new QuestNotFoundException("해당 퀘스트를 찾을 수 없습니다."));
 
@@ -29,7 +29,7 @@ public class QuestDetailService {
             throw new QuestNotFoundException("해당 퀘스트를 찾을 수 없습니다.");
         }
 
-        return QuestDetailResponse.builder()
+        return ParentQuestDetailResponse.builder()
                 .questId(quest.getQuestId())
                 .questTitle(quest.getQuestTitle())
                 .questCategory(quest.getQuestCategory().getCategoryName())

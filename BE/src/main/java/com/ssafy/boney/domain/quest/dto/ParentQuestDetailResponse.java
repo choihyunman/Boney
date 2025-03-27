@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-public class QuestDetailResponse {
+public class ParentQuestDetailResponse {
     private Integer questId;
     private String questTitle;
     private String questCategory;

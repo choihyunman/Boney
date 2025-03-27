@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class QuestChildResponse {
+public class ParentQuestChildResponse {
     private Integer parentChildId;
     private Integer childId;
     private String childName;
