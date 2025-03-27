@@ -18,10 +18,14 @@ import {
   UserX,
   User,
 } from "lucide-react-native";
-
+import { useAuthStore } from "../../../stores/useAuthStore";
+import Nav from "@/components/Nav";
 export default function MenuPage() {
-  const handleLogout = () => {
-    alert("로그아웃 되었습니다.");
+  const { user } = useAuthStore();
+
+  const handleLogout = async () => {
+    await useAuthStore.getState().logout();
+    router.push("/auth");
   };
 
   const handleDeleteAccount = () => {
@@ -36,7 +40,7 @@ export default function MenuPage() {
       {/* 프로필 섹션 */}
       <TouchableOpacity
         style={styles.profileSection}
-        onPress={() => router.push("/child/mypage")}
+        // onPress={() => router.push("/child/mypage")}
       >
         <View style={styles.profileImageContainer}>
           <Image
@@ -46,8 +50,10 @@ export default function MenuPage() {
           />
         </View>
         <View style={styles.profileInfo}>
-          <Text style={styles.profileName}>홍길동</Text>
-          <Text style={styles.profileEmail}>example@email.com</Text>
+          <Text style={styles.profileName}>{user?.userName || "사용자"}</Text>
+          <Text style={styles.profileEmail}>
+            {user?.userEmail || "이메일 없음"}
+          </Text>
         </View>
         <ChevronRight size={20} color="#6B7280" style={styles.profileChevron} />
       </TouchableOpacity>
@@ -86,14 +92,14 @@ export default function MenuPage() {
           </View>
           <View style={styles.subMenuContainer}>
             <TouchableOpacity
-              onPress={() => router.push("/quest/ongoing")}
+              // onPress={() => router.push("/quest/ongoing")}
               style={styles.subMenuItem}
             >
               <ChevronRight size={16} color="#4FC985" />
               <Text style={styles.subMenuText}>진행 중인 퀘스트</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => router.push("/quest/completed")}
+              // onPress={() => router.push("/quest/completed")}
               style={styles.subMenuItem}
             >
               <ChevronRight size={16} color="#4FC985" />
@@ -110,21 +116,21 @@ export default function MenuPage() {
           </View>
           <View style={styles.subMenuContainer}>
             <TouchableOpacity
-              onPress={() => router.push("/loan/request")}
+              // onPress={() => router.push("/loan/request")}
               style={styles.subMenuItem}
             >
               <ChevronRight size={16} color="#4FC985" />
               <Text style={styles.subMenuText}>대출 신청</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => router.push("/loan/requested")}
+              onPress={() => router.push("/loan/ReqListChild")}
               style={styles.subMenuItem}
             >
               <ChevronRight size={16} color="#4FC985" />
               <Text style={styles.subMenuText}>요청 중인 대출</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => router.push("/loan/ongoing")}
+              // onPress={() => router.push("/loan/ongoing")}
               style={styles.subMenuItem}
             >
               <ChevronRight size={16} color="#4FC985" />
@@ -141,7 +147,7 @@ export default function MenuPage() {
           </View>
           <View style={styles.subMenuContainer}>
             <TouchableOpacity
-              onPress={() => router.push("/child/report/monthly")}
+              // onPress={() => router.push("/child/report/monthly")}
               style={styles.subMenuItem}
             >
               <ChevronRight size={16} color="#4FC985" />
@@ -160,7 +166,7 @@ export default function MenuPage() {
             <Text style={styles.bottomMenuText}>로그아웃</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={handleDeleteAccount}
+            // onPress={handleDeleteAccount}
             style={[styles.bottomMenuItem, styles.deleteButton]}
           >
             <UserX size={16} color="#EF4444" />
@@ -168,6 +174,7 @@ export default function MenuPage() {
           </TouchableOpacity>
         </View>
       </View>
+      <Nav />
     </ScrollView>
   );
 }
@@ -278,5 +285,15 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     color: "#EF4444",
     marginLeft: 12,
+  },
+  name: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#000",
+  },
+  email: {
+    fontSize: 16,
+    color: "#666",
+    marginTop: 4,
   },
 });

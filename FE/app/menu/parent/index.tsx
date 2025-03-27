@@ -16,10 +16,15 @@ import {
   LogOut,
   UserX,
 } from "lucide-react-native";
-
+import React from "react";
+import { useAuthStore } from "../../../stores/useAuthStore";
+import Nav from "@/components/Nav";
 export default function MenuPage() {
-  const handleLogout = () => {
-    alert("로그아웃 되었습니다.");
+  const { user } = useAuthStore();
+
+  const handleLogout = async () => {
+    await useAuthStore.getState().logout();
+    router.push("/auth");
   };
 
   const handleDeleteAccount = () => {
@@ -44,8 +49,10 @@ export default function MenuPage() {
           />
         </View>
         <View style={styles.profileInfo}>
-          <Text style={styles.profileName}>홍길동</Text>
-          <Text style={styles.profileEmail}>example@email.com</Text>
+          <Text style={styles.profileName}>{user?.userName || "사용자"}</Text>
+          <Text style={styles.profileEmail}>
+            {user?.userEmail || "이메일 없음"}
+          </Text>
         </View>
         <ChevronRight size={20} color="#6B7280" style={styles.profileChevron} />
       </TouchableOpacity>
@@ -139,14 +146,14 @@ export default function MenuPage() {
           </View>
           <View style={styles.subMenuContainer}>
             <TouchableOpacity
-              onPress={() => router.push("/loan/pending")}
+              onPress={() => router.push("/loan/ReqListParent")}
               style={styles.subMenuItem}
             >
               <ChevronRight size={16} color="#4FC985" />
               <Text style={styles.subMenuText}>요청 중인 대출</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => router.push("/loan/active")}
+              onPress={() => router.push("/loan/LoanListParent")}
               style={styles.subMenuItem}
             >
               <ChevronRight size={16} color="#4FC985" />
@@ -173,6 +180,7 @@ export default function MenuPage() {
           </TouchableOpacity>
         </View>
       </View>
+      <Nav />
     </ScrollView>
   );
 }
