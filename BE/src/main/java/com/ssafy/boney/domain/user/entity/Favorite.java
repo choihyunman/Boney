@@ -30,6 +30,9 @@ public class Favorite {
     @JoinColumn(name = "bank_id", nullable = false)
     private Bank bank;
 
+    @Column(name = "account_holder", nullable = false, length = 45)
+    private String accountHolder;
+
     @Column(name = "created_at", nullable = false, updatable = false,
             columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;

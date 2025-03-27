@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class FavoriteRequestDto {
-    private Integer bankId;
+    private String bankName;
     private String favoriteAccount;
 }

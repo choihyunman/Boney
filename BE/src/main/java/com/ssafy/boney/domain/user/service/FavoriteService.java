@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +31,7 @@ public class FavoriteService {
 
     // 계좌 즐겨찾기 등록
     @Transactional
-    public FavoriteResponseDto registerFavorite(Integer userId, Integer bankId, String favoriteAccount) {
+    public FavoriteResponseDto registerFavorite(Integer userId, String bankName, String favoriteAccount) {
         // 사용자 조회
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(UserErrorCode.NOT_FOUND));
@@ -51,13 +53,14 @@ public class FavoriteService {
         }
 
         // Bank 엔티티 조회
-        Bank bank = bankRepository.findById(bankId)
+        Bank bank = bankRepository.findByBankName(bankName)
                 .orElseThrow(() -> new UserNotFoundException(UserErrorCode.NOT_FOUND));
 
         Favorite favorite = Favorite.builder()
                 .user(user)
                 .favoriteAccount(favoriteAccount)
                 .bank(bank)
+                .accountHolder(accountHolderName)
                 .createdAt(LocalDateTime.now())
                 .build();
 
@@ -67,8 +70,41 @@ public class FavoriteService {
                 .favoriteId(savedFavorite.getFavoriteId())
                 .bankId(bank.getBankId())
                 .bankName(bank.getBankName())
+                .accountHolder(savedFavorite.getAccountHolder())
                 .favoriteAccount(savedFavorite.getFavoriteAccount())
                 .createdAt(savedFavorite.getCreatedAt())
                 .build();
     }
+
+
+    // 계좌 즐겨찾기 조회
+    public List<FavoriteResponseDto> getFavoriteList(Integer userId) {
+        // 사용자 조회
+        userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(UserErrorCode.NOT_FOUND));
+
+        // 즐겨찾기 목록 조회
+        List<Favorite> favorites = favoriteRepository.findByUserOrderByCreatedAtDesc(userRepository.findById(userId).get());
+
+        // SSAFY API를 통해 계좌 유효성 확인
+        return favorites.stream()
+                .map(fav -> {
+                    String accountHolder = fav.getAccountHolder();
+                    if (accountHolder == null || accountHolder.isEmpty()) {
+                        return null;
+                    }
+                    return FavoriteResponseDto.builder()
+                            .favoriteId(fav.getFavoriteId())
+                            .bankId(fav.getBank().getBankId())
+                            .bankName(fav.getBank().getBankName())
+                            .accountHolder(accountHolder)
+                            .favoriteAccount(fav.getFavoriteAccount())
+                            .createdAt(fav.getCreatedAt())
+                            .build();
+                })
+                .filter(dto -> dto != null)
+                .collect(Collectors.toList());
+    }
+
+
 }
