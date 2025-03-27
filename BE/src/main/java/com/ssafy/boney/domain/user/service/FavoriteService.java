@@ -106,5 +106,29 @@ public class FavoriteService {
                 .collect(Collectors.toList());
     }
 
+    // 계좌 즐겨찾기 삭제
+    @Transactional
+    public FavoriteResponseDto deleteFavorite(Integer userId, Integer favoriteId) {
+        // 사용자 조회
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(UserErrorCode.NOT_FOUND));
+
+        Favorite favorite = favoriteRepository.findByFavoriteIdAndUser(favoriteId, user)
+                .orElseThrow(() -> new UserNotFoundException(UserErrorCode.NOT_FOUND));
+
+        FavoriteResponseDto responseDto = FavoriteResponseDto.builder()
+                .favoriteId(favorite.getFavoriteId())
+                .bankId(favorite.getBank().getBankId())
+                .bankName(favorite.getBank().getBankName())
+                .accountHolder(favorite.getAccountHolder())
+                .favoriteAccount(favorite.getFavoriteAccount())
+                .createdAt(favorite.getCreatedAt())
+                .build();
+
+        // 즐겨찾기 삭제
+        favoriteRepository.delete(favorite);
+
+        return responseDto;
+    }
 
 }
