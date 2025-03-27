@@ -6,6 +6,7 @@ import {
   Image,
   StyleSheet,
   ScrollView,
+  Alert,
 } from "react-native";
 import { router } from "expo-router";
 import {
@@ -20,16 +21,46 @@ import {
 } from "lucide-react-native";
 import { useAuthStore } from "../../../stores/useAuthStore";
 import Nav from "@/components/Nav";
+import { deleteAccount } from "@/apis/authApi";
+
 export default function MenuPage() {
-  const { user } = useAuthStore();
+  const { user, token } = useAuthStore();
 
   const handleLogout = async () => {
     await useAuthStore.getState().logout();
     router.push("/auth");
   };
 
-  const handleDeleteAccount = () => {
-    alert("정말 탈퇴하시겠습니까?");
+  const handleDeleteAccount = async () => {
+    Alert.alert("회원탈퇴", "정말 탈퇴하시겠습니까?", [
+      {
+        text: "취소",
+        style: "cancel",
+      },
+      {
+        text: "탈퇴",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            if (!token) {
+              Alert.alert("오류", "인증 정보가 없습니다.");
+              return;
+            }
+            const response = await deleteAccount(token);
+            Alert.alert("성공", response.message);
+            await useAuthStore.getState().logout();
+            router.push("/auth");
+          } catch (error) {
+            Alert.alert(
+              "오류",
+              error instanceof Error
+                ? error.message
+                : "회원탈퇴 중 오류가 발생했습니다."
+            );
+          }
+        },
+      },
+    ]);
   };
 
   return (
@@ -40,6 +71,7 @@ export default function MenuPage() {
       {/* 프로필 섹션 */}
       <TouchableOpacity
         style={styles.profileSection}
+        disabled={true}
         // onPress={() => router.push("/child/mypage")}
       >
         <View style={styles.profileImageContainer}>
@@ -92,6 +124,7 @@ export default function MenuPage() {
           </View>
           <View style={styles.subMenuContainer}>
             <TouchableOpacity
+              disabled={true}
               // onPress={() => router.push("/quest/ongoing")}
               style={styles.subMenuItem}
             >
@@ -99,6 +132,7 @@ export default function MenuPage() {
               <Text style={styles.subMenuText}>진행 중인 퀘스트</Text>
             </TouchableOpacity>
             <TouchableOpacity
+              disabled={true}
               // onPress={() => router.push("/quest/completed")}
               style={styles.subMenuItem}
             >
@@ -116,7 +150,8 @@ export default function MenuPage() {
           </View>
           <View style={styles.subMenuContainer}>
             <TouchableOpacity
-              onPress={() => router.push("/loan/child/Request")}
+              disabled={true}
+              // onPress={() => router.push("/loan/request")}
               style={styles.subMenuItem}
             >
               <ChevronRight size={16} color="#4FC985" />
@@ -130,6 +165,7 @@ export default function MenuPage() {
               <Text style={styles.subMenuText}>대기 중인 대출</Text>
             </TouchableOpacity>
             <TouchableOpacity
+              disabled={true}
               // onPress={() => router.push("/loan/ongoing")}
               style={styles.subMenuItem}
             >
@@ -147,6 +183,7 @@ export default function MenuPage() {
           </View>
           <View style={styles.subMenuContainer}>
             <TouchableOpacity
+              disabled={true}
               // onPress={() => router.push("/child/report/monthly")}
               style={styles.subMenuItem}
             >
@@ -166,7 +203,7 @@ export default function MenuPage() {
             <Text style={styles.bottomMenuText}>로그아웃</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            // onPress={handleDeleteAccount}
+            onPress={handleDeleteAccount}
             style={[styles.bottomMenuItem, styles.deleteButton]}
           >
             <UserX size={16} color="#EF4444" />
