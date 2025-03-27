@@ -2,9 +2,7 @@ package com.ssafy.boney.domain.user.entity;
 
 import com.ssafy.boney.domain.account.entity.Bank;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -12,7 +10,8 @@ import java.time.LocalDateTime;
 @Table(name = "favorite")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-
+@Builder
+@AllArgsConstructor
 public class Favorite {
 
     @Id
@@ -30,6 +29,9 @@ public class Favorite {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bank_id", nullable = false)
     private Bank bank;
+
+    @Column(name = "account_holder", nullable = false, length = 45)
+    private String accountHolder;
 
     @Column(name = "created_at", nullable = false, updatable = false,
             columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
