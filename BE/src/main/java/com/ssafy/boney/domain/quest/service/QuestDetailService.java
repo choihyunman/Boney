@@ -5,6 +5,8 @@ import com.ssafy.boney.domain.quest.entity.Quest;
 import com.ssafy.boney.domain.quest.entity.enums.QuestStatus;
 import com.ssafy.boney.domain.quest.exception.QuestNotFoundException;
 import com.ssafy.boney.domain.quest.repository.QuestRepository;
+import com.ssafy.boney.domain.user.entity.User;
+import com.ssafy.boney.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class QuestDetailService {
 
     private final QuestRepository questRepository;
+    private final UserService userService;
 
     // 퀘스트 상세 보기
     @Transactional(readOnly = true)
@@ -40,6 +43,12 @@ public class QuestDetailService {
     // 퀘스트 삭제
     @Transactional
     public void deleteQuest(Integer parentId, Integer questId) {
+        // 사용자 역할이 보호자인지 확인
+        User parent = userService.findById(parentId);
+        if (!parent.getRole().equals(com.ssafy.boney.domain.user.entity.enums.Role.PARENT)) {
+            throw new IllegalArgumentException("퀘스트는 보호자만 삭제할 수 있습니다.");
+        }
+
         Quest quest = questRepository.findById(questId)
                 .orElseThrow(() -> new QuestNotFoundException("해당 퀘스트를 찾을 수 없습니다."));
 
@@ -48,7 +57,7 @@ public class QuestDetailService {
             throw new QuestNotFoundException("해당 퀘스트를 찾을 수 없습니다.");
         }
 
-        // 상태 검증: 진행 중인 퀘스트만 삭제 가능
+        // 진행 중인 퀘스트만 삭제 가능
         if (!quest.getQuestStatus().equals(QuestStatus.IN_PROGRESS)) {
             throw new IllegalArgumentException("진행 중인 퀘스트만 삭제할 수 있습니다.");
         }
