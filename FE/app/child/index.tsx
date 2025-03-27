@@ -1,65 +1,220 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, ScrollView, Image, TouchableOpacity } from "react-native";
-import { useNavigation } from "expo-router";
-import * as SecureStore from "expo-secure-store";
-import { Plus } from "lucide-react-native";
-import { ChildCard } from "./ChildCard";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+  Dimensions,
+} from "react-native";
 import { router } from "expo-router";
+import { useAuthStore } from "../../stores/useAuthStore";
+import { Plus } from "lucide-react-native";
+import { api } from "../../lib/api";
 
-type Child = {
-  id: string;
-  name: string;
-  imageUri?: string; // Optional
-};
+interface Child {
+  userId: number;
+  userName: string;
+  userBirth: string;
+  userGender: string;
+  userPhone: string;
+  score: number;
+  totalRemainingLoan: string;
+  createdAt: string;
+}
 
-export default function ChildManagementScreen() {
+export default function ChildList() {
   const [children, setChildren] = useState<Child[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { token } = useAuthStore();
 
   useEffect(() => {
-    (async () => {
-      const saved = await SecureStore.getItemAsync("children");
-      if (saved) {
-        setChildren(JSON.parse(saved));
-      }
-    })();
+    fetchChildren();
   }, []);
 
-  const addDummyChild = async () => {
-    const newChild: Child = {
-      id: Date.now().toString(),
-      name: `아이 ${children.length + 1}`,
-    };
-    const updated = [...children, newChild];
-    setChildren(updated);
-    await SecureStore.setItemAsync("children", JSON.stringify(updated));
+  const fetchChildren = async () => {
+    try {
+      if (!token) {
+        console.error("토큰이 없습니다.");
+        return;
+      }
+
+      const response = await api.get("/parent/child");
+      const { data } = response.data;
+
+      if (response.status === 200) {
+        setChildren(data);
+      }
+    } catch (error) {
+      console.error("자녀 목록을 불러오는데 실패했습니다:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  return (
-    <View className="flex-1 bg-gray-50 pt-10">
-      {/* 상단 바 */}
-      <View className="flex-row items-center justify-between px-6 py-4">
-        <Text className="text-lg font-bold text-black">내 아이</Text>
-      </View>
+  const handleChildPress = (childId: number) => {
+    router.push({
+      pathname: "/child/[id]",
+      params: { id: childId },
+    });
+  };
 
-      {/* 자녀 목록 */}
-      <ScrollView contentContainerStyle={{ padding: 24 }} className="flex-1">
-        <View className="flex-row flex-wrap gap-4">
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <Text>로딩 중...</Text>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.content}>
+        <View style={styles.titleContainer}>
+          <Text style={styles.title}>내 아이</Text>
+          <View style={styles.countBadge}>
+            <Text style={styles.countText}>{children.length}</Text>
+          </View>
+        </View>
+
+        <View style={styles.cardGrid}>
           {children.map((child) => (
-            <ChildCard key={child.id} name={child.name} imageUri={child.imageUri} />
+            <TouchableOpacity
+              key={child.userId}
+              style={styles.card}
+              onPress={() => handleChildPress(child.userId)}
+            >
+              <View style={styles.cardContent}>
+                <View style={styles.profileContainer}>
+                  <Image
+                    source={require("../../assets/profile/profile.jpg")}
+                    style={styles.profileImage}
+                    resizeMode="cover"
+                  />
+                </View>
+                <Text style={styles.childName}>{child.userName}</Text>
+              </View>
+            </TouchableOpacity>
           ))}
 
-          {/* 아이 추가 카드 */}
           <TouchableOpacity
+            style={styles.addCard}
             onPress={() => router.push("/child/Register")}
-            className="w-[160px] h-[154px] items-center justify-center p-4 bg-white border-2 border-dashed border-gray-300 rounded-xl"
           >
-            <View className="w-20 h-20 rounded-full bg-green-100 items-center justify-center">
-              <Plus size={28} color="#4fc885" />
+            <View style={styles.addIconContainer}>
+              <Plus size={32} color="#4fc885" />
             </View>
-            <Text className="mt-3 text-gray-600 text-base font-medium">내 아이 추가</Text>
+            <Text style={styles.addCardText}>내 아이 추가</Text>
           </TouchableOpacity>
         </View>
-      </ScrollView>
+      </View>
     </View>
   );
 }
+
+const { width } = Dimensions.get("window");
+const cardWidth = (width - 64) / 2;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#F9FAFB",
+  },
+  content: {
+    flex: 1,
+    padding: 24,
+  },
+  titleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#1F2937",
+  },
+  countBadge: {
+    backgroundColor: "#4fc88533",
+    borderRadius: 9999,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    marginLeft: 8,
+  },
+  countText: {
+    color: "#4fc885",
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  cardGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  card: {
+    width: cardWidth,
+    height: 154,
+    backgroundColor: "white",
+    borderRadius: 12,
+    padding: 17,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+    marginBottom: 16,
+  },
+  cardContent: {
+    alignItems: "center",
+  },
+  profileContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    overflow: "hidden",
+    marginBottom: 12,
+  },
+  profileImage: {
+    width: "100%",
+    height: "100%",
+  },
+  childName: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#18181B",
+  },
+  addCard: {
+    width: cardWidth,
+    height: 154,
+    backgroundColor: "white",
+    borderRadius: 12,
+    padding: 19,
+    borderWidth: 2,
+    borderStyle: "dashed",
+    borderColor: "#E5E7EB",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 16,
+  },
+  addIconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: "#4fc9851a",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 12,
+  },
+  addCardText: {
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#4B5563",
+  },
+});
