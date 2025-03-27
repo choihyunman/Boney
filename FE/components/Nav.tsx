@@ -87,7 +87,7 @@ const Nav = () => {
 
       <TouchableOpacity
         className="items-center"
-        // onPress={() => router.push("/menu")}
+        onPress={() => router.push("/menu")}
       >
         <Menu
           size={24}
