@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
-public class QuestParentHistoryResponse {
+public class ParentQuestListResponse {
     private Integer questId;
     private String childName;
     private String questTitle;
@@ -16,3 +16,4 @@ public class QuestParentHistoryResponse {
     private String questStatus;
     private LocalDateTime endDate;
 }
+

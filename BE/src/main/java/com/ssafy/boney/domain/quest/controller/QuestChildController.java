@@ -1,6 +1,6 @@
 package com.ssafy.boney.domain.quest.controller;
 
-import com.ssafy.boney.domain.quest.dto.QuestChildResponse;
+import com.ssafy.boney.domain.quest.dto.ParentQuestChildResponse;
 import com.ssafy.boney.domain.quest.exception.QuestNotFoundException;
 import com.ssafy.boney.domain.quest.service.QuestChildService;
 import com.ssafy.boney.domain.quest.service.QuestDetailService;
@@ -31,7 +31,7 @@ public class QuestChildController {
             @RequestAttribute("userId") Integer parentId) {
 
         User parent = userService.findById(parentId);
-        List<QuestChildResponse> children = questChildService.getChildrenForQuest(parent);
+        List<ParentQuestChildResponse> children = questChildService.getChildrenForQuest(parent);
 
         if (children.isEmpty()) {
             return ResponseEntity.status(404).body(

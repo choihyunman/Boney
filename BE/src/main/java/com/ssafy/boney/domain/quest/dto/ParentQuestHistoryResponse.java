@@ -1,17 +1,18 @@
 package com.ssafy.boney.domain.quest.dto;
 
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
 
 @Getter
-@Builder
-public class QuestDetailResponse {
+@AllArgsConstructor
+public class ParentQuestHistoryResponse {
     private Integer questId;
+    private String childName;
     private String questTitle;
     private String questCategory;
-    private String childName;
-    private LocalDateTime endDate;
     private Long questReward;
+    private String questStatus;
+    private LocalDateTime endDate;
 }

@@ -1,6 +1,6 @@
 package com.ssafy.boney.domain.quest.service;
 
-import com.ssafy.boney.domain.quest.dto.QuestParentHistoryResponse;
+import com.ssafy.boney.domain.quest.dto.ParentQuestHistoryResponse;
 import com.ssafy.boney.domain.quest.entity.Quest;
 import com.ssafy.boney.domain.quest.entity.enums.QuestStatus;
 import com.ssafy.boney.domain.quest.repository.QuestRepository;
@@ -21,7 +21,7 @@ public class QuestHistoryService {
     // 1) 만료된 퀘스트 갱신 (IN_PROGRESS -> FAILED, finish_date = end_date)
     // 2) SUCCESS or FAILED 상태의 지난 퀘스트 목록 조회
     @Transactional
-    public List<QuestParentHistoryResponse> getPastQuests(Integer parentId) {
+    public List<ParentQuestHistoryResponse> getPastQuests(Integer parentId) {
         // (1) 조회 시점에 만료된 퀘스트를 FAILED로 업데이트
         LocalDateTime now = LocalDateTime.now();
         List<Quest> expiredQuests = questRepository.findExpiredQuestsForParent(parentId, now);
@@ -35,7 +35,7 @@ public class QuestHistoryService {
         List<Quest> pastQuests = questRepository.findPastQuestsByParent(parentId);
 
         return pastQuests.stream()
-                .map(q -> new QuestParentHistoryResponse(
+                .map(q -> new ParentQuestHistoryResponse(
                         q.getQuestId(),
                         q.getParentChild().getChild().getUserName(),
                         q.getQuestTitle(),

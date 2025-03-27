@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
-public class QuestCreateRequest {
+public class ParentQuestCreateRequest {
     private Integer parentChildId;
     private Integer questCategoryId;
     private String questTitle;

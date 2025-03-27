@@ -1,6 +1,6 @@
 package com.ssafy.boney.domain.quest.controller;
 
-import com.ssafy.boney.domain.quest.dto.QuestDetailResponse;
+import com.ssafy.boney.domain.quest.dto.ParentQuestDetailResponse;
 import com.ssafy.boney.domain.quest.exception.QuestNotFoundException;
 import com.ssafy.boney.domain.quest.service.QuestDetailService;
 import com.ssafy.boney.global.dto.ApiResponse;
@@ -17,12 +17,12 @@ public class QuestDetailController {
     private final QuestDetailService questDetailService;
 
     @GetMapping("/{questId}")
-    public ResponseEntity<ApiResponse<QuestDetailResponse>> getQuestDetail(
+    public ResponseEntity<ApiResponse<ParentQuestDetailResponse>> getQuestDetail(
             @RequestAttribute("userId") Integer parentId,
             @PathVariable("questId") Integer questId
     ) {
         try {
-            QuestDetailResponse responseDto = questDetailService.getQuestDetail(parentId, questId);
+            ParentQuestDetailResponse responseDto = questDetailService.getQuestDetail(parentId, questId);
             return ResponseEntity.ok(new ApiResponse<>(200, "퀘스트 상세 조회에 성공했습니다.", responseDto));
         } catch (QuestNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
