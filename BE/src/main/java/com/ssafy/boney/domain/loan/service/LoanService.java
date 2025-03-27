@@ -296,5 +296,44 @@ public class LoanService {
         ));
     }
 
+    @Transactional(readOnly = true)
+    public ResponseEntity<?> getApprovedLoansByParent(Integer parentId) {
+        // 보호자 조회
+        User parent = userRepository.findById(parentId)
+                .orElseThrow(() -> new UserNotFoundException(UserErrorCode.NOT_FOUND));
+
+        // 보호자-자녀 관계 조회
+        List<ParentChild> relations = parentChildRepository.findByParent(parent);
+
+        List<Map<String, Object>> loanList = new ArrayList<>();
+
+        for (ParentChild relation : relations) {
+            User child = relation.getChild();
+
+            List<Loan> approvedLoans = loanRepository.findByParentChild(relation).stream()
+                    .filter(loan -> loan.getStatus() == LoanStatus.APPROVED)
+                    .toList();
+
+            for (Loan loan : approvedLoans) {
+                Map<String, Object> loanInfo = Map.of(
+                        "loan_id", loan.getLoanId(),
+                        "child_name", child.getUserName(),
+                        "loan_amount", loan.getLoanAmount(),
+                        "last_amout", loan.getLastAmount() != null ? loan.getLastAmount() : loan.getLoanAmount(),
+                        "request_date", loan.getRequestedAt().toLocalDate().toString(),
+                        "due_date", loan.getDueDate().toLocalDate().toString(),
+                        "child_credit_score", child.getCreditScore() != null ? child.getCreditScore().getScore() : 0
+                );
+                loanList.add(loanInfo);
+            }
+        }
+
+        return ResponseEntity.ok(Map.of(
+                "status", "200",
+                "message", "진행 중인 대출이 성공적으로 확인되었습니다.",
+                "data", Map.of("loan_list", loanList)
+        ));
+    }
+
 
 }
