@@ -1,112 +1,86 @@
 import { useState, useEffect } from "react";
 import {
   View,
-  Text,
   TouchableOpacity,
   ScrollView,
   SafeAreaView,
   Pressable,
+  Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { ChevronLeft, User, Users, Banknote } from "lucide-react-native";
-import * as SecureStore from "expo-secure-store";
+import { Banknote, Users } from "lucide-react-native";
+import { useTransferStore } from "@/stores/useTransferStore";
+import TransferProgress from "./TransferProgress";
+import BottomButton from "@/components/Button";
+import GlobalText from "@/components/GlobalText";
+import { getFavoriteAccounts } from "@/apis/transferApi";
 
-// 친구 목록 타입 정의
-interface Friend {
+// 계좌 정보 타입 정의
+interface Account {
   id: string;
-  name: string;
-  phoneNumber: string;
-  recentSend?: boolean;
+  bankName: string;
+  accountNumber: string;
+  ownerName: string;
 }
 
 export default function SendMoneyRecipient() {
   const router = useRouter();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedFriend, setSelectedFriend] = useState<Friend | null>(null);
+  const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
+  const { setRecipient, clearTransferData } = useTransferStore();
+  const [registeredAccounts, setRegisteredAccounts] = useState<Account[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // 최근 송금한 친구 목록 (예시 데이터)
-  const recentFriends: Friend[] = [
-    { id: "1", name: "팔랑이", phoneNumber: "010-1234-5678", recentSend: true },
-    { id: "2", name: "짱구", phoneNumber: "010-2345-6789", recentSend: true },
-  ];
+  // 저장된 계좌 목록 로드
+  useEffect(() => {
+    const loadSavedAccounts = async () => {
+      try {
+        const response = await getFavoriteAccounts();
+        // API 응답 데이터를 Account 형식으로 변환
+        const accounts: Account[] = response.data.map((item) => ({
+          id: item.favoriteId.toString(),
+          bankName: item.bankName,
+          accountNumber: item.favoriteAccount,
+          ownerName: item.accountHolder,
+        }));
+        setRegisteredAccounts(accounts);
+      } catch (error) {
+        console.error("계좌 목록 조회 중 오류 발생:", error);
+        Alert.alert(
+          "오류",
+          "계좌 목록을 불러오는 중 오류가 발생했습니다. 다시 시도해주세요."
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadSavedAccounts();
+  }, []);
 
-  // 전체 친구 목록 (예시 데이터)
-  const allFriends: Friend[] = [
-    { id: "1", name: "팔랑이", phoneNumber: "010-1234-5678" },
-    { id: "2", name: "짱구", phoneNumber: "010-2345-6789" },
-    { id: "3", name: "철수", phoneNumber: "010-3456-7890" },
-    { id: "4", name: "맹구", phoneNumber: "010-4567-8901" },
-    { id: "5", name: "유리", phoneNumber: "010-5678-9012" },
-  ];
-
-  // 검색 결과 필터링
-  const filteredFriends = allFriends.filter(
-    (friend) =>
-      friend.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      friend.phoneNumber.includes(searchTerm)
-  );
-
-  // 다음 단계로 이동
-  const handleNext = async () => {
-    if (selectedFriend) {
-      await SecureStore.setItemAsync(
-        "sendMoneyRecipient",
-        JSON.stringify(selectedFriend)
-      );
-      router.push("./transfer/Amount");
-    }
+  const handleAccountTransfer = () => {
+    router.push("/transfer/Account");
   };
 
-  const handleAccountTransfer = async () => {
-    try {
-      // Amount 페이지로 이동
-      router.push("./Account");
-    } catch (error) {
-      console.error("Error saving account data:", error);
+  const handleNext = async () => {
+    if (selectedAccount) {
+      try {
+        setRecipient(selectedAccount);
+        router.push("/transfer/Amount");
+      } catch (error) {
+        console.error("Error saving recipient data:", error);
+      }
     }
   };
 
   // 컴포넌트 마운트 시 이전 데이터 초기화
   useEffect(() => {
-    const clearData = async () => {
-      await Promise.all([
-        SecureStore.deleteItemAsync("sendMoneyRecipient"),
-        SecureStore.deleteItemAsync("sendMoneyAmount"),
-      ]);
-    };
-    clearData();
+    clearTransferData();
   }, []);
 
   return (
     <SafeAreaView className="flex-1">
-      <View className="flex-1 w-full">
-        {/* 진행 단계 표시 */}
-        <View className="px-5 py-3 bg-white">
-          <View className="flex-row items-center justify-between">
-            <View className="items-center flex-1">
-              <View className="w-8 h-8 rounded-full bg-primary items-center justify-center">
-                <Text className="text-white font-bold">1</Text>
-              </View>
-              <Text className="text-xs mt-1 font-medium text-primary">
-                받는 사람
-              </Text>
-            </View>
-            <View className="flex-1 h-1 bg-gray-200" />
-            <View className="items-center flex-1">
-              <View className="w-8 h-8 rounded-full bg-gray-200 items-center justify-center">
-                <Text className="text-gray-500 font-bold">2</Text>
-              </View>
-              <Text className="text-xs mt-1 text-gray-500">금액</Text>
-            </View>
-            <View className="flex-1 h-1 bg-gray-200" />
-            <View className="items-center flex-1">
-              <View className="w-8 h-8 rounded-full bg-gray-200 items-center justify-center">
-                <Text className="text-gray-500 font-bold">3</Text>
-              </View>
-              <Text className="text-xs mt-1 text-gray-500">확인</Text>
-            </View>
-          </View>
-        </View>
+      <View className="flex-1 w-full bg-[#F9FAFB]">
+        {/* Progress Steps */}
+        <TransferProgress currentStep={1} />
 
         {/* 계좌 직접 입력 버튼 */}
         <View className="mx-5 mt-4">
@@ -114,71 +88,92 @@ export default function SendMoneyRecipient() {
             className="w-full p-3 bg-white border border-gray-200 rounded-lg flex-row items-center justify-center"
             onPress={handleAccountTransfer}
           >
-            <Text className="font-medium ml-2">계좌번호 직접 입력하기</Text>
+            <GlobalText className="font-medium ml-2 py-1">
+              계좌번호 직접 입력하기
+            </GlobalText>
           </Pressable>
         </View>
 
         <ScrollView className="flex-1">
-          {/* 친구 목록 */}
+          {/* 등록된 계좌 목록 */}
           <View className="mx-5 mt-6 mb-24">
-            <Text className="text-lg font-bold mb-3">
-              {searchTerm === "" ? "등록된 계좌" : "검색 결과"}
-            </Text>
+            <GlobalText className="text-lg font-bold mb-3">
+              등록된 계좌
+            </GlobalText>
             <View className="gap-2">
-              {filteredFriends.length > 0 ? (
-                filteredFriends.map((friend) => (
+              {isLoading ? (
+                <View className="p-8 rounded-xl items-center justify-center">
+                  <GlobalText className="text-gray-500">로딩 중...</GlobalText>
+                </View>
+              ) : registeredAccounts.length > 0 ? (
+                registeredAccounts.map((account) => (
                   <TouchableOpacity
-                    key={friend.id}
-                    className={`p-4 rounded-xl bg-white border border-gray-100 ${
-                      selectedFriend?.id === friend.id
-                        ? "bg-primary/10 border-primary"
-                        : ""
+                    key={account.id}
+                    className={`p-4 rounded-xl border ${
+                      selectedAccount?.id === account.id
+                        ? "bg-[#4FC985]/10 border-[#4FC985]"
+                        : "bg-white border-gray-100"
                     }`}
-                    onPress={() => setSelectedFriend(friend)}
+                    onPress={() => setSelectedAccount(account)}
                   >
                     <View className="flex-row items-center gap-3">
-                      <View className="w-10 h-10 rounded-full bg-primary/20 items-center justify-center">
-                        <User color="#4FC985" size={18} />
+                      <View
+                        className={`w-10 h-10 rounded-full items-center justify-center ${
+                          selectedAccount?.id === account.id
+                            ? "bg-[#4FC985]/20"
+                            : "bg-primary/20"
+                        }`}
+                      >
+                        <Banknote
+                          color={
+                            selectedAccount?.id === account.id
+                              ? "#4FC985"
+                              : "#4FC985"
+                          }
+                          size={18}
+                        />
                       </View>
                       <View>
-                        <Text className="font-medium">{friend.name}</Text>
-                        <Text className="text-xs text-gray-500">
-                          {friend.phoneNumber}
-                        </Text>
+                        <View className="flex-row items-center gap-2">
+                          <GlobalText
+                            className={`font-medium ${
+                              selectedAccount?.id === account.id
+                                ? "text-[#4FC985]"
+                                : ""
+                            }`}
+                          >
+                            {account.ownerName}
+                          </GlobalText>
+                          <GlobalText className="text-xs text-gray-500">
+                            {account.bankName}
+                          </GlobalText>
+                        </View>
+                        <GlobalText className="text-xs text-gray-500">
+                          {account.accountNumber}
+                        </GlobalText>
                       </View>
                     </View>
                   </TouchableOpacity>
                 ))
               ) : (
-                <View className="p-8 bg-white rounded-xl items-center justify-center">
+                <View className="p-8 rounded-xl items-center justify-center">
                   <Users color="#D1D5DB" size={48} />
-                  <Text className="text-gray-500 mt-3">
-                    검색 결과가 없습니다
-                  </Text>
+                  <GlobalText className="text-gray-500 mt-3">
+                    등록된 계좌가 없습니다
+                  </GlobalText>
                 </View>
               )}
             </View>
           </View>
         </ScrollView>
 
-        {/* 하단 버튼 */}
-        <View className="absolute bottom-0 left-0 right-0 p-5 bg-white border-t border-gray-100">
-          <TouchableOpacity
-            className={`w-full py-3 rounded-lg flex-row items-center justify-center ${
-              selectedFriend ? "bg-primary" : "bg-gray-200"
-            }`}
-            onPress={handleNext}
-            disabled={!selectedFriend}
-          >
-            <Text
-              className={`font-medium ${
-                selectedFriend ? "text-white" : "text-gray-400"
-              }`}
-            >
-              다음
-            </Text>
-          </TouchableOpacity>
-        </View>
+        {/* 다음 버튼 */}
+        <BottomButton
+          onPress={handleNext}
+          disabled={!selectedAccount}
+          text="다음"
+          variant={selectedAccount ? "primary" : "secondary"}
+        />
       </View>
     </SafeAreaView>
   );
