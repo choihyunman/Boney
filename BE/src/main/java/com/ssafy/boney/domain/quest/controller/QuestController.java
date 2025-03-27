@@ -32,7 +32,7 @@ public class QuestController {
             );
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(
-                    new ApiResponse<>(400, "퀘스트 생성 실패 입력된 데이터를 확인해주세요.", null)
+                    new ApiResponse<>(400, "퀘스트 생성 실패. 입력된 데이터를 확인해주세요.", null)
             );
         }
     }
