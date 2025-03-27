@@ -54,5 +54,13 @@ public class LoanController {
         return loanService.transferLoanAmount(request, parentId);
     }
 
+    // 진행 중인 대출 조회 api - 부모
+    @GetMapping("/parent/approved")
+    public ResponseEntity<?> getApprovedLoans(HttpServletRequest request) {
+        Integer parentId = (Integer) request.getAttribute("userId");
+        return loanService.getApprovedLoansByParent(parentId);
+    }
+
+
 
 }
