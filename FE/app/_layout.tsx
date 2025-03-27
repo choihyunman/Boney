@@ -108,6 +108,35 @@ function RootLayoutNav() {
             onPress: () => router.back(),
           },
         };
+      case "/child/Register":
+        return {
+          title: "아이 등록하기",
+          backgroundColor: "white",
+          leftButton: {
+            icon: <ArrowLeft size={24} color="#000000" />,
+            onPress: () => router.back(),
+          },
+        };
+      case "/child":
+        return {
+          title: "아이 조회하기",
+          backgroundColor: "white",
+          leftButton: {
+            icon: <ArrowLeft size={24} color="#000000" />,
+            onPress: () => router.back(),
+          },
+        };
+      case "/menu":
+      case "/menu/parent":
+      case "/menu/child":
+        return {
+          title: "메뉴",
+          backgroundColor: "white",
+          leftButton: {
+            icon: <ArrowLeft size={24} color="#000000" />,
+            onPress: () => router.back(),
+          },
+        };
       default:
         return {
           title: "Boney",
