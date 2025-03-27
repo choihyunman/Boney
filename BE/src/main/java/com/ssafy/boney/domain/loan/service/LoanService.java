@@ -447,6 +447,39 @@ public class LoanService {
         ));
     }
 
+    @Transactional
+    public ResponseEntity<?> deleteRequestedLoan(Integer loanId, Integer childId) {
+        Loan loan = loanRepository.findById(loanId).orElse(null);
+
+        if (loan == null || loan.getParentChild() == null || loan.getParentChild().getChild() == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                    "status", 404,
+                    "message", "대출 신청 정보를 찾을 수 없습니다."
+            ));
+        }
+
+        User loanChild = loan.getParentChild().getChild();
+        if (!loanChild.getUserId().equals(childId)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                    "status", 401,
+                    "message", "유효한 액세스 토큰이 필요합니다."
+            ));
+        }
+
+        if (loan.getStatus() != LoanStatus.REQUESTED) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                    "status", 400,
+                    "message", "대출 신청 취소 실패 - 이미 승인되었거나 거절된 대출입니다."
+            ));
+        }
+
+        loanRepository.delete(loan);
+
+        return ResponseEntity.ok(Map.of(
+                "status", "200",
+                "message", "대출 신청이 성공적으로 취소되었습니다."
+        ));
+    }
 
 
 }
