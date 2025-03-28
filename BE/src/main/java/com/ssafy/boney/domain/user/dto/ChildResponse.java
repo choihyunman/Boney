@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@Builder
 public class ChildResponse {
     private Integer userId;
     private String userName;
@@ -19,19 +20,6 @@ public class ChildResponse {
     private Integer score;
     private String totalRemainingLoan;
     private LocalDateTime createdAt;
-
-    @Builder
-    public ChildResponse(User child, Integer score, String totalRemainingLoan) {
-        this.userId = child.getUserId();
-        this.userName = child.getUserName();
-        this.userBirth = child.getUserBirth();
-        this.userGender = child.getUserGender().toString();
-        this.userPhone = child.getUserPhone();
-        this.score = score;
-        this.totalRemainingLoan = totalRemainingLoan;
-        this.createdAt = child.getCreatedAt();
-    }
-
-
+    private String bankName;
+    private String accountNumber;
 }
-
