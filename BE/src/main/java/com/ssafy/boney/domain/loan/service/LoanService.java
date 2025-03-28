@@ -599,5 +599,50 @@ public class LoanService {
         ));
     }
 
+    @Transactional(readOnly = true)
+    public ResponseEntity<?> getRepaidLoansByChild(Integer childId) {
+        if (childId == null) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", "400",
+                    "message", "요청 형식 또는 헤더가 잘못되었습니다."
+            ));
+        }
+
+        User child = userRepository.findById(childId).orElse(null);
+        if (child == null) {
+            return ResponseEntity.status(401).body(Map.of(
+                    "status", "401",
+                    "message", "유효한 액세스 토큰이 필요합니다."
+            ));
+        }
+
+        Optional<ParentChild> relationOpt = child.getParents().stream().findFirst();
+        if (relationOpt.isEmpty()) {
+            return ResponseEntity.status(404).body(Map.of(
+                    "status", "404",
+                    "message", "부모와의 관계를 찾을 수 없습니다."
+            ));
+        }
+
+        List<Loan> repaidLoans = loanRepository.findByParentChild(relationOpt.get()).stream()
+                .filter(loan -> loan.getStatus() == LoanStatus.REPAID)
+                .toList();
+
+        List<Map<String, Object>> loanList = new ArrayList<>();
+        for (Loan loan : repaidLoans) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("loan_id", loan.getLoanId());
+            map.put("loan_amount", loan.getLoanAmount());
+            map.put("repaid_at", loan.getRepaidAt() != null ? loan.getRepaidAt().toLocalDate().toString() : null);
+            loanList.add(map);
+        }
+
+        return ResponseEntity.ok(Map.of(
+                "status", "200",
+                "message", "대출 상환 내역 조회에 성공했습니다.",
+                "data", Map.of("loan_completed_list", loanList)
+        ));
+    }
+
 
 }
