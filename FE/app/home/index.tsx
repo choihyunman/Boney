@@ -24,38 +24,7 @@ export default function Home() {
 
   return (
     <View className="flex-1">
-      <View className="flex-1 items-center justify-center p-5">
-        <TouchableOpacity
-          className="bg-[#4FC985] p-4 rounded-lg mb-5"
-          onPress={() => router.push("/transfer")}
-        >
-          <GlobalText className="text-white text-base">송금하기</GlobalText>
-        </TouchableOpacity>
-        <TouchableOpacity
-          className="bg-[#4FC985] p-4 rounded-lg mb-5"
-          onPress={() => router.replace("/loan/LoanListParent" as any)}
-        >
-          <GlobalText className="text-white text-base">
-            대출 목록(보호자)
-          </GlobalText>
-        </TouchableOpacity>
-        <TouchableOpacity
-          className="bg-[#4FC985] p-4 rounded-lg mb-5"
-          onPress={() => router.replace("/loan/ReqListParent" as any)}
-        >
-          <GlobalText className="text-white text-base">
-            대출 요청 목록(보호자)
-          </GlobalText>
-        </TouchableOpacity>
-        <TouchableOpacity
-          className="bg-[#4FC985] p-4 rounded-lg mb-5"
-          onPress={() => router.replace("/loan/ReqListChild" as any)}
-        >
-          <GlobalText className="text-white text-base">
-            대출 요청 목록(아이)
-          </GlobalText>
-        </TouchableOpacity>
-      </View>
+      <View className="flex-1 items-center justify-center p-5"></View>
     </View>
   );
 }

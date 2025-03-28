@@ -203,7 +203,7 @@ export default function MenuPage() {
               style={styles.subMenuItem}
             >
               <ChevronRight size={16} color="#4FC985" />
-              <Text style={styles.subMenuText}>대기 중인 대출</Text>
+              <Text style={styles.subMenuText}>요청 중인 대출</Text>
             </TouchableOpacity>
             <TouchableOpacity
               disabled={true}
@@ -211,7 +211,7 @@ export default function MenuPage() {
               style={styles.subMenuItem}
             >
               <ChevronRight size={16} color="#4FC985" />
-              <Text style={styles.subMenuText}>보유 중인 대출</Text>
+              <Text style={styles.subMenuText}>진행 중인 대출</Text>
             </TouchableOpacity>
           </View>
         </View>
