@@ -90,4 +90,12 @@ public class LoanController {
         return loanService.repayLoan(childId, request);
     }
 
+    // 상환 완료된 대출 보기 api
+    @GetMapping("/child/repaid")
+    public ResponseEntity<?> getRepaidLoansByChild(HttpServletRequest request) {
+        Integer childId = (Integer) request.getAttribute("userId");
+        return loanService.getRepaidLoansByChild(childId);
+    }
+
+    
 }

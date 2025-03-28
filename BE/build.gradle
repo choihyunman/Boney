@@ -42,6 +42,9 @@ dependencies {
 	// 계좌 관리 - 실시간 비동기 처리
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
+	// s3
+	implementation 'com.amazonaws:aws-java-sdk-s3:1.12.414'
+
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'com.mysql:mysql-connector-j'
