@@ -7,7 +7,6 @@ export default function CreatePin() {
     <PinInput
       title="비밀번호 입력"
       subtitle="앱 사용을 위해 비밀번호를 입력해주세요."
-      showBackButton={false}
       // onForgotPasswordPress={() => router.push("/forgot-password")}
       onPasswordComplete={(password) => {
         // 비밀번호 검증 로직
