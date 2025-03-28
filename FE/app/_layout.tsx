@@ -9,7 +9,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import "./global.css";
 import { StatusBar } from "expo-status-bar";
 import Header from "@/components/Header";
-import { Bell, ChevronLeft, Search } from "lucide-react-native";
+import { ArrowLeft, Bell, ChevronLeft, Search } from "lucide-react-native";
 import { Image } from "react-native";
 import Nav from "@/components/Nav";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
@@ -138,7 +138,7 @@ function RootLayoutNav() {
           title: "요청 중인 대출 보기",
           backgroundColor: "white",
           leftButton: {
-            icon: <ArrowLeft size={24} color="#000000" />,
+            icon: <ChevronLeft size={24} color="#000000" />,
             onPress: () => router.back(),
           },
         };
@@ -147,7 +147,7 @@ function RootLayoutNav() {
           title: "아이 등록하기",
           backgroundColor: "white",
           leftButton: {
-            icon: <ArrowLeft size={24} color="#000000" />,
+            icon: <ChevronLeft size={24} color="#000000" />,
             onPress: () => router.back(),
           },
         };
@@ -156,7 +156,7 @@ function RootLayoutNav() {
           title: "진행 중인 대출 보기",
           backgroundColor: "white",
           leftButton: {
-            icon: <ArrowLeft size={24} color="#000000" />,
+            icon: <ChevronLeft size={24} color="#000000" />,
             onPress: () => router.back(),
           },
         };
@@ -165,7 +165,7 @@ function RootLayoutNav() {
           title: "아이 조회하기",
           backgroundColor: "white",
           leftButton: {
-            icon: <ArrowLeft size={24} color="#000000" />,
+            icon: <ChevronLeft size={24} color="#000000" />,
             onPress: () => router.back(),
           },
         };
@@ -174,7 +174,7 @@ function RootLayoutNav() {
           title: "대기 중인 대출 보기",
           backgroundColor: "white",
           leftButton: {
-            icon: <ArrowLeft size={24} color="#000000" />,
+            icon: <ChevronLeft size={24} color="#000000" />,
             onPress: () => router.back(),
           },
         };
@@ -184,14 +184,9 @@ function RootLayoutNav() {
         return {
           title: "메뉴",
           backgroundColor: "white",
-          leftButton: {
-            icon: <ArrowLeft size={24} color="#000000" />,
-            onPress: () => router.back(),
-          },
         };
       default:
         return {
-          title: "Boney",
           backgroundColor: "#F9FAFB",
         };
     }

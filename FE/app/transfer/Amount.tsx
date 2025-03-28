@@ -6,18 +6,32 @@ import TransferProgress from "./TransferProgress";
 import { useTransferStore } from "@/stores/useTransferStore";
 import BottomButton from "@/components/Button";
 import GlobalText from "@/components/GlobalText";
+import { getBalance } from "@/apis/transferApi";
 
 export default function SendMoneyAmount() {
   const { transferData, setAmount, saveTransferData, loadTransferData } =
     useTransferStore();
   const [localAmount, setLocalAmount] = useState(transferData.amount);
+  const [balance, setBalance] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState(true);
 
   // 컴포넌트 마운트 시 저장된 데이터 로드 및 수신자 정보 확인
   useEffect(() => {
     const initializeData = async () => {
-      await loadTransferData();
-      if (!transferData.recipient) {
-        router.push("/transfer/Account");
+      try {
+        await loadTransferData();
+        if (!transferData.recipient) {
+          router.push("/transfer/Account");
+          return;
+        }
+
+        // 잔액 조회
+        const balanceData = await getBalance();
+        setBalance(balanceData.balance);
+      } catch (error) {
+        console.error("Error initializing data:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
     initializeData();
@@ -27,9 +41,6 @@ export default function SendMoneyAmount() {
   useEffect(() => {
     setLocalAmount(transferData.amount);
   }, [transferData.amount]);
-
-  // 잔액 (예시 데이터)
-  const balance = 25000;
 
   // 금액 입력 처리
   const handleAmountChange = (value: string) => {
@@ -76,7 +87,7 @@ export default function SendMoneyAmount() {
   };
 
   // 수신자 정보가 없는 경우 렌더링하지 않음
-  if (!transferData.recipient) {
+  if (!transferData.recipient || isLoading) {
     return null;
   }
 
@@ -168,7 +179,7 @@ export default function SendMoneyAmount() {
                 className="w-[30%] h-14 bg-gray-100 rounded-lg items-center justify-center"
                 onPress={() => handleAmountChange("")}
               >
-                <GlobalText className="text-xl font-medium">C</GlobalText>
+                <GlobalText className="text-xl font-medium">취소</GlobalText>
               </Pressable>
               <Pressable
                 className="w-[30%] h-14 bg-gray-100 rounded-lg items-center justify-center"
