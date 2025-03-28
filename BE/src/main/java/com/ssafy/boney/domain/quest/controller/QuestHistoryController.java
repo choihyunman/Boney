@@ -1,6 +1,6 @@
 package com.ssafy.boney.domain.quest.controller;
 
-import com.ssafy.boney.domain.quest.dto.QuestParentHistoryResponse;
+import com.ssafy.boney.domain.quest.dto.ParentQuestHistoryResponse;
 import com.ssafy.boney.domain.quest.service.QuestHistoryService;
 import com.ssafy.boney.global.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ public class QuestHistoryController {
     public ResponseEntity<ApiResponse<Map<String, Object>>> getPastQuests(
             @RequestAttribute("userId") Integer parentId
     ) {
-        List<QuestParentHistoryResponse> quests = questHistoryService.getPastQuests(parentId);
+        List<ParentQuestHistoryResponse> quests = questHistoryService.getPastQuests(parentId);
 
         if (quests.isEmpty()) {
             return ResponseEntity.status(404).body(

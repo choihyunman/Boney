@@ -1,7 +1,7 @@
 package com.ssafy.boney.domain.quest.controller;
 
 
-import com.ssafy.boney.domain.quest.dto.QuestCreateRequest;
+import com.ssafy.boney.domain.quest.dto.ParentQuestCreateRequest;
 import com.ssafy.boney.domain.quest.service.QuestService;
 import com.ssafy.boney.global.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,7 @@ public class QuestController {
     @PostMapping
     public ResponseEntity<ApiResponse<?>> createQuest(
             @RequestAttribute("userId") Integer parentId,
-            @RequestBody QuestCreateRequest requestDto
+            @RequestBody ParentQuestCreateRequest requestDto
     ) {
         try {
             questService.createQuest(parentId, requestDto);

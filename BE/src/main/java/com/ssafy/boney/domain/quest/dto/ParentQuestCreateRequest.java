@@ -7,12 +7,12 @@ import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
-public class QuestParentHistoryResponse {
-    private Integer questId;
-    private String childName;
+public class ParentQuestCreateRequest {
+    private Integer parentChildId;
+    private Integer questCategoryId;
     private String questTitle;
-    private String questCategory;
     private Long questReward;
-    private String questStatus;
+    private String questMessage;
     private LocalDateTime endDate;
+
 }

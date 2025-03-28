@@ -1,6 +1,6 @@
 package com.ssafy.boney.domain.quest.service;
 
-import com.ssafy.boney.domain.quest.dto.ParentQuestListResponse;
+import com.ssafy.boney.domain.quest.dto.ChildQuestResponse;
 import com.ssafy.boney.domain.quest.entity.Quest;
 import com.ssafy.boney.domain.quest.repository.QuestRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,20 +11,17 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class QuestListService {
-
+public class ChildQuestListService {
     private final QuestRepository questRepository;
 
+    // 아이 진행 중인 퀘스트 조회
+    public List<ChildQuestResponse> getOngoingQuests(Integer childId) {
 
-    // 부모 퀘스트 목록 조회 ( IN_PROGRESS, WAITING_REWARD )
-    // 보상 대기는 상단, 나머지는 마감일 오름차순
-    public List<ParentQuestListResponse> getOngoingQuests(Integer parentId) {
-        List<Quest> questEntities = questRepository.findOngoingQuestsByParent(parentId);
+        List<Quest> quests = questRepository.findOngoingQuestsByChild(childId);
 
-        return questEntities.stream()
-                .map(q -> new ParentQuestListResponse(
+        return quests.stream()
+                .map(q -> new ChildQuestResponse(
                         q.getQuestId(),
-                        q.getParentChild().getChild().getUserName(),
                         q.getQuestTitle(),
                         q.getQuestCategory().getCategoryName(),
                         q.getQuestReward(),

@@ -7,11 +7,11 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-public class QuestDetailResponse {
+public class QuestChildDetailResponse {
     private Integer questId;
     private String questTitle;
     private String questCategory;
-    private String childName;
     private LocalDateTime endDate;
     private Long questReward;
+    private String questImgUrl;
 }

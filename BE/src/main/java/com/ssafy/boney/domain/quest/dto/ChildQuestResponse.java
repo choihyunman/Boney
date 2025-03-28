@@ -1,5 +1,6 @@
 package com.ssafy.boney.domain.quest.dto;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -7,12 +8,11 @@ import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
-public class QuestCreateRequest {
-    private Integer parentChildId;
-    private Integer questCategoryId;
+public class ChildQuestResponse {
+    private Integer questId;
     private String questTitle;
+    private String questCategory;
     private Long questReward;
-    private String questMessage;
+    private String questStatus;
     private LocalDateTime endDate;
-
 }
