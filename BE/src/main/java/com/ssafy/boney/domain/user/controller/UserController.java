@@ -147,8 +147,28 @@ public class UserController {
     }
 
     // 회원 탈퇴 API (카카오 ID 기반)
-    @DeleteMapping("/delete/{kakaoId}")
-    public ResponseEntity<Map<String, Object>> deleteUser(@PathVariable("kakaoId") Long kakaoId) {
+    @DeleteMapping("/delete")
+    public ResponseEntity<Map<String, Object>> deleteUserByToken(
+            @RequestHeader("Authorization") String authHeader) {
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                    "status", 401,
+                    "message", "유효한 액세스 토큰이 필요합니다."
+            ));
+        }
+
+        String token = authHeader.substring(7);
+        if (!jwtTokenProvider.validateToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                    "status", 401,
+                    "message", "유효한 액세스 토큰이 필요합니다."
+            ));
+        }
+
+        Claims claims = jwtTokenProvider.parseToken(token);
+        Long kakaoId = claims.get("kakao_id", Long.class);
+
         return userService.deleteUserByKakaoId(kakaoId);
     }
 
