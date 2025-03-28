@@ -3,6 +3,7 @@ import { useRouter } from "expo-router";
 import { useEffect } from "react";
 import { useAuthStore } from "@/stores/useAuthStore";
 import GlobalText from "@/components/GlobalText";
+import Nav from "@/components/Nav";
 
 export default function Home() {
   const router = useRouter();

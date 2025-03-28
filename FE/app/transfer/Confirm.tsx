@@ -11,6 +11,7 @@ import BottomButton from "@/components/Button";
 import GlobalText from "@/components/GlobalText";
 import { PinInput } from "@/components/PinInput";
 import { verifyPassword } from "@/apis/pinApi";
+import { transferMoney } from "@/apis/transferApi";
 
 // Friend 인터페이스를 Account 인터페이스로 변경
 interface Account {
@@ -42,29 +43,66 @@ export default function SendMoneyConfirm() {
   const handlePasswordConfirm = async (password: string) => {
     setIsLoading(true);
 
+    // Add early return if recipient is null
+    if (!transferData.recipient) {
+      Alert.alert("오류", "송금 정보가 없습니다.");
+      return;
+    }
+
     try {
       // 비밀번호 검증 API 호출
-      const response = await verifyPassword(password);
+      const verifyResponse = await verifyPassword(password);
 
-      if (response.success) {
-        // Clear stored data
-        await SecureStore.deleteItemAsync("sendMoneyRecipient");
-        await SecureStore.deleteItemAsync("sendMoneyAmount");
-        clearTransferData();
+      if (verifyResponse.data.isMatched) {
+        // 송금 API 호출
+        const transferRequest = {
+          sendPassword: password,
+          amount: Number(transferData.amount),
+          recipientBank: transferData.recipient.bankName,
+          recipientAccountNumber: transferData.recipient.accountNumber.replace(
+            /-/g,
+            ""
+          ),
+        };
 
-        // 임시로 홈 화면으로 이동 (나중에 송금 완료 페이지로 변경)
-        router.push("/home");
+        const transferResponse = await transferMoney(transferRequest);
+
+        if (transferResponse.status === "200") {
+          // 송금 완료 페이지로 이동하기 전에 데이터 저장
+          const completedTransferData = {
+            recipient: transferData.recipient,
+            amount: transferData.amount,
+          };
+          await SecureStore.setItemAsync(
+            "completedTransfer",
+            JSON.stringify(completedTransferData)
+          );
+
+          // Clear stored data
+          await SecureStore.deleteItemAsync("sendMoneyRecipient");
+          await SecureStore.deleteItemAsync("sendMoneyAmount");
+          clearTransferData();
+
+          // 송금 완료 페이지로 이동
+          router.push("/transfer/CompleteTransfer");
+        } else {
+          Alert.alert(
+            "오류",
+            transferResponse.message || "송금 처리 중 오류가 발생했습니다."
+          );
+        }
       } else {
-        Alert.alert(
-          "오류",
-          response.message || "비밀번호가 일치하지 않습니다."
-        );
+        Alert.alert("오류", "비밀번호가 일치하지 않습니다.");
       }
     } catch (error) {
-      console.error("Error verifying password:", error);
-      Alert.alert("오류", "비밀번호 검증 중 오류가 발생했습니다.");
+      console.error("Error during transfer:", error);
+      Alert.alert(
+        "오류",
+        "송금 처리 중 오류가 발생했습니다. 다시 시도해주세요."
+      );
     } finally {
       setIsLoading(false);
+      setShowPinInput(false);
     }
   };
 
@@ -73,19 +111,6 @@ export default function SendMoneyConfirm() {
     if (!value) return "0";
     return Number.parseInt(value).toLocaleString();
   };
-
-  // 현재 날짜 및 시간
-  const currentDate = new Date().toLocaleDateString("ko-KR", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-
-  const currentTime = new Date().toLocaleTimeString("ko-KR", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
 
   if (!transferData.recipient || !transferData.amount) {
     return null;
@@ -158,7 +183,7 @@ export default function SendMoneyConfirm() {
             </View>
 
             {/* 송금 금액 */}
-            <View className="flex-row justify-between items-center py-4 border-b border-gray-100">
+            <View className="flex-row justify-between items-center py-4">
               <GlobalText className="text-sm text-gray-500">
                 송금 금액
               </GlobalText>

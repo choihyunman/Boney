@@ -90,37 +90,54 @@ export default function MenuPage() {
         <ChevronRight size={20} color="#6B7280" style={styles.profileChevron} />
       </TouchableOpacity>
 
-      {/* 메뉴 섹션 */}
-      <View style={styles.menuSection}>
-        {/* 내 지갑 */}
-        <View style={styles.menuCategory}>
-          <View style={styles.menuHeader}>
-            <Wallet size={20} color="#4FC985" />
-            <Text style={styles.menuTitle}>내 지갑</Text>
+        {/* 메뉴 섹션 */}
+        <View style={styles.menuSection}>
+          {/* 내 지갑 */}
+          <View style={styles.menuCategory}>
+            <View style={styles.menuHeader}>
+              <Wallet size={20} color="#4FC985" />
+              <Text style={styles.menuTitle}>내 지갑</Text>
+            </View>
+            <View style={styles.subMenuContainer}>
+              <TouchableOpacity
+                onPress={() => router.push("/transfer")}
+                style={styles.subMenuItem}
+              >
+                <ChevronRight size={16} color="#4FC985" />
+                <Text style={styles.subMenuText}>송금하기</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => router.push("/transaction")}
+                style={styles.subMenuItem}
+              >
+                <ChevronRight size={16} color="#4FC985" />
+                <Text style={styles.subMenuText}>거래 내역</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-          <View style={styles.subMenuContainer}>
-            <TouchableOpacity
-              onPress={() => router.push("/transfer")}
-              style={styles.subMenuItem}
-            >
-              <ChevronRight size={16} color="#4FC985" />
-              <Text style={styles.subMenuText}>송금하기</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => router.push("/transaction")}
-              style={styles.subMenuItem}
-            >
-              <ChevronRight size={16} color="#4FC985" />
-              <Text style={styles.subMenuText}>거래 내역</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
 
-        {/* 퀘스트 */}
-        <View style={styles.menuCategory}>
-          <View style={styles.menuHeader}>
-            <ClipboardList size={20} color="#4FC985" />
-            <Text style={styles.menuTitle}>퀘스트</Text>
+          {/* 퀘스트 */}
+          <View style={styles.menuCategory}>
+            <View style={styles.menuHeader}>
+              <ClipboardList size={20} color="#4FC985" />
+              <Text style={styles.menuTitle}>퀘스트</Text>
+            </View>
+            <View style={styles.subMenuContainer}>
+              <TouchableOpacity
+                onPress={() => router.push("/quest/ongoing")}
+                style={styles.subMenuItem}
+              >
+                <ChevronRight size={16} color="#4FC985" />
+                <Text style={styles.subMenuText}>진행 중인 퀘스트</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => router.push("/quest/completed")}
+                style={styles.subMenuItem}
+              >
+                <ChevronRight size={16} color="#4FC985" />
+                <Text style={styles.subMenuText}>완료된 퀘스트</Text>
+              </TouchableOpacity>
+            </View>
           </View>
           <View style={styles.subMenuContainer}>
             <TouchableOpacity
@@ -142,11 +159,35 @@ export default function MenuPage() {
           </View>
         </View>
 
-        {/* 대출 */}
-        <View style={styles.menuCategory}>
-          <View style={styles.menuHeader}>
-            <Landmark size={20} color="#4FC985" />
-            <Text style={styles.menuTitle}>대출</Text>
+          {/* 대출 */}
+          <View style={styles.menuCategory}>
+            <View style={styles.menuHeader}>
+              <Landmark size={20} color="#4FC985" />
+              <Text style={styles.menuTitle}>대출</Text>
+            </View>
+            <View style={styles.subMenuContainer}>
+              <TouchableOpacity
+                onPress={() => router.push("/loan/request")}
+                style={styles.subMenuItem}
+              >
+                <ChevronRight size={16} color="#4FC985" />
+                <Text style={styles.subMenuText}>대출 신청</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => router.push("/loan/requested")}
+                style={styles.subMenuItem}
+              >
+                <ChevronRight size={16} color="#4FC985" />
+                <Text style={styles.subMenuText}>요청 중인 대출</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => router.push("/loan/ongoing")}
+                style={styles.subMenuItem}
+              >
+                <ChevronRight size={16} color="#4FC985" />
+                <Text style={styles.subMenuText}>진행 중인 대출</Text>
+              </TouchableOpacity>
+            </View>
           </View>
           <View style={styles.subMenuContainer}>
             <TouchableOpacity
@@ -175,20 +216,39 @@ export default function MenuPage() {
           </View>
         </View>
 
-        {/* 월간 리포트 */}
-        <View style={styles.menuCategory}>
-          <View style={styles.menuHeader}>
-            <BarChart3 size={20} color="#4FC985" />
-            <Text style={styles.menuTitle}>월간 리포트</Text>
+          {/* 월간 리포트 */}
+          <View style={styles.menuCategory}>
+            <View style={styles.menuHeader}>
+              <BarChart3 size={20} color="#4FC985" />
+              <Text style={styles.menuTitle}>월간 리포트</Text>
+            </View>
+            <View style={styles.subMenuContainer}>
+              <TouchableOpacity
+                onPress={() => router.push("/child/report/monthly")}
+                style={styles.subMenuItem}
+              >
+                <ChevronRight size={16} color="#4FC985" />
+                <Text style={styles.subMenuText}>조회하기</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-          <View style={styles.subMenuContainer}>
+
+          {/* 로그아웃 & 회원탈퇴 */}
+          <View style={styles.bottomSection}>
             <TouchableOpacity
               disabled={true}
               // onPress={() => router.push("/child/report/monthly")}
               style={styles.subMenuItem}
             >
-              <ChevronRight size={16} color="#4FC985" />
-              <Text style={styles.subMenuText}>조회하기</Text>
+              <LogOut size={16} color="#374151" />
+              <Text style={styles.bottomMenuText}>로그아웃</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={handleDeleteAccount}
+              style={[styles.bottomMenuItem, styles.deleteButton]}
+            >
+              <UserX size={16} color="#EF4444" />
+              <Text style={styles.bottomMenuTextDanger}>회원탈퇴</Text>
             </TouchableOpacity>
           </View>
         </View>

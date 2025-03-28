@@ -83,12 +83,12 @@ export default function SendMoneyRecipient() {
         <TransferProgress currentStep={1} />
 
         {/* 계좌 직접 입력 버튼 */}
-        <View className="mx-5 mt-4">
+        <View className="mx-5 mt-4 p-1">
           <Pressable
             className="w-full p-3 bg-white border border-gray-200 rounded-lg flex-row items-center justify-center"
             onPress={handleAccountTransfer}
           >
-            <GlobalText className="font-medium ml-2 py-1">
+            <GlobalText className="font-medium py-1">
               계좌번호 직접 입력하기
             </GlobalText>
           </Pressable>
@@ -109,34 +109,27 @@ export default function SendMoneyRecipient() {
                 registeredAccounts.map((account) => (
                   <TouchableOpacity
                     key={account.id}
-                    className={`p-4 rounded-xl border ${
+                    className={`p-5 rounded-xl border ${
                       selectedAccount?.id === account.id
                         ? "bg-[#4FC985]/10 border-[#4FC985]"
                         : "bg-white border-gray-100"
                     }`}
                     onPress={() => setSelectedAccount(account)}
                   >
-                    <View className="flex-row items-center gap-3">
+                    <View className="flex-row items-center gap-4">
                       <View
-                        className={`w-10 h-10 rounded-full items-center justify-center ${
+                        className={`w-12 h-12 rounded-full items-center justify-center ${
                           selectedAccount?.id === account.id
                             ? "bg-[#4FC985]/20"
-                            : "bg-primary/20"
+                            : "bg-[#4FC985]/10"
                         }`}
                       >
-                        <Banknote
-                          color={
-                            selectedAccount?.id === account.id
-                              ? "#4FC985"
-                              : "#4FC985"
-                          }
-                          size={18}
-                        />
+                        <Banknote color="#4FC985" size={24} />
                       </View>
                       <View>
-                        <View className="flex-row items-center gap-2">
+                        <View className="flex-row items-center gap-2 mb-1">
                           <GlobalText
-                            className={`font-medium ${
+                            className={`text-lg font-medium ${
                               selectedAccount?.id === account.id
                                 ? "text-[#4FC985]"
                                 : ""
@@ -144,11 +137,11 @@ export default function SendMoneyRecipient() {
                           >
                             {account.ownerName}
                           </GlobalText>
-                          <GlobalText className="text-xs text-gray-500">
+                          <GlobalText className="text-sm text-gray-500">
                             {account.bankName}
                           </GlobalText>
                         </View>
-                        <GlobalText className="text-xs text-gray-500">
+                        <GlobalText className="text-sm text-gray-500">
                           {account.accountNumber}
                         </GlobalText>
                       </View>

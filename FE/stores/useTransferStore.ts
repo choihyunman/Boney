@@ -15,10 +15,20 @@ interface TransferData {
   amount: string;
 }
 
+// 송금 결과 데이터 타입 정의
+interface TransferResult {
+  bankName: string;
+  accountNumber: string;
+  amount: number;
+  createdAt: string;
+}
+
 interface TransferStore {
   transferData: TransferData;
+  transferResult: TransferResult | null;
   setRecipient: (recipient: Account) => void;
   setAmount: (amount: string) => void;
+  setTransferResult: (result: TransferResult) => void;
   clearTransferData: () => void;
   loadTransferData: () => Promise<void>;
   saveTransferData: () => Promise<void>;
@@ -31,6 +41,7 @@ export const useTransferStore = create<TransferStore>((set, get) => ({
     recipient: null,
     amount: "",
   },
+  transferResult: null,
 
   setRecipient: (recipient) => {
     set((state) => ({
@@ -50,12 +61,17 @@ export const useTransferStore = create<TransferStore>((set, get) => ({
     }));
   },
 
+  setTransferResult: (result) => {
+    set({ transferResult: result });
+  },
+
   clearTransferData: () => {
     set({
       transferData: {
         recipient: null,
         amount: "",
       },
+      transferResult: null,
     });
   },
 
