@@ -5,19 +5,26 @@ import com.ssafy.boney.domain.account.repository.AccountRepository;
 import com.ssafy.boney.domain.account.service.BankingApiService;
 import com.ssafy.boney.domain.loan.dto.*;
 import com.ssafy.boney.domain.loan.entity.Loan;
+import com.ssafy.boney.domain.loan.entity.LoanRepayment;
 import com.ssafy.boney.domain.loan.entity.enums.LoanStatus;
+import com.ssafy.boney.domain.loan.repository.LoanRepaymentRepository;
 import com.ssafy.boney.domain.loan.repository.LoanRepository;
+import com.ssafy.boney.domain.transaction.entity.Transaction;
 import com.ssafy.boney.domain.transaction.exception.CustomException;
 import com.ssafy.boney.domain.transaction.exception.TransactionErrorCode;
+import com.ssafy.boney.domain.transaction.repository.TransactionRepository;
+import com.ssafy.boney.domain.user.entity.CreditScore;
 import com.ssafy.boney.domain.user.entity.ParentChild;
 import com.ssafy.boney.domain.user.entity.User;
 import com.ssafy.boney.domain.user.exception.UserErrorCode;
 import com.ssafy.boney.domain.user.exception.UserNotFoundException;
+import com.ssafy.boney.domain.user.repository.CreditScoreRepository;
 import com.ssafy.boney.domain.user.repository.ParentChildRepository;
 import com.ssafy.boney.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +40,10 @@ public class LoanService {
     private final LoanRepository loanRepository;
     private final AccountRepository accountRepository;
     private final BankingApiService bankingApiService;
+    private final PasswordEncoder passwordEncoder;
+    private final LoanRepaymentRepository loanRepaymentRepository;
+    private final CreditScoreRepository creditScoreRepository;
+    private final TransactionRepository transactionRepository;
 
     @Transactional
     public ResponseEntity<?> createLoan(Integer childId, LoanRequest request) {
@@ -478,6 +489,113 @@ public class LoanService {
         return ResponseEntity.ok(Map.of(
                 "status", "200",
                 "message", "대출 신청이 성공적으로 취소되었습니다."
+        ));
+    }
+
+
+    @Transactional
+    public ResponseEntity<?> repayLoan(Integer childId, LoanRepaymentRequest request) {
+        // 1. 자녀 조회
+        User child = userRepository.findById(childId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        // 2. 대출 조회 및 검증
+        Loan loan = loanRepository.findById(request.getLoanId())
+                .orElseThrow(() -> new IllegalArgumentException("대출 정보를 찾을 수 없습니다."));
+
+        System.out.println("loanId: " + loan.getLoanId()); // <= 반드시 null이 아니어야 합니다
+
+        if (!loan.getParentChild().getChild().getUserId().equals(childId)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                    "status", 401,
+                    "message", "해당 대출에 대한 권한이 없습니다."
+            ));
+        }
+
+        if (loan.getStatus() != LoanStatus.REQUESTED && loan.getStatus() != LoanStatus.APPROVED) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", 400,
+                    "message", "이미 상환된 대출입니다."
+            ));
+        }
+
+        // 3. 자녀/부모 계좌 조회
+        Account childAccount = accountRepository.findByUser(child)
+                .orElseThrow(() -> new IllegalArgumentException("자녀 계좌를 찾을 수 없습니다."));
+        Account parentAccount = accountRepository.findByUser(loan.getParentChild().getParent())
+                .orElseThrow(() -> new IllegalArgumentException("부모 계좌를 찾을 수 없습니다."));
+
+        // 4. 비밀번호 검증
+        if (!passwordEncoder.matches(request.getPassword(), childAccount.getAccountPassword())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                    "status", 401,
+                    "message", "계좌 비밀번호가 올바르지 않습니다."
+            ));
+        }
+
+        // 5. 외부 API를 통한 잔액 조회
+        Long availableBalance = bankingApiService.getAccountBalance(childAccount.getAccountNumber());
+        Long repaymentAmount = request.getRepaymentAmount();
+        Long remainingAmount = (loan.getLastAmount() != null) ? loan.getLastAmount() : loan.getLoanAmount();
+
+        if (availableBalance < repaymentAmount) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", 400,
+                    "message", "자녀 계좌의 잔액이 부족합니다.",
+                    "data", Map.of(
+                            "available_balance", availableBalance,
+                            "required_amount", repaymentAmount
+                    )
+            ));
+        }
+
+        // 6. 송금 처리
+        String summary = "대출 상환 " + child.getUserName();
+        bankingApiService.transfer(
+                childAccount.getAccountNumber(),
+                parentAccount.getAccountNumber(),
+                repaymentAmount,
+                summary
+        );
+
+        // 7. 상환 기록 저장 (loan_repayment)
+        LoanRepayment repayment = LoanRepayment.builder()
+                .loan(loan)
+                .repaymentDate(LocalDateTime.now())
+                .principalAmount(repaymentAmount)
+                .createdAt(LocalDateTime.now())
+                .build();
+        loanRepaymentRepository.save(repayment);
+
+        // 8. 대출 잔액 갱신 및 상태 변경
+        Long newLastAmount = remainingAmount - repaymentAmount;
+        loan.setLastAmount(newLastAmount);
+
+        if (newLastAmount <= 0) {
+            loan.setStatus(LoanStatus.REPAID);
+            loan.setRepaidAt(LocalDateTime.now());
+
+            // 신용 점수 +10
+            CreditScore creditScore = creditScoreRepository.findByUser(child)
+                    .orElseThrow(() -> new IllegalArgumentException("신용 점수 정보가 없습니다."));
+            creditScore.updateScore(10);
+        }
+
+        Integer updatedScore = creditScoreRepository.findByUser(child)
+                .map(CreditScore::getScore)
+                .orElse(0);
+
+        return ResponseEntity.ok(Map.of(
+                "status", 200,
+                "message", "대출 상환이 성공적으로 처리되었습니다.",
+                "data", Map.of(
+                        "loan_id", loan.getLoanId(),
+                        "due_date", loan.getDueDate().toLocalDate().toString(),
+                        "repayment_amount", repaymentAmount,
+                        "total_loan_amount", loan.getLoanAmount(),
+                        "last_amount", loan.getLastAmount(),
+                        "child_credit_score", updatedScore
+                )
         ));
     }
 
