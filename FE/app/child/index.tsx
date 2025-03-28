@@ -8,10 +8,11 @@ import {
   Image,
   Dimensions,
 } from "react-native";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { useAuthStore } from "../../stores/useAuthStore";
 import { Plus } from "lucide-react-native";
 import { api } from "../../lib/api";
+import { useCallback } from "react";
 
 interface Child {
   userId: number;
@@ -22,16 +23,16 @@ interface Child {
   score: number;
   totalRemainingLoan: string;
   createdAt: string;
+  bankName: string;
+  accountNumber: string;
 }
+
+//은행명 계좌번호 수정하고 나머지도 수정해야.
 
 export default function ChildList() {
   const [children, setChildren] = useState<Child[]>([]);
   const [loading, setLoading] = useState(true);
   const { token } = useAuthStore();
-
-  useEffect(() => {
-    fetchChildren();
-  }, []);
 
   const fetchChildren = async () => {
     try {
@@ -53,10 +54,19 @@ export default function ChildList() {
     }
   };
 
-  const handleChildPress = (childId: number) => {
+  useFocusEffect(
+    useCallback(() => {
+      fetchChildren();
+    }, [])
+  );
+
+  const handleChildPress = (child: Child) => {
     router.push({
       pathname: "/child/[id]",
-      params: { id: childId },
+      params: {
+        id: child.userId,
+        child: JSON.stringify(child),
+      },
     });
   };
 
@@ -83,7 +93,7 @@ export default function ChildList() {
             <TouchableOpacity
               key={child.userId}
               style={styles.card}
-              onPress={() => handleChildPress(child.userId)}
+              onPress={() => handleChildPress(child)}
             >
               <View style={styles.cardContent}>
                 <View style={styles.profileContainer}>

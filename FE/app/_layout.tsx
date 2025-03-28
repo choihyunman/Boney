@@ -215,7 +215,8 @@ function RootLayoutNav() {
       <Slot />
       {(pathname === "/home" ||
         pathname === "/transaction" ||
-        pathname === "/menu/child") && <Nav />}
+        pathname === "/menu/child" ||
+        pathname === "/menu/parent") && <Nav />}
     </SafeAreaView>
   );
 }

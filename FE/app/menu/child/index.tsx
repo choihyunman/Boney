@@ -1,5 +1,3 @@
-
-
 import React from "react";
 import {
   View,
@@ -143,35 +141,11 @@ export default function MenuPage() {
           </View>
         </View>
 
-          {/* 대출 */}
-          <View style={styles.menuCategory}>
-            <View style={styles.menuHeader}>
-              <Landmark size={20} color="#4FC985" />
-              <Text style={styles.menuTitle}>대출</Text>
-            </View>
-            <View style={styles.subMenuContainer}>
-              <TouchableOpacity
-                onPress={() => router.push("/loan/request")}
-                style={styles.subMenuItem}
-              >
-                <ChevronRight size={16} color="#4FC985" />
-                <Text style={styles.subMenuText}>대출 신청</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => router.push("/loan/requested")}
-                style={styles.subMenuItem}
-              >
-                <ChevronRight size={16} color="#4FC985" />
-                <Text style={styles.subMenuText}>요청 중인 대출</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => router.push("/loan/ongoing")}
-                style={styles.subMenuItem}
-              >
-                <ChevronRight size={16} color="#4FC985" />
-                <Text style={styles.subMenuText}>진행 중인 대출</Text>
-              </TouchableOpacity>
-            </View>
+        {/* 대출 */}
+        <View style={styles.menuCategory}>
+          <View style={styles.menuHeader}>
+            <Landmark size={20} color="#4FC985" />
+            <Text style={styles.menuTitle}>대출</Text>
           </View>
           <View style={styles.subMenuContainer}>
             <TouchableOpacity
@@ -199,44 +173,19 @@ export default function MenuPage() {
             </TouchableOpacity>
           </View>
         </View>
-        <View style={styles.subMenuContainer}>
-          <TouchableOpacity
-            disabled={true}
-            // onPress={() => router.push("/loan/request")}
-            style={styles.subMenuItem}
-          >
-            <ChevronRight size={16} color="#4FC985" />
-            <Text style={styles.subMenuText}>대출 신청</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => router.push("/loan/child/ReqListChild")}
-            style={styles.subMenuItem}
-          >
-            <ChevronRight size={16} color="#4FC985" />
-            <Text style={styles.subMenuText}>요청 중인 대출</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            disabled={true}
-            // onPress={() => router.push("/loan/ongoing")}
-            style={styles.subMenuItem}
-          >
-            <ChevronRight size={16} color="#4FC985" />
-            <Text style={styles.subMenuText}>진행 중인 대출</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
 
-      {/* 월간 리포트 */}
-      <View style={styles.menuCategory}>
-        <View style={styles.menuHeader}>
-          <BarChart3 size={20} color="#4FC985" />
-          <Text style={styles.menuTitle}>월간 리포트</Text>
-        </View>
-        <View style={styles.subMenuContainer}>
-          <TouchableOpacity style={styles.subMenuItem}>
-            <ChevronRight size={16} color="#4FC985" />
-            <Text style={styles.subMenuText}>조회하기</Text>
-          </TouchableOpacity>
+        {/* 월간 리포트 */}
+        <View style={styles.menuCategory}>
+          <View style={styles.menuHeader}>
+            <BarChart3 size={20} color="#4FC985" />
+            <Text style={styles.menuTitle}>월간 리포트</Text>
+          </View>
+          <View style={styles.subMenuContainer}>
+            <TouchableOpacity style={styles.subMenuItem}>
+              <ChevronRight size={16} color="#4FC985" />
+              <Text style={styles.subMenuText}>조회하기</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
 
@@ -376,4 +325,3 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
 });
-
