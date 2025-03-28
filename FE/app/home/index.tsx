@@ -56,7 +56,6 @@ export default function Home() {
           </GlobalText>
         </TouchableOpacity>
       </View>
-      <Nav />
     </View>
   );
 }

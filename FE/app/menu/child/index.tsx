@@ -6,6 +6,7 @@ import {
   Image,
   StyleSheet,
   ScrollView,
+  Alert,
 } from "react-native";
 import { router } from "expo-router";
 import {
@@ -18,37 +19,76 @@ import {
   UserX,
   User,
 } from "lucide-react-native";
+import { useAuthStore } from "../../../stores/useAuthStore";
 import Nav from "@/components/Nav";
+import { deleteAccount } from "@/apis/authApi";
+
 export default function MenuPage() {
-  const handleLogout = () => {
-    alert("로그아웃 되었습니다.");
+  const { user, token } = useAuthStore();
+
+  const handleLogout = async () => {
+    await useAuthStore.getState().logout();
+    router.push("/auth");
   };
 
-  const handleDeleteAccount = () => {
-    alert("정말 탈퇴하시겠습니까?");
+  const handleDeleteAccount = async () => {
+    Alert.alert("회원탈퇴", "정말 탈퇴하시겠습니까?", [
+      {
+        text: "취소",
+        style: "cancel",
+      },
+      {
+        text: "탈퇴",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            if (!token) {
+              Alert.alert("오류", "인증 정보가 없습니다.");
+              return;
+            }
+            const response = await deleteAccount(token);
+            Alert.alert("성공", response.message);
+            await useAuthStore.getState().logout();
+            router.push("/auth");
+          } catch (error) {
+            Alert.alert(
+              "오류",
+              error instanceof Error
+                ? error.message
+                : "회원탈퇴 중 오류가 발생했습니다."
+            );
+          }
+        },
+      },
+    ]);
   };
 
   return (
-    <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.contentContainer}>
-        {/* 프로필 섹션 */}
-        <TouchableOpacity
-          style={styles.profileSection}
-          onPress={() => router.push("/child/mypage")}
-        >
-          <View style={styles.profileImageContainer}>
-            <Image
-              source={require("../../../assets/profile/profile.jpg")}
-              style={styles.profileImage}
-              resizeMode="cover"
-            />
-          </View>
-          <View style={styles.profileInfo}>
-            <Text style={styles.profileName}>홍길동</Text>
-            <Text style={styles.profileEmail}>example@email.com</Text>
-          </View>
-          <ChevronRight size={20} color="#6B7280" style={styles.profileChevron} />
-        </TouchableOpacity>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
+    >
+      {/* 프로필 섹션 */}
+      <TouchableOpacity
+        style={styles.profileSection}
+        disabled={true}
+        // onPress={() => router.push("/child/mypage")}
+      >
+        <View style={styles.profileImageContainer}>
+          <Image
+            source={require("../../../assets/profile/profile.jpg")}
+            style={styles.profileImage}
+            resizeMode="cover"
+          />
+        </View>
+        <View style={styles.profileInfo}>
+          <Text style={styles.profileName}>{user?.userName || "사용자"}</Text>
+          <Text style={styles.profileEmail}>
+            {user?.userEmail || "이메일 없음"}
+          </Text>
+        </View>
+        <ChevronRight size={20} color="#6B7280" style={styles.profileChevron} />
+      </TouchableOpacity>
 
         {/* 메뉴 섹션 */}
         <View style={styles.menuSection}>
@@ -99,6 +139,25 @@ export default function MenuPage() {
               </TouchableOpacity>
             </View>
           </View>
+          <View style={styles.subMenuContainer}>
+            <TouchableOpacity
+              disabled={true}
+              // onPress={() => router.push("/quest/ongoing")}
+              style={styles.subMenuItem}
+            >
+              <ChevronRight size={16} color="#4FC985" />
+              <Text style={styles.subMenuText}>진행 중인 퀘스트</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              disabled={true}
+              // onPress={() => router.push("/quest/completed")}
+              style={styles.subMenuItem}
+            >
+              <ChevronRight size={16} color="#4FC985" />
+              <Text style={styles.subMenuText}>완료된 퀘스트</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
 
           {/* 대출 */}
           <View style={styles.menuCategory}>
@@ -130,6 +189,32 @@ export default function MenuPage() {
               </TouchableOpacity>
             </View>
           </View>
+          <View style={styles.subMenuContainer}>
+            <TouchableOpacity
+              disabled={true}
+              // onPress={() => router.push("/loan/request")}
+              style={styles.subMenuItem}
+            >
+              <ChevronRight size={16} color="#4FC985" />
+              <Text style={styles.subMenuText}>대출 신청</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => router.push("/loan/child/ReqListChild")}
+              style={styles.subMenuItem}
+            >
+              <ChevronRight size={16} color="#4FC985" />
+              <Text style={styles.subMenuText}>대기 중인 대출</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              disabled={true}
+              // onPress={() => router.push("/loan/ongoing")}
+              style={styles.subMenuItem}
+            >
+              <ChevronRight size={16} color="#4FC985" />
+              <Text style={styles.subMenuText}>보유 중인 대출</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
 
           {/* 월간 리포트 */}
           <View style={styles.menuCategory}>
@@ -151,8 +236,9 @@ export default function MenuPage() {
           {/* 로그아웃 & 회원탈퇴 */}
           <View style={styles.bottomSection}>
             <TouchableOpacity
-              onPress={handleLogout}
-              style={styles.bottomMenuItem}
+              disabled={true}
+              // onPress={() => router.push("/child/report/monthly")}
+              style={styles.subMenuItem}
             >
               <LogOut size={16} color="#374151" />
               <Text style={styles.bottomMenuText}>로그아웃</Text>
@@ -166,9 +252,27 @@ export default function MenuPage() {
             </TouchableOpacity>
           </View>
         </View>
-      </ScrollView>
+
+        {/* 로그아웃 & 회원탈퇴 */}
+        <View style={styles.bottomSection}>
+          <TouchableOpacity
+            onPress={handleLogout}
+            style={styles.bottomMenuItem}
+          >
+            <LogOut size={16} color="#374151" />
+            <Text style={styles.bottomMenuText}>로그아웃</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleDeleteAccount}
+            style={[styles.bottomMenuItem, styles.deleteButton]}
+          >
+            <UserX size={16} color="#EF4444" />
+            <Text style={styles.bottomMenuTextDanger}>회원탈퇴</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
       <Nav />
-    </View>
+    </ScrollView>
   );
 }
 
@@ -278,5 +382,15 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     color: "#EF4444",
     marginLeft: 12,
+  },
+  name: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#000",
+  },
+  email: {
+    fontSize: 16,
+    color: "#666",
+    marginTop: 4,
   },
 });

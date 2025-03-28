@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { View, TouchableOpacity, ScrollView } from "react-native";
-import GlobalText from "../../components/GlobalText";
+import GlobalText from "../../../components/GlobalText";
+import LoanModal from "../../../components/modal";
 
 // 대출 요청 데이터 타입 정의
 type LoanRequest = {
@@ -12,7 +13,7 @@ type LoanRequest = {
   creditScore: number;
 };
 
-export default function ParentLoanRequestsPage() {
+export default function ChildLoanRequestsPage() {
   const [loanRequests, setLoanRequests] = useState<LoanRequest[]>([
     {
       id: "1",
@@ -23,6 +24,8 @@ export default function ParentLoanRequestsPage() {
       creditScore: 85,
     },
   ]);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [loanToCancel, setLoanToCancel] = useState<string | null>(null);
 
   // 날짜 포맷팅 함수
   const formatDate = (dateString: string) => {
@@ -32,34 +35,37 @@ export default function ParentLoanRequestsPage() {
     }월 ${date.getDate()}일`;
   };
 
-  // 대출 승인 핸들러
-  const handleApprove = (loanId: string) => {
-    setLoanRequests(loanRequests.filter((loan) => loan.id !== loanId));
-    // 여기에 승인 API 호출 등의 로직 추가
-  };
-
   // 대출 거부 핸들러
   const handleReject = (loanId: string) => {
-    setLoanRequests(loanRequests.filter((loan) => loan.id !== loanId));
-    // 여기에 거부 API 호출 등의 로직 추가
+    setLoanToCancel(loanId);
+    setShowCancelModal(true);
   };
 
-  // 신용 점수에 따른 색상 결정
-  const getCreditScoreColor = (score: number) => {
-    if (score >= 80) return "text-green-500";
-    if (score >= 50) return "text-yellow-500";
-    return "text-red-500";
+  // 모달에서 취소 확인 시 실행될 핸들러
+  const handleConfirmCancel = () => {
+    if (loanToCancel) {
+      setLoanRequests(loanRequests.filter((loan) => loan.id !== loanToCancel));
+      setLoanToCancel(null);
+    }
+    setShowCancelModal(false);
   };
 
   return (
     <View className="flex-1 bg-[#F9FAFB]">
+      <LoanModal
+        title="대출 신청 취소"
+        content="정말 대출 신청을 취소하시겠습니까?"
+        visible={showCancelModal}
+        onClose={() => setShowCancelModal(false)}
+        onConfirm={handleConfirmCancel}
+      />
       <View className="h-px w-full" />
       {/* 앱 컨텐츠 */}
       <ScrollView className="flex-1 px-6 mt-6">
-        {/* 요청 중인 대출 요약 */}
+        {/* 대기 중인 대출 요약 */}
         <View className="flex-row items-center mb-4">
           <GlobalText className="text-2xl text-gray-800" weight="bold">
-            요청 중인 대출
+            대기 중인 대출
           </GlobalText>
           <View className="ml-3 bg-[#4FC985] px-3 py-1 rounded-lg">
             <GlobalText className="text-white" weight="bold">
@@ -68,7 +74,7 @@ export default function ParentLoanRequestsPage() {
           </View>
         </View>
 
-        {/* 요청 중인 대출 목록 */}
+        {/* 대기 중인 대출 목록 */}
         <View className="space-y-4">
           {loanRequests.map((loan) => (
             <View
@@ -76,16 +82,8 @@ export default function ParentLoanRequestsPage() {
               className="bg-white rounded-xl p-5 shadow-sm border border-gray-100"
             >
               <View className="flex-row justify-between items-center mb-4">
-                <GlobalText className="text-lg text-gray-800" weight="bold">
-                  <GlobalText className="text-xl text-[#4FC985]" weight="bold">
-                    {loan.childName}
-                  </GlobalText>{" "}
-                  의 대출 요청
-                </GlobalText>
-              </View>
-              <View className="flex-row justify-between items-center mb-4">
                 <GlobalText className="text-xl text-gray-800" weight="bold">
-                  요청 대출금
+                  신청 대출금
                 </GlobalText>
                 <GlobalText className="text-xl text-[#4FC985]" weight="bold">
                   {loan.amount.toLocaleString()}원
@@ -102,7 +100,7 @@ export default function ParentLoanRequestsPage() {
                   </GlobalText>
                 </View>
 
-                <View className="flex-row justify-between items-center py-2 border-b border-gray-100">
+                <View className="flex-row justify-between items-center py-2">
                   <GlobalText className="text-md text-gray-600">
                     신청 날짜
                   </GlobalText>
@@ -110,23 +108,19 @@ export default function ParentLoanRequestsPage() {
                     {formatDate(loan.applicationDate)}
                   </GlobalText>
                 </View>
-
-                <View className="flex-row justify-between items-center py-2">
-                  <GlobalText className="text-md text-gray-600">
-                    채권자 신용 점수
-                  </GlobalText>
-                  <GlobalText
-                    className={`text-lg ${getCreditScoreColor(
-                      loan.creditScore
-                    )}`}
-                    weight="bold"
-                  >
-                    {loan.creditScore}점
-                  </GlobalText>
-                </View>
               </View>
 
-              {/* 승인/거부 버튼 */}
+              <View className="mt-6 bg-gray-100 rounded-lg p-4">
+                <GlobalText
+                  className="text-md text-gray-600"
+                  style={{ lineHeight: 22 }}
+                >
+                  보호자가 대출 신청을 검토 중이에요.
+                  {"\n"}승인 되면 알림을 보내드릴게요.
+                </GlobalText>
+              </View>
+
+              {/* 취소 버튼 */}
               <View className="mt-4 flex-row space-x-3">
                 <TouchableOpacity
                   onPress={() => handleReject(loan.id)}
@@ -136,15 +130,7 @@ export default function ParentLoanRequestsPage() {
                     className="text-center text-gray-700"
                     weight="bold"
                   >
-                    거부하기
-                  </GlobalText>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => handleApprove(loan.id)}
-                  className="flex-1 py-3 bg-[#4FC985] rounded-lg"
-                >
-                  <GlobalText className="text-center text-white" weight="bold">
-                    승인하기
+                    취소하기
                   </GlobalText>
                 </TouchableOpacity>
               </View>

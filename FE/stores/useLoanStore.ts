@@ -16,4 +16,3 @@ export const useLoanStore = create<LoanStore>((set) => ({
   pendingLoans: [],
   setPendingLoans: (loans: PendingLoan[]) => set({ pendingLoans: loans }),
 }));
-

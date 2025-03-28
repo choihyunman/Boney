@@ -135,7 +135,7 @@ function RootLayoutNav() {
         };
       case "/loan/ReqListParent":
         return {
-          title: "요청 중인 대출 보기",
+          title: "대기 중인 대출 보기",
           backgroundColor: "white",
           leftButton: {
             icon: <ChevronLeft size={24} color="#000000" />,
@@ -171,7 +171,7 @@ function RootLayoutNav() {
         };
       case "/loan/ReqListChild":
         return {
-          title: "대기 중인 대출 보기",
+          title: "요청 중인 대출 보기",
           backgroundColor: "white",
           leftButton: {
             icon: <ChevronLeft size={24} color="#000000" />,
@@ -184,6 +184,19 @@ function RootLayoutNav() {
         return {
           title: "메뉴",
           backgroundColor: "white",
+          leftButton: {
+            icon: <ChevronLeft size={24} color="#000000" />,
+            onPress: () => router.back(),
+          },
+        };
+      case "/loan/child/Request":
+        return {
+          title: "대출 신청하기",
+          backgroundColor: "#F9FAFB",
+          leftButton: {
+            icon: <ChevronLeft size={24} color="#000000" />,
+            onPress: () => router.back(),
+          },
         };
       default:
         return {
@@ -200,7 +213,9 @@ function RootLayoutNav() {
         <Header {...getHeaderConfig()} />
       )}
       <Slot />
-      {(pathname === "/home" || pathname === "/transaction") && <Nav />}
+      {(pathname === "/home" ||
+        pathname === "/transaction" ||
+        pathname === "/menu/child") && <Nav />}
     </SafeAreaView>
   );
 }

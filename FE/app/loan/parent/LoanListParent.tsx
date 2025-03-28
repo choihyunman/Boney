@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { View, ScrollView } from "react-native";
-import LoanSummary from "./LoanSummary";
-import LoanListSection from "./LoanListSection";
+import LoanSummary from "../LoanSummary";
+import LoanListSection from "../LoanListSection";
 
 type Loan = {
   id: string;
@@ -11,7 +11,7 @@ type Loan = {
   remainingAmount: number;
 };
 
-export default function ReqListParent() {
+export default function LoanListParent() {
   const [loans, setLoans] = useState<Loan[]>([
     {
       id: "1",

@@ -66,7 +66,7 @@ export default function LoanListSection({
                     className="px-3 py-0.5 rounded-full mr-2 self-start mb-1"
                     style={{ backgroundColor: "#D1FADF" }}
                   >
-                    <GlobalText className="text-sm text-green-600">
+                    <GlobalText className="text-sm text-[#4FC985]">
                       {dday}
                     </GlobalText>
                   </View>
