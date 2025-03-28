@@ -258,6 +258,7 @@ export default function TransactionHistory() {
                       transactionCategoryName: item.transactionCategoryName,
                       transactionAfterBalance: item.transactionAfterBalance,
                       hashtags: item.hashtags,
+                      transactionType: item.transactionType,
                     }}
                   />
                 </TouchableOpacity>

@@ -13,6 +13,7 @@ type TransactionItemProps = {
     transactionCategoryId: number;
     transactionAfterBalance: number;
     hashtags: string[];
+    transactionType: "WITHDRAWAL" | "DEPOSIT";
   };
 };
 
@@ -27,15 +28,11 @@ export default function TransactionItem({ item }: TransactionItemProps) {
   // 금액 포맷팅 함수
   const formatAmount = (amount: number) => {
     if (amount === 0) return "0원";
-
-    const isPositive = amount > 0;
-    const absAmount = Math.abs(amount);
-
-    if (absAmount < 1000) {
-      return `${isPositive ? "+" : "-"}${absAmount}원`;
+    const isDeposit = item.transactionType === "DEPOSIT";
+    if (amount < 1000) {
+      return `${isDeposit ? "+" : "-"}${amount}원`;
     }
-
-    return `${isPositive ? "+" : "-"}${absAmount.toLocaleString()}원`;
+    return `${isDeposit ? "+" : "-"}${amount.toLocaleString()}원`;
   };
 
   // 시간 포맷팅 함수
@@ -96,14 +93,13 @@ export default function TransactionItem({ item }: TransactionItemProps) {
       <View className="items-end justify-start mt-0.5">
         <GlobalText
           className={`text-base leading-6 ${
-            item.transactionAmount > 0 ? "text-[#4FC985]" : "text-black"
+            item.transactionType === "DEPOSIT" ? "text-[#4FC985]" : "text-black"
           }`}
         >
           {formatAmount(item.transactionAmount)}
         </GlobalText>
         {item.transactionAfterBalance !== undefined && (
           <GlobalText className="text-xs text-gray-500 leading-5">
-            {item.transactionAmount < 0 ? "-" : ""}
             {item.transactionAfterBalance.toLocaleString()}원
           </GlobalText>
         )}
