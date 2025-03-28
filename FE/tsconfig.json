@@ -9,10 +9,7 @@
       "app/*": ["./app/*"],
       "expo-router": ["./node_modules/expo-router"] // ✅ 이걸 추가해야 함
     },
-    "types": [
-      "nativewind/types"
-    ]
-
+    "types": ["nativewind/types"]
   },
   "include": [
     "**/*.ts",

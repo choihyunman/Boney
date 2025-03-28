@@ -105,7 +105,7 @@ export default function MenuPage() {
               <Text style={styles.subMenuText}>송금하기</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => router.push("/transfer/Amount")}
+              onPress={() => router.push("/child")}
               style={styles.subMenuItem}
             >
               <ChevronRight size={16} color="#4FC985" />
@@ -193,25 +193,22 @@ export default function MenuPage() {
               <Text style={styles.subMenuText}>진행 중인 대출</Text>
             </TouchableOpacity>
           </View>
-
-          {/* 로그아웃 & 회원탈퇴 */}
-          <View style={styles.bottomSection}>
-            <TouchableOpacity
-              onPress={handleLogout}
-              style={styles.bottomMenuItem}
-            >
-              <LogOut size={16} color="#374151" />
-              <Text style={styles.bottomMenuText}>로그아웃</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={handleDeleteAccount}
-              style={[styles.bottomMenuItem, styles.deleteButton]}
-            >
-              <UserX size={16} color="#EF4444" />
-              <Text style={styles.bottomMenuTextDanger}>회원탈퇴</Text>
-            </TouchableOpacity>
-          </View>
         </View>
+      </View>
+
+      {/* 로그아웃 & 회원탈퇴 */}
+      <View style={styles.bottomSection}>
+        <TouchableOpacity onPress={handleLogout} style={styles.bottomMenuItem}>
+          <LogOut size={16} color="#374151" />
+          <Text style={styles.bottomMenuText}>로그아웃</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={handleDeleteAccount}
+          style={[styles.bottomMenuItem, styles.deleteButton]}
+        >
+          <UserX size={16} color="#EF4444" />
+          <Text style={styles.bottomMenuTextDanger}>회원탈퇴</Text>
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );

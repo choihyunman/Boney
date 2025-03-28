@@ -193,7 +193,11 @@ export default function AccountForm() {
               onPress={() => setShowBankList(!showBankList)}
             >
               <View className="flex-row items-center gap-3">
-                <GlobalText className={`text-base ${accountForm.bankName ? "text-black" : "text-[#9CA3AF]"}`}>
+                <GlobalText
+                  className={`text-base ${
+                    accountForm.bankName ? "text-black" : "text-[#9CA3AF]"
+                  }`}
+                >
                   {accountForm.bankName || "은행을 선택하세요"}
                 </GlobalText>
               </View>
