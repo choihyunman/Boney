@@ -4,6 +4,7 @@ import com.ssafy.boney.domain.transaction.entity.enums.TransactionType;
 import com.ssafy.boney.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -30,4 +31,17 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
     Optional<Transaction> findByExternalTransactionNo(Integer externalTransactionNo);
     Optional<Transaction> findByTransactionIdAndUser_UserId(Integer transactionId, Integer userId);
     List<Transaction> findByUserAndCreatedAtBetween(User user, LocalDateTime start, LocalDateTime end);
+
+    // 해당 계좌의 거래 금액 평균 계산 (평균값이 없으면 null)
+    @Query("SELECT AVG(t.transactionAmount) FROM Transaction t WHERE t.account.accountNumber = :accountNumber")
+    Double findAverageTransactionAmount(@Param("accountNumber") String accountNumber);
+
+    // 해당 계좌의 거래 금액 표준편차 (MySQL의 STDDEV_POP 함수 사용)
+    @Query(value = "SELECT STDDEV_POP(t.transaction_amount) FROM transaction t WHERE t.account_id = " +
+            "(SELECT a.account_id FROM account a WHERE a.account_number = :accountNumber)", nativeQuery = true)
+    Double findStdTransactionAmount(@Param("accountNumber") String accountNumber);
+
+    // 특정 시각 이후 해당 계좌의 거래 건수를 계산
+    @Query("SELECT COUNT(t) FROM Transaction t WHERE t.account.accountNumber = :accountNumber AND t.createdAt >= :since")
+    Integer countTransactionsSince(@Param("accountNumber") String accountNumber, @Param("since") LocalDateTime since);
 }

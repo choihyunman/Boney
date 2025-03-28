@@ -1,9 +1,6 @@
 package com.ssafy.boney.domain.loan.controller;
 
-import com.ssafy.boney.domain.loan.dto.LoanApproveRequest;
-import com.ssafy.boney.domain.loan.dto.LoanRejectRequest;
-import com.ssafy.boney.domain.loan.dto.LoanRequest;
-import com.ssafy.boney.domain.loan.dto.LoanTransferRequest;
+import com.ssafy.boney.domain.loan.dto.*;
 import com.ssafy.boney.domain.loan.service.LoanService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -85,5 +82,20 @@ public class LoanController {
         return loanService.deleteRequestedLoan(loanId, childId);
     }
 
+    // 대출 상황 api
+    @PostMapping("/repay")
+    public ResponseEntity<?> repayLoan(@RequestBody LoanRepaymentRequest request,
+                                       HttpServletRequest httpRequest) {
+        Integer childId = (Integer) httpRequest.getAttribute("userId");
+        return loanService.repayLoan(childId, request);
+    }
 
+    // 상환 완료된 대출 보기 api
+    @GetMapping("/child/repaid")
+    public ResponseEntity<?> getRepaidLoansByChild(HttpServletRequest request) {
+        Integer childId = (Integer) request.getAttribute("userId");
+        return loanService.getRepaidLoansByChild(childId);
+    }
+
+    
 }

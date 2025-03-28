@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "credit_score")
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -29,5 +30,9 @@ public class CreditScore {
             columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
     private LocalDateTime updatedAt;
 
+    public void updateScore(int scoreToAdd) {
+        this.score += scoreToAdd;
+        this.updatedAt = LocalDateTime.now();
+    }
 
 }

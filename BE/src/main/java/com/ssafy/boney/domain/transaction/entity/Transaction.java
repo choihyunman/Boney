@@ -13,6 +13,7 @@ import java.util.List;
 @Entity
 @Table(name = "transaction")
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @AllArgsConstructor
