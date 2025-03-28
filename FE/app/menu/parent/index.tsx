@@ -180,15 +180,14 @@ export default function MenuPage() {
           </View>
           <View style={styles.subMenuContainer}>
             <TouchableOpacity
-              onPress={() => router.push("/loan/ReqListParent")}
+              onPress={() => router.push("/loan/parent/ReqListParent")}
               style={styles.subMenuItem}
             >
               <ChevronRight size={16} color="#4FC985" />
               <Text style={styles.subMenuText}>요청 중인 대출</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              disabled={true}
-              // onPress={() => router.push("/loan/LoanListParent")}
+              onPress={() => router.push("/loan/parent/LoanListParent")}
               style={styles.subMenuItem}
             >
               <ChevronRight size={16} color="#4FC985" />

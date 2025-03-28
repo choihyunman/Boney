@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "FE",
+    "name": "버니",
     "slug": "FE",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "jsEngine": "hermes",
     "splash": {
-      "image": "./assets/icons/logo.png",
+      "image": "./assets/icons/icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -19,8 +19,9 @@
     },
     "android": {
       "package": "com.boney.FE",
+      "name": "버니",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/icons/logo.png",
+        "foregroundImage": "./assets/icons/icon.png",
         "backgroundColor": "#ffffff"
       }
     },
@@ -29,10 +30,7 @@
       "output": "static",
       "favicon": "./assets/icons/logo.png"
     },
-    "plugins": [
-      "expo-router",
-      "expo-secure-store"
-    ],
+    "plugins": ["expo-router", "expo-secure-store"],
     "experiments": {
       "router": true,
       "typedRoutes": true
