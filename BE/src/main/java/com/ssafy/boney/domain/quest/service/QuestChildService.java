@@ -1,6 +1,6 @@
 package com.ssafy.boney.domain.quest.service;
 
-import com.ssafy.boney.domain.quest.dto.QuestChildResponseDto;
+import com.ssafy.boney.domain.quest.dto.ParentQuestChildResponse;
 import com.ssafy.boney.domain.user.entity.ParentChild;
 import com.ssafy.boney.domain.user.entity.User;
 import com.ssafy.boney.domain.user.repository.ParentChildRepository;
@@ -18,13 +18,13 @@ public class QuestChildService {
 
     private final ParentChildRepository parentChildRepository;
 
-    public List<QuestChildResponseDto> getChildrenForQuest(User parent) {
+    public List<ParentQuestChildResponse> getChildrenForQuest(User parent) {
         List<ParentChild> parentChildList = parentChildRepository.findByParent(parent);
 
         // 생년월일 오름차순 정렬
         parentChildList.sort(Comparator.comparing(pc -> pc.getChild().getUserBirth()));
         return parentChildList.stream()
-                .map(pc -> new QuestChildResponseDto(
+                .map(pc -> new ParentQuestChildResponse(
                         pc.getParentChildId(),
                         pc.getChild().getUserId(),
                         pc.getChild().getUserName()))

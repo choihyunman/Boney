@@ -1,7 +1,7 @@
 package com.ssafy.boney.domain.quest.controller;
 
 
-import com.ssafy.boney.domain.quest.dto.QuestCreateRequestDto;
+import com.ssafy.boney.domain.quest.dto.ParentQuestCreateRequest;
 import com.ssafy.boney.domain.quest.service.QuestService;
 import com.ssafy.boney.global.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,7 @@ public class QuestController {
     @PostMapping
     public ResponseEntity<ApiResponse<?>> createQuest(
             @RequestAttribute("userId") Integer parentId,
-            @RequestBody QuestCreateRequestDto requestDto
+            @RequestBody ParentQuestCreateRequest requestDto
     ) {
         try {
             questService.createQuest(parentId, requestDto);
@@ -32,7 +32,7 @@ public class QuestController {
             );
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(
-                    new ApiResponse<>(400, "퀘스트 생성 실패 입력된 데이터를 확인해주세요.", null)
+                    new ApiResponse<>(400, "퀘스트 생성 실패. 입력된 데이터를 확인해주세요.", null)
             );
         }
     }

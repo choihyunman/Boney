@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface FavoriteRepository extends JpaRepository<Favorite, Integer> {
     Optional<Favorite> findByUserAndFavoriteAccount(User user, String favoriteAccount);
     List<Favorite> findByUserOrderByCreatedAtDesc(User user);
+    Optional<Favorite> findByFavoriteIdAndUser(Integer favoriteId, User user);
 }

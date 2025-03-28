@@ -118,8 +118,8 @@ public class AccountAuthController {
         }
 
         User user = userOpt.get();
-        Bank bank = bankRepository.findByBankName("boney")
-                .orElseGet(() -> bankRepository.save(new Bank(null, "boney")));
+        Bank bank = bankRepository.findByBankName("버니은행")
+                .orElseGet(() -> bankRepository.save(new Bank(null, "버니은행")));
 
         Account account = Account.builder()
                 .user(user)

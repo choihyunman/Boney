@@ -1,6 +1,6 @@
 package com.ssafy.boney.domain.quest.service;
 
-import com.ssafy.boney.domain.quest.dto.QuestCreateRequestDto;
+import com.ssafy.boney.domain.quest.dto.ParentQuestCreateRequest;
 import com.ssafy.boney.domain.quest.entity.Quest;
 import com.ssafy.boney.domain.quest.entity.QuestCategory;
 import com.ssafy.boney.domain.quest.entity.enums.QuestStatus;
@@ -25,16 +25,16 @@ public class QuestService {
     private final UserService userService;
 
     // 퀘스트 생성
-    public void createQuest(Integer parentId, QuestCreateRequestDto requestDto) {
+    public void createQuest(Integer parentId, ParentQuestCreateRequest requestDto) {
         // 1) 부모 엔티티 조회
         User parent = userService.findById(parentId);
         if (parent == null) {
-            throw new IllegalArgumentException("부모 정보를 찾을 수 없습니다.");
+            throw new IllegalArgumentException("보호자 정보를 찾을 수 없습니다.");
         }
 
         // 2) parent_child_id 유효성 검사
         ParentChild parentChild = parentChildRepository.findById(requestDto.getParentChildId())
-                .orElseThrow(() -> new IllegalArgumentException("parent_child 관계를 찾을 수 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("보호자-아이 관계를 찾을 수 없습니다."));
         if (!parentChild.getParent().getUserId().equals(parentId)) {
             throw new IllegalArgumentException("보호자와 아이 관계가 일치하지 않습니다.");
         }

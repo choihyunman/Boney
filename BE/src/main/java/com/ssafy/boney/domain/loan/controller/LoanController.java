@@ -8,6 +8,7 @@ import com.ssafy.boney.domain.loan.service.LoanService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -61,6 +62,28 @@ public class LoanController {
         return loanService.getApprovedLoansByParent(parentId);
     }
 
+    // 대출 세부 사항 조회
+    @GetMapping("/{loanId}")
+    public ResponseEntity<?> getLoanDetail(@PathVariable("loanId") Integer loanId,
+                                           HttpServletRequest request) {
+        Integer userId = (Integer) request.getAttribute("userId");
+        return loanService.getLoanDetail(loanId, userId);
+    }
+
+    // 대기 중인 대출 조회 api
+    @GetMapping("/child/requested")
+    public ResponseEntity<?> getRequestedLoansByChild(HttpServletRequest request) {
+        Integer childId = (Integer) request.getAttribute("userId");
+        return loanService.getRequestedLoansByChild(childId);
+    }
+
+    // 대기 중인 대출 제거 api
+    @DeleteMapping("/child/requested/{loanId}")
+    public ResponseEntity<?> deleteRequestedLoan(@PathVariable("loanId") Integer loanId,
+                                                 HttpServletRequest request) {
+        Integer childId = (Integer) request.getAttribute("userId");
+        return loanService.deleteRequestedLoan(loanId, childId);
+    }
 
 
 }
