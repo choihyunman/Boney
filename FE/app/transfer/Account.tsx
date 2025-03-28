@@ -18,6 +18,7 @@ interface Account {
 
 // Bank list
 const bankList = [
+  // 은행 이름 버니은행으로 변경해야 함
   { id: "boney", name: "버니은행" },
   { id: "kb", name: "KB국민은행" },
   { id: "shinhan", name: "신한은행" },
@@ -182,7 +183,7 @@ export default function AccountForm() {
         <View className="m-5 bg-white rounded-xl p-6 border border-gray-100">
           {/* Bank Selection */}
           <View className="mb-4">
-            <GlobalText className="text-sm text-gray-600 mb-1">
+            <GlobalText className="text-base text-gray-600 mb-2">
               은행 선택
             </GlobalText>
             <Pressable
@@ -191,19 +192,10 @@ export default function AccountForm() {
               }`}
               onPress={() => setShowBankList(!showBankList)}
             >
-              <View className="flex-row items-center gap-2">
-                {accountForm.bankName ? (
-                  <View className="flex-row items-center gap-2">
-                    <Banknote color="#49DB8A" size={18} />
-                    <GlobalText className="text-black">
-                      {accountForm.bankName}
-                    </GlobalText>
-                  </View>
-                ) : (
-                  <GlobalText className="text-gray-400">
-                    은행을 선택하세요
-                  </GlobalText>
-                )}
+              <View className="flex-row items-center gap-3">
+                <GlobalText className={`text-base ${accountForm.bankName ? "text-black" : "text-[#9CA3AF]"}`}>
+                  {accountForm.bankName || "은행을 선택하세요"}
+                </GlobalText>
               </View>
               <ChevronDown size={18} color="#9CA3AF" />
             </Pressable>
@@ -218,7 +210,7 @@ export default function AccountForm() {
                 {bankList.map((bank) => (
                   <Pressable
                     key={bank.id}
-                    className={`p-3 flex-row items-center gap-2 ${
+                    className={`p-3 flex-row items-center gap-3 ${
                       accountForm.bankName === bank.name ? "bg-[#4FC985]" : ""
                     }`}
                     onPress={() => handleBankSelect(bank.name)}
@@ -227,7 +219,7 @@ export default function AccountForm() {
                       color={
                         accountForm.bankName === bank.name ? "white" : "#49DB8A"
                       }
-                      size={16}
+                      size={24}
                     />
                     <GlobalText
                       className={
@@ -244,15 +236,16 @@ export default function AccountForm() {
 
           {/* Account Number Input */}
           <View className="mb-4">
-            <GlobalText className="text-sm text-gray-600 mb-1">
+            <GlobalText className="text-base text-gray-600 mb-2">
               계좌번호
             </GlobalText>
             <TextInput
               placeholder="숫자만 입력하세요"
               placeholderTextColor="#9CA3AF"
-              className={`p-3 border border-gray-200 rounded-lg ${
+              className={`p-3 border border-gray-200 rounded-lg text-base ${
                 errors.accountNumber && showErrors ? "border-red-500" : ""
               }`}
+              style={{ fontFamily: "NEXONLv1Gothic-Regular" }}
               value={accountForm.accountNumber}
               onChangeText={handleAccountNumberChange}
               keyboardType="numeric"
@@ -266,15 +259,16 @@ export default function AccountForm() {
 
           {/* Account Owner Input */}
           <View className="mb-4">
-            <GlobalText className="text-sm text-gray-600 mb-1">
+            <GlobalText className="text-base text-gray-600 mb-2">
               예금주명
             </GlobalText>
             <TextInput
               placeholder="예금주명을 입력하세요"
               placeholderTextColor="#9CA3AF"
-              className={`p-3 border border-gray-200 rounded-lg ${
+              className={`p-3 border border-gray-200 rounded-lg text-base ${
                 errors.ownerName && showErrors ? "border-red-500" : ""
               }`}
+              style={{ fontFamily: "NEXONLv1Gothic-Regular" }}
               value={accountForm.ownerName}
               onChangeText={(value) =>
                 setAccountForm({ ...accountForm, ownerName: value })
@@ -289,17 +283,17 @@ export default function AccountForm() {
 
           {/* Save Account Option */}
           <Pressable
-            className="flex-row items-center gap-2 mb-4"
+            className="flex-row items-center gap-3 mb-4"
             onPress={() => setSaveAccount(!saveAccount)}
           >
             <View
-              className={`w-5 h-5 rounded items-center justify-center ${
+              className={`w-6 h-6 rounded items-center justify-center ${
                 saveAccount ? "bg-[#4FC985]" : "border border-gray-300"
               }`}
             >
-              {saveAccount && <Check size={14} color="white" />}
+              {saveAccount && <Check size={16} color="white" />}
             </View>
-            <GlobalText className="text-sm">이 계좌 정보를 저장하기</GlobalText>
+            <GlobalText className="text-base">계좌 정보 저장하기</GlobalText>
           </Pressable>
 
           {/* Info Message */}
