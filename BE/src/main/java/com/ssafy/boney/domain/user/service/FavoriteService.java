@@ -31,7 +31,7 @@ public class FavoriteService {
 
     // 계좌 즐겨찾기 등록
     @Transactional
-    public FavoriteResponseDto registerFavorite(Integer userId, String bankName, String favoriteAccount) {
+    public FavoriteResponseDto registerFavorite(Integer userId, String bankName, String accountHolder, String favoriteAccount) {
         // 사용자 조회
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(UserErrorCode.NOT_FOUND));
@@ -42,13 +42,13 @@ public class FavoriteService {
         }
 
         // 유효성 검증: SSAFY API를 통해 해당 계좌의 예금주 정보를 조회
-        String accountHolderName;
+        String apiAccountHolder;
         try {
-            accountHolderName = bankingApiService.getAccountHolderName(favoriteAccount);
+            apiAccountHolder = bankingApiService.getAccountHolderName(favoriteAccount);
         } catch (RuntimeException e) {
             throw new UserConflictException(UserErrorCode.INVALID_ACCOUNT);
         }
-        if (accountHolderName == null || accountHolderName.isEmpty()) {
+        if (apiAccountHolder == null || apiAccountHolder.isEmpty()) {
             throw new UserConflictException(UserErrorCode.INVALID_ACCOUNT);
         }
 
@@ -60,7 +60,7 @@ public class FavoriteService {
                 .user(user)
                 .favoriteAccount(favoriteAccount)
                 .bank(bank)
-                .accountHolder(accountHolderName)
+                .accountHolder(accountHolder)
                 .createdAt(LocalDateTime.now())
                 .build();
 
@@ -77,7 +77,7 @@ public class FavoriteService {
     }
 
 
-    // 계좌 즐겨찾기 조회
+    // 계좌 즐겨찾기 조회 (내림차순)
     public List<FavoriteResponseDto> getFavoriteList(Integer userId) {
         // 사용자 조회
         userRepository.findById(userId)

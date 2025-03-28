@@ -5,5 +5,6 @@ import lombok.Data;
 @Data
 public class FavoriteRequestDto {
     private String bankName;
+    private String accountHolder;
     private String favoriteAccount;
 }

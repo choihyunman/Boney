@@ -23,7 +23,7 @@ public class FavoriteController {
     public ResponseEntity<ApiResponse<FavoriteResponseDto>> registerFavorite(@RequestBody FavoriteRequestDto request,
                                                                              HttpServletRequest httpRequest) {
         Integer userId = (Integer) httpRequest.getAttribute("userId");
-        FavoriteResponseDto responseDto = favoriteService.registerFavorite(userId, request.getBankName(), request.getFavoriteAccount());
+        FavoriteResponseDto responseDto = favoriteService.registerFavorite(userId, request.getBankName(), request.getAccountHolder(), request.getFavoriteAccount());
         return ResponseEntity.ok(new ApiResponse<>(200, "즐겨찾기 등록 성공", responseDto));
     }
 
