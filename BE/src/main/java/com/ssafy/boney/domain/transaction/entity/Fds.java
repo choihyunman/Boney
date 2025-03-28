@@ -9,6 +9,8 @@ import lombok.*;
 @Table(name = "fds")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
+@AllArgsConstructor
 public class Fds {
 
     @Id
