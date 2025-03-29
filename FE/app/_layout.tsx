@@ -178,17 +178,6 @@ function RootLayoutNav() {
             onPress: () => router.back(),
           },
         };
-      case "/menu":
-      case "/menu/parent":
-      case "/menu/child":
-        return {
-          title: "메뉴",
-          backgroundColor: "white",
-          leftButton: {
-            icon: <ChevronLeft size={24} color="#000000" />,
-            onPress: () => router.back(),
-          },
-        };
       case "/mypage":
         return {
           title: "마이페이지",
@@ -228,9 +217,9 @@ function RootLayoutNav() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
       <StatusBar style="auto" />
-      {(!pathname.includes("auth") || pathname === "/auth/SignUp") && (
-        <Header {...getHeaderConfig()} />
-      )}
+      {(!pathname.includes("auth") || pathname === "/auth/SignUp") &&
+        !pathname.includes("/menu/") &&
+        pathname !== "/menu" && <Header {...getHeaderConfig()} />}
       <Slot />
       {(pathname === "/home" ||
         pathname === "/transaction" ||

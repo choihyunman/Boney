@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, SafeAreaView } from "react-native";
 import { router } from "expo-router";
 import { Lock } from "lucide-react-native";
@@ -12,6 +12,7 @@ export default function ChangePassword() {
   const [step, setStep] = useState<"current" | "new" | "confirm">("current");
   const [newPassword, setNewPassword] = useState("");
   const [alertVisible, setAlertVisible] = useState(false);
+  const [resetKey, setResetKey] = useState(0);
   const [alertConfig, setAlertConfig] = useState({
     title: "",
     message: "",
@@ -28,7 +29,11 @@ export default function ChangePassword() {
         setAlertConfig({
           title: "비밀번호 오류",
           message: "현재 비밀번호가 일치하지 않습니다.\n다시 입력해주세요.",
-          onClose: () => setAlertVisible(false),
+          onClose: () => {
+            setAlertVisible(false);
+            setStep("current");
+            setResetKey((prev) => prev + 1);
+          },
         });
         setAlertVisible(true);
       } else {
@@ -47,7 +52,11 @@ export default function ChangePassword() {
       setAlertConfig({
         title: "오류",
         message: errorMessage,
-        onClose: () => setAlertVisible(false),
+        onClose: () => {
+          setAlertVisible(false);
+          setStep("current");
+          setResetKey((prev) => prev + 1);
+        },
       });
       setAlertVisible(true);
     }
@@ -62,7 +71,7 @@ export default function ChangePassword() {
     if (confirmPassword === newPassword) {
       try {
         await api.post("/account/password", {
-          password: confirmPassword,
+          send_password: confirmPassword,
         });
 
         await SecureStore.setItemAsync("pin", confirmPassword);
@@ -76,11 +85,25 @@ export default function ChangePassword() {
           },
         });
         setAlertVisible(true);
-      } catch (error) {
+      } catch (error: any) {
+        const status = error?.response?.status;
+        let errorMessage = "비밀번호 변경 중 문제가 발생했습니다.";
+
+        if (status === 403) {
+          errorMessage = "권한이 없습니다.";
+        } else if (status === 404) {
+          errorMessage = "계정 정보를 찾을 수 없습니다.";
+        }
+
         setAlertConfig({
           title: "오류",
-          message: "비밀번호 변경 중 문제가 발생했습니다.",
-          onClose: () => setAlertVisible(false),
+          message: errorMessage,
+          onClose: () => {
+            setAlertVisible(false);
+            setStep("new");
+            setNewPassword("");
+            setResetKey((prev) => prev + 1);
+          },
         });
         setAlertVisible(true);
       }
@@ -91,6 +114,8 @@ export default function ChangePassword() {
         onClose: () => {
           setAlertVisible(false);
           setStep("new");
+          setNewPassword("");
+          setResetKey((prev) => prev + 1);
         },
       });
       setAlertVisible(true);
@@ -102,6 +127,7 @@ export default function ChangePassword() {
       case "current":
         return (
           <PinInput
+            key={`current-${resetKey}`}
             title="현재 비밀번호 입력"
             subtitle="현재 비밀번호를 입력해주세요."
             onPasswordComplete={handleCurrentPassword}
@@ -110,6 +136,7 @@ export default function ChangePassword() {
       case "new":
         return (
           <PinInput
+            key={`new-${resetKey}`}
             title="새 비밀번호 입력"
             subtitle="새로운 비밀번호를 입력해주세요."
             onPasswordComplete={handleNewPassword}
@@ -118,6 +145,7 @@ export default function ChangePassword() {
       case "confirm":
         return (
           <PinInput
+            key={`confirm-${resetKey}`}
             title="비밀번호 확인"
             subtitle="새 비밀번호를 다시 입력해주세요."
             onPasswordComplete={handleConfirmPassword}

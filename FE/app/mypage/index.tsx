@@ -5,6 +5,7 @@ import { Calendar, Phone, Lock, User, UserX } from "lucide-react-native";
 import GlobalText from "@/components/GlobalText";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { deleteAccount } from "@/apis/authApi";
+import * as SecureStore from "expo-secure-store";
 
 export default function MyPage() {
   const { user, token } = useAuthStore();
@@ -24,11 +25,39 @@ export default function MyPage() {
               Alert.alert("오류", "인증 정보가 없습니다.");
               return;
             }
+            console.log("회원탈퇴 API 호출 시작");
             const response = await deleteAccount(token);
-            Alert.alert("성공", response.message);
+            console.log("회원탈퇴 API 응답:", response);
+
+            // 모든 인증 관련 데이터 삭제
+            console.log("로그아웃 시작");
             await useAuthStore.getState().logout();
-            router.push("/auth");
+            console.log("로그아웃 완료");
+
+            console.log("SecureStore 데이터 삭제 시작");
+            await SecureStore.deleteItemAsync("userToken");
+            await SecureStore.deleteItemAsync("auth-storage");
+            await SecureStore.deleteItemAsync("pin");
+            await SecureStore.deleteItemAsync("kakaoToken");
+            console.log("SecureStore 데이터 삭제 완료");
+
+            console.log("성공 Alert 표시");
+            Alert.alert("성공", response.message, [
+              {
+                text: "확인",
+                onPress: () => {
+                  console.log("라우팅 시작");
+                  setTimeout(() => {
+                    console.log("라우팅 실행");
+                    router.replace("/auth");
+                  }, 300);
+                },
+              },
+            ]);
           } catch (error) {
+            console.error("회원탈퇴 중 오류 발생:", error);
+            console.error("에러 타입:", typeof error);
+            console.error("에러 상세:", error);
             Alert.alert(
               "오류",
               error instanceof Error
@@ -44,7 +73,7 @@ export default function MyPage() {
   return (
     <ScrollView className="flex-1 bg-gray-50">
       {/* Profile Card */}
-      <View className="items-center p-5 mx-5 mt-4 bg-white rounded-2xl shadow-sm">
+      <View className="items-center p-5 mx-5 mt-0 bg-white rounded-2xl shadow-sm">
         <View className="items-center">
           <View className="w-24 h-24 overflow-hidden bg-[#49db8a1a] rounded-full items-center justify-center">
             <Image
