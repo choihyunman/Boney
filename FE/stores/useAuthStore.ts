@@ -164,7 +164,7 @@ export const useAuthStore = create<AuthStore>()(
           console.log("💳 계좌 등록 완료");
 
           // 사용자 정보, 토큰, 계좌 저장
-          set({ user, token, account });
+          set({ user: payload, token, account });
           await SecureStore.setItemAsync("userToken", token);
 
           router.replace("/home");

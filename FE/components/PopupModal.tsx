@@ -2,7 +2,7 @@ import { View, Text, TouchableOpacity, Modal } from "react-native";
 import { X } from "lucide-react-native";
 import GlobalText from "@/components/GlobalText";
 
-interface LoanModalProps {
+interface ModalProps {
   visible: boolean;
   onClose: () => void;
   onConfirm: () => void;
@@ -13,7 +13,7 @@ interface LoanModalProps {
   confirmColor?: string;
 }
 
-export default function LoanModal({
+export default function PopupModal({
   visible,
   onClose,
   onConfirm,
@@ -22,7 +22,7 @@ export default function LoanModal({
   confirmText = "예",
   cancelText = "아니오",
   confirmColor = "#4FC985",
-}: LoanModalProps) {
+}: ModalProps) {
   return (
     <Modal
       visible={visible}
