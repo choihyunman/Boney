@@ -645,4 +645,37 @@ public class LoanService {
     }
 
 
+    @Transactional(readOnly = true)
+    public ResponseEntity<?> getRepaidLoansByParent(Integer parentId) {
+        // 부모 유효성 검증
+        User parent = userRepository.findById(parentId)
+                .orElseThrow(() -> new UserNotFoundException(UserErrorCode.NOT_FOUND));
+
+        List<ParentChild> relations = parentChildRepository.findByParent(parent);
+        List<Map<String, Object>> loanList = new ArrayList<>();
+
+        for (ParentChild relation : relations) {
+            User child = relation.getChild();
+
+            List<Loan> repaidLoans = loanRepository.findByParentChild(relation).stream()
+                    .filter(loan -> loan.getStatus() == LoanStatus.REPAID)
+                    .toList();
+
+            for (Loan loan : repaidLoans) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("loan_id", loan.getLoanId());
+                map.put("child_name", child.getUserName());
+                map.put("repaid_at", loan.getRepaidAt() != null ? loan.getRepaidAt().toLocalDate().toString() : null);
+                map.put("loan_amount", loan.getLoanAmount());
+                loanList.add(map);
+            }
+        }
+
+        return ResponseEntity.ok(Map.of(
+                "status", "200",
+                "message", "대출 상환 내역 조회에 성공했습니다.",
+                "data", Map.of("loan_completed_list", loanList)
+        ));
+    }
+
 }
