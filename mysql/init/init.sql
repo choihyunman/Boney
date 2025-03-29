@@ -1,6 +1,8 @@
 CREATE DATABASE IF NOT EXISTS boney CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE boney;
 
+CREATE DATABASE boney_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 -- (B) Bank 테이블
 INSERT INTO bank (bank_id, bank_name)
 VALUES (1, '버니은행');

@@ -49,6 +49,27 @@ pipeline {
             }
         }
 
+        stage('Copy application-test.yml') {
+            steps {
+                echo "🧪 application-test.yml 복사 중..."
+                withCredentials([file(credentialsId: 'app-test-yml', variable: 'APP_TEST_YML')]) {
+                    sh '''
+                    mkdir -p BE/src/test/resources
+                    cp $APP_TEST_YML BE/src/test/resources/application-test.yml
+                    '''
+                }
+            }
+        }
+
+        stage('Run JPA Tests') {
+            steps {
+                dir('BE') {
+                    echo "✅ 테스트 코드 실행 중..."
+                    sh './gradlew clean test --no-daemon'
+                }
+            }
+        }
+
         stage('Stop Existing Containers') {
             steps {
                 echo "🛑 기존 컨테이너 중지 및 삭제 중..."
@@ -73,9 +94,32 @@ pipeline {
     post {
         success {
             echo '✅ 배포 성공!'
+            notifyMattermost(true)
         }
         failure {
             echo '❌ 배포 실패!'
+            notifyMattermost(false)
         }
+    }
+}
+
+def notifyMattermost(success) {
+    def color = success ? "#00c853" : "#d50000"
+    def msg = success ? "✅ *배포 성공!* `release` 브랜치 기준 자동 배포 완료되었습니다. 🎉" :
+                        "❌ *배포 실패!* `release` 브랜치 기준 자동 배포에 실패했습니다. 🔥"
+
+    withCredentials([string(credentialsId: 'mattermost-webhook', variable: 'WEBHOOK_URL')]) {
+        sh """
+        curl -X POST -H 'Content-Type: application/json' \
+        -d '{
+            "username": "Jenkins Bot",
+            "icon_emoji": ":rocket:",
+            "attachments": [{
+                "fallback": "${msg}",
+                "color": "${color}",
+                "text": "${msg}"
+            }]
+        }' $WEBHOOK_URL
+        """
     }
 }

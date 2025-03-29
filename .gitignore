@@ -39,3 +39,4 @@ jenkins_home/
 
 #yml
 **/application.yml
+**/application-test.yml
