@@ -10,9 +10,17 @@ pipeline {
     }
 
     stages {
+        stage('Clean Workspace') {
+            steps {
+                echo "🧹 이전 워크스페이스 정리 중..."
+                deleteDir()
+            }
+        }
+
         stage('Fix Permissions') {
             steps {
-                sh 'sudo chown -R ubuntu:ubuntu $WORKSPACE || true'
+                echo "🔧 퍼미션 수정 중..."
+                sh 'sudo chown -R ubuntu:ubuntu . || true'
             }
         }
 
@@ -105,8 +113,8 @@ pipeline {
 
 def notifyMattermost(success) {
     def color = success ? "#00c853" : "#d50000"
-    def msg = success ? "✅ *배포 성공!* `release` 브랜치 기준 자동 배포 완료되었습니다. 🎉" :
-                        "❌ *배포 실패!* `release` 브랜치 기준 자동 배포에 실패했습니다. 🔥"
+    def msg = success ? "✅ *배포 성공!* `S12P21B208-154-jenkins-test` 브랜치 기준 자동 배포 완료되었습니다. 🎉" :
+                        "❌ *배포 실패!* `S12P21B208-154-jenkins-test` 브랜치 기준 자동 배포에 실패했습니다. 🔥"
 
     withCredentials([string(credentialsId: 'mattermost-webhook', variable: 'WEBHOOK_URL')]) {
         sh """
