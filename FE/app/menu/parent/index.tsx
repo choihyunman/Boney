@@ -15,11 +15,9 @@ import {
   Trophy,
   PiggyBank,
   LogOut,
-  UserX,
 } from "lucide-react-native";
 import React from "react";
 import { useAuthStore } from "../../../stores/useAuthStore";
-import { deleteAccount } from "@/apis/authApi";
 
 export default function MenuPage() {
   const { user, token } = useAuthStore();
@@ -27,38 +25,6 @@ export default function MenuPage() {
   const handleLogout = async () => {
     await useAuthStore.getState().logout();
     router.push("/auth");
-  };
-
-  const handleDeleteAccount = async () => {
-    Alert.alert("회원탈퇴", "정말 탈퇴하시겠습니까?", [
-      {
-        text: "취소",
-        style: "cancel",
-      },
-      {
-        text: "탈퇴",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            if (!token) {
-              Alert.alert("오류", "인증 정보가 없습니다.");
-              return;
-            }
-            const response = await deleteAccount(token);
-            Alert.alert("성공", response.message);
-            await useAuthStore.getState().logout();
-            router.push("/auth");
-          } catch (error) {
-            Alert.alert(
-              "오류",
-              error instanceof Error
-                ? error.message
-                : "회원탈퇴 중 오류가 발생했습니다."
-            );
-          }
-        },
-      },
-    ]);
   };
 
   return (
@@ -69,8 +35,7 @@ export default function MenuPage() {
       {/* 프로필 섹션 */}
       <TouchableOpacity
         style={styles.profileSection}
-        disabled={true}
-        // onPress={() => router.push("/mypage")}
+        onPress={() => router.push("/mypage")}
       >
         <View style={styles.profileImageContainer}>
           <Image
@@ -196,18 +161,11 @@ export default function MenuPage() {
         </View>
       </View>
 
-      {/* 로그아웃 & 회원탈퇴 */}
+      {/* 로그아웃 */}
       <View style={styles.bottomSection}>
         <TouchableOpacity onPress={handleLogout} style={styles.bottomMenuItem}>
           <LogOut size={16} color="#374151" />
           <Text style={styles.bottomMenuText}>로그아웃</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={handleDeleteAccount}
-          style={[styles.bottomMenuItem, styles.deleteButton]}
-        >
-          <UserX size={16} color="#EF4444" />
-          <Text style={styles.bottomMenuTextDanger}>회원탈퇴</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -306,19 +264,10 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: "white",
   },
-  deleteButton: {
-    backgroundColor: "#FEF2F2",
-  },
   bottomMenuText: {
     fontSize: 14,
     fontWeight: "500",
     color: "#374151",
-    marginLeft: 12,
-  },
-  bottomMenuTextDanger: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: "#EF4444",
     marginLeft: 12,
   },
 });

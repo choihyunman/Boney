@@ -189,11 +189,29 @@ function RootLayoutNav() {
             onPress: () => router.back(),
           },
         };
+      case "/mypage":
+        return {
+          title: "마이페이지",
+          backgroundColor: "white",
+          leftButton: {
+            icon: <ChevronLeft size={24} color="#000000" />,
+            onPress: () => router.back(),
+          },
+        };
       case "/loan/child/Request":
       case "/loan/child/PromissoryNote":
         return {
           title: "대출 신청하기",
           backgroundColor: "#F9FAFB",
+          leftButton: {
+            icon: <ChevronLeft size={24} color="#000000" />,
+            onPress: () => router.back(),
+          },
+        };
+      case "/mypage/password":
+        return {
+          title: "앱 비밀번호 변경",
+          backgroundColor: "white",
           leftButton: {
             icon: <ChevronLeft size={24} color="#000000" />,
             onPress: () => router.back(),
