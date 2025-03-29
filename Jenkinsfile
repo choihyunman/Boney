@@ -69,12 +69,28 @@ pipeline {
             }
         }
 
+        // 🔥 테스트용 DB 컨테이너 실행
+        stage('Start Test DB') {
+            steps {
+                echo "🧪 테스트용 MySQL 컨테이너 실행 중..."
+                sh 'docker compose up -d mysql'
+            }
+        }
+
         stage('Run JPA Tests') {
             steps {
                 dir('BE') {
                     echo "✅ 테스트 코드 실행 중..."
                     sh './gradlew clean test --no-daemon'
                 }
+            }
+        }
+
+        // 🔥 테스트 끝난 후 DB 컨테이너 정리
+        stage('Stop Test DB') {
+            steps {
+                echo "🧹 테스트용 MySQL 컨테이너 정리 중..."
+                sh 'docker compose down --remove-orphans || true'
             }
         }
 
