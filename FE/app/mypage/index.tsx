@@ -6,9 +6,11 @@ import GlobalText from "@/components/GlobalText";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { deleteAccount } from "@/apis/authApi";
 import * as SecureStore from "expo-secure-store";
+import { useNavigation, CommonActions } from "@react-navigation/native";
 
 export default function MyPage() {
   const { user, token } = useAuthStore();
+  const navigation = useNavigation();
 
   const handleDeleteAccount = async () => {
     Alert.alert("회원탈퇴", "정말 탈퇴하시겠습니까?", [
@@ -34,23 +36,18 @@ export default function MyPage() {
             await useAuthStore.getState().logout();
             console.log("로그아웃 완료");
 
-            console.log("SecureStore 데이터 삭제 시작");
-            await SecureStore.deleteItemAsync("userToken");
-            await SecureStore.deleteItemAsync("auth-storage");
-            await SecureStore.deleteItemAsync("pin");
-            await SecureStore.deleteItemAsync("kakaoToken");
-            console.log("SecureStore 데이터 삭제 완료");
-
             console.log("성공 Alert 표시");
             Alert.alert("성공", response.message, [
               {
                 text: "확인",
                 onPress: () => {
-                  console.log("라우팅 시작");
-                  setTimeout(() => {
-                    console.log("라우팅 실행");
-                    router.replace("/auth");
-                  }, 300);
+                  console.log("스택 초기화 및 로그인 화면 이동");
+                  navigation.dispatch(
+                    CommonActions.reset({
+                      index: 0,
+                      routes: [{ name: "auth" }], // ✅ 여기에 로그인 화면의 실제 route name 작성
+                    })
+                  );
                 },
               },
             ]);
