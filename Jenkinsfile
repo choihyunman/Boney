@@ -19,7 +19,7 @@ pipeline {
         stage('Checkout Source') {
             steps {
                 echo "📦 Git 리포지토리 클론 중..."
-                git branch: 'release',
+                git branch: 'S12P21B208-154-jenkins-test',
                     url: 'https://lab.ssafy.com/s12-fintech-finance-sub1/S12P21B208.git',
                     credentialsId: 'choihyunman'
             }
