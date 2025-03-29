@@ -69,11 +69,13 @@ pipeline {
             }
         }
 
-        // 🔥 테스트용 DB 컨테이너 실행
         stage('Start Test DB') {
             steps {
                 echo "🧪 테스트용 MySQL 컨테이너 실행 중..."
-                sh 'docker compose up -d mysql'
+                sh '''
+                docker rm -f mysql_test || true
+                docker compose -f docker-compose.test.yml up -d mysql_test
+                '''
             }
         }
 
@@ -86,11 +88,10 @@ pipeline {
             }
         }
 
-        // 🔥 테스트 끝난 후 DB 컨테이너 정리
         stage('Stop Test DB') {
             steps {
                 echo "🧹 테스트용 MySQL 컨테이너 정리 중..."
-                sh 'docker compose down --remove-orphans || true'
+                sh 'docker compose -f docker-compose.test.yml down --remove-orphans || true'
             }
         }
 
