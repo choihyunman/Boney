@@ -190,6 +190,7 @@ function RootLayoutNav() {
           },
         };
       case "/loan/child/Request":
+      case "/loan/child/PromissoryNote":
         return {
           title: "대출 신청하기",
           backgroundColor: "#F9FAFB",

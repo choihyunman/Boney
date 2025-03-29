@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { View, TouchableOpacity, ScrollView } from "react-native";
 import GlobalText from "../../../components/GlobalText";
-import LoanModal from "../../../components/modal";
+import PopupModal from "../../../components/PopupModal";
 
 // 대출 요청 데이터 타입 정의
 type LoanRequest = {
@@ -52,7 +52,7 @@ export default function ChildLoanRequestsPage() {
 
   return (
     <View className="flex-1 bg-[#F9FAFB]">
-      <LoanModal
+      <PopupModal
         title="대출 신청 취소"
         content="정말 대출 신청을 취소하시겠습니까?"
         visible={showCancelModal}

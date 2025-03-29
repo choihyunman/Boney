@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { View, TouchableOpacity, ScrollView } from "react-native";
 import GlobalText from "../../../components/GlobalText";
-import LoanModal from "../../../components/modal";
+import LoanModal from "../../../components/PopupModal";
 import { PinInput } from "../../../components/PinInput";
 import { router } from "expo-router";
 

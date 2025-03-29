@@ -1,3 +1,4 @@
+import { api } from "@/lib/api";
 import axios from "axios";
 
 interface DeleteAccountResponse {
@@ -9,11 +10,7 @@ export const deleteAccount = async (
   token: string
 ): Promise<DeleteAccountResponse> => {
   try {
-    const response = await axios.delete("auth/delete", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await api.delete("/auth/delete");
 
     // API 응답의 status 코드에 따른 처리
     switch (response.data.status) {
