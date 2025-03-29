@@ -1,44 +1,41 @@
-*/.env
-.env
-HELP.md
-.gradle
-build/
-!gradle/wrapper/gradle-wrapper.jar
-!**/src/main/**/build/
-!**/src/test/**/build/
+# Gradle
+BE/.gradle/
+BE/build/
+!BE/gradle/wrapper/gradle-wrapper.jar
+!BE/gradle/wrapper/gradle-wrapper.properties
 
-BE/src/main/resources/application.yml
+# Java
+*.class
+*.jar
+*.war
 
-jenkins_home
-
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
-
-### IntelliJ IDEA ###
-.idea
-*.iws
+# IDE
+.idea/
 *.iml
 *.ipr
+*.iws
 out/
-!**/src/main/**/out/
-!**/src/test/**/out/
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
+# OS
+.DS_Store
+Thumbs.db
 
-### VS Code ###
+# VSCode
 .vscode/
+.history/
+
+# Node / FE
+node_modules/
+
+# Env
 .env
+**/.env
+
+# Jenkins
+jenkins_home/
+
+# Logs
+*.log
+
+#yml
+**/application.yml
