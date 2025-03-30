@@ -1,13 +1,5 @@
 import React from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Image,
-  StyleSheet,
-  ScrollView,
-  Alert,
-} from "react-native";
+import { View, TouchableOpacity, Image, ScrollView, Alert } from "react-native";
 import { router } from "expo-router";
 import {
   ChevronRight,
@@ -19,6 +11,7 @@ import {
   User,
 } from "lucide-react-native";
 import { useAuthStore } from "../../../stores/useAuthStore";
+import GlobalText from "../../../components/GlobalText";
 
 export default function MenuPage() {
   const { user, token } = useAuthStore();
@@ -30,246 +23,172 @@ export default function MenuPage() {
 
   return (
     <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
+      className="flex-1 bg-[#F9FAFB]"
+      contentContainerStyle={{ flexGrow: 1, paddingBottom: 80 }}
     >
       {/* 프로필 섹션 */}
       <TouchableOpacity
-        style={styles.profileSection}
+        className="flex-row items-center p-5 border-b border-[#E5E7EB] bg-white"
         onPress={() => router.push("/mypage")}
       >
-        <View style={styles.profileImageContainer}>
+        <View className="w-14 h-14 rounded-full overflow-hidden border border-[#E5E7EB]">
           <Image
             source={require("../../../assets/profile/profile.jpg")}
-            style={styles.profileImage}
+            className="w-full h-full"
             resizeMode="cover"
           />
         </View>
-        <View style={styles.profileInfo}>
-          <Text style={styles.profileName}>{user?.userName || "사용자"}</Text>
-          <Text style={styles.profileEmail}>
+        <View className="flex-1 ml-4">
+          <GlobalText className="text-base font-semibold text-[#1F2937]">
+            {user?.userName || "사용자"}
+          </GlobalText>
+          <GlobalText className="text-xs text-[#6B7280]">
             {user?.userEmail || "이메일 없음"}
-          </Text>
+          </GlobalText>
         </View>
-        <ChevronRight size={20} color="#6B7280" style={styles.profileChevron} />
+        <ChevronRight size={20} color="#6B7280" />
       </TouchableOpacity>
 
       {/* 메뉴 섹션 */}
-      <View style={styles.menuSection}>
+      <View className="p-5">
         {/* 내 지갑 */}
-        <View style={styles.menuCategory}>
-          <View style={styles.menuHeader}>
+        <View className="mb-3">
+          <View className="flex-row items-center mb-2">
             <Wallet size={20} color="#4FC985" />
-            <Text style={styles.menuTitle}>내 지갑</Text>
+            <GlobalText className="text-base font-medium text-[#4FC985] ml-2">
+              내 지갑
+            </GlobalText>
           </View>
-          <View style={styles.subMenuContainer}>
+          <View className="gap-1">
             <TouchableOpacity
               onPress={() => router.push("/transfer")}
-              style={styles.subMenuItem}
+              className="flex-row items-center py-2.5 px-3 rounded-lg"
             >
               <ChevronRight size={16} color="#4FC985" />
-              <Text style={styles.subMenuText}>송금하기</Text>
+              <GlobalText className="text-sm text-[#374151] ml-2">
+                송금하기
+              </GlobalText>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => router.push("/transaction")}
-              style={styles.subMenuItem}
+              className="flex-row items-center py-2.5 px-3 rounded-lg"
             >
               <ChevronRight size={16} color="#4FC985" />
-              <Text style={styles.subMenuText}>거래 내역</Text>
+              <GlobalText className="text-sm text-[#374151] ml-2">
+                거래 내역
+              </GlobalText>
             </TouchableOpacity>
           </View>
         </View>
 
         {/* 퀘스트 */}
-        <View style={styles.menuCategory}>
-          <View style={styles.menuHeader}>
+        <View className="mb-3">
+          <View className="flex-row items-center mb-2">
             <ClipboardList size={20} color="#4FC985" />
-            <Text style={styles.menuTitle}>퀘스트</Text>
+            <GlobalText className="text-base font-medium text-[#4FC985] ml-2">
+              퀘스트
+            </GlobalText>
           </View>
-          <View style={styles.subMenuContainer}>
+          <View className="gap-1">
             <TouchableOpacity
               disabled={true}
-              // onPress={() => router.push("/quest/ongoing")}
-              style={styles.subMenuItem}
+              className="flex-row items-center py-2.5 px-3 rounded-lg"
             >
               <ChevronRight size={16} color="#4FC985" />
-              <Text style={styles.subMenuText}>진행 중인 퀘스트</Text>
+              <GlobalText className="text-sm text-[#374151] ml-2">
+                진행 중인 퀘스트
+              </GlobalText>
             </TouchableOpacity>
             <TouchableOpacity
               disabled={true}
-              // onPress={() => router.push("/quest/completed")}
-              style={styles.subMenuItem}
+              className="flex-row items-center py-2.5 px-3 rounded-lg"
             >
               <ChevronRight size={16} color="#4FC985" />
-              <Text style={styles.subMenuText}>완료된 퀘스트</Text>
+              <GlobalText className="text-sm text-[#374151] ml-2">
+                완료된 퀘스트
+              </GlobalText>
             </TouchableOpacity>
           </View>
         </View>
 
         {/* 대출 */}
-        <View style={styles.menuCategory}>
-          <View style={styles.menuHeader}>
+        <View className="mb-3">
+          <View className="flex-row items-center mb-2">
             <Landmark size={20} color="#4FC985" />
-            <Text style={styles.menuTitle}>대출</Text>
+            <GlobalText className="text-base font-medium text-[#4FC985] ml-2">
+              대출
+            </GlobalText>
           </View>
-          <View style={styles.subMenuContainer}>
+          <View className="gap-1">
             <TouchableOpacity
-              onPress={() => router.push("/loan/child/Request")}
-              style={styles.subMenuItem}
+              onPress={() =>
+                router.push({
+                  pathname: "/loan/child/Request",
+                })
+              }
+              className="flex-row items-center py-2.5 px-3 rounded-lg"
             >
               <ChevronRight size={16} color="#4FC985" />
-              <Text style={styles.subMenuText}>대출 요청</Text>
+              <GlobalText className="text-sm text-[#374151] ml-2">
+                대출 요청
+              </GlobalText>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => router.push("/loan/child/ReqListChild")}
-              style={styles.subMenuItem}
+              onPress={() =>
+                router.push({
+                  pathname: "/loan/child/ReqList",
+                })
+              }
+              className="flex-row items-center py-2.5 px-3 rounded-lg"
             >
               <ChevronRight size={16} color="#4FC985" />
-              <Text style={styles.subMenuText}>요청 중인 대출</Text>
+              <GlobalText className="text-sm text-[#374151] ml-2">
+                요청 중인 대출
+              </GlobalText>
             </TouchableOpacity>
             <TouchableOpacity
               disabled={true}
-              // onPress={() => router.push("/loan/ongoing")}
-              style={styles.subMenuItem}
+              className="flex-row items-center py-2.5 px-3 rounded-lg"
             >
               <ChevronRight size={16} color="#4FC985" />
-              <Text style={styles.subMenuText}>진행 중인 대출</Text>
+              <GlobalText className="text-sm text-[#374151] ml-2">
+                진행 중인 대출
+              </GlobalText>
             </TouchableOpacity>
           </View>
         </View>
 
         {/* 월간 리포트 */}
-        <View style={styles.menuCategory}>
-          <View style={styles.menuHeader}>
+        <View className="mb-3">
+          <View className="flex-row items-center mb-2">
             <BarChart3 size={20} color="#4FC985" />
-            <Text style={styles.menuTitle}>월간 리포트</Text>
+            <GlobalText className="text-base font-medium text-[#4FC985] ml-2">
+              월간 리포트
+            </GlobalText>
           </View>
-          <View style={styles.subMenuContainer}>
-            <TouchableOpacity style={styles.subMenuItem}>
+          <View className="gap-1">
+            <TouchableOpacity className="flex-row items-center py-2.5 px-3 rounded-lg">
               <ChevronRight size={16} color="#4FC985" />
-              <Text style={styles.subMenuText}>조회하기</Text>
+              <GlobalText className="text-sm text-[#374151] ml-2">
+                조회하기
+              </GlobalText>
             </TouchableOpacity>
           </View>
         </View>
       </View>
 
       {/* 로그아웃 */}
-      <View style={styles.bottomSection}>
-        <TouchableOpacity onPress={handleLogout} style={styles.bottomMenuItem}>
+      <View className="mt-3 pt-4 border-t border-[#E5E7EB] gap-2">
+        <TouchableOpacity
+          onPress={handleLogout}
+          className="flex-row items-center py-2.5 px-3 rounded-lg bg-white"
+        >
           <LogOut size={16} color="#374151" />
-          <Text style={styles.bottomMenuText}>로그아웃</Text>
+          <GlobalText className="text-sm font-medium text-[#374151] ml-3">
+            로그아웃
+          </GlobalText>
         </TouchableOpacity>
       </View>
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#F9FAFB",
-  },
-  contentContainer: {
-    flexGrow: 1,
-    paddingBottom: 80,
-  },
-  profileSection: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB",
-    backgroundColor: "white",
-  },
-  profileImageContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    overflow: "hidden",
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-  },
-  profileImage: {
-    width: "100%",
-    height: "100%",
-  },
-  profileInfo: {
-    flex: 1,
-    marginLeft: 16,
-  },
-  profileName: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#1F2937",
-  },
-  profileEmail: {
-    fontSize: 12,
-    color: "#6B7280",
-  },
-  profileChevron: {
-    marginLeft: "auto",
-  },
-  menuSection: {
-    padding: 20,
-  },
-  menuCategory: {
-    marginBottom: 12,
-  },
-  menuHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  menuTitle: {
-    fontSize: 16,
-    fontWeight: "500",
-    color: "#4FC985",
-    marginLeft: 8,
-  },
-  subMenuContainer: {
-    gap: 4,
-  },
-  subMenuItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-  },
-  subMenuText: {
-    fontSize: 14,
-    color: "#374151",
-    marginLeft: 8,
-  },
-  bottomSection: {
-    marginTop: 12,
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: "#E5E7EB",
-    gap: 8,
-  },
-  bottomMenuItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    backgroundColor: "white",
-  },
-  bottomMenuText: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: "#374151",
-    marginLeft: 12,
-  },
-  name: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#000",
-  },
-  email: {
-    fontSize: 16,
-    color: "#666",
-    marginTop: 4,
-  },
-});

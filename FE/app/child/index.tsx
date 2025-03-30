@@ -1,18 +1,17 @@
 import React, { useEffect, useState } from "react";
 import {
   View,
-  Text,
-  StyleSheet,
   ScrollView,
   TouchableOpacity,
   Image,
   Dimensions,
 } from "react-native";
-import { router, useFocusEffect } from "expo-router";
+import { router, useFocusEffect, Stack } from "expo-router";
 import { useAuthStore } from "../../stores/useAuthStore";
 import { Plus } from "lucide-react-native";
 import { api } from "../../lib/api";
 import { useCallback } from "react";
+import GlobalText from "../../components/GlobalText";
 
 interface Child {
   userId: number;
@@ -72,159 +71,91 @@ export default function ChildList() {
 
   if (loading) {
     return (
-      <View style={styles.container}>
-        <Text>로딩 중...</Text>
+      <View className="flex-1 bg-[#F9FAFB]">
+        <GlobalText>로딩 중...</GlobalText>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.content}>
-        <View style={styles.titleContainer}>
-          <Text style={styles.title}>내 아이</Text>
-          <View style={styles.countBadge}>
-            <Text style={styles.countText}>{children.length}</Text>
+    <>
+      <Stack.Screen
+        options={{
+          headerTitle: "",
+          headerShadowVisible: false,
+          headerStyle: {
+            backgroundColor: "#F9FAFB",
+          },
+        }}
+      />
+      <View className="flex-1 bg-[#F9FAFB]">
+        <View className="flex-1 p-6">
+          <View className="flex-row items-center mb-4">
+            <GlobalText className="text-lg font-semibold text-[#1F2937]">
+              내 아이
+            </GlobalText>
+            <View className="bg-[#4fc88533] rounded-full px-2 py-0.5 ml-2">
+              <GlobalText className="text-[#4fc885] text-sm font-medium">
+                {children.length}
+              </GlobalText>
+            </View>
           </View>
-        </View>
 
-        <View style={styles.cardGrid}>
-          {children.map((child) => (
-            <TouchableOpacity
-              key={child.userId}
-              style={styles.card}
-              onPress={() => handleChildPress(child)}
-            >
-              <View style={styles.cardContent}>
-                <View style={styles.profileContainer}>
+          <View className="flex-row flex-wrap justify-between w-full">
+            {children.map((child) => (
+              <TouchableOpacity
+                key={child.userId}
+                style={{
+                  width: cardWidth,
+                  height: 154,
+                  marginBottom: 16,
+                  shadowColor: "#000",
+                  shadowOffset: {
+                    width: 0,
+                    height: 1,
+                  },
+                  shadowOpacity: 0.05,
+                  shadowRadius: 2,
+                  elevation: 1,
+                }}
+                className="bg-white rounded-xl p-[19px] border border-[#E5E7EB] items-center justify-center"
+                onPress={() => handleChildPress(child)}
+              >
+                <View className="w-20 h-20 rounded-full overflow-hidden mb-3">
                   <Image
                     source={require("../../assets/profile/profile.jpg")}
-                    style={styles.profileImage}
+                    className="w-full h-full"
                     resizeMode="cover"
                   />
                 </View>
-                <Text style={styles.childName}>{child.userName}</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
+                <GlobalText className="text-lg font-bold text-[#18181B]">
+                  {child.userName}
+                </GlobalText>
+              </TouchableOpacity>
+            ))}
 
-          <TouchableOpacity
-            style={styles.addCard}
-            onPress={() => router.push("/child/Register")}
-          >
-            <View style={styles.addIconContainer}>
-              <Plus size={32} color="#4fc885" />
-            </View>
-            <Text style={styles.addCardText}>내 아이 추가</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                width: cardWidth,
+                height: 154,
+                marginBottom: 16,
+              }}
+              className="bg-white rounded-xl p-[19px] border-2 border-dashed border-[#E5E7EB] items-center justify-center"
+              onPress={() => router.push("/child/Register")}
+            >
+              <View className="w-20 h-20 rounded-full bg-[#4fc9851a] items-center justify-center mb-3">
+                <Plus size={32} color="#4fc885" />
+              </View>
+              <GlobalText className="text-base font-medium text-[#4B5563]">
+                내 아이 추가
+              </GlobalText>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
-    </View>
+    </>
   );
 }
 
 const { width } = Dimensions.get("window");
 const cardWidth = (width - 64) / 2;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#F9FAFB",
-  },
-  content: {
-    flex: 1,
-    padding: 24,
-  },
-  titleContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#1F2937",
-  },
-  countBadge: {
-    backgroundColor: "#4fc88533",
-    borderRadius: 9999,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    marginLeft: 8,
-  },
-  countText: {
-    color: "#4fc885",
-    fontSize: 14,
-    fontWeight: "500",
-  },
-  cardGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-    width: "100%",
-  },
-  card: {
-    width: cardWidth,
-    height: 154,
-    backgroundColor: "white",
-    borderRadius: 12,
-    padding: 17,
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
-    marginBottom: 16,
-  },
-  cardContent: {
-    alignItems: "center",
-  },
-  profileContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    overflow: "hidden",
-    marginBottom: 12,
-  },
-  profileImage: {
-    width: "100%",
-    height: "100%",
-  },
-  childName: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#18181B",
-  },
-  addCard: {
-    width: cardWidth,
-    height: 154,
-    backgroundColor: "white",
-    borderRadius: 12,
-    padding: 19,
-    borderWidth: 2,
-    borderStyle: "dashed",
-    borderColor: "#E5E7EB",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 16,
-  },
-  addIconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: "#4fc9851a",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 12,
-  },
-  addCardText: {
-    fontSize: 16,
-    fontWeight: "500",
-    color: "#4B5563",
-  },
-});

@@ -1,7 +1,8 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
+import { View, TouchableOpacity, Image } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import { useTransferStore } from "@/stores/useTransferStore";
+import GlobalText from "../../components/GlobalText";
 
 interface Child {
   userId: number;
@@ -41,42 +42,65 @@ export default function ChildDetail() {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.modalContainer}>
-        <View style={styles.contentContainer}>
+    <View className="flex-1 bg-black/50">
+      <View className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl p-6">
+        <View className="items-center py-[63px]">
           <Image
             source={require("../../assets/profile/profile.jpg")}
-            style={styles.profileImage}
+            className="w-20 h-20 rounded-full mb-[18px]"
           />
 
-          <Text style={styles.nameText}>{childData.userName}</Text>
+          <GlobalText className="text-xl font-semibold text-black mb-3">
+            {childData.userName}
+          </GlobalText>
 
-          <View style={styles.infoContainer}>
-            <View style={styles.infoItem}>
-              <Text style={styles.infoLabel}>신용 점수</Text>
-              <Text style={styles.infoValue}>{childData.score}점</Text>
+          <View className="flex-row items-center mb-8">
+            <View className="flex-row items-center">
+              <GlobalText className="text-sm text-[#666666] mr-1">
+                신용 점수
+              </GlobalText>
+              <GlobalText className="text-sm text-[#666666]">
+                {childData.score}점
+              </GlobalText>
             </View>
 
-            <Text style={styles.separator}>|</Text>
+            <GlobalText className="text-sm text-[#CCCCCC] mx-2">|</GlobalText>
 
-            <View style={styles.infoItem}>
-              <Text style={styles.infoLabel}>대출금</Text>
-              <Text style={styles.infoValue}>
+            <View className="flex-row items-center">
+              <GlobalText className="text-sm text-[#666666] mr-1">
+                대출금
+              </GlobalText>
+              <GlobalText className="text-sm text-[#666666]">
                 {childData.totalRemainingLoan}원
-              </Text>
+              </GlobalText>
             </View>
           </View>
 
-          <View style={styles.buttonContainer}>
+          <View className="w-full gap-3">
             <TouchableOpacity
-              style={styles.grayButton}
+              className="bg-[#E5E5E5] rounded-xl py-3.5 items-center"
               onPress={handleAllowanceTransfer}
             >
-              <Text style={styles.grayButtonText}>용돈 지급하기</Text>
+              <GlobalText className="text-base font-semibold text-black">
+                용돈 지급하기
+              </GlobalText>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.greenButton}>
-              <Text style={styles.greenButtonText}>정기 용돈 설정하기</Text>
+            <TouchableOpacity
+              className="bg-[#4FC885] rounded-xl py-3.5 items-center"
+              onPress={() =>
+                router.push({
+                  pathname: "/child/RegularAllowance",
+                  params: {
+                    childName: childData.userName,
+                    profileImage: "../../assets/profile/profile.jpg",
+                  },
+                })
+              }
+            >
+              <GlobalText className="text-base font-semibold text-white">
+                정기 용돈 설정하기
+              </GlobalText>
             </TouchableOpacity>
           </View>
         </View>
@@ -84,85 +108,3 @@ export default function ChildDetail() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  modalContainer: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: "white",
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    padding: 24,
-  },
-  contentContainer: {
-    alignItems: "center",
-    paddingVertical: 63,
-  },
-  profileImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    marginBottom: 18,
-  },
-  nameText: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#000000",
-    marginBottom: 12,
-  },
-  infoContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 32,
-  },
-  infoItem: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  infoLabel: {
-    fontSize: 14,
-    color: "#666666",
-    marginRight: 4,
-  },
-  infoValue: {
-    fontSize: 14,
-    color: "#666666",
-  },
-  separator: {
-    fontSize: 14,
-    color: "#CCCCCC",
-    marginHorizontal: 8,
-  },
-  buttonContainer: {
-    width: "100%",
-    gap: 12,
-  },
-  grayButton: {
-    backgroundColor: "#E5E5E5",
-    borderRadius: 12,
-    paddingVertical: 14,
-    alignItems: "center",
-  },
-  grayButtonText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#000000",
-  },
-  greenButton: {
-    backgroundColor: "#4FC885",
-    borderRadius: 12,
-    paddingVertical: 14,
-    alignItems: "center",
-  },
-  greenButtonText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#FFFFFF",
-  },
-});
