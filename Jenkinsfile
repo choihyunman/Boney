@@ -10,12 +10,22 @@ pipeline {
     }
 
     stages {
-        stage('Clean Workspace') {
-            steps {
-                echo "🧹 이전 워크스페이스 정리 중..."
-                deleteDir()
-            }
+        stage('Force Fix Permissions Before Clean') {
+        steps {
+            echo "🔐 deleteDir 전에 퍼미션 강제 수정"
+            sh '''
+            sudo chown -R ubuntu:ubuntu . || true
+            sudo chmod -R u+rwX . || true
+            '''
         }
+    }
+
+    stage('Clean Workspace') {
+        steps {
+            echo "🧹 이전 워크스페이스 정리 중..."
+            deleteDir()
+        }
+    }
 
         stage('Fix Permissions') {
             steps {
