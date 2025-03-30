@@ -7,7 +7,7 @@ services:
     expose:
       - "3306"
     env_file:
-      - .env
+      - .env.test
     environment:
       TZ: Asia/Seoul
       MYSQL_INIT_COMMAND: "SET GLOBAL host_cache_size=0"
@@ -43,7 +43,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql_test:3306/boney_test?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
       TZ: Asia/Seoul
     env_file:
-      - .env
+      - .env.test
     ulimits:
       nofile:
         soft: 65536

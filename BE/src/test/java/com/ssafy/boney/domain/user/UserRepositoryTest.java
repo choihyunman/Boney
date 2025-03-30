@@ -20,8 +20,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @Transactional
 @Rollback
 @SqlGroup({
-    @Sql(scripts = "/sql/truncate-all.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD),
-    @Sql(scripts = "/sql/test-init.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "classpath:/sql/truncate-all.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD),
+    @Sql(scripts = "classpath:/sql/test-init.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 })
 class UserRepositoryTest {
 

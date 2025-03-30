@@ -30,6 +30,8 @@ node_modules/
 # Env
 .env
 **/.env
+.env.test
+**/.env.test
 
 # Jenkins
 jenkins_home/

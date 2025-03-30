@@ -33,9 +33,9 @@ pipeline {
             }
         }
 
-        stage('Load .env File') {
+        stage('Load 운영용 .env File') {
             steps {
-                echo "🔐 .env 파일 로딩 중..."
+                echo "🔐 운영용 .env 파일 로딩 중..."
                 withCredentials([file(credentialsId: 'choi', variable: 'ENV_FILE')]) {
                     sh '''
                     rm -f .env
@@ -71,10 +71,23 @@ pipeline {
 
         stage('Run Backend Tests via Docker') {
             steps {
-                echo "🧪 backend_test + mysql_test 컨테이너로 테스트 실행 중..."
-                sh '''
-                docker compose -f docker-compose.test.yml up --build --abort-on-container-exit
-                '''
+                echo "🧪 테스트용 .env.test 주입 + 테스트 컨테이너 실행 중..."
+                withCredentials([file(credentialsId: 'choi-test', variable: 'TEST_ENV_FILE')]) {
+                    sh '''
+                    echo "📄 기존 .env 백업..."
+                    cp .env .env.bak || true
+
+                    echo "🧪 .env.test로 덮어쓰기..."
+                    rm -f .env
+                    cp $TEST_ENV_FILE .env
+
+                    echo "🐳 backend_test + mysql_test 실행..."
+                    docker compose -f docker-compose.test.yml up --build --abort-on-container-exit
+
+                    echo "♻️ 테스트 완료, 운영용 .env 복구..."
+                    mv .env.bak .env || true
+                    '''
+                }
             }
         }
 
@@ -99,7 +112,7 @@ pipeline {
 
         stage('Build & Deploy') {
             steps {
-                echo "⚙️ 이미지 빌드 & 컨테이너 실행 중..."
+                echo "⚙️ 운영용 .env 기반 이미지 빌드 & 컨테이너 실행 중..."
                 sh 'docker compose build'
                 sh 'docker compose up -d'
             }
