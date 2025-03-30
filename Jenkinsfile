@@ -69,28 +69,18 @@ pipeline {
             }
         }
 
-        stage('Start Test DB') {
+        stage('Run Backend Tests via Docker') {
             steps {
-                echo "🧪 테스트용 MySQL 컨테이너 실행 중..."
+                echo "🧪 backend_test + mysql_test 컨테이너로 테스트 실행 중..."
                 sh '''
-                docker rm -f mysql_test || true
-                docker compose -f docker-compose.test.yml up -d mysql_test
+                docker compose -f docker-compose.test.yml up --build --abort-on-container-exit
                 '''
             }
         }
 
-        stage('Run JPA Tests') {
+        stage('Stop Test Containers') {
             steps {
-                dir('BE') {
-                    echo "✅ 테스트 코드 실행 중..."
-                    sh './gradlew clean test --no-daemon'
-                }
-            }
-        }
-
-        stage('Stop Test DB') {
-            steps {
-                echo "🧹 테스트용 MySQL 컨테이너 정리 중..."
+                echo "🧹 테스트 컨테이너 정리 중..."
                 sh 'docker compose -f docker-compose.test.yml down --remove-orphans || true'
             }
         }

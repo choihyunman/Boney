@@ -2,6 +2,7 @@ services:
   mysql_test:
     build: 
       context: ./mysql
+      dockerfile: Dockerfile.test
     container_name: mysql_test
     expose:
       - "3306"
@@ -16,6 +17,40 @@ services:
     networks:
       - app_network
     restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend_test:
+    build:
+      context: ./BE
+      dockerfile: Dockerfile.test
+    container_name: backend_test
+    # expose:
+    #   - "8080"
+    depends_on:
+      mysql_test:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql_test:3306/boney_test?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
+      TZ: Asia/Seoul
+    env_file:
+      - .env
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    networks:
+      - app_network
+    restart: no
     deploy:
       resources:
         limits:

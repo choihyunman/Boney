@@ -1,0 +1,10 @@
+# Dockerfile.test
+FROM gradle:8.12.1-jdk17
+
+WORKDIR /app
+
+COPY --chown=gradle:gradle . .
+
+RUN gradle build -x test --no-daemon
+
+CMD ["gradle", "test", "--no-daemon"]
