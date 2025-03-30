@@ -8,9 +8,9 @@ import GlobalText from "../../../components/GlobalText";
 export default function ReqApprovePage() {
   const router = useRouter();
   const account = useAuthStore((state) => state.account);
- 
+
   const handleConfirm = async () => {
-    router.push("/home");
+    router.replace("/loan/parent/ReqList");
   };
 
   return (
@@ -26,8 +26,8 @@ export default function ReqApprovePage() {
         <GlobalText weight="bold" className="text-2xl text-gray-800">
           대출 승인이 완료되었습니다.
         </GlobalText>
-          </View>
-          
+      </View>
+
       {/* 계좌 정보 카드 */}
       {/* 
       <View className="w-full bg-white rounded-xl p-6 mb-8 shadow-sm">
