@@ -2,7 +2,6 @@ import {
   View,
   TouchableOpacity,
   Modal,
-  TextInput,
   Keyboard,
 } from "react-native";
 import { X, Delete } from "lucide-react-native";

@@ -76,6 +76,7 @@ export default function LoanDatePickerModal({
           {/* 달력 */}
           <Calendar
             // hideDayNames={true}
+            minDate={todayString}
             onDayPress={(day: any) => {
               setSelectedDate(day.dateString);
             }}

@@ -2,7 +2,7 @@ import React from "react";
 import { Slot, router, usePathname } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import * as WebBrowser from "expo-web-browser";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useFonts } from "expo-font";
 import { View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -14,6 +14,8 @@ import { Image } from "react-native";
 import Nav from "@/components/Nav";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import * as SecureStore from "expo-secure-store";
 interface HeaderButton {
   icon: React.ReactNode;
   onPress: () => void;
@@ -244,10 +246,24 @@ function AuthRedirectWrapper() {
 }
 
 export default function RootLayout() {
+  // TanStack Query 클라이언트 생성
+  const [queryClient] = useState(() => new QueryClient());
+
+  useEffect(() => {
+    const clearPersistedLoan = async () => {
+      await SecureStore.deleteItemAsync("loan-req-list");
+      console.log("🧹 초기화 완료: loan-req-list 삭제됨");
+    };
+
+    clearPersistedLoan();
+  }, []);
+
   return (
     <>
-      <AuthRedirectWrapper />
-      <RootLayoutNav />
+      <QueryClientProvider client={queryClient}>
+        <AuthRedirectWrapper />
+        <RootLayoutNav />
+      </QueryClientProvider>
     </>
   );
 }

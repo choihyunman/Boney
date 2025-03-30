@@ -10,9 +10,6 @@ export default function LoanLayout() {
         contentStyle: { backgroundColor: "#FFFFFF" },
         animationTypeForReplace: "push",
       }}
-    >
-      <Stack.Screen name="PendingListParent" />
-      <Stack.Screen name="PendingDetailChild" />
-    </Stack>
+    ></Stack>
   );
 }

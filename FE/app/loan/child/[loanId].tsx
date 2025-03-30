@@ -71,22 +71,53 @@ export default function LoanDetailChild() {
           minHeight={200}
         />
 
-        {/* 버튼 영역 */}
-        <View className="flex-row space-x-3 mt-4">
-          <TouchableOpacity
-            onPress={handleRewrite}
-            className="py-4 px-6 rounded-lg shadow-sm bg-gray-200 flex-1 mr-2"
-          >
-            <GlobalText className="text-gray-700 text-center">
-              다시 쓰기
-            </GlobalText>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={handleSubmitLoan}
-            className="py-4 px-6 rounded-lg shadow-sm bg-[#4FC985] flex-[1.5]"
-          >
-            <GlobalText className="text-white text-center">서명하기</GlobalText>
-          </TouchableOpacity>
+        {/* 세부 내역 영역 */}
+        <View className="w-full bg-white rounded-xl px-6 py-3 mb-8 shadow-sm">
+          <View className="flex flex-col gap-3">
+            <View className="flex-row justify-between items-center py-4">
+              <View className="flex-row items-center">
+                <GlobalText className="text-base text-gray-500">
+                  총 대출액
+                </GlobalText>
+              </View>
+              <GlobalText
+                weight="bold"
+                className="text-lg font-medium text-black tracking-wider"
+              >
+                {loanAmount}
+              </GlobalText>
+            </View>
+            {/* Divider */}
+            <View className="h-px bg-gray-200 mx-1 mt-2" />
+            <View className="flex-row justify-between items-center py-4">
+              <View className="flex-row items-center">
+                <GlobalText className="text-base text-gray-500">
+                  남은 대출액
+                </GlobalText>
+              </View>
+              <GlobalText
+                weight="bold"
+                className="text-lg font-medium text-black tracking-wider"
+              >
+                {loanAmount}
+              </GlobalText>
+            </View>
+            {/* Divider */}
+            <View className="h-px bg-gray-200 mx-1 mt-2" />
+            <View className="flex-row justify-between items-center py-4">
+              <View className="flex-row items-center">
+                <GlobalText className="text-base text-gray-500">
+                  남은 일수
+                </GlobalText>
+              </View>
+              <GlobalText
+                weight="bold"
+                className="text-lg font-medium text-black tracking-wider"
+              >
+                {loanAmount}
+              </GlobalText>
+            </View>
+          </View>
         </View>
       </ScrollView>
     </View>
