@@ -6,7 +6,7 @@ import {
   CreateLoanRequest,
   CreateLoanResponse,
   ReqItem,
-} from "@/apis/loanApi";
+} from "@/apis/loanChildApi";
 import { zustandSecureStorage } from "@/lib/secureStorage";
 
 type LoanStore = {
@@ -75,7 +75,7 @@ export const useLoanReqListStore = create<LoanReqListStore>()(
       hydrated: false,
     }),
     {
-      name: "loan-req-list",
+      name: "loan-req-list-child",
       storage: zustandSecureStorage,
       onRehydrateStorage: () => {
         return (_, error) => {

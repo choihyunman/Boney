@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getReqList, ReqItem } from "@/apis/loanApi";
+import { getReqList, ReqItem } from "@/apis/loanChildApi";
 import { useLoanReqListStore } from "@/stores/useLoanChildStore";
 import { useEffect } from "react";
 
@@ -7,14 +7,16 @@ type LoanList = ReqItem[];
 
 export const useLoanReqListQuery = () => {
   const setReqList = useLoanReqListStore((state) => state.setReqList);
+  const hydrated = useLoanReqListStore((state) => state.hydrated);
 
-  const query = useQuery<LoanList, Error, LoanList, ["loan-req-list"]>({
-    queryKey: ["loan-req-list"],
+  const query = useQuery<LoanList, Error, LoanList, ["loan-req-list-child"]>({
+    queryKey: ["loan-req-list-child"],
     queryFn: async () => {
       const res = await getReqList();
       return res;
     },
-    staleTime: 0,
+    staleTime: 1000 * 60 * 3,
+    enabled: hydrated,
   });
 
   // 에러 처리 (v5 스타일)

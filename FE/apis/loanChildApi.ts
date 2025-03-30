@@ -2,7 +2,7 @@ import { api } from "@/lib/api";
 
 export type CreateLoanRequest = {
   loan_amount: number;
-  due_date: string; // ISO 문자열
+  due_date: string;
 };
 
 export type CreateLoanResponse = {
@@ -48,6 +48,9 @@ export const getReqList = async (): Promise<ReqItem[]> => {
     );
     return res.data.data.loan_pending_list;
   } catch (error: any) {
+    if (error.response?.status === 404) {
+      return [];
+    }
     const message =
       error.response?.data?.message ??
       "❌ 대출 요청 목록 조회 중 알 수 없는 오류입니다.";

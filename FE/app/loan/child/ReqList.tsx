@@ -3,18 +3,16 @@ import {
   View,
   TouchableOpacity,
   ScrollView,
-  KeyboardAvoidingView,
-  Platform,
   FlatList,
 } from "react-native";
 import GlobalText from "../../../components/GlobalText";
 import PopupModal from "../../../components/PopupModal";
-import { useLoanReqListQuery } from "@/hooks/useLoanReqListQuery";
+import { useLoanReqListQuery } from "@/hooks/useLoanReqListChildQuery";
 import { useLoanReqListStore } from "@/stores/useLoanChildStore";
-import { cancelLoan } from "@/apis/loanApi";
+import { cancelLoan } from "@/apis/loanChildApi";
 
 export default function ChildLoanRequestsPage() {
-  const { data: queryData, isLoading, error, refetch } = useLoanReqListQuery();
+  const { data: queryData, error, refetch } = useLoanReqListQuery();
   const reqList = useLoanReqListStore((state) => state.reqList);
   const hydrated = useLoanReqListStore((state) => state.hydrated);
 

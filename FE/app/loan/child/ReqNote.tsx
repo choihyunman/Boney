@@ -5,7 +5,7 @@ import GlobalText from "../../../components/GlobalText";
 import PromissoryNote from "../PromissoryNote";
 import { useLoanRequestStore, useLoanStore } from "@/stores/useLoanChildStore";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { createLoan } from "@/apis/loanApi";
+import { createLoan } from "@/apis/loanChildApi";
 import { useMutation } from "@tanstack/react-query";
 import { getKSTEndOfDayString } from "@/utils/date";
 export default function PromissoryNotePage() {
