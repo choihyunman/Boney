@@ -77,14 +77,14 @@ pipeline {
                     echo "📄 기존 .env 백업..."
                     cp .env .env.bak || true
 
-                    echo "🧪 .env.test로 덮어쓰기..."
-                    rm -f .env
-                    cp $TEST_ENV_FILE .env
+                    echo "🧪 .env.test 덮어쓰기..."
+                    rm -f .env.test
+                    cp $TEST_ENV_FILE .env.test
 
-                    echo "🐳 backend_test + mysql_test 실행..."
+                    echo "🐳 테스트 실행..."
                     docker compose -f docker-compose.test.yml up --build --abort-on-container-exit
 
-                    echo "♻️ 테스트 완료, 운영용 .env 복구..."
+                    echo "♻️ 테스트 완료, .env 복구..."
                     mv .env.bak .env || true
                     '''
                 }
