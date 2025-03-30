@@ -13,7 +13,7 @@ services:
       MYSQL_INIT_COMMAND: "SET GLOBAL host_cache_size=0"
     volumes:
       - type: tmpfs
-        target: /var/lib/mysql  # 메모리에서만 동작, 재시작 시 데이터 없어짐
+        target: /var/lib/mysql # 메모리에서만 동작, 재시작 시 데이터 없어짐
     networks:
       - app_network
     restart: always
