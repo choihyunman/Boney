@@ -1,24 +1,30 @@
 import { useState } from "react";
-import { View, TouchableOpacity, ScrollView, Dimensions } from "react-native";
+import { View, TouchableOpacity, ScrollView } from "react-native";
 import GlobalText from "../../../components/GlobalText";
 import AmountInputModal from "../../../components/AmountInputModal";
 import { router } from "expo-router";
 import LoanDatePickerModal from "../../../components/DatePickerModal";
+import { useLoanRequestStore } from "@/stores/useLoanChildStore";
 
 export default function LoanCreatePage() {
   const [loanAmount, setLoanAmount] = useState("");
   const [repaymentDate, setRepaymentDate] = useState("");
   const [showAmountModal, setShowAmountModal] = useState(false);
   const [showDateModal, setShowDateModal] = useState(false);
+  const { setField } = useLoanRequestStore();
 
   // 차용증 확인하기 버튼 클릭 핸들러
   const handleViewPromissoryNote = () => {
+    console.log("🔍 차용증 확인하기 버튼");
     if (!loanAmount || !repaymentDate) return;
 
-    router.push({
-      pathname: "/loan/child/ReqNote",
-      params: { amount: loanAmount, date: repaymentDate },
-    });
+    const cleanedAmout = loanAmount.replace(/,/g, "");
+    const numericAmount = Number(cleanedAmout);
+
+    setField("amount", isNaN(numericAmount) ? 0 : numericAmount);
+    setField("dueDate", repaymentDate);
+    console.log("🔍 신청 대출액: ", loanAmount, "마감 날짜: ", repaymentDate);
+    router.push("/loan/child/ReqNote");
   };
 
   return (

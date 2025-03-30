@@ -1,11 +1,14 @@
 import Complete from "@/components/Complete";
 import { router } from "expo-router";
+import { useLoanStore } from "@/stores/useLoanChildStore";
 
 const handleConfirm = () => {
-  router.push("/home");
+  router.replace("/loan/child/ReqList");
 };
 
 export default function ReqComplete() {
+  const { latestLoan } = useLoanStore();
+
   return (
     <Complete
       onConfirm={handleConfirm}
@@ -13,15 +16,12 @@ export default function ReqComplete() {
       details={[
         {
           label: "대출 금액",
-          value: "100,000원",
-        },
-        {
-          label: "신청 날짜",
-          value: "2025.03.28",
+          value: `${Number(latestLoan?.loanAmount ?? 0).toLocaleString()}원`,
+          valueColor: "#4FC985",
         },
         {
           label: "마감 날짜",
-          value: "2025.04.28",
+          value: latestLoan?.dueDate?.slice(0, 10).replace(/-/g, ".") ?? "-",
         },
       ]}
     />

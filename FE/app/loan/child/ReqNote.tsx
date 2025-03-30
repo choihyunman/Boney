@@ -1,17 +1,23 @@
 import { useState, useEffect } from "react";
-import { View, TouchableOpacity, ScrollView } from "react-native";
-import { useRouter, useLocalSearchParams } from "expo-router";
+import { View, TouchableOpacity, ScrollView, Alert } from "react-native";
+import { useRouter } from "expo-router";
 import GlobalText from "../../../components/GlobalText";
 import PromissoryNote from "../PromissoryNote";
-
+import { useLoanRequestStore, useLoanStore } from "@/stores/useLoanChildStore";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { createLoan } from "@/apis/loanApi";
+import { useMutation } from "@tanstack/react-query";
+import { getKSTEndOfDayString } from "@/utils/date";
 export default function PromissoryNotePage() {
   const router = useRouter();
-  const searchParams = useLocalSearchParams();
   const [currentTime, setCurrentTime] = useState("");
+  const setLatestLoan = useLoanStore((state) => state.setLatestLoan);
 
-  // URL 파라미터에서 데이터 가져오기
-  const loanAmount = (searchParams.amount as string) || "";
-  const repaymentDate = (searchParams.date as string) || "";
+  // 저장소에서 데이터 가져오기
+  const { request } = useLoanRequestStore();
+  const { amount, dueDate, signImage } = request;
+  const { user } = useAuthStore();
+  const { userName } = user ?? {};
 
   // 현재 날짜 포맷팅
   const today = new Date();
@@ -20,11 +26,11 @@ export default function PromissoryNotePage() {
   ).padStart(2, "0")}월 ${String(today.getDate()).padStart(2, "0")}일`;
 
   // 상환 날짜 포맷팅
-  const formatRepaymentDate = () => {
-    if (!repaymentDate) return "";
+  const formatDueDate = () => {
+    if (!dueDate) return "";
 
     try {
-      const date = new Date(repaymentDate);
+      const date = new Date(dueDate);
       return `${date.getFullYear()}년 ${String(date.getMonth() + 1).padStart(
         2,
         "0"
@@ -53,9 +59,31 @@ export default function PromissoryNotePage() {
     router.back();
   };
 
+  const { mutate: submitLoan, isPending } = useMutation({
+    mutationFn: createLoan,
+    onSuccess: (res) => {
+      console.log("⭕ 대출 요청 성공", res);
+      setLatestLoan(res.data);
+      router.replace("/loan/child/ReqComplete");
+    },
+    onError: (err: any) => {
+      Alert.alert("💸 대출 요청 에러", err.message);
+    },
+  });
+
   // 대출 신청하기 버튼 핸들러
-  const handleSubmitLoan = () => {
-    router.push("/loan/child/ReqComplete");
+  const handleSubmitLoan = async () => {
+    console.log("💸 대출 신청하기 버튼 핸들러");
+    const now = new Date();
+    const requestDate = `${now.getFullYear()}-${String(
+      now.getMonth() + 1
+    ).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+    useLoanRequestStore.getState().setField("requestDate", requestDate);
+
+    submitLoan({
+      loan_amount: amount ?? 0,
+      due_date: getKSTEndOfDayString(dueDate ?? ""),
+    });
   };
 
   return (
@@ -63,11 +91,11 @@ export default function PromissoryNotePage() {
       {/* 앱 컨텐츠 */}
       <ScrollView className="flex-1 px-6 mt-6 space-y-6 pb-20">
         <PromissoryNote
-          loanAmount={loanAmount}
-          repaymentDate={formatRepaymentDate()}
+          loanAmount={amount ?? 0}
+          repaymentDate={formatDueDate()}
           formattedToday={formattedToday}
-          debtorName="김짤랑"
-          creditorName="김부모"
+          debtorName={userName ?? ""}
+          debtorSign={signImage}
           minHeight={350}
         />
 

@@ -1,0 +1,35 @@
+import { useQuery } from "@tanstack/react-query";
+import { getReqList, ReqItem } from "@/apis/loanApi";
+import { useLoanReqListStore } from "@/stores/useLoanChildStore";
+import { useEffect } from "react";
+
+type LoanList = ReqItem[];
+
+export const useLoanReqListQuery = () => {
+  const setReqList = useLoanReqListStore((state) => state.setReqList);
+
+  const query = useQuery<LoanList, Error, LoanList, ["loan-req-list"]>({
+    queryKey: ["loan-req-list"],
+    queryFn: async () => {
+      const res = await getReqList();
+      return res;
+    },
+    staleTime: 0,
+  });
+
+  // 에러 처리 (v5 스타일)
+  useEffect(() => {
+    if (query.isError && query.error) {
+      console.error("❌ 대출 목록 조회 실패:", query.error.message);
+    }
+  }, [query.isError, query.error]);
+
+  // 상태 저장소에 값 설정
+  useEffect(() => {
+    if (query.data) {
+      setReqList(Array.isArray(query.data) ? query.data : []);
+    }
+  }, [query.data, setReqList]);
+
+  return query;
+};

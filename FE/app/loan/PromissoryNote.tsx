@@ -1,12 +1,15 @@
+import React from "react";
 import { View, Image } from "react-native";
 import GlobalText from "@/components/GlobalText";
 
 interface PromissoryNoteProps {
-  loanAmount: string;
+  loanAmount: number;
   repaymentDate: string;
   formattedToday: string;
   debtorName: string;
-  creditorName: string;
+  creditorName?: string;
+  debtorSign?: string; // base64 이미지 (data:image/png;base64,...)
+  creditorSign?: string; // base64 이미지 (data:image/png;base64,...)
   minHeight?: number; // minHeight 조절 가능
 }
 
@@ -16,6 +19,8 @@ export default function PromissoryNote({
   formattedToday,
   debtorName,
   creditorName,
+  debtorSign,
+  creditorSign,
   minHeight,
 }: PromissoryNoteProps) {
   return (
@@ -70,27 +75,61 @@ export default function PromissoryNote({
         </View>
 
         {/* 우측 정렬 서명 */}
-        <View className="items-end">
-          <GlobalText
-            className="text-lg text-gray-700"
-            style={{ letterSpacing: -0.3, lineHeight: 26 }}
-          >
-            채무자{" "}
-            <GlobalText weight="bold" className="text-lg text-gray-700">
-              {debtorName}
-            </GlobalText>{" "}
-            서명
-          </GlobalText>
-          <GlobalText
-            className="text-lg text-gray-700"
-            style={{ letterSpacing: -0.3, lineHeight: 26 }}
-          >
-            채권자{" "}
-            <GlobalText weight="bold" className="text-lg text-gray-700">
-              {creditorName}
-            </GlobalText>{" "}
-            서명
-          </GlobalText>
+        <View className="items-end space-y-2">
+          {/* 채무자 서명 */}
+          <View className="flex-row items-center">
+            <GlobalText className="text-lg text-gray-700 mr-2">
+              채무자{" "}
+              <GlobalText weight="bold" className="text-lg text-gray-700">
+                {debtorName}
+              </GlobalText>
+            </GlobalText>
+            {debtorSign ? (
+              <Image
+                source={{ uri: debtorSign }}
+                style={{
+                  width: 100,
+                  height: 40,
+                  resizeMode: "contain",
+                }}
+              />
+            ) : (
+              <GlobalText className="text-lg text-gray-400 italic">
+                서명
+              </GlobalText>
+            )}
+          </View>
+
+          {/* 채권자 서명 */}
+          {creditorName ? (
+            <View className="flex-row items-center">
+              <GlobalText className="text-lg text-gray-700 mr-2">
+                채권자{" "}
+                <GlobalText weight="bold" className="text-lg text-gray-700">
+                  {creditorName}
+                </GlobalText>
+              </GlobalText>
+              {creditorSign ? (
+                <Image
+                  source={{ uri: creditorSign }}
+                  style={{
+                    width: 100,
+                    height: 40,
+                    resizeMode: "contain",
+                  }}
+                />
+              ) : null}
+            </View>
+          ) : (
+            <View className="flex-row items-center">
+              <GlobalText className="text-lg text-gray-700 mr-2">
+                채권자
+              </GlobalText>
+              <GlobalText className="text-lg text-gray-400 italic">
+                서명 대기 중
+              </GlobalText>
+            </View>
+          )}
         </View>
       </View>
     </View>

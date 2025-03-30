@@ -6,6 +6,7 @@ interface DetailItem {
   label: string;
   value: string;
   icon?: React.ReactNode;
+  valueColor?: string;
 }
 
 interface CompleteProps {
@@ -62,7 +63,10 @@ const Complete = ({
                 {/* 값 */}
                 <GlobalText
                   weight="bold"
-                  className="text-lg font-medium text-black tracking-wider"
+                  className="text-lg font-lg tracking-wider"
+                  style={
+                    item.valueColor ? { color: item.valueColor } : undefined
+                  }
                 >
                   {item.value}
                 </GlobalText>
