@@ -3,7 +3,6 @@ CREATE DATABASE IF NOT EXISTS boney CHARACTER SET utf8mb4 COLLATE utf8mb4_unicod
 
 CREATE DATABASE boney_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-
 INSERT INTO monthly_report (
   child_id,
   report_month,
