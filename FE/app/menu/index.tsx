@@ -17,7 +17,7 @@ export default function Menu() {
       console.log("자녀로 리다이렉트");
       router.push("/menu/child");
     } else {
-      console.log("인증 페이지로 리다이렉트");
+      console.log("홈 페이지로 리다이렉트");
       router.push("/home");
     }
   }, [user?.role]);

@@ -206,6 +206,15 @@ function RootLayoutNav() {
             onPress: () => router.back(),
           },
         };
+      case "/child/RegularAllowance":
+        return {
+          title: "정기 용돈 설정",
+          backgroundColor: "#F9FAFB",
+          leftButton: {
+            icon: <ChevronLeft size={24} color="#000000" />,
+            onPress: () => router.back(),
+          },
+        };
       default:
         return {
           backgroundColor: "#F9FAFB",
@@ -213,7 +222,7 @@ function RootLayoutNav() {
     }
   };
 
-  // auth 페이지 중 SignUp 페이지에서만 헤더를 표시
+  // auth 페이지 중 SignUp 페이지에서만 헤더를 표시 + 메뉴에서 헤더 제거
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
       <StatusBar style="auto" />
