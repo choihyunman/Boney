@@ -33,13 +33,12 @@ services:
         condition: service_started
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/boney?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
-      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
-      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
-      JWT_SECRET: ${JWT_SECRET}
       TZ: Asia/Seoul
       JAVA_SECURITY_PROPERTIES: |
         jdk.internal.reflect.permitAll=true
         jdk.reflect.allowNativeAccess=true
+    env_file:
+      - .env
     ulimits:
       nofile:
         soft: 65536
@@ -58,13 +57,13 @@ services:
     build: 
       context: ./mysql
     container_name: mysql
-    expose:
-      - "3306"
+    ports:
+    - "3306:3306"
+    # expose:
+    #   - "3306"
+    env_file:
+      - .env
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       TZ: Asia/Seoul
       MYSQL_INIT_COMMAND: "SET GLOBAL host_cache_size=0"
     volumes:

@@ -1,186 +1,62 @@
 CREATE DATABASE IF NOT EXISTS boney CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE boney;
+-- USE boney;
 
--- (B) Bank 테이블
-INSERT INTO bank (bank_id, bank_name)
-VALUES (1, '버니은행');
+CREATE DATABASE boney_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- (C) Account 테이블
-INSERT INTO account (bank_id, user_id, account_number, account_password, account_balance, created_at) 
-VALUES (
-  1,   -- bank_id=1
-  14,   -- user_id=1
-  '001439345124956',
-  'testpw',
-  500000,
-  NOW()
-);
-
-INSERT INTO `transaction_category` VALUES 
-  (1,'2025-03-23 16:49:27', 0, '입금'),
-  (2,'2025-03-23 16:49:27', 0, '출금'),
-  (3,'2025-03-23 16:49:27', 0, '용돈'),
-  (4,'2025-03-23 16:49:27', 0, '대출'),
-  (5,'2025-03-25 00:22:13', 0, '퀘스트'),
-  (6,'2025-03-25 00:22:13', 0, '이체'),
-  (7,'2025-03-25 00:22:13', 0, '대출상환'),
-  (8,'2025-03-25 00:22:13', 0, '식사'),
-  (9,'2025-03-25 00:22:13', 0, '교통비'),
-  (10,'2025-03-25 00:22:13', 0, '학습'),
-  (11,'2025-03-25 00:22:13', 0, '문구'),
-  (12,'2025-03-25 00:22:13', 0, '문화'),
-  (13,'2025-03-25 00:22:13', 0, '카페/간식'),
-  (14,'2025-03-25 00:22:13', 0, '의류/미용'),
-  (15,'2025-03-25 00:22:13', 0, '의료'),
-  (16,'2025-03-25 00:22:13', 0, '생활/잡화'),
-  (17,'2025-03-23 16:49:27', 0, '기타');
-
--- (B) Transaction_Content
-INSERT INTO transaction_content (
-  content_name,
-  default_transaction_category_id
-) VALUES
-('입금', 1),
-('출금', 2),
-('기타', 3);
-
-INSERT INTO transaction (
-  account_id,
-  user_id,
-  transaction_content_id,
-  transaction_category_id,
-  transaction_type,
-  transaction_amount,
-  created_at,
-  external_transaction_no,
-  transaction_after_balance
+INSERT INTO monthly_report (
+  child_id,
+  report_month,
+  total_income,
+  total_expense,
+  category_expense,
+  quest_completed,
+  quest_income,
+  income_ratio,
+  expense_ratio
 ) VALUES (
-  7,   -- account_id=1
-  14,   -- user_id=1
-  5,   -- transaction_content_id=2 (ex: '스타벅스')
-  5,   -- transaction_category_id=4 (ex: '식비')
-  'WITHDRAWAL',
-  15000,
-  '2025-03-24 02:00:00',
-  10001,
-  485000  -- 거래 후 잔액 (500000 - 15000)
-);
-
-INSERT INTO account (
-  bank_id,
-  user_id,
-  account_number,
-  account_password,
-  account_balance,
-  created_at
-) VALUES (               -- 새 account_id
-  1,               -- 기존 테스트은행
-  14,               -- user_id = 5
-  '555555555555555',
-  'user5pw',
-  300000,
-  NOW()
-);
-
-INSERT INTO user (
-  user_email, user_birth, user_phone, user_name,
-  role, kakao_id, user_gender
-) VALUES
--- 부모 계정 10개
-('parent01@example.com', '1980-01-10', '010-1000-0001', '김민수', 'PARENT', 1000000000001, 'MALE'),
-('parent02@example.com', '1981-02-11', '010-1000-0002', '박지현', 'PARENT', 1000000000002, 'FEMALE'),
-('parent03@example.com', '1979-03-12', '010-1000-0003', '이준호', 'PARENT', 1000000000003, 'MALE'),
-('parent04@example.com', '1985-04-13', '010-1000-0004', '정예린', 'PARENT', 1000000000004, 'FEMALE'),
-('parent05@example.com', '1982-05-14', '010-1000-0005', '한지훈', 'PARENT', 1000000000005, 'MALE'),
-('parent06@example.com', '1983-06-15', '010-1000-0006', '최유진', 'PARENT', 1000000000006, 'FEMALE'),
-('parent07@example.com', '1984-07-16', '010-1000-0007', '오세진', 'PARENT', 1000000000007, 'MALE'),
-('parent08@example.com', '1986-08-17', '010-1000-0008', '윤지아', 'PARENT', 1000000000008, 'FEMALE'),
-('parent09@example.com', '1987-09-18', '010-1000-0009', '장민재', 'PARENT', 1000000000009, 'MALE'),
-('parent10@example.com', '1988-10-19', '010-1000-0010', '배하늘', 'PARENT', 1000000000010, 'FEMALE');
-
--- 아이 계정 10개
-INSERT INTO user (
-  user_email, user_birth, user_phone, user_name,
-  role, kakao_id, user_gender
-) VALUES
-('child01@example.com', '2012-01-10', '010-2000-0001', '김서준', 'CHILD', 2000000000001, 'MALE'),
-('child02@example.com', '2013-02-11', '010-2000-0002', '이하은', 'CHILD', 2000000000002, 'FEMALE'),
-('child03@example.com', '2011-03-12', '010-2000-0003', '박시우', 'CHILD', 2000000000003, 'MALE'),
-('child04@example.com', '2014-04-13', '010-2000-0004', '최지안', 'CHILD', 2000000000004, 'FEMALE'),
-('child05@example.com', '2010-05-14', '010-2000-0005', '정하진', 'CHILD', 2000000000005, 'MALE'),
-('child06@example.com', '2013-06-15', '010-2000-0006', '한예준', 'CHILD', 2000000000006, 'FEMALE'),
-('child07@example.com', '2012-07-16', '010-2000-0007', '오은호', 'CHILD', 2000000000007, 'MALE'),
-('child08@example.com', '2011-08-17', '010-2000-0008', '윤서현', 'CHILD', 2000000000008, 'FEMALE'),
-('child09@example.com', '2014-09-18', '010-2000-0009', '장태윤', 'CHILD', 2000000000009, 'MALE'),
-('child10@example.com', '2010-10-19', '010-2000-0010', '배지우', 'CHILD', 2000000000010, 'FEMALE');
-
-ALTER TABLE loan_repayment MODIFY transaction_id INT NULL;
-
-INSERT INTO user (
-  user_email, user_birth, user_phone, user_name,
-  role, kakao_id, user_gender
-) VALUES
-('child11@example.com', '2011-01-05', '010-2000-0011', '남도현', 'CHILD', 2000000000011, 'MALE'),
-('child12@example.com', '2012-02-08', '010-2000-0012', '서지우', 'CHILD', 2000000000012, 'FEMALE'),
-('child13@example.com', '2013-03-15', '010-2000-0013', '임하율', 'CHILD', 2000000000013, 'MALE'),
-('child14@example.com', '2010-04-20', '010-2000-0014', '홍예빈', 'CHILD', 2000000000014, 'FEMALE'),
-('child15@example.com', '2014-05-25', '010-2000-0015', '백승우', 'CHILD', 2000000000015, 'MALE'),
-('child16@example.com', '2011-06-30', '010-2000-0016', '윤하린', 'CHILD', 2000000000016, 'FEMALE'),
-('child17@example.com', '2013-07-09', '010-2000-0017', '정우진', 'CHILD', 2000000000017, 'MALE'),
-('child18@example.com', '2012-08-12', '010-2000-0018', '강서윤', 'CHILD', 2000000000018, 'FEMALE'),
-('child19@example.com', '2010-09-18', '010-2000-0019', '노지후', 'CHILD', 2000000000019, 'MALE'),
-('child20@example.com', '2014-10-21', '010-2000-0020', '문다인', 'CHILD', 2000000000020, 'FEMALE');
-
-
--- 부모 계정 (user_id 15 ~ 24)
-INSERT INTO account (
-  bank_id, user_id, account_number, account_password
-) VALUES
-(1, 15, '1234000000000001', 'pass01'),
-(1, 16, '1234000000000002', 'pass02'),
-(1, 17, '1234000000000003', 'pass03'),
-(1, 18, '1234000000000004', 'pass04'),
-(1, 19, '1234000000000005', 'pass05'),
-(1, 20, '1234000000000006', 'pass06'),
-(1, 21, '1234000000000007', 'pass07'),
-(1, 22, '1234000000000008', 'pass08'),
-(1, 23, '1234000000000009', 'pass09'),
-(1, 24, '1234000000000010', 'pass10');
-
--- 아이 계정 (user_id 25 ~ 34)
-INSERT INTO account (
-  bank_id, user_id, account_number, account_password
-) VALUES
-(1, 25, '2234000000000001', 'cpass01'),
-(1, 26, '2234000000000002', 'cpass02'), 
-(1, 27, '2234000000000003', 'cpass03'),
-(1, 28, '2234000000000004', 'cpass04'),
-(1, 29, '2234000000000005', 'cpass05'),
-(1, 30, '2234000000000006', 'cpass06'),
-(1, 31, '2234000000000007', 'cpass07'),
-(1, 32, '2234000000000008', 'cpass08'),
-(1, 33, '2234000000000009', 'cpass09'),
-(1, 34, '2234000000000010', 'cpass10');
-
--- (D) Transaction 내역
-INSERT INTO transaction (
-  account_id,
-  user_id,
-  transaction_content_id,
-  transaction_category_id,
-  transaction_type,
-  transaction_amount,
-  created_at,
-  external_transaction_no,
-  transaction_after_balance
-) VALUES (
-  6,
-  14,
-  4,
-  4,
-  'WITHDRAWAL',
-  4800,
-  '2025-03-24 10:00:00',
-  10002,
-  295200
+  36,
+  '2025-02-01',
+  60000,
+  30000,
+  '[
+    {
+      "category": "식사",
+      "amount": 15000,
+      "percentage": 50,
+      "transactions": [
+        {
+          "transactionId": 101,
+          "amount": 5000,
+          "createdAt": "2025-02-05T10:00:00",
+          "transactionType": "WITHDRAWAL",
+          "transactionContent": "김밥천국"
+        },
+        {
+          "transactionId": 102,
+          "amount": 10000,
+          "createdAt": "2025-02-12T13:20:00",
+          "transactionType": "WITHDRAWAL",
+          "transactionContent": "학교매점"
+        }
+      ]
+    },
+    {
+      "category": "문구",
+      "amount": 15000,
+      "percentage": 50,
+      "transactions": [
+        {
+          "transactionId": 103,
+          "amount": 15000,
+          "createdAt": "2025-02-20T11:00:00",
+          "transactionType": "WITHDRAWAL",
+          "transactionContent": "다이소"
+        }
+      ]
+    }
+  ]',
+  3,
+  10000,
+  67,
+  33
 );

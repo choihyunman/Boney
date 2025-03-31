@@ -30,6 +30,8 @@ node_modules/
 # Env
 .env
 **/.env
+.env.test
+**/.env.test
 
 # Jenkins
 jenkins_home/
@@ -39,3 +41,7 @@ jenkins_home/
 
 #yml
 **/application.yml
+**/application-test.yml
+
+#expo
+.expo/
