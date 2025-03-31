@@ -4,6 +4,7 @@ package com.ssafy.boney.domain.quest.controller;
 import com.ssafy.boney.domain.quest.dto.*;
 import com.ssafy.boney.domain.quest.exception.QuestNotFoundException;
 import com.ssafy.boney.domain.quest.service.*;
+import com.ssafy.boney.domain.transaction.dto.TransferResponseDto;
 import com.ssafy.boney.domain.user.entity.User;
 import com.ssafy.boney.domain.user.service.UserService;
 import com.ssafy.boney.global.dto.ApiResponse;
@@ -28,6 +29,7 @@ public class ParentQuestController {
     private final ParentQuestHistoryService parentQuestHistoryService;
     private final ParentQuestListService parentQuestListService;
     private final ParentQuestWaitingRewardService parentQuestWaitingRewardService;
+    private final ParentQuestApprovalService parentQuestApprovalService;
 
 
     // 1. 보호자 아이 목록 조회
@@ -138,4 +140,25 @@ public class ParentQuestController {
                     .body(new ApiResponse<>(404, e.getMessage(), null));
         }
     }
+
+
+    // 8. 퀘스트 성공 처리 + 보상 송금
+    @PostMapping("/{questId}/approve")
+    public ResponseEntity<ApiResponse<TransferResponseDto>> approveQuest(
+            @RequestAttribute("userId") Integer parentId,
+            @PathVariable("questId") Integer questId,
+            @RequestBody ParentQuestApprovalRequest approvalRequest
+    ) {
+        try {
+            TransferResponseDto responseDto = parentQuestApprovalService.approveQuestCompletion(parentId, questId, approvalRequest);
+            return ResponseEntity.ok(new ApiResponse<>(200, "용돈이 성공적으로 송금되었습니다.", responseDto));
+        } catch (QuestNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse<>(404, e.getMessage(), null));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(400, e.getMessage(), null));
+        }
+    }
+
 }
