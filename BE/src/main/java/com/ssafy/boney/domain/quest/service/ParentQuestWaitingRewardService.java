@@ -39,6 +39,7 @@ public class ParentQuestWaitingRewardService {
                 .questTitle(quest.getQuestTitle())
                 .questCategory(quest.getQuestCategory().getCategoryName())
                 .childName(quest.getParentChild().getChild().getUserName())
+                .childId(quest.getParentChild().getChild().getUserId())
                 .endDate(quest.getEndDate())
                 .questReward(quest.getQuestReward())
                 .questStatus(quest.getQuestStatus().name()) // "WAITING_REWARD"
