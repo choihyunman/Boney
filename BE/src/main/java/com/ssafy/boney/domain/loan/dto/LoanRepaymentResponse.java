@@ -20,7 +20,7 @@ public class LoanRepaymentResponse {
     @JsonProperty("repayment_amount")
     private int repaymentAmount;
 
-    @JsonProperty("total_loan_amount")
+    @JsonProperty("loan_amount")
     private int totalLoanAmount;
 
     @JsonProperty("last_amount")
