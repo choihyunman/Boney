@@ -24,9 +24,9 @@ public class ParentQuestService {
     private final QuestCategoryRepository questCategoryRepository;
     private final UserService userService;
 
-    // 퀘스트 생성
+    // (보호자 페이지) 퀘스트 생성
     public void createQuest(Integer parentId, ParentQuestCreateRequest requestDto) {
-        // 1) 부모 엔티티 조회
+        // 1) 보호자 엔티티 조회
         User parent = userService.findById(parentId);
         if (parent == null) {
             throw new IllegalArgumentException("보호자 정보를 찾을 수 없습니다.");
@@ -49,7 +49,7 @@ public class ParentQuestService {
                 .questTitle(requestDto.getQuestTitle())
                 .questMessage(requestDto.getQuestMessage())
                 .questReward(requestDto.getQuestReward())
-                .questStatus(QuestStatus.IN_PROGRESS) // 초기 상태
+                .questStatus(QuestStatus.IN_PROGRESS)
                 .createdAt(LocalDateTime.now())
                 .endDate(requestDto.getEndDate())
                 .build();

@@ -18,6 +18,7 @@ public class ParentQuestHistoryService {
 
     private final QuestRepository questRepository;
 
+    // (보호자 페이지) 지난 퀘스트 목록
     // 1) 만료된 퀘스트 갱신 (IN_PROGRESS -> FAILED, finish_date = end_date)
     // 2) SUCCESS or FAILED 상태의 지난 퀘스트 목록 조회
     @Transactional
