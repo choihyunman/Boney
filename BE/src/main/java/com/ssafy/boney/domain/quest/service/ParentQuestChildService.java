@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 // 보호자 아이 목록 조회
 @Service
 @RequiredArgsConstructor
-public class QuestChildService {
+public class ParentQuestChildService {
 
     private final ParentChildRepository parentChildRepository;
 

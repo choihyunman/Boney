@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class QuestHistoryService {
+public class ParentQuestHistoryService {
 
     private final QuestRepository questRepository;
 

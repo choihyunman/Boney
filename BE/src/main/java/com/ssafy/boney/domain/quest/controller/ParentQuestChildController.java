@@ -2,8 +2,8 @@ package com.ssafy.boney.domain.quest.controller;
 
 import com.ssafy.boney.domain.quest.dto.ParentQuestChildResponse;
 import com.ssafy.boney.domain.quest.exception.QuestNotFoundException;
-import com.ssafy.boney.domain.quest.service.QuestChildService;
-import com.ssafy.boney.domain.quest.service.QuestDetailService;
+import com.ssafy.boney.domain.quest.service.ParentQuestChildService;
+import com.ssafy.boney.domain.quest.service.ParentQuestDetailService;
 import com.ssafy.boney.global.dto.ApiResponse;
 import com.ssafy.boney.domain.user.entity.User;
 import com.ssafy.boney.domain.user.service.UserService;
@@ -19,11 +19,11 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/quests")
 @RequiredArgsConstructor
-public class QuestChildController {
+public class ParentQuestChildController {
 
-    private final QuestChildService questChildService;
+    private final ParentQuestChildService parentQuestChildService;
     private final UserService userService;
-    private final QuestDetailService questDetailService;
+    private final ParentQuestDetailService parentQuestDetailService;
 
     // 보호자 아이 목록 조회
     @GetMapping("/children")
@@ -31,7 +31,7 @@ public class QuestChildController {
             @RequestAttribute("userId") Integer parentId) {
 
         User parent = userService.findById(parentId);
-        List<ParentQuestChildResponse> children = questChildService.getChildrenForQuest(parent);
+        List<ParentQuestChildResponse> children = parentQuestChildService.getChildrenForQuest(parent);
 
         if (children.isEmpty()) {
             return ResponseEntity.status(404).body(
@@ -52,7 +52,7 @@ public class QuestChildController {
             @PathVariable("questId") Integer questId
     ) {
         try {
-            questDetailService.deleteQuest(parentId, questId);
+            parentQuestDetailService.deleteQuest(parentId, questId);
             return ResponseEntity.ok(new ApiResponse<>(200, "퀘스트가 성공적으로 삭제되었습니다.", null));
         } catch (QuestNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)

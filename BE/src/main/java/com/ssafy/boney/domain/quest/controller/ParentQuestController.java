@@ -2,7 +2,7 @@ package com.ssafy.boney.domain.quest.controller;
 
 
 import com.ssafy.boney.domain.quest.dto.ParentQuestCreateRequest;
-import com.ssafy.boney.domain.quest.service.QuestService;
+import com.ssafy.boney.domain.quest.service.ParentQuestService;
 import com.ssafy.boney.global.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/quests")
 @RequiredArgsConstructor
-public class QuestController {
+public class ParentQuestController {
 
-    private final QuestService questService;
+    private final ParentQuestService parentQuestService;
 
     // 퀘스트 생성
     @PostMapping
@@ -22,7 +22,7 @@ public class QuestController {
             @RequestBody ParentQuestCreateRequest requestDto
     ) {
         try {
-            questService.createQuest(parentId, requestDto);
+            parentQuestService.createQuest(parentId, requestDto);
             return ResponseEntity.ok(
                     new ApiResponse<>(200, "퀘스트 생성에 성공했습니다.", null)
             );

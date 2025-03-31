@@ -2,7 +2,7 @@ package com.ssafy.boney.domain.quest.controller;
 
 
 import com.ssafy.boney.domain.quest.dto.ParentQuestListResponse;
-import com.ssafy.boney.domain.quest.service.QuestListService;
+import com.ssafy.boney.domain.quest.service.ParentQuestListService;
 import com.ssafy.boney.global.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,16 +18,16 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/quests")
 @RequiredArgsConstructor
-public class QuestListController {
+public class ParentQuestListController {
 
-    private final QuestListService questListService;
+    private final ParentQuestListService parentQuestListService;
 
     // 부모 퀘스트 목록 조회
     @GetMapping("/parent/list")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getOngoingQuests(
             @RequestAttribute("userId") Integer parentId
     ) {
-        List<ParentQuestListResponse> quests = questListService.getOngoingQuests(parentId);
+        List<ParentQuestListResponse> quests = parentQuestListService.getOngoingQuests(parentId);
 
         if (quests.isEmpty()) {
             return ResponseEntity.status(404)

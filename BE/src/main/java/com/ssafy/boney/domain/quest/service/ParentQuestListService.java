@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class QuestListService {
+public class ParentQuestListService {
 
     private final QuestRepository questRepository;
 

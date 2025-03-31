@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
-public class QuestService {
+public class ParentQuestService {
 
     private final QuestRepository questRepository;
     private final ParentChildRepository parentChildRepository;
