@@ -3,6 +3,7 @@ package com.ssafy.boney.domain.quest.service;
 import com.ssafy.boney.domain.quest.dto.ParentQuestDetailResponse;
 import com.ssafy.boney.domain.quest.entity.Quest;
 import com.ssafy.boney.domain.quest.entity.enums.QuestStatus;
+import com.ssafy.boney.domain.quest.exception.QuestErrorCode;
 import com.ssafy.boney.domain.quest.exception.QuestNotFoundException;
 import com.ssafy.boney.domain.quest.repository.QuestRepository;
 import com.ssafy.boney.domain.user.entity.User;
@@ -13,20 +14,20 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class QuestDetailService {
+public class ParentQuestDetailService {
 
     private final QuestRepository questRepository;
     private final UserService userService;
 
-    // 퀘스트 상세 보기
+    // (보호자 페이지) 퀘스트 상세 보기
     @Transactional(readOnly = true)
     public ParentQuestDetailResponse getQuestDetail(Integer parentId, Integer questId) {
         Quest quest = questRepository.findById(questId)
-                .orElseThrow(() -> new QuestNotFoundException("해당 퀘스트를 찾을 수 없습니다."));
+                .orElseThrow(() -> new QuestNotFoundException(QuestErrorCode.QUEST_NOT_FOUND));
 
-        // 요청 부모의 userId와 퀘스트의 부모의 userId가 일치하는지 확인
+        // 보호자의 userId와 퀘스트 보호자의 userId가 일치하는지 확인
         if (!quest.getParentChild().getParent().getUserId().equals(parentId)) {
-            throw new QuestNotFoundException("해당 퀘스트를 찾을 수 없습니다.");
+            throw new QuestNotFoundException(QuestErrorCode.QUEST_NOT_FOUND);
         }
 
         return ParentQuestDetailResponse.builder()
@@ -50,11 +51,11 @@ public class QuestDetailService {
         }
 
         Quest quest = questRepository.findById(questId)
-                .orElseThrow(() -> new QuestNotFoundException("해당 퀘스트를 찾을 수 없습니다."));
+                .orElseThrow(() -> new QuestNotFoundException(QuestErrorCode.QUEST_NOT_FOUND));
 
         // 보호자 소유 검증
         if (!quest.getParentChild().getParent().getUserId().equals(parentId)) {
-            throw new QuestNotFoundException("해당 퀘스트를 찾을 수 없습니다.");
+            throw new QuestNotFoundException(QuestErrorCode.QUEST_NOT_FOUND);
         }
 
         // 진행 중인 퀘스트만 삭제 가능

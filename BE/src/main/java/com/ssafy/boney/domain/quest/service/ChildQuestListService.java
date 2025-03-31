@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public class ChildQuestListService {
     private final QuestRepository questRepository;
 
-    // 아이 진행 중인 퀘스트 조회
+    // (아이 화면) 진행 중인 퀘스트 조회
     public List<ChildQuestResponse> getOngoingQuests(Integer childId) {
 
         List<Quest> quests = questRepository.findOngoingQuestsByChild(childId);

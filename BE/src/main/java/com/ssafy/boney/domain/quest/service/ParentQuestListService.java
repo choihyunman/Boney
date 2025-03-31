@@ -11,12 +11,12 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class QuestListService {
+public class ParentQuestListService {
 
     private final QuestRepository questRepository;
 
 
-    // 부모 퀘스트 목록 조회 ( IN_PROGRESS, WAITING_REWARD )
+    // (보호자 페이지) 퀘스트 목록 조회 ( IN_PROGRESS, WAITING_REWARD )
     // 보상 대기는 상단, 나머지는 마감일 오름차순
     public List<ParentQuestListResponse> getOngoingQuests(Integer parentId) {
         List<Quest> questEntities = questRepository.findOngoingQuestsByParent(parentId);
