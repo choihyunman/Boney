@@ -1,37 +1,31 @@
 import { useState, useEffect } from "react";
 import { View, TouchableOpacity, ScrollView } from "react-native";
 import GlobalText from "../../../components/GlobalText";
-import LoanModal from "../../../components/modal";
+import LoanModal from "../../../components/PopupModal";
 import { PinInput } from "../../../components/PinInput";
 import { router } from "expo-router";
-
-// 대출 요청 데이터 타입 정의
-type LoanRequest = {
-  id: string;
-  childName: string;
-  amount: number;
-  repaymentDate: string;
-  applicationDate: string;
-  creditScore: number;
-};
+import { useReqListParentStore } from "@/stores/useLoanParentStore";
+import { useLoanReqListParentQuery } from "@/hooks/useLoanReqListParentQuery";
+import { approveLoan, rejectLoan } from "@/apis/loanParentApi";
+import { verifyPassword } from "@/apis/pinApi";
 
 export default function ParentLoanRequestsPage() {
+  const { data: queryData, error, refetch } = useLoanReqListParentQuery();
+  const reqList = useReqListParentStore((state) => state.reqList);
+  const hydrated = useReqListParentStore((state) => state.hydrated);
+
+  // 에러 핸들링 useEffect
+  useEffect(() => {
+    if (error) {
+      console.error("❌ 대출 목록 조회 실패:", error.message);
+    }
+  }, [error]);
+
   const [showApproveModal, setShowApproveModal] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
-  const [loanToApprove, setLoanToApprove] = useState<string | null>(null);
-  const [loanToReject, setLoanToReject] = useState<string | null>(null);
+  const [loanToApprove, setLoanToApprove] = useState<number | null>(null);
+  const [loanToReject, setLoanToReject] = useState<number | null>(null);
   const [showPinInput, setShowPinInput] = useState(false);
-
-  const [loanRequests, setLoanRequests] = useState<LoanRequest[]>([
-    {
-      id: "1",
-      childName: "김짤랑",
-      amount: 6000,
-      repaymentDate: "2025-03-23",
-      applicationDate: "2025-03-16",
-      creditScore: 85,
-    },
-  ]);
 
   // 날짜 포맷팅 함수
   const formatDate = (dateString: string) => {
@@ -42,38 +36,61 @@ export default function ParentLoanRequestsPage() {
   };
 
   // 대출 승인 핸들러
-  const handleApprove = (loanId: string) => {
+  const handleApprove = (loanId: number) => {
     setLoanToApprove(loanId);
     setShowApproveModal(true);
   };
 
   // 대출 거부 핸들러
-  const handleReject = (loanId: string) => {
+  const handleReject = (loanId: number) => {
     setLoanToReject(loanId);
     setShowRejectModal(true);
   };
 
   // 모달에서 승인 확인 시 실행될 핸들러
-  const handleConfirmApprove = () => {
-    if (loanToApprove) {
-      setLoanRequests(loanRequests.filter((loan) => loan.id !== loanToApprove));
+  const handleConfirmApprove = async () => {
+    if (!loanToApprove) return;
+
+    try {
+      await approveLoan(loanToApprove);
+      await refetch();
+
+      // 상태 초기화
       setLoanToApprove(null);
       setShowPinInput(true);
+    } catch (err) {
+      console.error("❌ 대출 승인 실패:", err);
     }
-    setShowApproveModal(false);
   };
 
   // 모달에서 거부 확인 시 실행될 핸들러
-  const handleConfirmReject = () => {
-    if (loanToReject) {
-      setLoanRequests(loanRequests.filter((loan) => loan.id !== loanToReject));
+  const handleConfirmReject = async () => {
+    if (!loanToReject) return;
+
+    try {
+      await rejectLoan(loanToReject);
+      await refetch();
+
       setLoanToReject(null);
+      setShowRejectModal(false);
+    } catch (err) {
+      console.error("❌ 대출 거부 실패:", err);
     }
-    setShowRejectModal(false);
   };
 
   const handlePasswordConfirm = async (password: string) => {
-    router.push("/loan/parent/ReqApprove");
+    try {
+      const res = await verifyPassword(password);
+      const isValid = res.data.isMatched;
+      if (isValid) {
+        router.push("/loan/parent/ReqApprove");
+      } else {
+        alert("비밀번호가 올바르지 않습니다.");
+        setShowPinInput(false);
+      }
+    } catch (err) {
+      console.error("❌ 비밀번호 검증 실패:", err);
+    }
   };
 
   // 신용 점수에 따른 색상 결정
@@ -93,6 +110,11 @@ export default function ParentLoanRequestsPage() {
     );
   }
 
+  // 스토리지 복원 전에는 아무것도 안 그리기
+  if (!hydrated) {
+    return null; // 혹은 return <ActivityIndicator /> 로딩 표시
+  }
+
   return (
     <View className="flex-1 bg-[#F9FAFB]">
       <View className="h-px w-full" />
@@ -105,16 +127,16 @@ export default function ParentLoanRequestsPage() {
           </GlobalText>
           <View className="ml-3 bg-[#4FC985] px-3 py-1 rounded-lg">
             <GlobalText className="text-white" weight="bold">
-              {loanRequests.length}건
+              {reqList.length}건
             </GlobalText>
           </View>
         </View>
 
         {/* 요청 중인 대출 목록 */}
         <View className="space-y-4">
-          {loanRequests.map((loan) => (
+          {reqList.map((loan) => (
             <View
-              key={loan.id}
+              key={loan.loan_id}
               className="bg-white rounded-xl p-5 shadow-sm border border-gray-100"
             >
               <LoanModal
@@ -134,7 +156,7 @@ export default function ParentLoanRequestsPage() {
               <View className="flex-row justify-between items-center mb-4">
                 <GlobalText className="text-lg text-gray-800" weight="bold">
                   <GlobalText className="text-xl text-[#4FC985]" weight="bold">
-                    {loan.childName}
+                    {loan.child_name}
                   </GlobalText>{" "}
                   의 대출 요청
                 </GlobalText>
@@ -144,7 +166,7 @@ export default function ParentLoanRequestsPage() {
                   요청 대출금
                 </GlobalText>
                 <GlobalText className="text-xl text-[#4FC985]" weight="bold">
-                  {loan.amount.toLocaleString()}원
+                  {loan.loan_amount.toLocaleString()}원
                 </GlobalText>
               </View>
 
@@ -154,7 +176,7 @@ export default function ParentLoanRequestsPage() {
                     마감 날짜
                   </GlobalText>
                   <GlobalText className="font-medium text-lg" weight="bold">
-                    {formatDate(loan.repaymentDate)}
+                    {formatDate(loan.due_date)}
                   </GlobalText>
                 </View>
 
@@ -163,7 +185,7 @@ export default function ParentLoanRequestsPage() {
                     신청 날짜
                   </GlobalText>
                   <GlobalText className="font-medium text-lg">
-                    {formatDate(loan.applicationDate)}
+                    {formatDate(loan.request_date)}
                   </GlobalText>
                 </View>
 
@@ -173,11 +195,11 @@ export default function ParentLoanRequestsPage() {
                   </GlobalText>
                   <GlobalText
                     className={`text-lg ${getCreditScoreColor(
-                      loan.creditScore
+                      loan.child_credit_score
                     )}`}
                     weight="bold"
                   >
-                    {loan.creditScore}점
+                    {loan.child_credit_score}점
                   </GlobalText>
                 </View>
               </View>
@@ -185,7 +207,7 @@ export default function ParentLoanRequestsPage() {
               {/* 승인/거부 버튼 */}
               <View className="mt-4 flex-row space-x-3">
                 <TouchableOpacity
-                  onPress={() => handleReject(loan.id)}
+                  onPress={() => handleReject(loan.loan_id)}
                   className="flex-1 py-3 border border-gray-300 rounded-lg mr-1"
                 >
                   <GlobalText
@@ -196,7 +218,7 @@ export default function ParentLoanRequestsPage() {
                   </GlobalText>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  onPress={() => handleApprove(loan.id)}
+                  onPress={() => handleApprove(loan.loan_id)}
                   className="flex-1 py-3 bg-[#4FC985] rounded-lg"
                 >
                   <GlobalText className="text-center text-white" weight="bold">
@@ -208,7 +230,7 @@ export default function ParentLoanRequestsPage() {
           ))}
         </View>
 
-        {loanRequests.length === 0 && (
+        {reqList.length === 0 && (
           <View className="flex-col items-center justify-center py-12">
             <GlobalText className="text-gray-500">
               요청 중인 대출이 없습니다.

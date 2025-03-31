@@ -2,7 +2,7 @@ import React from "react";
 import { Slot, router, usePathname, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import * as WebBrowser from "expo-web-browser";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useFonts } from "expo-font";
 import { View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -15,6 +15,7 @@ import Nav from "@/components/Nav";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useColorScheme } from "nativewind";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 interface HeaderButton {
   icon: React.ReactNode;
@@ -212,6 +213,15 @@ function RootLayoutNav() {
       case "/report":
         return {
           title: "월간 레포트",
+          backgroundColor: "white",
+          leftButton: {
+            icon: <ChevronLeft size={24} color="#000000" />,
+            onPress: () => router.back(),
+          },
+        };
+      case "/child/RegularAllowance":
+        return {
+          title: "정기 용돈 설정",
           backgroundColor: "#F9FAFB",
           leftButton: {
             icon: <ChevronLeft size={24} color="#000000" />,
@@ -225,7 +235,7 @@ function RootLayoutNav() {
     }
   };
 
-  // auth 페이지 중 SignUp 페이지에서만 헤더를 표시
+  // auth 페이지 중 SignUp 페이지에서만 헤더를 표시 + 메뉴에서 헤더 제거
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
       <StatusBar style="auto" />
@@ -247,10 +257,15 @@ function AuthRedirectWrapper() {
 }
 
 export default function RootLayout() {
+  // TanStack Query 클라이언트 생성
+  const [queryClient] = useState(() => new QueryClient());
+
   return (
     <>
-      <AuthRedirectWrapper />
-      <RootLayoutNav />
+      <QueryClientProvider client={queryClient}>
+        <AuthRedirectWrapper />
+        <RootLayoutNav />
+      </QueryClientProvider>
     </>
   );
 }

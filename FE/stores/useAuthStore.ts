@@ -1,8 +1,9 @@
 import { create } from "zustand";
-import { persist, PersistStorage } from "zustand/middleware";
+import { persist } from "zustand/middleware";
 import { api } from "../lib/api";
 import * as SecureStore from "expo-secure-store";
 import { router } from "expo-router";
+import { zustandSecureStorage } from "../lib/secureStorage";
 
 interface UserInfo {
   kakaoId: number;
@@ -26,20 +27,6 @@ interface AuthStore {
   signUp: (userInfo: Omit<UserInfo, "kakaoId" | "userEmail">) => Promise<void>;
   logout: () => void;
 }
-
-// Zustand에서 사용할 보안 스토리지
-const zustandSecureStorage: PersistStorage<AuthStore> = {
-  getItem: async (key) => {
-    const value = await SecureStore.getItemAsync(key);
-    return value ? JSON.parse(value) : null;
-  },
-  setItem: async (key, value) => {
-    await SecureStore.setItemAsync(key, JSON.stringify(value));
-  },
-  removeItem: async (key) => {
-    await SecureStore.deleteItemAsync(key);
-  },
-};
 
 // 카카오 accsess-token 발급
 async function fetchAccessTokenFromKakao(code: string): Promise<string> {
@@ -164,7 +151,7 @@ export const useAuthStore = create<AuthStore>()(
           console.log("💳 계좌 등록 완료");
 
           // 사용자 정보, 토큰, 계좌 저장
-          set({ user, token, account });
+          set({ user: payload, token, account });
           await SecureStore.setItemAsync("userToken", token);
 
           router.replace("/home");

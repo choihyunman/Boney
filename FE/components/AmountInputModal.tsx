@@ -2,11 +2,9 @@ import {
   View,
   TouchableOpacity,
   Modal,
-  TextInput,
-  Text,
   Keyboard,
 } from "react-native";
-import { CircleX, X } from "lucide-react-native";
+import { X, Delete } from "lucide-react-native";
 import GlobalText from "./GlobalText";
 
 interface AmountButton {
@@ -90,19 +88,14 @@ export default function AmountInputModal({
               onPress={handleClose}
               className="bg-gray-100 p-2 rounded-full"
             >
-              <X className="h-5 w-5 text-gray-800" />
+              <X size={20} color="#1f2937" />
             </TouchableOpacity>
           </View>
 
           {/* 입력된 금액 표시 */}
-          <View className="relative items-end h-10 justify-center mb-4">
-            <GlobalText className="text-2xl pr-6">{amount}</GlobalText>
-            <GlobalText
-              className="absolute right-0 text-base text-gray-700"
-              style={{ top: 4 }}
-            >
-              원
-            </GlobalText>
+          <View className="flex-row items-center justify-end mb-4">
+            <GlobalText className="text-2xl text-right">{amount}</GlobalText>
+            <GlobalText className="text-2xl text-right ml-1">원</GlobalText>
           </View>
 
           {/* 금액 버튼 */}
@@ -139,8 +132,8 @@ export default function AmountInputModal({
               onPress={handleDeleteAmount}
               className="w-1/3 py-6 items-center"
             >
-              <View className="bg-gray-400 rounded-lg p-2">
-                <CircleX className="h-6 w-6 text-white" />
+              <View className="w-10 h-10 items-center justify-center">
+                <Delete size={28} color="#9ca3af" />
               </View>
             </TouchableOpacity>
             <TouchableOpacity

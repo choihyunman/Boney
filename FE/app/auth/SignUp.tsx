@@ -136,7 +136,7 @@ const SignupScreen = () => {
 
     try {
       await useAuthStore.getState().signUp(payload);
-
+      
       setIsSubmitting(false);
       await useAuthStore.getState().user;
       router.replace("/auth/CreatePin");
