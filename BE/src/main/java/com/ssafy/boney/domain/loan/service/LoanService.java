@@ -362,7 +362,7 @@ public class LoanService {
                         "loan_id", loan.getLoanId(),
                         "child_name", child.getUserName(),
                         "loan_amount", loan.getLoanAmount(),
-                        "last_amout", loan.getLastAmount() != null ? loan.getLastAmount() : loan.getLoanAmount(),
+                        "last_amount", loan.getLastAmount() != null ? loan.getLastAmount() : loan.getLoanAmount(),
                         "request_date", loan.getRequestedAt().toLocalDate().toString(),
                         "due_date", loan.getDueDate().toLocalDate().toString(),
                         "child_credit_score", child.getCreditScore() != null ? child.getCreditScore().getScore() : 0
@@ -424,7 +424,7 @@ public class LoanService {
         loanDetail.put("parent_name", parent != null ? Optional.ofNullable(parent.getUserName()).orElse("알 수 없음") : "알 수 없음");
         loanDetail.put("child_name", child != null ? Optional.ofNullable(child.getUserName()).orElse("알 수 없음") : "알 수 없음");
         loanDetail.put("loan_amount", loan.getLoanAmount());
-        loanDetail.put("last_amout", loan.getLastAmount() != null ? loan.getLastAmount() : loan.getLoanAmount());
+        loanDetail.put("last_amount", loan.getLastAmount() != null ? loan.getLastAmount() : loan.getLoanAmount());
         loanDetail.put("approved_at", loan.getApprovedAt() != null ? loan.getApprovedAt().toString() : null);
         loanDetail.put("repaid_at", loan.getRepaidAt() != null ? loan.getRepaidAt().toString() : null);
         loanDetail.put("request_date", loan.getRequestedAt() != null ? loan.getRequestedAt().toLocalDate().toString() : null);
@@ -480,7 +480,7 @@ public class LoanService {
         for (Loan loan : requestedLoans) {
             Map<String, Object> loanInfo = new HashMap<>();
             loanInfo.put("loan_id", loan.getLoanId());
-            loanInfo.put("total_loan_amount", loan.getLoanAmount());
+            loanInfo.put("loan_amount", loan.getLoanAmount());
             loanInfo.put("request_date", loan.getRequestedAt().toLocalDate().toString());
             loanInfo.put("due_date", loan.getDueDate().toLocalDate().toString());
             loanList.add(loanInfo);
@@ -651,7 +651,7 @@ public class LoanService {
                         "loan_id", loan.getLoanId(),
                         "due_date", loan.getDueDate().toLocalDate().toString(),
                         "repayment_amount", repaymentAmount,
-                        "total_loan_amount", loan.getLoanAmount(),
+                        "loan_amount", loan.getLoanAmount(),
                         "last_amount", loan.getLastAmount(),
                         "loan_status", loan.getStatus().name(),
                         "child_credit_score", updatedScore
@@ -772,7 +772,7 @@ public class LoanService {
             loanInfo.put("loan_id", loan.getLoanId());
             loanInfo.put("parent_name", loan.getParentChild().getParent().getUserName());
             loanInfo.put("due_date", loan.getDueDate().toLocalDate().toString());
-            loanInfo.put("total_loan_amount", loan.getLoanAmount());
+            loanInfo.put("loan_amount", loan.getLoanAmount());
             loanInfo.put("last_amount", loan.getLastAmount() != null ? loan.getLastAmount() : loan.getLoanAmount());
             loanInfo.put("child_credit_score", child.getCreditScore() != null ? child.getCreditScore().getScore() : 0);
             activeLoans.add(loanInfo);
