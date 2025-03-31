@@ -1,5 +1,5 @@
 import axios from "axios";
-import { API_BASE_URL } from "../config";
+import { API_BASE_URL } from "@/config";
 
 // API 응답 타입 정의
 export interface TransactionResponse {

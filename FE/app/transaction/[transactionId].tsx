@@ -2,9 +2,6 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   TouchableOpacity,
-  ScrollView,
-  Modal,
-  TextInput,
   Alert,
 } from "react-native";
 import { ChevronRight, Wallet } from "lucide-react-native";

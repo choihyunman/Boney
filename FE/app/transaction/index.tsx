@@ -59,14 +59,6 @@ export default function TransactionHistory() {
         token
       );
 
-      console.log("📥 API 응답:", response);
-      console.log("📥 API 응답 데이터:", response.data);
-      console.log("📥 API 응답 데이터 타입:", typeof response.data);
-      console.log(
-        "📥 API 응답 데이터 길이:",
-        Array.isArray(response.data) ? response.data.length : "Not an array"
-      );
-
       if (!response.data || !Array.isArray(response.data)) {
         console.error("❌ API 응답 데이터 형식 오류:", response);
         setError("거래 내역 데이터 형식이 올바르지 않습니다.");
@@ -159,14 +151,14 @@ export default function TransactionHistory() {
     <View className="flex-1 bg-white">
       {/* 월 선택기 */}
       <View className="mx-5 my-2">
-        <View className="flex-row items-center justify-center py-4 bg-gray-100 rounded-xl shadow-sm">
-          <TouchableOpacity onPress={goToPreviousMonth} className="mr-2">
+        <View className="flex-row items-center justify-center py-4 bg-gray-100 rounded-xl">
+          <TouchableOpacity onPress={goToPreviousMonth} className="mr-4">
             <ChevronLeft size={20} color={"#000000"} />
           </TouchableOpacity>
           <GlobalText className="text-lg font-medium px-10">
             {currentMonth}
           </GlobalText>
-          <TouchableOpacity onPress={goToNextMonth} className="ml-2">
+          <TouchableOpacity onPress={goToNextMonth} className="ml-4">
             <ChevronRight size={20} color={"#000000"} />
           </TouchableOpacity>
         </View>

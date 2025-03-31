@@ -1,6 +1,6 @@
 import { View, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
-import GlobalText from "./GlobalText";
+import GlobalText from "@/components/GlobalText";
 
 interface HeaderProps {
   title?: string;

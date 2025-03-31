@@ -139,6 +139,7 @@ export default function AccountForm() {
         setRecipient(newAccount);
 
         // 계좌 저장이 선택된 경우 API 호출
+        // 이미 등록된 계좌인 경우 사용자가 알 수 있도록 알림 표시
         if (saveAccount) {
           try {
             await addFavoriteAccount(
@@ -193,7 +194,11 @@ export default function AccountForm() {
               onPress={() => setShowBankList(!showBankList)}
             >
               <View className="flex-row items-center gap-3">
-                <GlobalText className={`text-base ${accountForm.bankName ? "text-black" : "text-[#9CA3AF]"}`}>
+                <GlobalText
+                  className={`text-base ${
+                    accountForm.bankName ? "text-black" : "text-[#9CA3AF]"
+                  }`}
+                >
                   {accountForm.bankName || "은행을 선택하세요"}
                 </GlobalText>
               </View>

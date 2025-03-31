@@ -7,7 +7,7 @@ type Props = {
   imageUri?: string;
 };
 
-export const ChildCard = ({ name, imageUri }: Props) => {
+const ChildCard = ({ name, imageUri }: Props) => {
   return (
     <View className="w-[160px] h-[154px] items-center p-4 bg-white border border-zinc-200 rounded-xl">
       {imageUri ? (
@@ -21,3 +21,5 @@ export const ChildCard = ({ name, imageUri }: Props) => {
     </View>
   );
 };
+
+export default ChildCard;

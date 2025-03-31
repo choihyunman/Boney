@@ -1,5 +1,5 @@
 import React from "react";
-import { Slot, router, usePathname } from "expo-router";
+import { Slot, router, usePathname, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import * as WebBrowser from "expo-web-browser";
 import { useEffect } from "react";
@@ -9,11 +9,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import "./global.css";
 import { StatusBar } from "expo-status-bar";
 import Header from "@/components/Header";
-import { ArrowLeft, Bell, ChevronLeft, Search } from "lucide-react-native";
+import { Bell, ChevronLeft, Search } from "lucide-react-native";
 import { Image } from "react-native";
 import Nav from "@/components/Nav";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { useColorScheme } from "nativewind";
+
 interface HeaderButton {
   icon: React.ReactNode;
   onPress: () => void;
@@ -39,6 +41,7 @@ function RootLayoutNav() {
 
   const pathname = usePathname();
   const { hasHydrated } = useAuthStore();
+  const { colorScheme } = useColorScheme();
 
   useEffect(() => {
     if (fontsLoaded) {
@@ -178,11 +181,9 @@ function RootLayoutNav() {
             onPress: () => router.back(),
           },
         };
-      case "/menu":
-      case "/menu/parent":
-      case "/menu/child":
+      case "/mypage":
         return {
-          title: "메뉴",
+          title: "마이페이지",
           backgroundColor: "white",
           leftButton: {
             icon: <ChevronLeft size={24} color="#000000" />,
@@ -190,8 +191,27 @@ function RootLayoutNav() {
           },
         };
       case "/loan/child/Request":
+      case "/loan/child/PromissoryNote":
         return {
           title: "대출 신청하기",
+          backgroundColor: "#F9FAFB",
+          leftButton: {
+            icon: <ChevronLeft size={24} color="#000000" />,
+            onPress: () => router.back(),
+          },
+        };
+      case "/mypage/password":
+        return {
+          title: "앱 비밀번호 변경",
+          backgroundColor: "white",
+          leftButton: {
+            icon: <ChevronLeft size={24} color="#000000" />,
+            onPress: () => router.back(),
+          },
+        };
+      case "/report":
+        return {
+          title: "월간 레포트",
           backgroundColor: "#F9FAFB",
           leftButton: {
             icon: <ChevronLeft size={24} color="#000000" />,
@@ -209,13 +229,14 @@ function RootLayoutNav() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
       <StatusBar style="auto" />
-      {(!pathname.includes("auth") || pathname === "/auth/SignUp") && (
-        <Header {...getHeaderConfig()} />
-      )}
+      {(!pathname.includes("auth") || pathname === "/auth/SignUp") &&
+        !pathname.includes("/menu/") &&
+        pathname !== "/menu" && <Header {...getHeaderConfig()} />}
       <Slot />
       {(pathname === "/home" ||
         pathname === "/transaction" ||
-        pathname === "/menu/child") && <Nav />}
+        pathname === "/menu/child" ||
+        pathname === "/menu/parent") && <Nav />}
     </SafeAreaView>
   );
 }

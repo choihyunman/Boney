@@ -52,8 +52,7 @@ export default function CompleteTransfer() {
   };
 
   const handleViewDetails = () => {
-    // 거래내역 보기 기능 추가 예정
-    console.log("거래내역 보기");
+    router.push("/transaction");
   };
 
   const handleHome = () => {
