@@ -153,7 +153,7 @@ public class LoanService {
     public ResponseEntity<?> approveLoan(LoanApproveAndTransferRequest request, Integer parentId) {
         if (request.getLoanId() == null) {
             return ResponseEntity.badRequest().body(Map.of(
-                    "status", 400,
+                    "status", 403,
                     "message", "loan_id는 필수입니다."
             ));
         }
@@ -161,7 +161,7 @@ public class LoanService {
         Loan loan = loanRepository.findById(request.getLoanId()).orElse(null);
         if (loan == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
-                    "status", 400,
+                    "status", 404,
                     "message", "해당 loan_id에 대한 대출 정보를 찾을 수 없습니다."
             ));
         }
@@ -184,7 +184,7 @@ public class LoanService {
 
         if (!passwordEncoder.matches(request.getPassword(), parentAccount.getAccountPassword())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
-                    "status", 401,
+                    "status", 402,
                     "message", "계좌 비밀번호가 올바르지 않습니다."
             ));
         }
@@ -194,7 +194,7 @@ public class LoanService {
 
         if (balance < loanAmount) {
             return ResponseEntity.badRequest().body(Map.of(
-                    "status", 400,
+                    "status", 405,
                     "message", "부모 계좌의 잔액이 부족합니다.",
                     "data", Map.of(
                             "available_balance", balance,
