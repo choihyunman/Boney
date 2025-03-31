@@ -18,6 +18,7 @@ public class ChildQuestHistoryService {
 
     private final QuestRepository questRepository;
 
+    // (아이 화면) 지난 퀘스트 목록 조회
     @Transactional
     public List<ChildQuestHistoryResponse> getPastQuests(Integer childId) {
         LocalDateTime now = LocalDateTime.now();

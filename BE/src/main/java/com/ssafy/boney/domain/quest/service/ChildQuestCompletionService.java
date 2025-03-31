@@ -2,6 +2,7 @@ package com.ssafy.boney.domain.quest.service;
 
 import com.ssafy.boney.domain.quest.entity.Quest;
 import com.ssafy.boney.domain.quest.entity.enums.QuestStatus;
+import com.ssafy.boney.domain.quest.exception.QuestErrorCode;
 import com.ssafy.boney.domain.quest.exception.QuestNotFoundException;
 import com.ssafy.boney.domain.quest.repository.QuestRepository;
 import com.ssafy.boney.global.s3.S3Service;
@@ -19,17 +20,17 @@ public class ChildQuestCompletionService {
     private final QuestRepository questRepository;
     private final S3Service s3Service;
 
-    // 아이 퀘스트 완료 요청
+    // (아이 화면) 퀘스트 완료 요청
     @Transactional
     public void requestQuestCompletion(Integer childId, Integer questId, MultipartFile questImage) {
         LocalDateTime now = LocalDateTime.now();
 
         Quest quest = questRepository.findById(questId)
-                .orElseThrow(() -> new QuestNotFoundException("해당 퀘스트를 찾을 수 없습니다."));
+                .orElseThrow(() -> new QuestNotFoundException(QuestErrorCode.QUEST_NOT_FOUND));
 
         // 아이 소유 검증
         if (!quest.getParentChild().getChild().getUserId().equals(childId)) {
-            throw new QuestNotFoundException("해당 퀘스트를 찾을 수 없습니다.");
+            throw new QuestNotFoundException(QuestErrorCode.QUEST_NOT_FOUND);
         }
 
         // 상태가 이미 WAITING_REWARD이면, 재요청 시도 시 예외 발생
