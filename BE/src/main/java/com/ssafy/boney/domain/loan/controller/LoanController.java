@@ -104,5 +104,11 @@ public class LoanController {
         return loanService.getRepaidLoansByParent(parentId);
     }
 
-    
+    // 보유 중인 대출 조회 (아이) api
+    @GetMapping("/child/approved")
+    public ResponseEntity<?> getApprovedLoansWithRepayments(HttpServletRequest request) {
+        Integer childId = (Integer) request.getAttribute("userId");
+        return loanService.getApprovedLoansWithRepayments(childId);
+    }
+
 }
