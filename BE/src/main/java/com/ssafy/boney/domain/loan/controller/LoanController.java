@@ -90,12 +90,25 @@ public class LoanController {
         return loanService.repayLoan(childId, request);
     }
 
-    // 상환 완료된 대출 보기 api
+    // 상환 완료된 대출 보기 (아이) api
     @GetMapping("/child/repaid")
     public ResponseEntity<?> getRepaidLoansByChild(HttpServletRequest request) {
         Integer childId = (Integer) request.getAttribute("userId");
         return loanService.getRepaidLoansByChild(childId);
     }
 
-    
+    // 상환 완료된 대출 보기 (부모) api
+    @GetMapping("/parent/repaid")
+    public ResponseEntity<?> getRepaidLoansByParent(HttpServletRequest request) {
+        Integer parentId = (Integer) request.getAttribute("userId");
+        return loanService.getRepaidLoansByParent(parentId);
+    }
+
+    // 보유 중인 대출 조회 (아이) api
+    @GetMapping("/child/approved")
+    public ResponseEntity<?> getApprovedLoansWithRepayments(HttpServletRequest request) {
+        Integer childId = (Integer) request.getAttribute("userId");
+        return loanService.getApprovedLoansWithRepayments(childId);
+    }
+
 }
