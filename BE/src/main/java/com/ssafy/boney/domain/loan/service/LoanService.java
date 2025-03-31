@@ -150,7 +150,7 @@ public class LoanService {
 
     // 대출 승인 상태로 변경
     @Transactional
-    public ResponseEntity<?> approveLoan(LoanApproveRequest request, Integer parentId) {
+    public ResponseEntity<?> approveLoan(LoanApproveAndTransferRequest request, Integer parentId) {
         if (request.getLoanId() == null) {
             return ResponseEntity.badRequest().body(Map.of(
                     "status", 400,
@@ -158,9 +158,7 @@ public class LoanService {
             ));
         }
 
-        Loan loan = loanRepository.findById(request.getLoanId())
-                .orElse(null);
-
+        Loan loan = loanRepository.findById(request.getLoanId()).orElse(null);
         if (loan == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
                     "status", 400,
@@ -168,16 +166,50 @@ public class LoanService {
             ));
         }
 
-        // 부모 권한 검증
-        ParentChild parentChild = loan.getParentChild();
-        if (!parentChild.getParent().getUserId().equals(parentId)) {
+        ParentChild relation = loan.getParentChild();
+        User parent = relation.getParent();
+        User child = relation.getChild();
+
+        if (!parent.getUserId().equals(parentId)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
                     "status", 401,
                     "message", "토큰이 없거나 만료되었습니다."
             ));
         }
 
-        // 상태 업데이트
+        Account parentAccount = accountRepository.findByUser(parent)
+                .orElseThrow(() -> new CustomException(TransactionErrorCode.ACCOUNT_NOT_FOUND));
+        Account childAccount = accountRepository.findByUser(child)
+                .orElseThrow(() -> new CustomException(TransactionErrorCode.ACCOUNT_NOT_FOUND));
+
+        if (!passwordEncoder.matches(request.getPassword(), parentAccount.getAccountPassword())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                    "status", 401,
+                    "message", "계좌 비밀번호가 올바르지 않습니다."
+            ));
+        }
+
+        Long balance = bankingApiService.getAccountBalance(parentAccount.getAccountNumber());
+        Long loanAmount = loan.getLoanAmount();
+
+        if (balance < loanAmount) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", 400,
+                    "message", "부모 계좌의 잔액이 부족합니다.",
+                    "data", Map.of(
+                            "available_balance", balance,
+                            "required_amount", loanAmount
+                    )
+            ));
+        }
+
+        bankingApiService.transfer(
+                parentAccount.getAccountNumber(),
+                childAccount.getAccountNumber(),
+                loanAmount,
+                "대출 승인 " + parent.getUserName()
+        );
+
         loan.setStatus(LoanStatus.APPROVED);
         loan.setApprovedAt(LocalDateTime.now());
 
@@ -186,7 +218,10 @@ public class LoanService {
                 "message", "대출 요청이 승인되었습니다.",
                 "data", Map.of(
                         "loan_id", loan.getLoanId(),
-                        "approved_at", loan.getApprovedAt(),
+                        "child_name", child.getUserName(),
+                        "loan_amount", loanAmount,
+                        "approved_at", loan.getApprovedAt().toLocalDate().toString(),
+                        "due_date", loan.getDueDate().toLocalDate().toString(),
                         "loan_status", loan.getStatus().name()
                 )
         ));

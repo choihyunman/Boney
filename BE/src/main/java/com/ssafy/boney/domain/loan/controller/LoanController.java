@@ -30,7 +30,7 @@ public class LoanController {
 
     // 대출 승인 상태로 변경 api
     @PostMapping("/approve")
-    public ResponseEntity<?> approveLoan(@RequestBody LoanApproveRequest request,
+    public ResponseEntity<?> approveLoan(@RequestBody LoanApproveAndTransferRequest request,
                                          HttpServletRequest httpRequest) {
         Integer parentId = (Integer) httpRequest.getAttribute("userId");
         return loanService.approveLoan(request, parentId);
