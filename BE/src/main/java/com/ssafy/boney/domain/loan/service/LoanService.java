@@ -528,20 +528,31 @@ public class LoanService {
     }
 
 
+    // 대출 상환
     @Transactional
     public ResponseEntity<?> repayLoan(Integer childId, LoanRepaymentRequest request) {
         // 1. 자녀 조회
         User child = userRepository.findById(childId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElse(null);
+        if (child == null) {
+            return ResponseEntity.status(404).body(Map.of(
+                    "status", 404,
+                    "message", "사용자를 찾을 수 없습니다."
+            ));
+        }
 
         // 2. 대출 조회 및 검증
         Loan loan = loanRepository.findById(request.getLoanId())
-                .orElseThrow(() -> new IllegalArgumentException("대출 정보를 찾을 수 없습니다."));
-
-        System.out.println("loanId: " + loan.getLoanId()); // <= 반드시 null이 아니어야 합니다
+                .orElse(null);
+        if (loan == null) {
+            return ResponseEntity.status(405).body(Map.of(
+                    "status", 405,
+                    "message", "대출 정보를 찾을 수 없습니다."
+            ));
+        }
 
         if (!loan.getParentChild().getChild().getUserId().equals(childId)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+            return ResponseEntity.status(401).body(Map.of(
                     "status", 401,
                     "message", "해당 대출에 대한 권한이 없습니다."
             ));
@@ -556,14 +567,27 @@ public class LoanService {
 
         // 3. 자녀/부모 계좌 조회
         Account childAccount = accountRepository.findByUser(child)
-                .orElseThrow(() -> new IllegalArgumentException("자녀 계좌를 찾을 수 없습니다."));
+                .orElse(null);
+        if (childAccount == null) {
+            return ResponseEntity.status(406).body(Map.of(
+                    "status", 406,
+                    "message", "자녀 계좌를 찾을 수 없습니다."
+            ));
+        }
+
         Account parentAccount = accountRepository.findByUser(loan.getParentChild().getParent())
-                .orElseThrow(() -> new IllegalArgumentException("부모 계좌를 찾을 수 없습니다."));
+                .orElse(null);
+        if (parentAccount == null) {
+            return ResponseEntity.status(407).body(Map.of(
+                    "status", 407,
+                    "message", "부모 계좌를 찾을 수 없습니다."
+            ));
+        }
 
         // 4. 비밀번호 검증
         if (!passwordEncoder.matches(request.getPassword(), childAccount.getAccountPassword())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
-                    "status", 401,
+            return ResponseEntity.status(403).body(Map.of(
+                    "status", 403,
                     "message", "계좌 비밀번호가 올바르지 않습니다."
             ));
         }
@@ -575,7 +599,7 @@ public class LoanService {
 
         if (availableBalance < repaymentAmount) {
             return ResponseEntity.badRequest().body(Map.of(
-                    "status", 400,
+                    "status", 408,
                     "message", "자녀 계좌의 잔액이 부족합니다.",
                     "data", Map.of(
                             "available_balance", availableBalance,
@@ -629,6 +653,7 @@ public class LoanService {
                         "repayment_amount", repaymentAmount,
                         "total_loan_amount", loan.getLoanAmount(),
                         "last_amount", loan.getLastAmount(),
+                        "loan_status", loan.getStatus().name(),
                         "child_credit_score", updatedScore
                 )
         ));
