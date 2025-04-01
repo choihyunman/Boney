@@ -1,3 +1,24 @@
+def notifyMattermost(success) {
+    def color = success ? "#00c853" : "#d50000"
+    def msg = success ? "✅ *배포 성공!* `release` 브랜치 기준 자동 배포 완료되었습니다. 🎉" :
+                        "❌ *배포 실패!* `release` 브랜치 기준 자동 배포에 실패했습니다. 🔥"
+
+    withCredentials([string(credentialsId: 'mattermost-webhook', variable: 'WEBHOOK_URL')]) {
+        sh """
+        curl -X POST -H 'Content-Type: application/json' \
+        -d '{
+            "username": "Jenkins Bot",
+            "icon_emoji": ":rocket:",
+            "attachments": [{
+                "fallback": "${msg}",
+                "color": "${color}",
+                "text": "${msg}"
+            }]
+        }' $WEBHOOK_URL
+        """
+    }
+}
+
 pipeline {
     agent { label 'ec2' }
 
@@ -10,22 +31,35 @@ pipeline {
     }
 
     stages {
-        stage('Force Fix Permissions Before Clean') {
-        steps {
-            echo "🔐 deleteDir 전에 퍼미션 강제 수정"
-            sh '''
-            sudo chown -R ubuntu:ubuntu . || true
-            sudo chmod -R u+rwX . || true
-            '''
+        stage('Check Target Branch') {
+            steps {
+                script {
+                    echo "🔍 현재 브랜치: ${env.gitlabTargetBranch}"
+                    if (env.gitlabTargetBranch != 'release') {
+                        echo "🚫 release 브랜치가 아니므로 전체 배포 프로세스를 건너뜁니다."
+                        currentBuild.result = 'SUCCESS'
+                        error("💤 파이프라인 중단")  // 메시지 없이 종료
+                    }
+                }
+            }
         }
-    }
 
-    stage('Clean Workspace') {
-        steps {
-            echo "🧹 이전 워크스페이스 정리 중..."
-            deleteDir()
+        stage('Force Fix Permissions Before Clean') {
+            steps {
+                echo "🔐 deleteDir 전에 퍼미션 강제 수정"
+                sh '''
+                sudo chown -R ubuntu:ubuntu . || true
+                sudo chmod -R u+rwX . || true
+                '''
+            }
         }
-    }
+
+        stage('Clean Workspace') {
+            steps {
+                echo "🧹 이전 워크스페이스 정리 중..."
+                deleteDir()
+            }
+        }
 
         stage('Fix Permissions') {
             steps {
@@ -138,26 +172,5 @@ pipeline {
             echo '❌ 배포 실패!'
             notifyMattermost(false)
         }
-    }
-}
-
-def notifyMattermost(success) {
-    def color = success ? "#00c853" : "#d50000"
-    def msg = success ? "✅ *배포 성공!* `release` 브랜치 기준 자동 배포 완료되었습니다. 🎉" :
-                        "❌ *배포 실패!* `release` 브랜치 기준 자동 배포에 실패했습니다. 🔥"
-
-    withCredentials([string(credentialsId: 'mattermost-webhook', variable: 'WEBHOOK_URL')]) {
-        sh """
-        curl -X POST -H 'Content-Type: application/json' \
-        -d '{
-            "username": "Jenkins Bot",
-            "icon_emoji": ":rocket:",
-            "attachments": [{
-                "fallback": "${msg}",
-                "color": "${color}",
-                "text": "${msg}"
-            }]
-        }' $WEBHOOK_URL
-        """
     }
 }
