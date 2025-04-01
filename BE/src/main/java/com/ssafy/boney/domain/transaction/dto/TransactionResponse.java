@@ -11,7 +11,7 @@ import java.util.List;
  */
 @Getter
 @AllArgsConstructor
-public class TransactionResponseDto {
+public class TransactionResponse {
     private Integer transactionId;
     private LocalDateTime transactionDate;
     private String transactionContent;

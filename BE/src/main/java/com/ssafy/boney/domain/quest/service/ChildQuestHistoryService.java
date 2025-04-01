@@ -23,14 +23,14 @@ public class ChildQuestHistoryService {
     public List<ChildQuestHistoryResponse> getPastQuests(Integer childId) {
         LocalDateTime now = LocalDateTime.now();
 
-        // (1) 만료된 퀘스트 업데이트: IN_PROGRESS 상태인데 마감 시간이 지난 경우
+        // 만료된 퀘스트 업데이트: IN_PROGRESS 상태인데 마감 시간이 지난 경우
         List<Quest> expiredQuests = questRepository.findExpiredQuestsForChild(childId, now);
         for (Quest quest : expiredQuests) {
             quest.setQuestStatus(QuestStatus.FAILED);
             quest.setFinishDate(quest.getEndDate());
         }
 
-        // (2) 지난 퀘스트 조회 (SUCCESS, FAILED)
+        // 지난 퀘스트 조회 (SUCCESS, FAILED)
         List<Quest> pastQuests = questRepository.findPastQuestsByChild(childId);
 
         return pastQuests.stream()

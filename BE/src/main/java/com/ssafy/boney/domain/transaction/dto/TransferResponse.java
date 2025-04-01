@@ -6,7 +6,7 @@ import lombok.Data;
 // 송금 response dto
 @Data
 @AllArgsConstructor
-public class TransferResponseDto {
+public class TransferResponse {
     private String status;
     private String message;
     private TransferData data;

@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 // 잔액 조회 dto
-public class BalanceResponseDto {
+public class BalanceResponse {
     private long balance;
     private String accountNumber;
     private String bankName;

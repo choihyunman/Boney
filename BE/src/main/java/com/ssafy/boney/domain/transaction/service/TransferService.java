@@ -38,21 +38,21 @@ public class TransferService {
     private final FastApiClient fastApiClient;
 
     // 예금주 조회
-    public HolderCheckResponseDto getAccountHolder(String accountNo) {
+    public HolderCheckResponse getAccountHolder(String accountNo) {
         String accountHolderName;
         try {
             accountHolderName = bankingApiService.getAccountHolderName(accountNo);
         } catch (RuntimeException e) {
             throw new CustomException(TransactionErrorCode.ACCOUNT_NOT_FOUND);
         }
-        HolderCheckResponseDto dto = new HolderCheckResponseDto();
+        HolderCheckResponse dto = new HolderCheckResponse();
         dto.setAccountHolderName(accountHolderName);
         return dto;
     }
 
 
     // 잔액 조회
-    public BalanceResponseDto getSenderBalance(Integer senderUserId) {
+    public BalanceResponse getSenderBalance(Integer senderUserId) {
         User sender = userRepository.findById(senderUserId)
                 .orElseThrow(() -> new CustomException(TransactionErrorCode.USER_NOT_FOUND));
         Account senderAccount = accountRepository.findByUser(sender)
@@ -60,7 +60,7 @@ public class TransferService {
 
         Long balance = bankingApiService.getAccountBalance(senderAccount.getAccountNumber());
 
-        BalanceResponseDto dto = new BalanceResponseDto();
+        BalanceResponse dto = new BalanceResponse();
         dto.setBalance(balance);
         dto.setAccountNumber(senderAccount.getAccountNumber());
         dto.setBankName(senderAccount.getBank().getBankName());
@@ -70,7 +70,7 @@ public class TransferService {
 
     // 송금
     @Transactional
-    public TransferResponseDto processTransfer(TransferRequestDto request, Integer senderUserId) {
+    public TransferResponse processTransfer(TransferRequest request, Integer senderUserId) {
         // 1. 송금자 조회
         User sender = userRepository.findById(senderUserId)
                 .orElseThrow(() -> new CustomException(TransactionErrorCode.USER_NOT_FOUND));
@@ -145,12 +145,12 @@ public class TransferService {
         data.setAmount(request.getAmount());
         data.setCreatedAt(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 
-        return new TransferResponseDto("200", "성공적으로 송금되었습니다.", data);
+        return new TransferResponse("200", "성공적으로 송금되었습니다.", data);
     }
 
     // 보호자 -> 아이 용돈 지급
     @Transactional
-    public ParentChildTransferResponseDto processParentChildTransfer(ParentChildTransferRequestDto request, Integer parentUserId) {
+    public ParentChildTransferResponse processParentChildTransfer(ParentChildTransferRequest request, Integer parentUserId) {
         // 1. 보호자 조회
         User parent = userRepository.findById(parentUserId)
                 .orElseThrow(() -> new CustomException(TransactionErrorCode.USER_NOT_FOUND));
@@ -188,7 +188,7 @@ public class TransferService {
         );
 
         // 8. 응답 생성
-        ParentChildTransferResponseDto response = new ParentChildTransferResponseDto();
+        ParentChildTransferResponse response = new ParentChildTransferResponse();
         response.setAccountNumber(childAccount.getAccountNumber());
         response.setChildName(child.getUserName());
 
