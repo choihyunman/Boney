@@ -12,6 +12,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 @Service
 public class BankingApiServiceImpl implements BankingApiService {
@@ -125,6 +126,7 @@ public class BankingApiServiceImpl implements BankingApiService {
 
     // 헤더 생성
     private Map<String, Object> generateHeader(String apiName) {
+        String random6 = String.format("%06d", new Random().nextInt(1_000_000));
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter date = DateTimeFormatter.ofPattern("yyyyMMdd");
         DateTimeFormatter time = DateTimeFormatter.ofPattern("HHmmss");
@@ -136,7 +138,7 @@ public class BankingApiServiceImpl implements BankingApiService {
         header.put("institutionCode", "00100");
         header.put("fintechAppNo", "001");
         header.put("apiServiceCode", apiName);
-        header.put("institutionTransactionUniqueNo", now.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")) + "123456");
+        header.put("institutionTransactionUniqueNo", now.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")) + random6);
         header.put("apiKey", apiKey);
         header.put("userKey", userKey);
         return header;

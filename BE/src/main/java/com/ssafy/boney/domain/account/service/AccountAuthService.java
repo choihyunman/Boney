@@ -31,15 +31,15 @@ public class AccountAuthService {
         String institutionTransactionUniqueNo = transmissionDate + transmissionTime + random6;
 
         Map<String, Object> header = Map.of(
-                "apiName", externalApiProperties.getApiServiceCode(),
+                "apiName", externalApiProperties.getAccountAuth().getApiServiceCode(),
                 "transmissionDate", transmissionDate,
                 "transmissionTime", transmissionTime,
-                "institutionCode", externalApiProperties.getInstitutionCode(),
-                "fintechAppNo", externalApiProperties.getFintechAppNo(),
-                "apiServiceCode", externalApiProperties.getApiServiceCode(),
+                "institutionCode", externalApiProperties.getAccountAuth().getInstitutionCode(),
+                "fintechAppNo", externalApiProperties.getAccountAuth().getFintechAppNo(),
+                "apiServiceCode", externalApiProperties.getAccountAuth().getApiServiceCode(),
                 "institutionTransactionUniqueNo", institutionTransactionUniqueNo,
-                "apiKey", externalApiProperties.getApiKey(),
-                "userKey", externalApiProperties.getUserKey()
+                "apiKey", externalApiProperties.getAccountAuth().getApiKey(),
+                "userKey", externalApiProperties.getAccountAuth().getUserKey()
         );
 
         Map<String, Object> body = Map.of(
@@ -49,7 +49,7 @@ public class AccountAuthService {
         );
 
         return webClient.post()
-                .uri(externalApiProperties.getUrlOneCoin())
+                .uri(externalApiProperties.getAccountAuth().getUrlOneCoin())
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .bodyValue(body)
                 .retrieve()
@@ -71,12 +71,12 @@ public class AccountAuthService {
                 "apiName", "checkAuthCode",
                 "transmissionDate", transmissionDate,
                 "transmissionTime", transmissionTime,
-                "institutionCode", externalApiProperties.getInstitutionCode(),
-                "fintechAppNo", externalApiProperties.getFintechAppNo(),
+                "institutionCode", externalApiProperties.getAccountAuth().getInstitutionCode(),
+                "fintechAppNo", externalApiProperties.getAccountAuth().getFintechAppNo(),
                 "apiServiceCode", "checkAuthCode",
                 "institutionTransactionUniqueNo", institutionTransactionUniqueNo,
-                "apiKey", externalApiProperties.getApiKey(),
-                "userKey", externalApiProperties.getUserKey()
+                "apiKey", externalApiProperties.getAccountAuth().getApiKey(),
+                "userKey", externalApiProperties.getAccountAuth().getUserKey()
         );
 
         Map<String, Object> body = Map.of(
@@ -87,7 +87,7 @@ public class AccountAuthService {
         );
 
         return webClient.post()
-                .uri(externalApiProperties.getUrlOneCoinCheck())
+                .uri(externalApiProperties.getAccountAuth().getUrlOneCoinCheck())
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .bodyValue(body)
                 .retrieve()
@@ -106,21 +106,21 @@ public class AccountAuthService {
                 "apiName", "createDemandDepositAccount",
                 "transmissionDate", transmissionDate,
                 "transmissionTime", transmissionTime,
-                "institutionCode", externalApiProperties.getInstitutionCode(),
-                "fintechAppNo", externalApiProperties.getFintechAppNo(),
+                "institutionCode", externalApiProperties.getAccountAuth().getInstitutionCode(),
+                "fintechAppNo", externalApiProperties.getAccountAuth().getFintechAppNo(),
                 "apiServiceCode", "createDemandDepositAccount",
                 "institutionTransactionUniqueNo", institutionTransactionUniqueNo,
-                "apiKey", externalApiProperties.getApiKey(),
-                "userKey", externalApiProperties.getUserKey()
+                "apiKey", externalApiProperties.getAccountAuth().getApiKey(),
+                "userKey", externalApiProperties.getAccountAuth().getUserKey()
         );
 
         Map<String, Object> body = Map.of(
                 "Header", header,
-                "accountTypeUniqueNo", externalApiProperties.getAccountTypeUniqueNo()
+                "accountTypeUniqueNo", externalApiProperties.getAccountAuth().getAccountTypeUniqueNo()
         );
 
         return webClient.post()
-                .uri(externalApiProperties.getUrlAccountCreate())
+                .uri(externalApiProperties.getAccountAuth().getUrlAccountCreate())
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .bodyValue(body)
                 .retrieve()
