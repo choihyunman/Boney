@@ -2,7 +2,7 @@ package com.ssafy.boney.domain.transaction.service;
 
 import com.ssafy.boney.domain.account.entity.Account;
 import com.ssafy.boney.domain.account.repository.AccountRepository;
-import com.ssafy.boney.domain.transaction.dto.TransactionResponseDto;
+import com.ssafy.boney.domain.transaction.dto.TransactionResponse;
 import com.ssafy.boney.domain.transaction.entity.*;
 import com.ssafy.boney.domain.transaction.entity.enums.TransactionType;
 import com.ssafy.boney.domain.transaction.repository.*;
@@ -113,7 +113,7 @@ public class TransactionService {
     /**
      * 연도, 월, 타입으로 거래내역 조회
      */
-    public List<TransactionResponseDto> getTransactions(int year, int month, String typeStr, User user) {
+    public List<TransactionResponse> getTransactions(int year, int month, String typeStr, User user) {
         TransactionType type = "all".equalsIgnoreCase(typeStr)
                 ? null
                 : TransactionType.valueOf(typeStr.toUpperCase());
@@ -124,7 +124,7 @@ public class TransactionService {
         }
 
         return transactions.stream()
-                .map(t -> new TransactionResponseDto(
+                .map(t -> new TransactionResponse(
                         t.getTransactionId(),
                         t.getCreatedAt(),
                         // 가맹점명 or 기타
@@ -140,13 +140,13 @@ public class TransactionService {
                 .collect(Collectors.toList());
     }
 
-    public TransactionResponseDto getTransactionDetail(Integer transactionId, User user) {
+    public TransactionResponse getTransactionDetail(Integer transactionId, User user) {
         // userId(로그인 유저)의 거래내역 중 transactionId가 맞는 것만 조회
         Transaction transaction = transactionRepository
                 .findByTransactionIdAndUser_UserId(transactionId, user.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("해당 거래 내역을 찾을 수 없습니다."));
 
-        return new TransactionResponseDto(
+        return new TransactionResponse(
                 transaction.getTransactionId(),
                 transaction.getCreatedAt(),
                 transaction.getTransactionContent().getContentName(),

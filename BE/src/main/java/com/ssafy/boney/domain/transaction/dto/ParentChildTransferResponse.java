@@ -3,7 +3,7 @@ package com.ssafy.boney.domain.transaction.dto;
 import lombok.Data;
 
 @Data
-public class ParentChildTransferResponseDto {
+public class ParentChildTransferResponse {
     private String accountNumber;
     private String childName;
 }
