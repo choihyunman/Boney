@@ -70,13 +70,26 @@ public class TransactionService {
                 afterBalance = Long.parseLong(tx.get("transactionAfterBalance"));
             }
 
+            String contentName;
+            if (summary != null) {
+                if (summary.contains("이체")) {
+                    contentName = "이체";
+                } else if (summary.contains("용돈")) {
+                    contentName = "용돈";
+                } else if (summary.contains("퀘스트")) {
+                    contentName = "퀘스트";
+                } else {
+                    contentName = summary;
+                }
+            } else {
+                contentName = "기타";
+            }
+
             // TransactionContent 확인 (없으면 "기타"로 처리)
             TransactionContent content = transactionContentRepository
-                    .findByContentName(summary)
-                    .orElseGet(() -> {
-                        return transactionContentRepository.findByContentName("기타")
-                                .orElseThrow(() -> new ResourceNotFoundException("카테고리에 기타가 존재하지 않습니다"));
-                    });
+                    .findByContentName(contentName)
+                    .orElseGet(() -> transactionContentRepository.findByContentName("기타")
+                            .orElseThrow(() -> new ResourceNotFoundException("카테고리에 기타가 존재하지 않습니다")));
 
             // 최종 카테고리 결정 (기본값)
             TransactionCategory mappedCategory = content.getDefaultTransactionCategory();
