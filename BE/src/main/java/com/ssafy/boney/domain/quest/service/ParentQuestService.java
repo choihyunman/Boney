@@ -1,6 +1,7 @@
 package com.ssafy.boney.domain.quest.service;
 
 import com.ssafy.boney.domain.quest.dto.ParentQuestCreateRequest;
+import com.ssafy.boney.domain.quest.dto.ParentQuestCreateResponse;
 import com.ssafy.boney.domain.quest.entity.Quest;
 import com.ssafy.boney.domain.quest.entity.QuestCategory;
 import com.ssafy.boney.domain.quest.entity.enums.QuestStatus;
@@ -25,7 +26,7 @@ public class ParentQuestService {
     private final UserService userService;
 
     // (보호자 페이지) 퀘스트 생성
-    public void createQuest(Integer parentId, ParentQuestCreateRequest requestDto) {
+    public ParentQuestCreateResponse createQuest(Integer parentId, ParentQuestCreateRequest requestDto) {
         // 1) 보호자 엔티티 조회
         User parent = userService.findById(parentId);
         if (parent == null) {
@@ -57,6 +58,15 @@ public class ParentQuestService {
                 .build();
 
         questRepository.save(quest);
+
+        return ParentQuestCreateResponse.builder()
+                .childName(parentChild.getChild().getUserName())
+                .questCategory(questCategory.getCategoryName())
+                .questTitle(quest.getQuestTitle())
+                .questReward(quest.getQuestReward())
+                .endDate(quest.getEndDate().toLocalDate())
+                .questMessage(quest.getQuestMessage())
+                .build();
     }
 
 

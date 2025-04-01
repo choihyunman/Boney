@@ -48,12 +48,12 @@ public class ParentQuestController {
 
     // 2. 퀘스트 생성
     @PostMapping
-    public ResponseEntity<ApiResponse<?>> createQuest(
+    public ResponseEntity<ApiResponse<ParentQuestCreateResponse>> createQuest(
             @RequestAttribute("userId") Integer parentId,
             @RequestBody ParentQuestCreateRequest requestDto) {
         try {
-            parentQuestService.createQuest(parentId, requestDto);
-            return ResponseEntity.ok(new ApiResponse<>(200, "퀘스트 생성에 성공했습니다.", null));
+            ParentQuestCreateResponse responseDto = parentQuestService.createQuest(parentId, requestDto);
+            return ResponseEntity.ok(new ApiResponse<>(200, "퀘스트 생성에 성공했습니다.", responseDto));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new ApiResponse<>(404, e.getMessage(), null));
