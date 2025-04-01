@@ -4,7 +4,6 @@ package com.ssafy.boney.domain.quest.controller;
 import com.ssafy.boney.domain.quest.dto.*;
 import com.ssafy.boney.domain.quest.exception.QuestNotFoundException;
 import com.ssafy.boney.domain.quest.service.*;
-import com.ssafy.boney.domain.transaction.dto.TransferResponseDto;
 import com.ssafy.boney.domain.user.entity.User;
 import com.ssafy.boney.domain.user.service.UserService;
 import com.ssafy.boney.global.dto.ApiResponse;
@@ -18,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/quests")
+@RequestMapping("/api/v1/parents/quests")
 @RequiredArgsConstructor
 public class ParentQuestController {
 
@@ -32,7 +31,7 @@ public class ParentQuestController {
     private final ParentQuestApprovalService parentQuestApprovalService;
 
 
-    // 1. 보호자 아이 목록 조회
+    // 1. 보호자 - 퀘스트 아이 목록 조회
     @GetMapping("/children")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getQuestChildren(
             @RequestAttribute("userId") Integer parentId) {
@@ -98,7 +97,7 @@ public class ParentQuestController {
 
 
     // 5. 보호자 진행 중 퀘스트 목록 조회
-    @GetMapping("/parent/list")
+    @GetMapping
     public ResponseEntity<ApiResponse<Map<String, Object>>> getOngoingQuests(
             @RequestAttribute("userId") Integer parentId) {
         List<ParentQuestListResponse> quests = parentQuestListService.getOngoingQuests(parentId);
@@ -113,7 +112,7 @@ public class ParentQuestController {
 
 
     // 6. 보호자 지난 퀘스트 조회
-    @GetMapping("/parent/history")
+    @GetMapping("/history")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getPastQuests(
             @RequestAttribute("userId") Integer parentId) {
         List<ParentQuestHistoryResponse> quests = parentQuestHistoryService.getPastQuests(parentId);
@@ -128,7 +127,7 @@ public class ParentQuestController {
 
 
     // 7. 보상 대기 퀘스트 상세 조회
-    @GetMapping("/{questId}/parent/waiting-reward")
+    @GetMapping("/{questId}/waiting-reward")
     public ResponseEntity<ApiResponse<?>> getWaitingRewardQuestDetail(
             @RequestAttribute("userId") Integer parentId,
             @PathVariable("questId") Integer questId) {
@@ -143,15 +142,15 @@ public class ParentQuestController {
 
 
     // 8. 퀘스트 성공 처리 + 보상 송금
-    @PostMapping("/{questId}/approve")
-    public ResponseEntity<ApiResponse<TransferResponseDto>> approveQuest(
+    @PostMapping("/{questId}/approval")
+    public ResponseEntity<ApiResponse<ParentQuestApprovalResponse>> approveQuest(
             @RequestAttribute("userId") Integer parentId,
             @PathVariable("questId") Integer questId,
             @RequestBody ParentQuestApprovalRequest approvalRequest
     ) {
         try {
-            TransferResponseDto responseDto = parentQuestApprovalService.approveQuestCompletion(parentId, questId, approvalRequest);
-            return ResponseEntity.ok(new ApiResponse<>(200, "용돈이 성공적으로 송금되었습니다.", responseDto));
+            ParentQuestApprovalResponse responseDto = parentQuestApprovalService.approveQuestCompletion(parentId, questId, approvalRequest);
+            return ResponseEntity.ok(new ApiResponse<>(200, "퀘스트 보상이 성공적으로 송금되었습니다.", responseDto));
         } catch (QuestNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new ApiResponse<>(404, e.getMessage(), null));
@@ -160,5 +159,4 @@ public class ParentQuestController {
                     .body(new ApiResponse<>(400, e.getMessage(), null));
         }
     }
-
 }
