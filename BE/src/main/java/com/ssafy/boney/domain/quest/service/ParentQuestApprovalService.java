@@ -8,6 +8,7 @@ import com.ssafy.boney.domain.quest.dto.ParentQuestApprovalResponse;
 import com.ssafy.boney.domain.quest.entity.Quest;
 import com.ssafy.boney.domain.quest.entity.enums.QuestStatus;
 import com.ssafy.boney.domain.quest.exception.QuestErrorCode;
+import com.ssafy.boney.domain.quest.exception.QuestException;
 import com.ssafy.boney.domain.quest.exception.QuestNotFoundException;
 import com.ssafy.boney.domain.quest.repository.QuestRepository;
 import com.ssafy.boney.domain.transaction.exception.CustomException;
@@ -45,7 +46,7 @@ public class ParentQuestApprovalService {
         }
         // 2. 상태가 WAITING_REWARD인지 확인
         if (!quest.getQuestStatus().equals(QuestStatus.WAITING_REWARD)) {
-            throw new IllegalArgumentException("해당 퀘스트는 보상 대기 상태가 아닙니다.");
+            throw new QuestException(QuestErrorCode.INVALID_STATE_FOR_APPROVAL);
         }
 
         // 3. 보호자 및 아이 계좌 정보 조회
@@ -53,9 +54,9 @@ public class ParentQuestApprovalService {
         User child = quest.getParentChild().getChild();
 
         Account parentAccount = accountRepository.findByUser(parent)
-                .orElseThrow(() -> new IllegalArgumentException("보호자 계좌 정보가 없습니다."));
+                .orElseThrow(() -> new QuestException(QuestErrorCode.PARENT_ACCOUNT_NOT_FOUND));
         Account childAccount = accountRepository.findByUser(child)
-                .orElseThrow(() -> new IllegalArgumentException("아이 계좌정보가 없습니다."));
+                .orElseThrow(() -> new QuestException(QuestErrorCode.CHILD_ACCOUNT_NOT_FOUND));
 
         String fromAccount = parentAccount.getAccountNumber();
         String toAccount = childAccount.getAccountNumber();
@@ -88,8 +89,8 @@ public class ParentQuestApprovalService {
                 .transferCreatedAt(nowStr)
                 .questTitle(quest.getQuestTitle())
                 .questMessage(quest.getQuestMessage())
-                .finishDate(nowStr)    // 퀘스트 완료일 (finish_date)
-                .approvalDate(nowStr)  // 승인일 (송금 시각)
+                .finishDate(nowStr)
+                .approvalDate(nowStr)
                 .build();
 
         // 7. 아이 신용점수 증가 (2점)

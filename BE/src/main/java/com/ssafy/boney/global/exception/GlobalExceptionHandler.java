@@ -1,5 +1,6 @@
 package com.ssafy.boney.global.exception;
 
+import com.ssafy.boney.domain.quest.dto.ApiQuestResponse;
 import com.ssafy.boney.domain.quest.exception.QuestErrorCode;
 import com.ssafy.boney.domain.quest.exception.QuestException;
 import com.ssafy.boney.domain.transaction.exception.CustomException;
@@ -55,10 +56,15 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(QuestException.class)
-    public ResponseEntity<ApiResponse<Object>> handleQuestException(QuestException ex) {
-        QuestErrorCode errorCode = ex.getErrorCode();
-        ApiResponse<Object> response = new ApiResponse<>(errorCode.getStatus(), errorCode.getMessage(), null);
-        return ResponseEntity.status(errorCode.getStatus()).body(response);
+    public ResponseEntity<ApiQuestResponse<Object>> handleQuestException(QuestException ex) {
+        QuestErrorCode code = ex.getErrorCode();
+        return ResponseEntity.status(code.getStatus())
+                .body(new ApiQuestResponse<>(
+                        code.getStatus(),
+                        code.getMessage(),
+                        null,
+                        code.name()
+                ));
     }
 
     // 그 외 처리되지 않은 예외에 대한 catch-all 핸들러

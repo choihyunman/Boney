@@ -4,7 +4,6 @@ import lombok.Getter;
 
 @Getter
 public class QuestException extends RuntimeException {
-
     private final QuestErrorCode errorCode;
 
     public QuestException(QuestErrorCode errorCode) {

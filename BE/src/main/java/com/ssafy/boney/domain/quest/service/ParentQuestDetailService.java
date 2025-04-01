@@ -4,6 +4,7 @@ import com.ssafy.boney.domain.quest.dto.ParentQuestDetailResponse;
 import com.ssafy.boney.domain.quest.entity.Quest;
 import com.ssafy.boney.domain.quest.entity.enums.QuestStatus;
 import com.ssafy.boney.domain.quest.exception.QuestErrorCode;
+import com.ssafy.boney.domain.quest.exception.QuestException;
 import com.ssafy.boney.domain.quest.exception.QuestNotFoundException;
 import com.ssafy.boney.domain.quest.repository.QuestRepository;
 import com.ssafy.boney.domain.user.entity.User;
@@ -47,7 +48,7 @@ public class ParentQuestDetailService {
         // 사용자 역할이 보호자인지 확인
         User parent = userService.findById(parentId);
         if (!parent.getRole().equals(com.ssafy.boney.domain.user.entity.enums.Role.PARENT)) {
-            throw new IllegalArgumentException("퀘스트는 보호자만 삭제할 수 있습니다.");
+            throw new QuestException(QuestErrorCode.PARENT_ONLY_ACTION);
         }
 
         Quest quest = questRepository.findById(questId)
@@ -60,7 +61,7 @@ public class ParentQuestDetailService {
 
         // 진행 중인 퀘스트만 삭제 가능
         if (!quest.getQuestStatus().equals(QuestStatus.IN_PROGRESS)) {
-            throw new IllegalArgumentException("진행 중인 퀘스트만 삭제할 수 있습니다.");
+            throw new QuestException(QuestErrorCode.INVALID_QUEST_STATUS);
         }
 
         questRepository.delete(quest);
