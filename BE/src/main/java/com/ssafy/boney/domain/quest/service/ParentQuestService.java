@@ -43,6 +43,8 @@ public class ParentQuestService {
         QuestCategory questCategory = questCategoryRepository.findById(requestDto.getQuestCategoryId())
                 .orElseThrow(() -> new IllegalArgumentException("퀘스트 카테고리를 찾을 수 없습니다."));
 
+        LocalDateTime endDateTime = requestDto.getEndDate().atTime(23, 59, 59);
+
         Quest quest = Quest.builder()
                 .parentChild(parentChild)
                 .questCategory(questCategory)
@@ -51,7 +53,7 @@ public class ParentQuestService {
                 .questReward(requestDto.getQuestReward())
                 .questStatus(QuestStatus.IN_PROGRESS)
                 .createdAt(LocalDateTime.now())
-                .endDate(requestDto.getEndDate())
+                .endDate(endDateTime)
                 .build();
 
         questRepository.save(quest);
