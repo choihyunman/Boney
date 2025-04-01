@@ -1,5 +1,7 @@
 package com.ssafy.boney.domain.user.service;
 
+import com.ssafy.boney.domain.account.entity.Account;
+import com.ssafy.boney.domain.account.repository.AccountRepository;
 import com.ssafy.boney.domain.loan.entity.Loan;
 import com.ssafy.boney.domain.loan.repository.LoanRepository;
 import com.ssafy.boney.domain.user.dto.ChildResponse;
@@ -26,6 +28,7 @@ public class ParentChildService {
     private final UserRepository userRepository;
     private final ParentChildRepository parentChildRepository;
     private final LoanRepository loanRepository;
+    private final AccountRepository accountRepository;
 
     // 아이 등록
     public void registerChild(Integer parentId, String childEmail, String childPhone) {
@@ -69,9 +72,27 @@ public class ParentChildService {
                             .mapToLong(loan -> loan.getLastAmount() != null ? loan.getLastAmount() : 0L)
                             .sum();
                     String totalRemainingLoan = String.valueOf(totalRemaining);
-                    return new ChildResponse(child, score, totalRemainingLoan);
+                    // 자녀의 계좌 정보 조회 (존재할 경우)
+                    Account childAccount = accountRepository.findByUser(child).orElse(null);
+                    String bankName = (childAccount != null && childAccount.getBank() != null)
+                            ? childAccount.getBank().getBankName() : null;
+                    String accountNumber = (childAccount != null)
+                            ? childAccount.getAccountNumber() : null;
+
+                    return ChildResponse.builder()
+                            .userId(child.getUserId())
+                            .userName(child.getUserName())
+                            .userBirth(child.getUserBirth())
+                            .userGender(child.getUserGender().toString())
+                            .userPhone(child.getUserPhone())
+                            .score(score)
+                            .totalRemainingLoan(totalRemainingLoan)
+                            .createdAt(relation.getCreatedAt())  // 부모-아이 관계 등록 시간 사용
+                            .bankName(bankName)
+                            .accountNumber(accountNumber)
+                            .build();
                 })
-                // 생일 기준 정렬
+                // 생일 기준 정렬 (오름차순)
                 .sorted(Comparator.comparing(ChildResponse::getUserBirth))
                 .collect(Collectors.toList());
     }

@@ -150,34 +150,66 @@ public class LoanService {
 
     // 대출 승인 상태로 변경
     @Transactional
-    public ResponseEntity<?> approveLoan(LoanApproveRequest request, Integer parentId) {
+    public ResponseEntity<?> approveLoan(LoanApproveAndTransferRequest request, Integer parentId) {
         if (request.getLoanId() == null) {
             return ResponseEntity.badRequest().body(Map.of(
-                    "status", 400,
+                    "status", 403,
                     "message", "loan_id는 필수입니다."
             ));
         }
 
-        Loan loan = loanRepository.findById(request.getLoanId())
-                .orElse(null);
-
+        Loan loan = loanRepository.findById(request.getLoanId()).orElse(null);
         if (loan == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
-                    "status", 400,
+                    "status", 404,
                     "message", "해당 loan_id에 대한 대출 정보를 찾을 수 없습니다."
             ));
         }
 
-        // 부모 권한 검증
-        ParentChild parentChild = loan.getParentChild();
-        if (!parentChild.getParent().getUserId().equals(parentId)) {
+        ParentChild relation = loan.getParentChild();
+        User parent = relation.getParent();
+        User child = relation.getChild();
+
+        if (!parent.getUserId().equals(parentId)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
                     "status", 401,
                     "message", "토큰이 없거나 만료되었습니다."
             ));
         }
 
-        // 상태 업데이트
+        Account parentAccount = accountRepository.findByUser(parent)
+                .orElseThrow(() -> new CustomException(TransactionErrorCode.ACCOUNT_NOT_FOUND));
+        Account childAccount = accountRepository.findByUser(child)
+                .orElseThrow(() -> new CustomException(TransactionErrorCode.ACCOUNT_NOT_FOUND));
+
+        if (!passwordEncoder.matches(request.getPassword(), parentAccount.getAccountPassword())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                    "status", 402,
+                    "message", "계좌 비밀번호가 올바르지 않습니다."
+            ));
+        }
+
+        Long balance = bankingApiService.getAccountBalance(parentAccount.getAccountNumber());
+        Long loanAmount = loan.getLoanAmount();
+
+        if (balance < loanAmount) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", 405,
+                    "message", "부모 계좌의 잔액이 부족합니다.",
+                    "data", Map.of(
+                            "available_balance", balance,
+                            "required_amount", loanAmount
+                    )
+            ));
+        }
+
+        bankingApiService.transfer(
+                parentAccount.getAccountNumber(),
+                childAccount.getAccountNumber(),
+                loanAmount,
+                "대출 승인 " + parent.getUserName()
+        );
+
         loan.setStatus(LoanStatus.APPROVED);
         loan.setApprovedAt(LocalDateTime.now());
 
@@ -186,7 +218,10 @@ public class LoanService {
                 "message", "대출 요청이 승인되었습니다.",
                 "data", Map.of(
                         "loan_id", loan.getLoanId(),
-                        "approved_at", loan.getApprovedAt(),
+                        "child_name", child.getUserName(),
+                        "loan_amount", loanAmount,
+                        "approved_at", loan.getApprovedAt().toLocalDate().toString(),
+                        "due_date", loan.getDueDate().toLocalDate().toString(),
                         "loan_status", loan.getStatus().name()
                 )
         ));
@@ -327,7 +362,7 @@ public class LoanService {
                         "loan_id", loan.getLoanId(),
                         "child_name", child.getUserName(),
                         "loan_amount", loan.getLoanAmount(),
-                        "last_amout", loan.getLastAmount() != null ? loan.getLastAmount() : loan.getLoanAmount(),
+                        "last_amount", loan.getLastAmount() != null ? loan.getLastAmount() : loan.getLoanAmount(),
                         "request_date", loan.getRequestedAt().toLocalDate().toString(),
                         "due_date", loan.getDueDate().toLocalDate().toString(),
                         "child_credit_score", child.getCreditScore() != null ? child.getCreditScore().getScore() : 0
@@ -389,7 +424,7 @@ public class LoanService {
         loanDetail.put("parent_name", parent != null ? Optional.ofNullable(parent.getUserName()).orElse("알 수 없음") : "알 수 없음");
         loanDetail.put("child_name", child != null ? Optional.ofNullable(child.getUserName()).orElse("알 수 없음") : "알 수 없음");
         loanDetail.put("loan_amount", loan.getLoanAmount());
-        loanDetail.put("last_amout", loan.getLastAmount() != null ? loan.getLastAmount() : loan.getLoanAmount());
+        loanDetail.put("last_amount", loan.getLastAmount() != null ? loan.getLastAmount() : loan.getLoanAmount());
         loanDetail.put("approved_at", loan.getApprovedAt() != null ? loan.getApprovedAt().toString() : null);
         loanDetail.put("repaid_at", loan.getRepaidAt() != null ? loan.getRepaidAt().toString() : null);
         loanDetail.put("request_date", loan.getRequestedAt() != null ? loan.getRequestedAt().toLocalDate().toString() : null);
@@ -445,7 +480,7 @@ public class LoanService {
         for (Loan loan : requestedLoans) {
             Map<String, Object> loanInfo = new HashMap<>();
             loanInfo.put("loan_id", loan.getLoanId());
-            loanInfo.put("total_loan_amount", loan.getLoanAmount());
+            loanInfo.put("loan_amount", loan.getLoanAmount());
             loanInfo.put("request_date", loan.getRequestedAt().toLocalDate().toString());
             loanInfo.put("due_date", loan.getDueDate().toLocalDate().toString());
             loanList.add(loanInfo);
@@ -493,20 +528,31 @@ public class LoanService {
     }
 
 
+    // 대출 상환
     @Transactional
     public ResponseEntity<?> repayLoan(Integer childId, LoanRepaymentRequest request) {
         // 1. 자녀 조회
         User child = userRepository.findById(childId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElse(null);
+        if (child == null) {
+            return ResponseEntity.status(404).body(Map.of(
+                    "status", 404,
+                    "message", "사용자를 찾을 수 없습니다."
+            ));
+        }
 
         // 2. 대출 조회 및 검증
         Loan loan = loanRepository.findById(request.getLoanId())
-                .orElseThrow(() -> new IllegalArgumentException("대출 정보를 찾을 수 없습니다."));
-
-        System.out.println("loanId: " + loan.getLoanId()); // <= 반드시 null이 아니어야 합니다
+                .orElse(null);
+        if (loan == null) {
+            return ResponseEntity.status(405).body(Map.of(
+                    "status", 405,
+                    "message", "대출 정보를 찾을 수 없습니다."
+            ));
+        }
 
         if (!loan.getParentChild().getChild().getUserId().equals(childId)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+            return ResponseEntity.status(401).body(Map.of(
                     "status", 401,
                     "message", "해당 대출에 대한 권한이 없습니다."
             ));
@@ -521,14 +567,27 @@ public class LoanService {
 
         // 3. 자녀/부모 계좌 조회
         Account childAccount = accountRepository.findByUser(child)
-                .orElseThrow(() -> new IllegalArgumentException("자녀 계좌를 찾을 수 없습니다."));
+                .orElse(null);
+        if (childAccount == null) {
+            return ResponseEntity.status(406).body(Map.of(
+                    "status", 406,
+                    "message", "자녀 계좌를 찾을 수 없습니다."
+            ));
+        }
+
         Account parentAccount = accountRepository.findByUser(loan.getParentChild().getParent())
-                .orElseThrow(() -> new IllegalArgumentException("부모 계좌를 찾을 수 없습니다."));
+                .orElse(null);
+        if (parentAccount == null) {
+            return ResponseEntity.status(407).body(Map.of(
+                    "status", 407,
+                    "message", "부모 계좌를 찾을 수 없습니다."
+            ));
+        }
 
         // 4. 비밀번호 검증
         if (!passwordEncoder.matches(request.getPassword(), childAccount.getAccountPassword())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
-                    "status", 401,
+            return ResponseEntity.status(403).body(Map.of(
+                    "status", 403,
                     "message", "계좌 비밀번호가 올바르지 않습니다."
             ));
         }
@@ -540,7 +599,7 @@ public class LoanService {
 
         if (availableBalance < repaymentAmount) {
             return ResponseEntity.badRequest().body(Map.of(
-                    "status", 400,
+                    "status", 408,
                     "message", "자녀 계좌의 잔액이 부족합니다.",
                     "data", Map.of(
                             "available_balance", availableBalance,
@@ -592,12 +651,165 @@ public class LoanService {
                         "loan_id", loan.getLoanId(),
                         "due_date", loan.getDueDate().toLocalDate().toString(),
                         "repayment_amount", repaymentAmount,
-                        "total_loan_amount", loan.getLoanAmount(),
+                        "loan_amount", loan.getLoanAmount(),
                         "last_amount", loan.getLastAmount(),
+                        "loan_status", loan.getStatus().name(),
                         "child_credit_score", updatedScore
                 )
         ));
     }
 
+    @Transactional(readOnly = true)
+    public ResponseEntity<?> getRepaidLoansByChild(Integer childId) {
+        if (childId == null) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", "400",
+                    "message", "요청 형식 또는 헤더가 잘못되었습니다."
+            ));
+        }
+
+        User child = userRepository.findById(childId).orElse(null);
+        if (child == null) {
+            return ResponseEntity.status(401).body(Map.of(
+                    "status", "401",
+                    "message", "유효한 액세스 토큰이 필요합니다."
+            ));
+        }
+
+        Optional<ParentChild> relationOpt = child.getParents().stream().findFirst();
+        if (relationOpt.isEmpty()) {
+            return ResponseEntity.status(404).body(Map.of(
+                    "status", "404",
+                    "message", "부모와의 관계를 찾을 수 없습니다."
+            ));
+        }
+
+        List<Loan> repaidLoans = loanRepository.findByParentChild(relationOpt.get()).stream()
+                .filter(loan -> loan.getStatus() == LoanStatus.REPAID)
+                .toList();
+
+        List<Map<String, Object>> loanList = new ArrayList<>();
+        for (Loan loan : repaidLoans) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("loan_id", loan.getLoanId());
+            map.put("loan_amount", loan.getLoanAmount());
+            map.put("repaid_at", loan.getRepaidAt() != null ? loan.getRepaidAt().toLocalDate().toString() : null);
+            loanList.add(map);
+        }
+
+        return ResponseEntity.ok(Map.of(
+                "status", "200",
+                "message", "대출 상환 내역 조회에 성공했습니다.",
+                "data", Map.of("loan_completed_list", loanList)
+        ));
+    }
+
+
+    @Transactional(readOnly = true)
+    public ResponseEntity<?> getRepaidLoansByParent(Integer parentId) {
+        // 부모 유효성 검증
+        User parent = userRepository.findById(parentId)
+                .orElseThrow(() -> new UserNotFoundException(UserErrorCode.NOT_FOUND));
+
+        List<ParentChild> relations = parentChildRepository.findByParent(parent);
+        List<Map<String, Object>> loanList = new ArrayList<>();
+
+        for (ParentChild relation : relations) {
+            User child = relation.getChild();
+
+            List<Loan> repaidLoans = loanRepository.findByParentChild(relation).stream()
+                    .filter(loan -> loan.getStatus() == LoanStatus.REPAID)
+                    .toList();
+
+            for (Loan loan : repaidLoans) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("loan_id", loan.getLoanId());
+                map.put("child_name", child.getUserName());
+                map.put("repaid_at", loan.getRepaidAt() != null ? loan.getRepaidAt().toLocalDate().toString() : null);
+                map.put("loan_amount", loan.getLoanAmount());
+                loanList.add(map);
+            }
+        }
+
+        return ResponseEntity.ok(Map.of(
+                "status", "200",
+                "message", "대출 상환 내역 조회에 성공했습니다.",
+                "data", Map.of("loan_completed_list", loanList)
+        ));
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseEntity<?> getApprovedLoansWithRepayments(Integer childId) {
+        // 1. 자녀 조회
+        User child = userRepository.findById(childId).orElse(null);
+        if (child == null) {
+            return ResponseEntity.status(401).body(Map.of(
+                    "status", "401",
+                    "message", "유효한 액세스 토큰이 필요합니다."
+            ));
+        }
+
+        // 2. 부모-자녀 관계 조회
+        Optional<ParentChild> relationOpt = child.getParents().stream().findFirst();
+        if (relationOpt.isEmpty()) {
+            return ResponseEntity.status(404).body(Map.of(
+                    "status", "404",
+                    "message", "아이에 해당하는 대출 내역이 존재하지 않습니다."
+            ));
+        }
+
+        ParentChild relation = relationOpt.get();
+
+        // 3. 승인된 대출 조회
+        List<Loan> approvedLoans = loanRepository.findByParentChild(relation).stream()
+                .filter(loan -> loan.getStatus() == LoanStatus.APPROVED)
+                .toList();
+
+        // 4. active loan 목록 구성
+        List<Map<String, Object>> activeLoans = new ArrayList<>();
+        for (Loan loan : approvedLoans) {
+            Map<String, Object> loanInfo = new HashMap<>();
+            loanInfo.put("loan_id", loan.getLoanId());
+            loanInfo.put("parent_name", loan.getParentChild().getParent().getUserName());
+            loanInfo.put("due_date", loan.getDueDate().toLocalDate().toString());
+            loanInfo.put("loan_amount", loan.getLoanAmount());
+            loanInfo.put("last_amount", loan.getLastAmount() != null ? loan.getLastAmount() : loan.getLoanAmount());
+            loanInfo.put("child_credit_score", child.getCreditScore() != null ? child.getCreditScore().getScore() : 0);
+            activeLoans.add(loanInfo);
+        }
+
+        // 5. 상환 내역 조회
+        List<Map<String, Object>> loanRepaymentHistory = new ArrayList<>();
+        for (Loan loan : approvedLoans) {
+            List<LoanRepayment> loanRepayments = loanRepaymentRepository.findAll().stream()
+                    .filter(r -> r.getLoan().getLoanId().equals(loan.getLoanId()))
+                    .toList();
+
+            for (LoanRepayment repayment : loanRepayments) {
+                Map<String, Object> repaymentInfo = new HashMap<>();
+                repaymentInfo.put("loan_id", loan.getLoanId());
+                repaymentInfo.put("repaid_amount", repayment.getPrincipalAmount());
+                repaymentInfo.put("repayment_date", repayment.getRepaymentDate().toLocalDate().toString());
+                loanRepaymentHistory.add(repaymentInfo);
+            }
+        }
+
+        if (activeLoans.isEmpty()) {
+            return ResponseEntity.status(404).body(Map.of(
+                    "status", "404",
+                    "message", "아이에 해당하는 대출 내역이 존재하지 않습니다."
+            ));
+        }
+
+        // 6. 응답 반환
+        return ResponseEntity.ok(Map.of(
+                "status", "200",
+                "message", "보유 대출 및 대출 상환 내역 조회 성공했습니다.",
+                "data", Map.of(
+                        "active_loans", activeLoans,
+                        "loan_repayment_history", loanRepaymentHistory
+                )
+        ));
+    }
 
 }

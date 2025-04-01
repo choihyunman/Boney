@@ -30,7 +30,7 @@ public class LoanController {
 
     // 대출 승인 상태로 변경 api
     @PostMapping("/approve")
-    public ResponseEntity<?> approveLoan(@RequestBody LoanApproveRequest request,
+    public ResponseEntity<?> approveLoan(@RequestBody LoanApproveAndTransferRequest request,
                                          HttpServletRequest httpRequest) {
         Integer parentId = (Integer) httpRequest.getAttribute("userId");
         return loanService.approveLoan(request, parentId);
@@ -88,6 +88,27 @@ public class LoanController {
                                        HttpServletRequest httpRequest) {
         Integer childId = (Integer) httpRequest.getAttribute("userId");
         return loanService.repayLoan(childId, request);
+    }
+
+    // 상환 완료된 대출 보기 (아이) api
+    @GetMapping("/child/repaid")
+    public ResponseEntity<?> getRepaidLoansByChild(HttpServletRequest request) {
+        Integer childId = (Integer) request.getAttribute("userId");
+        return loanService.getRepaidLoansByChild(childId);
+    }
+
+    // 상환 완료된 대출 보기 (부모) api
+    @GetMapping("/parent/repaid")
+    public ResponseEntity<?> getRepaidLoansByParent(HttpServletRequest request) {
+        Integer parentId = (Integer) request.getAttribute("userId");
+        return loanService.getRepaidLoansByParent(parentId);
+    }
+
+    // 보유 중인 대출 조회 (아이) api
+    @GetMapping("/child/approved")
+    public ResponseEntity<?> getApprovedLoansWithRepayments(HttpServletRequest request) {
+        Integer childId = (Integer) request.getAttribute("userId");
+        return loanService.getApprovedLoansWithRepayments(childId);
     }
 
 }
