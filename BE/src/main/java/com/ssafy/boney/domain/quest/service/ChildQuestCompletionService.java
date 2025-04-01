@@ -3,6 +3,7 @@ package com.ssafy.boney.domain.quest.service;
 import com.ssafy.boney.domain.quest.entity.Quest;
 import com.ssafy.boney.domain.quest.entity.enums.QuestStatus;
 import com.ssafy.boney.domain.quest.exception.QuestErrorCode;
+import com.ssafy.boney.domain.quest.exception.QuestException;
 import com.ssafy.boney.domain.quest.exception.QuestNotFoundException;
 import com.ssafy.boney.domain.quest.repository.QuestRepository;
 import com.ssafy.boney.global.s3.S3Service;
@@ -35,7 +36,7 @@ public class ChildQuestCompletionService {
 
         // 상태가 이미 WAITING_REWARD이면, 재요청 시도 시 예외 발생
         if (quest.getQuestStatus().equals(QuestStatus.WAITING_REWARD)) {
-            throw new IllegalArgumentException("이미 완료 요청이 진행되었습니다.");
+            throw new QuestException(QuestErrorCode.DUPLICATE_COMPLETION_REQUEST);
         }
 
         if (!quest.getQuestStatus().equals(QuestStatus.IN_PROGRESS)) {

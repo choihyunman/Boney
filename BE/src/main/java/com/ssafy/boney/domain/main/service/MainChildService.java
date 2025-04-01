@@ -79,7 +79,7 @@ public class MainChildService {
         // 8. 응답 반환
         return ResponseEntity.ok(Map.of(
                 "status", "200",
-                "message", "메인 페이지 점수가 조회되었습니다.",
+                "message", "메인 페이지가 조회되었습니다.",
                 "data", ChildMainResponse.of(account, realTimeBalance, totalLoanBalance, creditScore.getScore(), avgScore, nearestQuest)
         ));
     }
