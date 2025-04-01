@@ -8,17 +8,29 @@ import org.springframework.context.annotation.Configuration;
 @Getter
 @Setter
 @Configuration
-@ConfigurationProperties(prefix = "external-api.account-auth")
+@ConfigurationProperties(prefix = "external-api")
 public class ExternalApiProperties {
-    private String urlOneCoin;
-    private String urlOneCoinCheck;
-    private String institutionCode;
-    private String fintechAppNo;
-    private String apiServiceCode;
-    private String apiKey;
-    private String userKey;
-    private String urlAccountCreate;
-    private String accountTypeUniqueNo;
+    private AccountAuth accountAuth;
+    private Transaction transaction;
 
+    @Getter
+    @Setter
+    public static class AccountAuth {
+        private String urlOneCoin;
+        private String urlOneCoinCheck;
+        private String institutionCode;
+        private String fintechAppNo;
+        private String apiServiceCode;
+        private String apiKey;
+        private String userKey;
+        private String urlAccountCreate;
+        private String accountTypeUniqueNo;
+    }
 
+    @Getter
+    @Setter
+    public static class Transaction {
+        private String url;
+
+    }
 }

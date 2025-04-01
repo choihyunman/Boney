@@ -36,8 +36,6 @@ public class TransferService {
 
     // FastAPI 이상 탐지 호출용 Client
     private final FastApiClient fastApiClient;
-    // 이상 탐지 임계치 (예시: 0.8 이상이면 이상 거래로 간주)
-    private final double ANOMALY_THRESHOLD = -0.1;
 
     // 예금주 조회
     public HolderCheckResponseDto getAccountHolder(String accountNo) {
@@ -109,37 +107,37 @@ public class TransferService {
                 summary
         );
 
-//        // 7. transfer API 응답에서 거래 고유번호 추출 (예시: Header 필드의 institutionTransactionUniqueNo)
-//        String transactionUniqueNo = transferApiResponse.getRec().get(0).getTransactionUniqueNo();
-//
-//        // 8. 거래 내역 조회: inquiryTransactionHistory API 호출
-//        TransactionHistoryResponseDto historyResponse = bankingApiService.inquireTransactionHistory(
-//                senderAccount.getAccountNumber(), transactionUniqueNo
-//        );
-//
-//        // 9. 거래 내역 DB 저장
-//        Transaction transactionEntity = convertToTransactionEntity(historyResponse, senderAccount, sender);
-//        transactionEntity = transactionRepository.save(transactionEntity);
-//        Transfer transferRecord = Transfer.builder()
-//                .account(senderAccount)
-//                .transaction(transactionEntity)
-//                .transactionCounterparty(request.getRecipientAccountNumber())
-//                .build();
-//        transferRecord = transferRepository.save(transferRecord);
-//
-//        // 10. FastAPI 이상 탐지 호출 (추가 Feature 포함)
-//        AnomalyRequestDto anomalyRequest = buildAnomalyRequest(transferRecord, transactionEntity, senderAccount, request);
-//        AnomalyResponseDto anomalyResponse = fastApiClient.detectAnomaly(anomalyRequest);
-//
-//        // 11. 이상 거래 결과에 따른 처리
-//        if (anomalyResponse.getAnomaly()) {
-//            Fds fdsRecord = Fds.builder()
-//                    .transaction(transactionEntity)
-//                    .account(senderAccount)
-//                    .fdsReason("이체 이상 거래 의심: 점수 " + anomalyResponse.getScore())
-//                    .build();
-//            fdsRepository.save(fdsRecord);
-//        }
+        // 7. transfer API 응답에서 거래 고유번호 추출 (예시: Header 필드의 institutionTransactionUniqueNo)
+        String transactionUniqueNo = transferApiResponse.getRec().get(0).getTransactionUniqueNo();
+
+        // 8. 거래 내역 조회: inquiryTransactionHistory API 호출
+        TransactionHistoryResponseDto historyResponse = bankingApiService.inquireTransactionHistory(
+                senderAccount.getAccountNumber(), transactionUniqueNo
+        );
+
+        // 9. 거래 내역 DB 저장
+        Transaction transactionEntity = convertToTransactionEntity(historyResponse, senderAccount, sender);
+        transactionEntity = transactionRepository.save(transactionEntity);
+        Transfer transferRecord = Transfer.builder()
+                .account(senderAccount)
+                .transaction(transactionEntity)
+                .transactionCounterparty(request.getRecipientAccountNumber())
+                .build();
+        transferRecord = transferRepository.save(transferRecord);
+
+        // 10. FastAPI 이상 탐지 호출 (추가 Feature 포함)
+        AnomalyRequestDto anomalyRequest = buildAnomalyRequest(transferRecord, transactionEntity, senderAccount, request);
+        AnomalyResponseDto anomalyResponse = fastApiClient.detectAnomaly(anomalyRequest);
+
+        // 11. 이상 거래 결과에 따른 처리
+        if (anomalyResponse.getAnomaly()) {
+            Fds fdsRecord = Fds.builder()
+                    .transaction(transactionEntity)
+                    .account(senderAccount)
+                    .fdsReason("이체 이상 거래 의심: 점수 " + anomalyResponse.getScore())
+                    .build();
+            fdsRepository.save(fdsRecord);
+        }
 
         TransferData data = new TransferData();
         data.setBankName(request.getRecipientBank());
