@@ -37,8 +37,7 @@ pipeline {
                     echo "🔍 현재 브랜치: ${env.gitlabTargetBranch}"
                     if (env.gitlabTargetBranch != 'release') {
                         echo "🚫 release 브랜치가 아니므로 전체 배포 프로세스를 건너뜁니다."
-                        currentBuild.result = 'SUCCESS'
-                        error("💤 파이프라인 중단")  // 메시지 없이 종료
+                        return  // 🎯 여기서 조용히 성공 종료
                     }
                 }
             }
