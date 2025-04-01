@@ -11,7 +11,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-// (보호자 페이지) 아이 목록 조회
+// (보호자 페이지) 퀘스트 아이 목록 조회
 @Service
 @RequiredArgsConstructor
 public class ParentQuestChildService {
