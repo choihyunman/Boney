@@ -45,3 +45,7 @@ jenkins_home/
 
 #expo
 .expo/
+
+#python
+AI/__pycache__/
+AI/*.py[cod]

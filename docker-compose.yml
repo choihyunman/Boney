@@ -14,7 +14,6 @@ services:
     restart: always
     environment:
       - TZ=Asia/Seoul
-      - API_URL=https://j12b208.p.ssafy.io/api/v1  # HTTPS 환경 고려
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8081 || exit 1"]
       interval: 60s  # 60초마다 체크
@@ -52,6 +51,21 @@ services:
           memory: 1G
         reservations:
           memory: 512M
+  ai:
+    build: ./AI
+    container_name: ai
+    # expose:
+    #   - "8000"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./AI:/AI
+    environment:
+      - PYTHONPATH=/AI
+      - TZ=Asia/Seoul
+    networks:
+      - app_network
+    restart: always
           
   mysql:
     build: 
@@ -80,7 +94,6 @@ services:
 
 volumes:
   mysql_data:
-  mysql_pid:
 
 networks:
   app_network:
