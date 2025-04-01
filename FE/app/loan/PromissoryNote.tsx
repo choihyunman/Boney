@@ -94,9 +94,7 @@ export default function PromissoryNote({
                 }}
               />
             ) : (
-              <GlobalText className="text-lg text-gray-400 italic">
-                서명
-              </GlobalText>
+              <GlobalText className="text-md text-gray-400">서명</GlobalText>
             )}
           </View>
 
@@ -118,14 +116,19 @@ export default function PromissoryNote({
                     resizeMode: "contain",
                   }}
                 />
-              ) : null}
+              ) : (
+                <GlobalText className="text-md text-gray-400">서명</GlobalText>
+              )}
             </View>
           ) : (
             <View className="flex-row items-center">
               <GlobalText className="text-lg text-gray-700 mr-2">
                 채권자
               </GlobalText>
-              <GlobalText className="text-lg text-gray-400 italic">
+              <GlobalText
+                className="text-lg text-gray-400"
+                style={{ fontStyle: "italic" }}
+              >
                 서명 대기 중
               </GlobalText>
             </View>

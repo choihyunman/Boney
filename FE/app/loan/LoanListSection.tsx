@@ -1,24 +1,19 @@
-import { View } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 import GlobalText from "@/components/GlobalText";
-
-type Loan = {
-  id: string;
-  creditor: string;
-  dueDate: string;
-  totalAmount: number;
-  remainingAmount: number;
-};
+import { router } from "expo-router";
 
 type Props = {
   title: string;
-  loans: Loan[];
+  loans: any[];
   showCreditorTitle?: boolean;
+  onPress?: (loanId: number, color: string) => void;
 };
 
 export default function LoanListSection({
   title,
   loans,
   showCreditorTitle = true,
+  onPress,
 }: Props) {
   const colorPalette = ["#6366F1", "#F59E0B", "#4FC985"];
 
@@ -43,12 +38,14 @@ export default function LoanListSection({
           </GlobalText>
 
           {loans.map((loan, index) => {
-            const dday = calculateDday(loan.dueDate);
+            const dday = calculateDday(loan.due_date);
             const color = colorPalette[index % colorPalette.length];
 
             return (
-              <View
-                key={loan.id}
+              <TouchableOpacity
+                key={loan.loan_id}
+                activeOpacity={0.8}
+                onPress={() => onPress?.(loan.loan_id, color)}
                 className="bg-[#F9FAFB] rounded-xl p-4 mb-4"
                 style={{
                   borderLeftWidth: 4,
@@ -57,7 +54,7 @@ export default function LoanListSection({
               >
                 {showCreditorTitle && (
                   <GlobalText weight="bold" className="text-base mb-2">
-                    {loan.creditor}의 대출
+                    {loan.child_name}의 대출
                   </GlobalText>
                 )}
 
@@ -71,7 +68,7 @@ export default function LoanListSection({
                     </GlobalText>
                   </View>
                   <GlobalText className="text-xs text-gray-400 mb-1">
-                    {loan.dueDate.replace(/-/g, ".")}까지
+                    {loan.due_date.replace(/-/g, ".")}까지
                   </GlobalText>
                 </View>
 
@@ -79,7 +76,9 @@ export default function LoanListSection({
                   <GlobalText className="text-sm text-gray-600">
                     전체 대출금
                   </GlobalText>
-                  <GlobalText>{loan.totalAmount.toLocaleString()}원</GlobalText>
+                  <GlobalText>
+                    {loan.loan_amount ? loan.loan_amount.toLocaleString() : 0}원
+                  </GlobalText>
                 </View>
 
                 <View className="flex-row justify-between items-center mb-2">
@@ -91,7 +90,7 @@ export default function LoanListSection({
                     className="text-lg"
                     style={{ color }}
                   >
-                    {loan.remainingAmount.toLocaleString()}원
+                    {loan.last_amount ? loan.last_amount.toLocaleString() : 0}원
                   </GlobalText>
                 </View>
 
@@ -100,13 +99,13 @@ export default function LoanListSection({
                     className="h-full rounded-full"
                     style={{
                       width: `${
-                        (1 - loan.remainingAmount / loan.totalAmount) * 100
+                        (1 - loan.last_amount / loan.loan_amount) * 100
                       }%`,
                       backgroundColor: color,
                     }}
                   />
                 </View>
-              </View>
+              </TouchableOpacity>
             );
           })}
         </View>

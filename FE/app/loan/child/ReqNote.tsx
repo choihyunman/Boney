@@ -78,7 +78,7 @@ export default function PromissoryNotePage() {
     const requestDate = `${now.getFullYear()}-${String(
       now.getMonth() + 1
     ).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-    useLoanRequestStore.getState().setField("requestDate", requestDate);
+    useLoanRequestStore.getState().setRequest("requestDate", requestDate);
 
     submitLoan({
       loan_amount: amount ?? 0,

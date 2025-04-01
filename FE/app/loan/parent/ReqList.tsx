@@ -4,10 +4,12 @@ import GlobalText from "../../../components/GlobalText";
 import LoanModal from "../../../components/PopupModal";
 import { PinInput } from "../../../components/PinInput";
 import { router } from "expo-router";
-import { useReqListParentStore } from "@/stores/useLoanParentStore";
+import {
+  useReqListParentStore,
+  useApproveStore,
+} from "@/stores/useLoanParentStore";
 import { useLoanReqListParentQuery } from "@/hooks/useLoanReqListParentQuery";
 import { approveLoan, rejectLoan } from "@/apis/loanParentApi";
-import { verifyPassword } from "@/apis/pinApi";
 
 export default function ParentLoanRequestsPage() {
   const { data: queryData, error, refetch } = useLoanReqListParentQuery();
@@ -26,6 +28,7 @@ export default function ParentLoanRequestsPage() {
   const [loanToApprove, setLoanToApprove] = useState<number | null>(null);
   const [loanToReject, setLoanToReject] = useState<number | null>(null);
   const [showPinInput, setShowPinInput] = useState(false);
+  const [pin, setPin] = useState<string>("");
 
   // 날짜 포맷팅 함수
   const formatDate = (dateString: string) => {
@@ -38,7 +41,7 @@ export default function ParentLoanRequestsPage() {
   // 대출 승인 핸들러
   const handleApprove = (loanId: number) => {
     setLoanToApprove(loanId);
-    setShowApproveModal(true);
+    setShowPinInput(true);
   };
 
   // 대출 거부 핸들러
@@ -47,19 +50,30 @@ export default function ParentLoanRequestsPage() {
     setShowRejectModal(true);
   };
 
-  // 모달에서 승인 확인 시 실행될 핸들러
-  const handleConfirmApprove = async () => {
+  // 비밀번호 입력
+  const handlePasswordInput = async (password: string) => {
     if (!loanToApprove) return;
 
     try {
-      await approveLoan(loanToApprove);
-      await refetch();
+      console.log("입력 비밀번호: ", password);
+      const res = await approveLoan(loanToApprove, password);
 
-      // 상태 초기화
+      // 승인된 대출 정보 저장
+      useApproveStore.getState().setApprove("due_date", res.due_date);
+      useApproveStore.getState().setApprove("loan_amount", res.loan_amount);
+      useApproveStore.getState().setApprove("child_name", res.child_name);
+      console.log("approve: ", useApproveStore.getState().approve);
+
+      // UI 흐름 정리
       setLoanToApprove(null);
-      setShowPinInput(true);
+      setShowPinInput(false);
+
+      // 목록 갱신 및 이동
+      await refetch();
+      router.push("/loan/parent/ReqApprove");
     } catch (err) {
       console.error("❌ 대출 승인 실패:", err);
+      setShowPinInput(false); // PIN 입력창 닫기
     }
   };
 
@@ -78,21 +92,6 @@ export default function ParentLoanRequestsPage() {
     }
   };
 
-  const handlePasswordConfirm = async (password: string) => {
-    try {
-      const res = await verifyPassword(password);
-      const isValid = res.data.isMatched;
-      if (isValid) {
-        router.push("/loan/parent/ReqApprove");
-      } else {
-        alert("비밀번호가 올바르지 않습니다.");
-        setShowPinInput(false);
-      }
-    } catch (err) {
-      console.error("❌ 비밀번호 검증 실패:", err);
-    }
-  };
-
   // 신용 점수에 따른 색상 결정
   const getCreditScoreColor = (score: number) => {
     if (score >= 80) return "text-[#4FC985]-500";
@@ -105,7 +104,7 @@ export default function ParentLoanRequestsPage() {
       <PinInput
         title="송금 비밀번호 입력"
         subtitle="대출 승인을 위해 비밀번호를 입력해주세요."
-        onPasswordComplete={handlePasswordConfirm}
+        onPasswordComplete={handlePasswordInput}
       />
     );
   }
@@ -139,13 +138,6 @@ export default function ParentLoanRequestsPage() {
               key={loan.loan_id}
               className="bg-white rounded-xl p-5 shadow-sm border border-gray-100"
             >
-              <LoanModal
-                title="대출 요청 승인"
-                content="정말 대출 요청을 승인하시겠습니까?"
-                visible={showApproveModal}
-                onClose={() => setShowApproveModal(false)}
-                onConfirm={() => handleConfirmApprove()}
-              />
               <LoanModal
                 title="대출 요청 거부"
                 content="정말 대출 요청을 거부하시겠습니까?"

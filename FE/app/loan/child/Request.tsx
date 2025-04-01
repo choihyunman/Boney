@@ -11,7 +11,7 @@ export default function LoanCreatePage() {
   const [repaymentDate, setRepaymentDate] = useState("");
   const [showAmountModal, setShowAmountModal] = useState(false);
   const [showDateModal, setShowDateModal] = useState(false);
-  const { setField } = useLoanRequestStore();
+  const { setRequest } = useLoanRequestStore();
 
   // 차용증 확인하기 버튼 클릭 핸들러
   const handleViewPromissoryNote = () => {
@@ -21,8 +21,8 @@ export default function LoanCreatePage() {
     const cleanedAmout = loanAmount.replace(/,/g, "");
     const numericAmount = Number(cleanedAmout);
 
-    setField("amount", isNaN(numericAmount) ? 0 : numericAmount);
-    setField("dueDate", repaymentDate);
+    setRequest("amount", isNaN(numericAmount) ? 0 : numericAmount);
+    setRequest("dueDate", repaymentDate);
     console.log("🔍 신청 대출액: ", loanAmount, "마감 날짜: ", repaymentDate);
     router.push("/loan/child/ReqNote");
   };

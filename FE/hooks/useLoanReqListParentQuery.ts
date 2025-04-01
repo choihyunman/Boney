@@ -2,12 +2,12 @@ import { useQuery } from "@tanstack/react-query";
 import { getReqList, ReqItem } from "@/apis/loanParentApi";
 import { useEffect } from "react";
 import { useReqListParentStore } from "@/stores/useLoanParentStore";
-
+import { useIsFocused } from "@react-navigation/native";
 type LoanList = ReqItem[];
 
 export const useLoanReqListParentQuery = () => {
+  const isFocused = useIsFocused();
   const setReqList = useReqListParentStore((state) => state.setReqList);
-  const hydrated = useReqListParentStore((state) => state.hydrated);
 
   const query = useQuery<LoanList, Error, LoanList, ["loan-req-list-parent"]>({
     queryKey: ["loan-req-list-parent"],
@@ -16,10 +16,10 @@ export const useLoanReqListParentQuery = () => {
       return res;
     },
     staleTime: 0,
-    enabled: hydrated,
+    enabled: isFocused,
     refetchOnMount: true,
     refetchOnWindowFocus: true,
-    refetchInterval: hydrated ? 1000 : false,
+    refetchInterval: 1000,
   });
 
   // 에러 처리 (v5 스타일)
