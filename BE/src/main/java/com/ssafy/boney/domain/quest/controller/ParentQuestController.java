@@ -30,6 +30,7 @@ public class ParentQuestController {
     private final ParentQuestListService parentQuestListService;
     private final ParentQuestWaitingRewardService parentQuestWaitingRewardService;
     private final ParentQuestApprovalService parentQuestApprovalService;
+    private final ParentQuestRedoService parentQuestRedoService;
 
 
     // 1. 보호자 - 퀘스트 아이 목록 조회
@@ -121,6 +122,16 @@ public class ParentQuestController {
             @RequestBody ParentQuestApprovalRequest approvalRequest) {
         ParentQuestApprovalResponse responseDto = parentQuestApprovalService.approveQuestCompletion(parentId, questId, approvalRequest);
         return ResponseEntity.ok(new ApiResponse<>(200, "퀘스트 보상이 성공적으로 송금되었습니다.", responseDto));
+    }
+
+
+    // 9. 퀘스트 다시 하기
+    @PostMapping("/{questId}/redo")
+    public ResponseEntity<ApiResponse<Void>> redoQuest(
+            @RequestAttribute("userId") Integer parentId,
+            @PathVariable("questId") Integer questId) {
+        parentQuestRedoService.redoQuest(parentId, questId);
+        return ResponseEntity.ok(new ApiResponse<>(200, "퀘스트 다시하기 요청이 성공적으로 처리되었습니다.", null));
     }
 }
 

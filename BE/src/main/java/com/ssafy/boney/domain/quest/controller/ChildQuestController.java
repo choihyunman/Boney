@@ -1,5 +1,6 @@
 package com.ssafy.boney.domain.quest.controller;
 
+import com.ssafy.boney.domain.quest.dto.ChildQuestCompletionResponse;
 import com.ssafy.boney.domain.quest.dto.ChildQuestHistoryResponse;
 import com.ssafy.boney.domain.quest.dto.ChildQuestResponse;
 import com.ssafy.boney.domain.quest.dto.QuestChildDetailResponse;
@@ -86,21 +87,13 @@ public class ChildQuestController {
 
     // 4. 아이 - 퀘스트 완료 요청
     @PostMapping(value = "/{questId}/complete", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ApiResponse<Void>> completeQuest(
+    public ResponseEntity<ApiResponse<ChildQuestCompletionResponse>> completeQuest(
             @RequestAttribute("userId") Integer childId,
             @PathVariable("questId") Integer questId,
             @RequestPart(value = "quest_img_url", required = false) MultipartFile questImage
     ) {
-        try {
-            childQuestCompletionService.requestQuestCompletion(childId, questId, questImage);
-            return ResponseEntity.ok(new ApiResponse<>(200, "퀘스트 완료 요청이 성공적으로 전송되었습니다.", null));
-        } catch (QuestNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ApiResponse<>(404, e.getMessage(), null));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ApiResponse<>(400, e.getMessage(), null));
-        }
+        ChildQuestCompletionResponse responseDto = childQuestCompletionService.requestQuestCompletion(childId, questId, questImage);
+        return ResponseEntity.ok(new ApiResponse<>(200, "퀘스트 완료 요청이 성공적으로 전송되었습니다.", responseDto));
     }
 
 
