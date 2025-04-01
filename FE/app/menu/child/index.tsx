@@ -12,6 +12,7 @@ import {
 } from "lucide-react-native";
 import { useAuthStore } from "../../../stores/useAuthStore";
 import GlobalText from "../../../components/GlobalText";
+import { getLoanValidation } from "@/apis/loanChildApi";
 
 export default function MenuPage() {
   const { user, token } = useAuthStore();
@@ -121,11 +122,26 @@ export default function MenuPage() {
           </View>
           <View className="gap-1">
             <TouchableOpacity
-              onPress={() =>
-                router.push({
-                  pathname: "/loan/child/Request",
-                })
-              }
+              onPress={async () => {
+                try {
+                  const res = await getLoanValidation(); // ✅ API 호출
+                  console.log("loan validation:", res);
+
+                  if (res?.is_loan_allowed) {
+                    router.push("/loan/child/Request"); // 가능할 때
+                  } else {
+                    router.push({
+                      pathname: "/loan/child/Restrict",
+                      params: {
+                        credit_score: res?.credit_score,
+                      },
+                    }); // 불가능할 때
+                  }
+                } catch (err) {
+                  console.error("대출 가능 여부 확인 실패:", err);
+                  alert("대출 요청 확인 중 오류가 발생했어요.");
+                }
+              }}
               className="flex-row items-center py-2.5 px-3 rounded-lg"
             >
               <ChevronRight size={16} color="#4FC985" />
@@ -147,7 +163,11 @@ export default function MenuPage() {
               </GlobalText>
             </TouchableOpacity>
             <TouchableOpacity
-              disabled={true}
+              onPress={() =>
+                router.push({
+                  pathname: "/loan/child/LoanList",
+                })
+              }
               className="flex-row items-center py-2.5 px-3 rounded-lg"
             >
               <ChevronRight size={16} color="#4FC985" />

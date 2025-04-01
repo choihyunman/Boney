@@ -14,7 +14,6 @@ import { cancelLoan } from "@/apis/loanChildApi";
 export default function ChildLoanRequestsPage() {
   const { data: queryData, error, refetch } = useLoanReqListQuery();
   const reqList = useLoanReqListStore((state) => state.reqList);
-  const hydrated = useLoanReqListStore((state) => state.hydrated);
 
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [loanToCancel, setLoanToCancel] = useState<number | null>(null);
@@ -56,11 +55,6 @@ export default function ChildLoanRequestsPage() {
     }
   };
 
-  // 스토리지 복원 전에는 아무것도 안 그리기
-  if (!hydrated) {
-    return null; // 혹은 return <ActivityIndicator /> 로딩 표시
-  }
-
   return (
     <View className="flex-1 bg-[#F9FAFB]">
       <PopupModal
@@ -99,7 +93,7 @@ export default function ChildLoanRequestsPage() {
                 신청 대출금
               </GlobalText>
               <GlobalText className="text-xl text-[#4FC985]" weight="bold">
-                {loan.total_loan_amount.toLocaleString()}원
+                {loan.loan_amount.toLocaleString()}원
               </GlobalText>
             </View>
 

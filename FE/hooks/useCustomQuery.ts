@@ -9,6 +9,10 @@ type CustomQueryOptions<TData, TError> = {
   queryKey: UseQueryOptions<TData, TError>["queryKey"];
   queryFn: () => Promise<TData>;
   staleTime?: number;
+  enabled?: boolean;
+  refetchInterval?: number | false;
+  refetchOnMount?: boolean;
+  refetchOnWindowFocus?: boolean;
 
   onSuccessAction?: (data: TData) => void;
   onErrorAction?: (error: TError) => void;
@@ -17,7 +21,11 @@ type CustomQueryOptions<TData, TError> = {
 export function useCustomQuery<TData, TError = Error>({
   queryKey,
   queryFn,
-  staleTime = 1000 * 60 * 3,
+  staleTime,
+  enabled,
+  refetchInterval,
+  refetchOnMount,
+  refetchOnWindowFocus,
   onSuccessAction,
   onErrorAction,
 }: CustomQueryOptions<TData, TError>): UseQueryResult<TData, TError> {
@@ -25,6 +33,10 @@ export function useCustomQuery<TData, TError = Error>({
     queryKey,
     queryFn,
     staleTime,
+    enabled,
+    refetchInterval,
+    refetchOnMount,
+    refetchOnWindowFocus,
   });
 
   useEffect(() => {

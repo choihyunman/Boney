@@ -1,11 +1,14 @@
 import GlobalText from "@/components/GlobalText";
-import { router } from "expo-router";
+import { useLoanStore } from "@/stores/useLoanChildStore";
+import { router, useLocalSearchParams } from "expo-router";
 import { AlertCircle, Gauge } from "lucide-react-native";
 import { TouchableOpacity } from "react-native";
 
 import { View } from "react-native";
 
 export default function Restrict() {
+  const { credit_score } = useLocalSearchParams();
+
   return (
     <View className="flex-1 bg-[#F9FAFB] px-6 pt-8 pb-8 items-center gap-6">
       {/* Spacer */}
@@ -14,10 +17,10 @@ export default function Restrict() {
       {/* 완료 메시지 */}
       <View className="items-center pb-10">
         <View className="w-24 h-30 mb-6 items-center justify-start">
-          <AlertCircle size={96} color="#4FC985" />
+          <AlertCircle size={96} color="#EF4444" />
         </View>
         <GlobalText weight="bold" className="text-2xl text-gray-800">
-          대출이 제한되었습니다다.
+          대출이 제한되었습니다.
         </GlobalText>
       </View>
 
@@ -34,8 +37,11 @@ export default function Restrict() {
             <GlobalText className="text-sm text-gray-500">
               현재 내 신용 점수
             </GlobalText>
-            <GlobalText className="text-base font-medium text-black mt-1 tracking-wider">
-              30
+            <GlobalText
+              weight="bold"
+              className="text-base text-black mt-1 tracking-wider"
+            >
+              {credit_score}점
             </GlobalText>
           </View>
         </View>

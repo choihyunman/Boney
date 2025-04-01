@@ -2,11 +2,12 @@ import { View, TouchableOpacity } from "react-native";
 import { CheckCircle } from "lucide-react-native";
 import GlobalText from "./GlobalText";
 
-interface DetailItem {
+export interface DetailItem {
   label: string;
   value: string;
   icon?: React.ReactNode;
   valueColor?: string;
+  extraDescription?: string;
 }
 
 interface CompleteProps {
@@ -71,6 +72,15 @@ const Complete = ({
                   {item.value}
                 </GlobalText>
               </View>
+
+              {/* 부가 설명 박스 */}
+              {item.extraDescription && (
+                <View className="bg-[#ECFDF3] rounded-md px-4 py-3 mt-1">
+                  <GlobalText className="text-sm text-[#4FC985]">
+                    {item.extraDescription}
+                  </GlobalText>
+                </View>
+              )}
 
               {/* Divider */}
               {index < details.length - 1 && (

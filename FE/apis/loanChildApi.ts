@@ -17,13 +17,47 @@ export type CreateLoanResponse = {
 
 export type ReqItem = {
   loan_id: number;
-  total_loan_amount: number;
+  loan_amount: number;
   request_date: string;
   due_date: string;
 };
 
+export type LoanItem = {
+  loan_id: number;
+  loan_amount: number;
+  last_amount: number;
+  due_date: string;
+  loan_repayment_history: {
+    loan_id: number;
+    repaid_loan: number;
+    due_date: string;
+    create_da: string;
+  }[];
+};
+
 export type CancelLoanRequest = {
   loan_id: number;
+};
+
+export type RepaymentRequest = {
+  loan_id: number;
+  repayment_amount: number;
+  password: string;
+};
+
+export type RepaymentResponse = {
+  loan_id: number;
+  due_date: string;
+  repayment_amount: number;
+  loan_amount: number;
+  last_amount: number;
+  loan_status: string; // APPROVED, REPAID(상환 완료)
+  child_credit_score: number;
+};
+
+export type LoanValidationResponse = {
+  is_loan_allowed: boolean;
+  credit_score: number;
 };
 
 export const createLoan = async (
@@ -65,6 +99,55 @@ export const cancelLoan = async (payload: CancelLoanRequest): Promise<void> => {
   } catch (error: any) {
     const message =
       error.response?.data?.message ?? "❌ 대출 취소 중 알 수 없는 오류입니다.";
+    throw new Error(message);
+  }
+};
+
+export const getLoanList = async (): Promise<LoanItem[]> => {
+  try {
+    const res = await api.get("/loan/child/approved");
+    console.log("🔑 아이 대출 목록 조회 결과:", res.data.data.active_loans);
+    return res.data.data.active_loans;
+  } catch (error: any) {
+    const message =
+      error.response?.data?.message ??
+      "❌ 아이 대출 목록 조회 중 알 수 없는 오류입니다.";
+    throw new Error(message);
+  }
+};
+
+export const repayLoan = async (
+  payload: RepaymentRequest
+): Promise<RepaymentResponse> => {
+  try {
+    console.log("대출 상환 요청: ", payload);
+    const res = await api.post("/loan/repay", payload);
+    console.log("🔑 대출 상환 결과:", res.data);
+    return res.data.data;
+  } catch (error: any) {
+    if (error.response?.status === 400) {
+      console.log("❌ 대출 상환 잔액 부족");
+      throw new Error("잔액이 부족합니다.");
+    } else if (error.response?.status === 401) {
+      console.log("❌ 비밀번호 불일치");
+      throw new Error("비밀번호가 일치하지 않습니다.");
+    } else {
+      const message =
+        error.response?.data?.message ??
+        "❌ 대출 상환 중 알 수 없는 오류입니다.";
+      throw new Error(message);
+    }
+  }
+};
+
+export const getLoanValidation = async (): Promise<LoanValidationResponse> => {
+  try {
+    const res = await api.get("/loan/child/credit-score");
+    return res.data.data;
+  } catch (error: any) {
+    const message =
+      error.response?.data?.message ??
+      "❌ 대출 상환 검증 중 알 수 없는 오류입니다.";
     throw new Error(message);
   }
 };

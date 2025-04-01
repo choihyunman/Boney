@@ -1,19 +1,12 @@
-import { router, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import PromissoryNote from "../PromissoryNote";
-import {
-  ActivityIndicator,
-  ScrollView,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { ScrollView, TouchableOpacity, View } from "react-native";
 import { useEffect, useState } from "react";
 import GlobalText from "@/components/GlobalText";
 import { useLoanDetailParentStore } from "@/stores/useLoanParentStore";
 import { useLoanDetailParent } from "@/hooks/useLoanDetailParent";
-import BottomButton from "@/components/Button";
-import { useLoanStateStore } from "@/stores/useLoanChildStore";
 
-export default function LoanDetailChild() {
+export default function LoanDetailParent() {
   const { loanId, color } = useLocalSearchParams<{
     loanId: string;
     color: string;
@@ -21,7 +14,6 @@ export default function LoanDetailChild() {
   const { data: loanDetail } = useLoanDetailParent(Number(loanId));
   const [currentTime, setCurrentTime] = useState("");
   const { hydrated } = useLoanDetailParentStore((state) => state);
-  const { setLoanInfo } = useLoanStateStore((state) => state);
 
   const repaymentDate = loanDetail?.due_date;
   const loanAmount = loanDetail?.loan_amount;
@@ -112,71 +104,73 @@ export default function LoanDetailChild() {
 
         {/* 세부 내역 영역 */}
         <View className="w-full bg-white rounded-xl px-6 py-3 mt-4 mb-8 shadow-sm">
-          <View className="flex-row justify-between items-center py-4">
-            <View className="flex-row items-center">
-              <GlobalText className="text-base text-gray-500">
-                총 대출액
-              </GlobalText>
-            </View>
-            <GlobalText
-              weight="bold"
-              className="text-lg font-medium text-black tracking-wider"
-            >
-              {loanAmount?.toLocaleString()}원
-            </GlobalText>
-          </View>
-          {/* Divider */}
-          <View className="h-px bg-gray-200 mt-1 mb-1" />
-          <View className="flex-row justify-between items-center py-4">
-            <View className="flex-row items-center">
-              <GlobalText className="text-base text-gray-500">
-                남은 대출액
-              </GlobalText>
-            </View>
-            <GlobalText
-              weight="bold"
-              className="text-lg font-medium tracking-wider"
-              style={{ color: color }}
-            >
-              {lastAmount?.toLocaleString()}원
-            </GlobalText>
-          </View>
-          {/* Divider */}
-          <View className="h-px bg-gray-200 mt-1 mb-1" />
-          <View className="flex-row justify-between items-center py-4">
-            <View className="flex-row items-center">
-              <GlobalText className="text-base text-gray-500">
-                남은 날짜
-              </GlobalText>
-            </View>
-            <GlobalText
-              weight="bold"
-              className="text-lg font-medium text-black tracking-wider"
-            >
+          <View className="flex flex-col">
+            <View className="flex-row justify-between items-center py-4">
+              <View className="flex-row items-center">
+                <GlobalText className="text-base text-gray-500">
+                  채무자
+                </GlobalText>
+              </View>
               <GlobalText
                 weight="bold"
-                className={`text-lg font-medium ${getDdayInfo().color}`}
+                className="text-lg font-medium text-black tracking-wider"
               >
-                {getDdayInfo().text}
+                {childName}
               </GlobalText>
-            </GlobalText>
+            </View>
+            {/* Divider */}
+            <View className="h-px bg-gray-200 mt-1 mb-1" />
+            <View className="flex-row justify-between items-center py-4">
+              <View className="flex-row items-center">
+                <GlobalText className="text-base text-gray-500">
+                  총 대출액
+                </GlobalText>
+              </View>
+              <GlobalText
+                weight="bold"
+                className="text-lg font-medium text-black tracking-wider"
+              >
+                {loanAmount?.toLocaleString()}원
+              </GlobalText>
+            </View>
+            {/* Divider */}
+            <View className="h-px bg-gray-200 mt-1 mb-1" />
+            <View className="flex-row justify-between items-center py-4">
+              <View className="flex-row items-center">
+                <GlobalText className="text-base text-gray-500">
+                  남은 대출액
+                </GlobalText>
+              </View>
+              <GlobalText
+                weight="bold"
+                className="text-lg font-medium tracking-wider"
+                style={{ color: color }}
+              >
+                {lastAmount?.toLocaleString()}원
+              </GlobalText>
+            </View>
+            {/* Divider */}
+            <View className="h-px bg-gray-200 mt-1 mb-1" />
+            <View className="flex-row justify-between items-center py-4">
+              <View className="flex-row items-center">
+                <GlobalText className="text-base text-gray-500">
+                  남은 일수
+                </GlobalText>
+              </View>
+              <GlobalText
+                weight="bold"
+                className="text-lg font-medium text-black tracking-wider"
+              >
+                <GlobalText
+                  weight="bold"
+                  className={`text-lg font-medium ${getDdayInfo().color}`}
+                >
+                  {getDdayInfo().text}
+                </GlobalText>
+              </GlobalText>
+            </View>
           </View>
         </View>
-        <BottomButton
-          onPress={() => {
-            setLoanInfo({
-              totalAmount: loanAmount ?? 0,
-              remainingAmount: lastAmount ?? 0,
-              remainingDays: getDdayInfo().text,
-              remainingDaysColor: getDdayInfo().color,
-            });
-            router.push({
-              pathname: "/loan/child/Repayment",
-              params: { loanId },
-            } as any);
-          }}
-          text="상환하기"
-        />
       </ScrollView>
     </View>
   );
