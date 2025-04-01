@@ -1,10 +1,10 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.4.1'
+	id 'org.springframework.boot' version '3.3.9'
 	id 'io.spring.dependency-management' version '1.1.7'
 }
 
-group = 'com.laphayen'
+group = 'com.ssafy'
 version = '0.0.1-SNAPSHOT'
 
 java {
@@ -13,14 +13,48 @@ java {
 	}
 }
 
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
 repositories {
 	mavenCentral()
 }
 
 dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+	// JSON 처리
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+	implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
+	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+	// 카카오 로그인
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+
+	// 알림
+	implementation 'com.google.firebase:firebase-admin:9.4.3'
+
+	// 계좌 관리 - 실시간 비동기 처리
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+	// s3
+	implementation 'com.amazonaws:aws-java-sdk-s3:1.12.414'
+
+	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	runtimeOnly 'com.mysql:mysql-connector-j'
+
+	// macOS 전용 네이티브 DNS 리졸버 - ARM 맥북일 경우
+	runtimeOnly 'io.netty:netty-resolver-dns-native-macos:4.1.118.Final:osx-aarch_64'
+
+	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
