@@ -4,7 +4,7 @@ import com.ssafy.boney.domain.account.entity.Account;
 import com.ssafy.boney.domain.account.repository.AccountRepository;
 import com.ssafy.boney.domain.transaction.dto.CategoryUpdateRequest;
 import com.ssafy.boney.domain.transaction.dto.HashtagUpdateRequest;
-import com.ssafy.boney.domain.transaction.dto.TransactionResponseDto;
+import com.ssafy.boney.domain.transaction.dto.TransactionResponse;
 import com.ssafy.boney.domain.transaction.exception.ResourceNotFoundException;
 import com.ssafy.boney.domain.transaction.service.TransactionService;
 import com.ssafy.boney.domain.user.entity.User;
@@ -45,7 +45,7 @@ public class TransactionController {
 
         // 서비스 호출
         transactionService.syncExternalTransactions(account.getAccountNumber(), year, month);
-        List<TransactionResponseDto> data = transactionService.getTransactions(year, month, type, user);
+        List<TransactionResponse> data = transactionService.getTransactions(year, month, type, user);
 
         // 정상 응답 반환
         return ResponseEntity.ok(Map.of(
@@ -67,7 +67,7 @@ public class TransactionController {
                 .orElseThrow(() -> new ResourceNotFoundException("사용자를 찾을 수 없습니다."));
 
         // Service 호출
-        TransactionResponseDto detailDto = transactionService.getTransactionDetail(transactionId, user);
+        TransactionResponse detailDto = transactionService.getTransactionDetail(transactionId, user);
 
         return ResponseEntity.ok(Map.of(
                 "status", "200",

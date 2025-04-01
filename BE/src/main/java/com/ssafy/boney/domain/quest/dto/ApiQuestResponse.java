@@ -15,6 +15,6 @@ public class ApiQuestResponse<T> {
     private String message;
     private T data;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL) // null이면 JSON에서 제외
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String errorCode;
 }

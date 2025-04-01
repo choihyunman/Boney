@@ -59,9 +59,8 @@ public class MonthlyReportScheduler {
 
         for (User child : childUsers) {
             // 기존에 해당 기간에 생성된 레포트가 있는지 확인 (중복 집계 방지)
-            if (monthlyReportRepository.findByChild_UserIdAndReportMonth(child.getUserId(), startDate).isPresent()) {
-                continue;
-            }
+            monthlyReportRepository.findByChild_UserIdAndReportMonth(child.getUserId(), startDate)
+                    .ifPresent(monthlyReportRepository::delete);
 
             // 해당 사용자에 대해 이전 달 거래 내역 조회
             List<Transaction> transactions = transactionRepository.findByUserAndCreatedAtBetween(child, startDateTime, endDateTime);

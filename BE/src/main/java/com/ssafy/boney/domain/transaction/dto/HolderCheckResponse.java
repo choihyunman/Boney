@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 // 계좌 주인 체크 dto
-public class HolderCheckResponseDto {
+public class HolderCheckResponse {
     private String accountHolderName;
 }

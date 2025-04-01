@@ -2,7 +2,7 @@ package com.ssafy.boney.domain.transaction.service;
 
 import com.ssafy.boney.domain.account.entity.Account;
 import com.ssafy.boney.domain.account.repository.AccountRepository;
-import com.ssafy.boney.domain.transaction.dto.TransactionResponseDto;
+import com.ssafy.boney.domain.transaction.dto.TransactionResponse;
 import com.ssafy.boney.domain.transaction.entity.*;
 import com.ssafy.boney.domain.transaction.entity.enums.TransactionType;
 import com.ssafy.boney.domain.transaction.repository.*;
@@ -70,13 +70,26 @@ public class TransactionService {
                 afterBalance = Long.parseLong(tx.get("transactionAfterBalance"));
             }
 
+            String contentName;
+            if (summary != null) {
+                if (summary.contains("이체")) {
+                    contentName = "이체";
+                } else if (summary.contains("용돈")) {
+                    contentName = "용돈";
+                } else if (summary.contains("퀘스트")) {
+                    contentName = "퀘스트";
+                } else {
+                    contentName = summary;
+                }
+            } else {
+                contentName = "기타";
+            }
+
             // TransactionContent 확인 (없으면 "기타"로 처리)
             TransactionContent content = transactionContentRepository
-                    .findByContentName(summary)
-                    .orElseGet(() -> {
-                        return transactionContentRepository.findByContentName("기타")
-                                .orElseThrow(() -> new ResourceNotFoundException("카테고리에 기타가 존재하지 않습니다"));
-                    });
+                    .findByContentName(contentName)
+                    .orElseGet(() -> transactionContentRepository.findByContentName("기타")
+                            .orElseThrow(() -> new ResourceNotFoundException("카테고리에 기타가 존재하지 않습니다")));
 
             // 최종 카테고리 결정 (기본값)
             TransactionCategory mappedCategory = content.getDefaultTransactionCategory();
@@ -113,7 +126,7 @@ public class TransactionService {
     /**
      * 연도, 월, 타입으로 거래내역 조회
      */
-    public List<TransactionResponseDto> getTransactions(int year, int month, String typeStr, User user) {
+    public List<TransactionResponse> getTransactions(int year, int month, String typeStr, User user) {
         TransactionType type = "all".equalsIgnoreCase(typeStr)
                 ? null
                 : TransactionType.valueOf(typeStr.toUpperCase());
@@ -124,7 +137,7 @@ public class TransactionService {
         }
 
         return transactions.stream()
-                .map(t -> new TransactionResponseDto(
+                .map(t -> new TransactionResponse(
                         t.getTransactionId(),
                         t.getCreatedAt(),
                         // 가맹점명 or 기타
@@ -140,13 +153,13 @@ public class TransactionService {
                 .collect(Collectors.toList());
     }
 
-    public TransactionResponseDto getTransactionDetail(Integer transactionId, User user) {
+    public TransactionResponse getTransactionDetail(Integer transactionId, User user) {
         // userId(로그인 유저)의 거래내역 중 transactionId가 맞는 것만 조회
         Transaction transaction = transactionRepository
                 .findByTransactionIdAndUser_UserId(transactionId, user.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("해당 거래 내역을 찾을 수 없습니다."));
 
-        return new TransactionResponseDto(
+        return new TransactionResponse(
                 transaction.getTransactionId(),
                 transaction.getCreatedAt(),
                 transaction.getTransactionContent().getContentName(),
