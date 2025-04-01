@@ -22,8 +22,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# 앱 파일 복사
 COPY . .
+
 EXPOSE 8000
 
 # uvicorn 실행 (8000 포트)
