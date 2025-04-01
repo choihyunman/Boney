@@ -4,13 +4,12 @@ import com.ssafy.boney.domain.account.entity.Account;
 import com.ssafy.boney.domain.account.repository.AccountRepository;
 import com.ssafy.boney.domain.account.service.BankingApiService;
 import com.ssafy.boney.domain.quest.dto.ParentQuestApprovalRequest;
+import com.ssafy.boney.domain.quest.dto.ParentQuestApprovalResponse;
 import com.ssafy.boney.domain.quest.entity.Quest;
 import com.ssafy.boney.domain.quest.entity.enums.QuestStatus;
 import com.ssafy.boney.domain.quest.exception.QuestErrorCode;
 import com.ssafy.boney.domain.quest.exception.QuestNotFoundException;
 import com.ssafy.boney.domain.quest.repository.QuestRepository;
-import com.ssafy.boney.domain.transaction.dto.TransferData;
-import com.ssafy.boney.domain.transaction.dto.TransferResponseDto;
 import com.ssafy.boney.domain.transaction.exception.CustomException;
 import com.ssafy.boney.domain.transaction.exception.TransactionErrorCode;
 import com.ssafy.boney.domain.user.entity.User;
@@ -37,7 +36,7 @@ public class ParentQuestApprovalService {
 
     // (보호자 페이지) 퀘스트 성공 처리 + 보상 송금
     @Transactional
-    public TransferResponseDto approveQuestCompletion(Integer parentId, Integer questId, ParentQuestApprovalRequest approvalRequest) {
+    public ParentQuestApprovalResponse  approveQuestCompletion(Integer parentId, Integer questId, ParentQuestApprovalRequest approvalRequest) {
         // 1. 퀘스트 조회 및 보호자 소유 검증
         Quest quest = questRepository.findById(questId)
                 .orElseThrow(() -> new QuestNotFoundException(QuestErrorCode.QUEST_NOT_FOUND));
@@ -76,18 +75,24 @@ public class ParentQuestApprovalService {
 
         // 6. 송금 실행
         String summary = "퀘스트 " + quest.getQuestTitle();
-        bankingApiService.transfer(fromAccount, toAccount, rewardAmount, summary);
+        bankingApiService.transfer(fromAccount, toAccount, quest.getQuestReward(), summary);
 
+        // 6. 송금 결과 데이터 생성
         LocalDateTime now = LocalDateTime.now();
-        String createdAt = now.format(DateTimeFormatter.ISO_DATE_TIME);
-        TransferData transferData = new TransferData();
-        transferData.setBankName(bankName);
-        transferData.setAccountNumber(fromAccount);
-        transferData.setAmount(rewardAmount);
-        transferData.setCreatedAt(createdAt);
-        TransferResponseDto transferResponse = new TransferResponseDto("200", "송금 성공", transferData);
+        String nowStr = now.format(DateTimeFormatter.ISO_DATE_TIME);
 
-        // 7. 아이 신용점수 증가 (2점 증가)
+        ParentQuestApprovalResponse responseDto = ParentQuestApprovalResponse.builder()
+                .bankName(bankName)
+                .accountNumber(fromAccount)
+                .amount(quest.getQuestReward())
+                .transferCreatedAt(nowStr)
+                .questTitle(quest.getQuestTitle())
+                .questMessage(quest.getQuestMessage())
+                .finishDate(nowStr)    // 퀘스트 완료일 (finish_date)
+                .approvalDate(nowStr)  // 승인일 (송금 시각)
+                .build();
+
+        // 7. 아이 신용점수 증가 (2점)
         creditScoreService.increaseCreditScore(child.getUserId(), 2);
 
         // 8. 퀘스트 상태 업데이트: SUCCESS, finish_date 기록
@@ -95,6 +100,6 @@ public class ParentQuestApprovalService {
         quest.setFinishDate(now);
         questRepository.save(quest);
 
-        return transferResponse;
+        return responseDto;
     }
 }
