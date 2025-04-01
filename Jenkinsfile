@@ -37,7 +37,7 @@ pipeline {
         stage('Checkout Source') {
             steps {
                 echo "📦 Git 리포지토리 클론 중..."
-                git branch: 'S12P21B208-154-jenkins-test',
+                git branch: 'release',
                     url: 'https://lab.ssafy.com/s12-fintech-finance-sub1/S12P21B208.git',
                     credentialsId: 'choihyunman'
             }
@@ -143,8 +143,8 @@ pipeline {
 
 def notifyMattermost(success) {
     def color = success ? "#00c853" : "#d50000"
-    def msg = success ? "✅ *배포 성공!* `S12P21B208-154-jenkins-test` 브랜치 기준 자동 배포 완료되었습니다. 🎉" :
-                        "❌ *배포 실패!* `S12P21B208-154-jenkins-test` 브랜치 기준 자동 배포에 실패했습니다. 🔥"
+    def msg = success ? "✅ *배포 성공!* `release` 브랜치 기준 자동 배포 완료되었습니다. 🎉" :
+                        "❌ *배포 실패!* `release` 브랜치 기준 자동 배포에 실패했습니다. 🔥"
 
     withCredentials([string(credentialsId: 'mattermost-webhook', variable: 'WEBHOOK_URL')]) {
         sh """
