@@ -30,7 +30,7 @@ class AnomalyResponse(BaseModel):
 with open("model.pkl", "rb") as f:
     model = pickle.load(f)
 
-@app.post("/anomaly/detect", response_model=AnomalyResponse)
+@app.post("/api/ai", response_model=AnomalyResponse)
 def detect_anomaly(request: AnomalyRequest):
     # feature vector 순서는 모델 학습 시 사용한 순서와 동일해야 합니다.
     features = np.array([
@@ -49,7 +49,7 @@ def detect_anomaly(request: AnomalyRequest):
     # IsolationForest의 decision_function 값 사용 (일반적으로 음수일수록 이상치)
     score = model.decision_function(features)[0]
     # 예시 임계치: score < -0.1이면 이상치로 간주
-    anomaly = score < -0.1 
+    anomaly = score < -0.09 
     return AnomalyResponse(score=score, anomaly=anomaly)
 
 if __name__ == "__main__":
