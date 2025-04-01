@@ -6,12 +6,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @Getter
 @ResponseStatus(HttpStatus.NOT_FOUND)
-public class QuestNotFoundException extends RuntimeException {
-
-    private final QuestErrorCode errorCode;
+public class QuestNotFoundException extends QuestException {
 
     public QuestNotFoundException(QuestErrorCode errorCode) {
-        super(errorCode.getMessage());
-        this.errorCode = errorCode;
+        super(errorCode);
     }
 }

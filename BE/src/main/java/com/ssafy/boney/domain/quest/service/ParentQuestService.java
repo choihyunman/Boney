@@ -1,9 +1,12 @@
 package com.ssafy.boney.domain.quest.service;
 
 import com.ssafy.boney.domain.quest.dto.ParentQuestCreateRequest;
+import com.ssafy.boney.domain.quest.dto.ParentQuestCreateResponse;
 import com.ssafy.boney.domain.quest.entity.Quest;
 import com.ssafy.boney.domain.quest.entity.QuestCategory;
 import com.ssafy.boney.domain.quest.entity.enums.QuestStatus;
+import com.ssafy.boney.domain.quest.exception.QuestErrorCode;
+import com.ssafy.boney.domain.quest.exception.QuestException;
 import com.ssafy.boney.domain.quest.repository.QuestCategoryRepository;
 import com.ssafy.boney.domain.quest.repository.QuestRepository;
 import com.ssafy.boney.domain.user.entity.ParentChild;
@@ -25,23 +28,25 @@ public class ParentQuestService {
     private final UserService userService;
 
     // (보호자 페이지) 퀘스트 생성
-    public void createQuest(Integer parentId, ParentQuestCreateRequest requestDto) {
+    public ParentQuestCreateResponse createQuest(Integer parentId, ParentQuestCreateRequest requestDto) {
         // 1) 보호자 엔티티 조회
         User parent = userService.findById(parentId);
         if (parent == null) {
-            throw new IllegalArgumentException("보호자 정보를 찾을 수 없습니다.");
+            throw new QuestException(QuestErrorCode.PARENT_NOT_FOUND);
         }
 
         // 2) parent_child_id 유효성 검사
         ParentChild parentChild = parentChildRepository.findById(requestDto.getParentChildId())
-                .orElseThrow(() -> new IllegalArgumentException("보호자-아이 관계를 찾을 수 없습니다."));
+                .orElseThrow(() -> new QuestException(QuestErrorCode.PARENT_CHILD_RELATION_INVALID));
         if (!parentChild.getParent().getUserId().equals(parentId)) {
-            throw new IllegalArgumentException("보호자와 아이 관계가 일치하지 않습니다.");
+            throw new QuestException(QuestErrorCode.PARENT_CHILD_RELATION_INVALID);
         }
 
         // 3) 퀘스트 카테고리 조회
         QuestCategory questCategory = questCategoryRepository.findById(requestDto.getQuestCategoryId())
-                .orElseThrow(() -> new IllegalArgumentException("퀘스트 카테고리를 찾을 수 없습니다."));
+                .orElseThrow(() -> new QuestException(QuestErrorCode.CATEGORY_NOT_FOUND));
+
+        LocalDateTime endDateTime = requestDto.getEndDate().atTime(23, 59, 59);
 
         Quest quest = Quest.builder()
                 .parentChild(parentChild)
@@ -51,10 +56,19 @@ public class ParentQuestService {
                 .questReward(requestDto.getQuestReward())
                 .questStatus(QuestStatus.IN_PROGRESS)
                 .createdAt(LocalDateTime.now())
-                .endDate(requestDto.getEndDate())
+                .endDate(endDateTime)
                 .build();
 
         questRepository.save(quest);
+
+        return ParentQuestCreateResponse.builder()
+                .childName(parentChild.getChild().getUserName())
+                .questCategory(questCategory.getCategoryName())
+                .questTitle(quest.getQuestTitle())
+                .questReward(quest.getQuestReward())
+                .endDate(quest.getEndDate().toLocalDate())
+                .questMessage(quest.getQuestMessage())
+                .build();
     }
 
 

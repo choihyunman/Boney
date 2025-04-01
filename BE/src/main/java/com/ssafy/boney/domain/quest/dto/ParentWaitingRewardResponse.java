@@ -12,6 +12,7 @@ public class ParentWaitingRewardResponse {
     private String questTitle;
     private String questCategory;
     private String childName;
+    private Integer childId;
     private LocalDateTime endDate;
     private Long questReward;
     private String questStatus;
