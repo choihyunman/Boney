@@ -1,5 +1,7 @@
 package com.ssafy.boney.domain.account.service;
 
+import com.ssafy.boney.domain.transaction.dto.TransactionHistoryResponseDto;
+import com.ssafy.boney.domain.transaction.dto.TransferApiResponseDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -10,6 +12,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 @Service
 public class BankingApiServiceImpl implements BankingApiService {
@@ -27,7 +30,7 @@ public class BankingApiServiceImpl implements BankingApiService {
 
     // 계좌 송금
     @Override
-    public void transfer(String fromAccount, String toAccount, Long amount, String summary) {
+    public TransferApiResponseDto transfer(String fromAccount, String toAccount, Long amount, String summary) {
         String url = baseUrl + "/demandDeposit/updateDemandDepositAccountTransfer";
 
         Map<String, Object> body = new HashMap<>();
@@ -41,8 +44,9 @@ public class BankingApiServiceImpl implements BankingApiService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        // RestTemplate의 기본 에러 핸들러가 상태 코드 4xx, 5xx일 경우 예외를 던집니다.
-        restTemplate.postForEntity(url, new HttpEntity<>(body, headers), String.class);
+        // RestTemplate으로 응답을 DTO로 변환 (적절한 ObjectMapper 설정 필요)
+        TransferApiResponseDto response = restTemplate.postForObject(url, new HttpEntity<>(body, headers), TransferApiResponseDto.class);
+        return response;
     }
 
     // 예금주 확인
@@ -104,8 +108,25 @@ public class BankingApiServiceImpl implements BankingApiService {
         }
     }
 
+    @Override
+    public TransactionHistoryResponseDto inquireTransactionHistory(String accountNo, String transactionUniqueNo) {
+        String url = baseUrl + "/demandDeposit/inquireTransactionHistory";
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("accountNo", accountNo);
+        body.put("transactionUniqueNo", transactionUniqueNo);
+        body.put("Header", generateHeader("inquireTransactionHistory"));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        TransactionHistoryResponseDto response = restTemplate.postForObject(url, new HttpEntity<>(body, headers), TransactionHistoryResponseDto.class);
+        return response;
+    }
+
     // 헤더 생성
     private Map<String, Object> generateHeader(String apiName) {
+        String random6 = String.format("%06d", new Random().nextInt(1_000_000));
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter date = DateTimeFormatter.ofPattern("yyyyMMdd");
         DateTimeFormatter time = DateTimeFormatter.ofPattern("HHmmss");
@@ -117,7 +138,7 @@ public class BankingApiServiceImpl implements BankingApiService {
         header.put("institutionCode", "00100");
         header.put("fintechAppNo", "001");
         header.put("apiServiceCode", apiName);
-        header.put("institutionTransactionUniqueNo", now.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")) + "123456");
+        header.put("institutionTransactionUniqueNo", now.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")) + random6);
         header.put("apiKey", apiKey);
         header.put("userKey", userKey);
         return header;
