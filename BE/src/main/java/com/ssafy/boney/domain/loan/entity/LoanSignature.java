@@ -20,7 +20,7 @@ public class LoanSignature {
     @Column(name = "signature_id")
     private Integer signatureId;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY) // 변경: OneToOne → ManyToOne
     @JoinColumn(name = "loan_id", nullable = false)
     private Loan loan;
 
