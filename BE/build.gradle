@@ -36,6 +36,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 
+	// 전자 서명
+	implementation 'commons-codec:commons-codec:1.15'
+
 	// 알림
 	implementation 'com.google.firebase:firebase-admin:9.4.3'
 

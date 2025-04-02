@@ -1,14 +1,18 @@
 package com.ssafy.boney.domain.loan.service;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.ssafy.boney.domain.account.entity.Account;
 import com.ssafy.boney.domain.account.repository.AccountRepository;
 import com.ssafy.boney.domain.account.service.BankingApiService;
 import com.ssafy.boney.domain.loan.dto.*;
 import com.ssafy.boney.domain.loan.entity.Loan;
 import com.ssafy.boney.domain.loan.entity.LoanRepayment;
+import com.ssafy.boney.domain.loan.entity.LoanSignature;
 import com.ssafy.boney.domain.loan.entity.enums.LoanStatus;
 import com.ssafy.boney.domain.loan.repository.LoanRepaymentRepository;
 import com.ssafy.boney.domain.loan.repository.LoanRepository;
+import com.ssafy.boney.domain.loan.repository.LoanSignatureRepository;
 import com.ssafy.boney.domain.transaction.entity.Transaction;
 import com.ssafy.boney.domain.transaction.exception.CustomException;
 import com.ssafy.boney.domain.transaction.exception.TransactionErrorCode;
@@ -21,13 +25,18 @@ import com.ssafy.boney.domain.user.exception.UserNotFoundException;
 import com.ssafy.boney.domain.user.repository.CreditScoreRepository;
 import com.ssafy.boney.domain.user.repository.ParentChildRepository;
 import com.ssafy.boney.domain.user.repository.UserRepository;
+import com.ssafy.boney.global.s3.S3Service;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import org.apache.commons.codec.binary.Base64;
 
+import java.io.ByteArrayInputStream;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -45,21 +54,28 @@ public class LoanService {
     private final CreditScoreRepository creditScoreRepository;
     private final TransactionRepository transactionRepository;
 
+    private final S3Service s3Service;
+    private final LoanSignatureRepository loanSignatureRepository;
+    private final AmazonS3 amazonS3;
+
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
+
     @Transactional
     public ResponseEntity<?> createLoan(Integer childId, LoanRequest request) {
-        // 유효성 검증
-        if (request.getLoanAmount() == null || request.getDueDate() == null) {
+        // 1. 요청 검증
+        if (request.getLoanAmount() == null || request.getDueDate() == null || request.getSignature() == null) {
             return ResponseEntity.badRequest().body(Map.of(
                     "status", 400,
-                    "message", "loan_amount와 due_date는 필수이며, 형식이 올바르게 지정되어야 합니다."
+                    "message", "loan_amount, due_date, signature는 필수입니다."
             ));
         }
 
-        // 자녀 조회
+        // 2. 자녀 조회
         User child = userRepository.findById(childId)
                 .orElseThrow(() -> new UserNotFoundException(UserErrorCode.NOT_FOUND));
 
-        // 신용 점수 확인
+        // 3. 신용 점수 검증
         int creditScore = (child.getCreditScore() != null) ? child.getCreditScore().getScore() : 0;
         if (creditScore < 30) {
             return ResponseEntity.ok(Map.of(
@@ -72,7 +88,7 @@ public class LoanService {
             ));
         }
 
-        // 부모-자녀 관계 확인
+        // 4. 부모 관계 확인
         Optional<ParentChild> relationOpt = child.getParents().stream().findFirst();
         if (relationOpt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
@@ -80,11 +96,10 @@ public class LoanService {
                     "message", "부모와의 연결이 없습니다."
             ));
         }
-
         ParentChild relation = relationOpt.get();
         User parent = relation.getParent();
 
-        // 대출 저장
+        // 5. Loan 저장
         Loan loan = Loan.builder()
                 .loanAmount(request.getLoanAmount())
                 .dueDate(request.getDueDate())
@@ -92,9 +107,36 @@ public class LoanService {
                 .requestedAt(LocalDateTime.now())
                 .parentChild(relation)
                 .build();
-
         loanRepository.save(loan);
 
+        // 6. 전자서명 base64 → S3 업로드
+        try {
+            byte[] decodedBytes = Base64.decodeBase64(request.getSignature());
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(decodedBytes);
+
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentLength(decodedBytes.length);
+            metadata.setContentType("image/png");
+
+            String fileName = "loan/signatures/" + UUID.randomUUID() + ".png";
+            amazonS3.putObject(bucket, fileName, inputStream, metadata);
+            String s3Url = amazonS3.getUrl(bucket, fileName).toString();
+
+            // 7. LoanSignature 저장
+            LoanSignature signature = LoanSignature.builder()
+                    .loan(loan)
+                    .signatureUrl(s3Url)
+                    .signedAt(LocalDateTime.now())
+                    .build();
+            loanSignatureRepository.save(signature);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                    "status", 500,
+                    "message", "전자 서명 업로드 실패: " + e.getMessage()
+            ));
+        }
+
+        // 8. 응답
         LoanResponse response = LoanResponse.builder()
                 .parentName(parent.getUserName())
                 .childName(child.getUserName())
