@@ -1,7 +1,7 @@
 package com.ssafy.boney.domain.user.entity;
 
 import com.ssafy.boney.domain.account.entity.Account;
-import com.ssafy.boney.domain.fcm.entity.FcmTokens;
+import com.ssafy.boney.domain.notification.entity.FcmTokens;
 import com.ssafy.boney.domain.user.entity.enums.Role;
 import com.ssafy.boney.domain.user.entity.enums.Gender;
 import jakarta.persistence.*;
