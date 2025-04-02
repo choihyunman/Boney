@@ -442,7 +442,7 @@ public class LoanService {
         }
 
         ParentChild relation = loan.getParentChild();
-        if (relation == null || relation.getParent() == null || relation.getChild() == null) {
+        if (relation.getParent() == null || relation.getChild() == null) {
             return ResponseEntity.status(404).body(Map.of(
                     "status", 404,
                     "message", "대출에 연결된 부모 또는 자녀 정보가 없습니다."
@@ -452,7 +452,7 @@ public class LoanService {
         User parent = relation.getParent();
         User child = relation.getChild();
 
-        // 사용자 권한 확인 (부모 또는 자녀만 접근 가능)
+        // 권한 체크
         if (!Objects.equals(parent.getUserId(), userId) && !Objects.equals(child.getUserId(), userId)) {
             return ResponseEntity.status(401).body(Map.of(
                     "status", 401,
@@ -462,13 +462,16 @@ public class LoanService {
 
         Integer creditScore = child.getCreditScore() != null ? child.getCreditScore().getScore() : 0;
 
-        String parentName = (parent != null && parent.getUserName() != null) ? parent.getUserName() : "알 수 없음";
-        String childName = (child != null && child.getUserName() != null) ? child.getUserName() : "알 수 없음";
+        // 서명 정보 조회
+        String childSignature = loanSignatureRepository.findByLoanAndSignerType(loan, SignerType.CHILD)
+                .map(LoanSignature::getSignatureUrl).orElse(null);
+        String parentSignature = loanSignatureRepository.findByLoanAndSignerType(loan, SignerType.PARENT)
+                .map(LoanSignature::getSignatureUrl).orElse(null);
 
         Map<String, Object> loanDetail = new HashMap<>();
         loanDetail.put("loan_id", loan.getLoanId());
-        loanDetail.put("parent_name", parent != null ? Optional.ofNullable(parent.getUserName()).orElse("알 수 없음") : "알 수 없음");
-        loanDetail.put("child_name", child != null ? Optional.ofNullable(child.getUserName()).orElse("알 수 없음") : "알 수 없음");
+        loanDetail.put("parent_name", Optional.ofNullable(parent.getUserName()).orElse("알 수 없음"));
+        loanDetail.put("child_name", Optional.ofNullable(child.getUserName()).orElse("알 수 없음"));
         loanDetail.put("loan_amount", loan.getLoanAmount());
         loanDetail.put("last_amount", loan.getLastAmount() != null ? loan.getLastAmount() : loan.getLoanAmount());
         loanDetail.put("approved_at", loan.getApprovedAt() != null ? loan.getApprovedAt().toString() : null);
@@ -476,6 +479,8 @@ public class LoanService {
         loanDetail.put("request_date", loan.getRequestedAt() != null ? loan.getRequestedAt().toLocalDate().toString() : null);
         loanDetail.put("due_date", loan.getDueDate() != null ? loan.getDueDate().toLocalDate().toString() : null);
         loanDetail.put("child_credit_score", creditScore);
+        loanDetail.put("child_signature", childSignature);
+        loanDetail.put("parent_signature", parentSignature);
 
         return ResponseEntity.ok(Map.of(
                 "status", "200",
