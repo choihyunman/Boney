@@ -91,7 +91,7 @@ export default function MenuPage() {
           </View>
           <View className="gap-1">
             <TouchableOpacity
-              disabled={true}
+              onPress={() => router.push("/quest/child/list")}
               className="flex-row items-center py-2.5 px-3 rounded-lg"
             >
               <ChevronRight size={16} color="#4FC985" />
@@ -127,14 +127,14 @@ export default function MenuPage() {
                   console.log("loan validation:", res);
 
                   if (res?.is_loan_allowed) {
-                    router.push("/loan/child/Request"); // 가능할 때
+                    router.push("/loan/child/Request");
                   } else {
                     router.push({
                       pathname: "/loan/child/Restrict",
                       params: {
                         credit_score: res?.credit_score,
                       },
-                    }); // 불가능할 때
+                    });
                   }
                 } catch (err) {
                   console.error("대출 가능 여부 확인 실패:", err);
