@@ -249,6 +249,36 @@ public class LoanService {
             ));
         }
 
+        // ✅ 부모 전자서명 처리 (base64 → S3)
+        if (request.getParentSignature() != null) {
+            try {
+                byte[] decodedBytes = Base64.decodeBase64(request.getParentSignature());
+                ByteArrayInputStream inputStream = new ByteArrayInputStream(decodedBytes);
+
+                ObjectMetadata metadata = new ObjectMetadata();
+                metadata.setContentLength(decodedBytes.length);
+                metadata.setContentType("image/png");
+
+                String fileName = "loan/signatures/" + UUID.randomUUID() + ".png";
+                amazonS3.putObject(bucket, fileName, inputStream, metadata);
+                String s3Url = amazonS3.getUrl(bucket, fileName).toString();
+
+                LoanSignature signature = LoanSignature.builder()
+                        .loan(loan)
+                        .signatureUrl(s3Url)
+                        .signedAt(LocalDateTime.now())
+                        .signerType(SignerType.PARENT)
+                        .build();
+                loanSignatureRepository.save(signature);
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                        "status", 500,
+                        "message", "부모 전자 서명 저장 실패: " + e.getMessage()
+                ));
+            }
+        }
+
+        // 송금 처리
         bankingApiService.transfer(
                 parentAccount.getAccountNumber(),
                 childAccount.getAccountNumber(),
