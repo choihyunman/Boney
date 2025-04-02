@@ -41,7 +41,7 @@ public class ExternalApiService {
                         "transmissionTime", transmissionTime,
                         "institutionCode", externalApiProperties.getAccountAuth().getInstitutionCode(),
                         "fintechAppNo", externalApiProperties.getAccountAuth().getFintechAppNo(),
-                        "apiServiceCode", externalApiProperties.getAccountAuth().getApiServiceCode(),
+                        "apiServiceCode", "inquireTransactionHistoryList",
                         "institutionTransactionUniqueNo", institutionTransactionUniqueNo,
                         "apiKey", externalApiProperties.getAccountAuth().getApiKey(),
                         "userKey", externalApiProperties.getAccountAuth().getUserKey()
