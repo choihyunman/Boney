@@ -224,7 +224,7 @@ public class TransferService {
         );
     }
 
-    private AnomalyRequestDto buildAnomalyRequest(Transfer transferRecord, Transaction transactionEntity, Account senderAccount, TransferRequestDto request) {
+    private AnomalyRequestDto buildAnomalyRequest(Transfer transferRecord, Transaction transactionEntity, Account senderAccount, TransferRequest request) {
         AnomalyRequestDto dto = new AnomalyRequestDto();
         dto.setTransferId(transferRecord.getTransferId());
         dto.setSenderAccount(senderAccount.getAccountNumber());
