@@ -40,7 +40,7 @@ services:
       mysql_test:
         condition: service_healthy
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql_test:3306/boney_test?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql_test:3306/${MYSQL_DATABASE}?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
       TZ: Asia/Seoul
     env_file:
       - .env.test

@@ -64,16 +64,6 @@ pipeline {
             }
         }
 
-        stage('Fix Permissions') {
-            when {
-                expression { env.gitlabTargetBranch == 'release' }
-            }
-            steps {
-                echo "🔧 퍼미션 수정 중..."
-                sh 'sudo chown -R ubuntu:ubuntu . || true'
-            }
-        }
-
         stage('Checkout Source') {
             when {
                 expression { env.gitlabTargetBranch == 'release' }
