@@ -7,6 +7,7 @@ import { useTransferStore } from "@/stores/useTransferStore";
 import BottomButton from "@/components/Button";
 import GlobalText from "@/components/GlobalText";
 import { addFavoriteAccount } from "@/apis/transferApi";
+import Toast from "react-native-toast-message";
 
 // Account type definition
 interface Account {
@@ -16,9 +17,7 @@ interface Account {
   ownerName: string;
 }
 
-// Bank list
 const bankList = [
-  // 은행 이름 버니은행으로 변경해야 함
   { id: "boney", name: "버니은행" },
   { id: "kb", name: "KB국민은행" },
   { id: "shinhan", name: "신한은행" },
@@ -138,7 +137,6 @@ export default function AccountForm() {
       try {
         setRecipient(newAccount);
 
-        // 계좌 저장이 선택된 경우 API 호출
         if (saveAccount) {
           try {
             await addFavoriteAccount(
@@ -146,12 +144,14 @@ export default function AccountForm() {
               accountForm.accountNumber.replace(/-/g, "")
             );
             await addSavedAccount(newAccount);
-          } catch (error) {
+          } catch (error: any) {
             console.error("계좌 등록 중 오류 발생:", error);
-            Alert.alert(
-              "오류",
-              "계좌 등록 중 오류가 발생했습니다. 다시 시도해주세요."
-            );
+            Toast.show({
+              type: "error",
+              text1: "계좌 등록 실패",
+              text2: error.message || "계좌 등록 중 오류가 발생했습니다.",
+              position: "bottom",
+            });
             return;
           }
         }

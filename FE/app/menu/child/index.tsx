@@ -8,7 +8,6 @@ import {
   Landmark,
   BarChart3,
   LogOut,
-  User,
 } from "lucide-react-native";
 import { useAuthStore } from "../../../stores/useAuthStore";
 import GlobalText from "../../../components/GlobalText";
@@ -30,7 +29,7 @@ export default function MenuPage() {
       {/* 프로필 섹션 */}
       <TouchableOpacity
         className="flex-row items-center p-5 border-b border-[#E5E7EB] bg-white"
-        onPress={() => router.push("/mypage")}
+        onPress={() => router.push("../mypage")}
       >
         <View className="w-14 h-14 rounded-full overflow-hidden border border-[#E5E7EB]">
           <Image
@@ -178,7 +177,7 @@ export default function MenuPage() {
           </View>
         </View>
 
-        {/* 월간 리포트 */}
+        {/* 월간 레레포트 */}
         <View className="mb-3">
           <View className="flex-row items-center mb-2">
             <BarChart3 size={20} color="#4FC985" />
@@ -187,10 +186,17 @@ export default function MenuPage() {
             </GlobalText>
           </View>
           <View className="gap-1">
-            <TouchableOpacity className="flex-row items-center py-2.5 px-3 rounded-lg">
+            <TouchableOpacity
+              className="flex-row items-center py-2.5 px-3 rounded-lg"
+              onPress={() =>
+                router.push({
+                  pathname: "/report",
+                })
+              }
+            >
               <ChevronRight size={16} color="#4FC985" />
               <GlobalText className="text-sm text-[#374151] ml-2">
-                조회하기
+                이달의 리포트
               </GlobalText>
             </TouchableOpacity>
           </View>

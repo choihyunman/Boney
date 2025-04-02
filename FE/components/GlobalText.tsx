@@ -7,6 +7,7 @@ interface GlobalTextProps extends TextProps {
 const GlobalText: React.FC<GlobalTextProps> = ({
   weight = "regular",
   style,
+  className,
   ...props
 }) => {
   const fontMap = {
@@ -15,6 +16,18 @@ const GlobalText: React.FC<GlobalTextProps> = ({
     light: "NEXONLv1Gothic-Light",
   };
 
-  return <Text {...props} style={[style, { fontFamily: fontMap[weight] }]} />;
+  // font-family 클래스가 있는 경우에만 fontMap의 폰트를 무시
+  const fontFamily = className?.includes("font-NEXONLv1Gothic")
+    ? undefined
+    : fontMap[weight];
+
+  return (
+    <Text
+      {...props}
+      className={className}
+      style={[style, fontFamily && { fontFamily }]}
+    />
+  );
 };
+
 export default GlobalText;

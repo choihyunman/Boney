@@ -5,7 +5,6 @@ import {
   ScrollView,
   SafeAreaView,
   Pressable,
-  Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Banknote, Users } from "lucide-react-native";
@@ -45,10 +44,6 @@ export default function SendMoneyRecipient() {
         setRegisteredAccounts(accounts);
       } catch (error) {
         console.error("계좌 목록 조회 중 오류 발생:", error);
-        Alert.alert(
-          "오류",
-          "계좌 목록을 불러오는 중 오류가 발생했습니다. 다시 시도해주세요."
-        );
       } finally {
         setIsLoading(false);
       }
@@ -85,7 +80,7 @@ export default function SendMoneyRecipient() {
         {/* 계좌 직접 입력 버튼 */}
         <View className="mx-5 mt-4 p-1">
           <Pressable
-            className="w-full p-3 bg-white border border-gray-200 rounded-lg flex-row items-center justify-center"
+            className="w-full p-3 bg-white rounded-lg flex-row items-center justify-center border border-gray-100"
             onPress={handleAccountTransfer}
           >
             <GlobalText className="font-medium py-1">

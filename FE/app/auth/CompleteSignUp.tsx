@@ -3,7 +3,7 @@ import { View, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import { CheckCircle, CreditCard } from "lucide-react-native";
 import { useAuthStore } from "@/stores/useAuthStore";
-import GlobalText from "../../components/GlobalText";
+import GlobalText from "@/components/GlobalText";
 
 export default function SignupCompletePage() {
   const router = useRouter();
