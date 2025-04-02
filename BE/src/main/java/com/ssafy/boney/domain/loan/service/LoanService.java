@@ -152,15 +152,12 @@ public class LoanService {
         ));
     }
 
+    @Transactional(readOnly = true)
     public ResponseEntity<?> getRequestedLoansByParent(Integer parentId) {
-        // 보호자 조회
         User parent = userRepository.findById(parentId)
                 .orElseThrow(() -> new UserNotFoundException(UserErrorCode.NOT_FOUND));
 
-        // 보호자의 모든 자녀 관계 조회
         List<ParentChild> relations = parentChildRepository.findByParent(parent);
-
-        // 모든 REQUESTED 상태의 대출 수집
         List<Map<String, Object>> loanList = new ArrayList<>();
 
         for (ParentChild relation : relations) {
@@ -171,14 +168,19 @@ public class LoanService {
                     .toList();
 
             for (Loan loan : requestedLoans) {
+                LoanSignature signature = loanSignatureRepository.findByLoan(loan)
+                        .orElse(null); // 반드시 존재한다고 가정했지만 혹시 모르니 null 체크
+
                 Map<String, Object> loanInfo = Map.of(
                         "loan_id", loan.getLoanId(),
                         "child_name", child.getUserName(),
                         "loan_amount", loan.getLoanAmount(),
                         "request_date", loan.getRequestedAt().toLocalDate().toString(),
                         "due_date", loan.getDueDate().toLocalDate().toString(),
-                        "child_credit_score", child.getCreditScore() != null ? child.getCreditScore().getScore() : 0
+                        "child_credit_score", child.getCreditScore() != null ? child.getCreditScore().getScore() : 0,
+                        "child_signature", signature != null ? signature.getSignatureUrl() : ""
                 );
+
                 loanList.add(loanInfo);
             }
         }
