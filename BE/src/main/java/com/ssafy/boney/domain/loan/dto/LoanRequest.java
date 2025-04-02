@@ -15,5 +15,7 @@ public class LoanRequest {
     @JsonProperty("due_date")
     private LocalDateTime dueDate;
 
+    @JsonProperty("signature")
+    private String signature;
 
 }
