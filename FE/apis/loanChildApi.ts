@@ -31,7 +31,7 @@ export type LoanItem = {
     loan_id: number;
     repaid_loan: number;
     due_date: string;
-    create_da: string;
+    create_date: string;
   }[];
 };
 

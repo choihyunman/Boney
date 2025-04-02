@@ -138,7 +138,7 @@ export default function MenuPage() {
               </GlobalText>
             </TouchableOpacity>
             <TouchableOpacity
-              disabled={true}
+              onPress={() => router.push("/quest/parent/list")}
               className="flex-row items-center py-2.5 px-3 rounded-lg"
             >
               <ChevronRight size={16} color="#4FC985" />
