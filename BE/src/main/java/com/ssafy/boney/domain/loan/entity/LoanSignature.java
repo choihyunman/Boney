@@ -1,6 +1,6 @@
 package com.ssafy.boney.domain.loan.entity;
 
-import com.ssafy.boney.domain.loan.entity.Loan;
+import com.ssafy.boney.domain.loan.entity.enums.SignerType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,7 +20,7 @@ public class LoanSignature {
     @Column(name = "signature_id")
     private Integer signatureId;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY) // 변경: OneToOne → ManyToOne
     @JoinColumn(name = "loan_id", nullable = false)
     private Loan loan;
 
@@ -29,6 +29,10 @@ public class LoanSignature {
 
     @Column(name = "signed_at", nullable = false)
     private LocalDateTime signedAt;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "signer_type", nullable = false)
+    private SignerType signerType;
 
 
 }
