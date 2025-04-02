@@ -9,6 +9,7 @@ import com.ssafy.boney.domain.loan.dto.*;
 import com.ssafy.boney.domain.loan.entity.Loan;
 import com.ssafy.boney.domain.loan.entity.LoanRepayment;
 import com.ssafy.boney.domain.loan.entity.LoanSignature;
+import com.ssafy.boney.domain.loan.entity.enums.SignerType;
 import com.ssafy.boney.domain.loan.entity.enums.LoanStatus;
 import com.ssafy.boney.domain.loan.repository.LoanRepaymentRepository;
 import com.ssafy.boney.domain.loan.repository.LoanRepository;
@@ -66,7 +67,7 @@ public class LoanService {
         // 1. 요청 검증
         if (request.getLoanAmount() == null || request.getDueDate() == null || request.getSignature() == null) {
             return ResponseEntity.badRequest().body(Map.of(
-                    "status", 400,
+                    "status", 405,
                     "message", "loan_amount, due_date, signature는 필수입니다."
             ));
         }
@@ -122,11 +123,12 @@ public class LoanService {
             amazonS3.putObject(bucket, fileName, inputStream, metadata);
             String s3Url = amazonS3.getUrl(bucket, fileName).toString();
 
-            // 7. LoanSignature 저장
+            // 7. LoanSignature 저장 (CHILD로 명시)
             LoanSignature signature = LoanSignature.builder()
                     .loan(loan)
                     .signatureUrl(s3Url)
                     .signedAt(LocalDateTime.now())
+                    .signerType(SignerType.CHILD)
                     .build();
             loanSignatureRepository.save(signature);
         } catch (Exception e) {
