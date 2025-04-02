@@ -34,7 +34,7 @@ pipeline {
                     echo "🔍 현재 브랜치: ${env.gitlabTargetBranch}"
                     if (env.gitlabTargetBranch != 'release') {
                         echo "🚫 release 브랜치가 아니므로 전체 배포 프로세스를 건너뜁니다."
-                        notifyMattermost("⚠️ *배포 건너뜸!* `${env.gitlabTargetBranch}` 브랜치는 배포 대상이 아닙니다.", true)
+                        notifyMattermost("⚠️ *배포 건너뜀!* `${env.gitlabTargetBranch}` 브랜치는 배포 대상이 아닙니다.", true)
                         return
                     }
                 }
