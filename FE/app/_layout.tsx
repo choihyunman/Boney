@@ -16,6 +16,8 @@ import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useColorScheme } from "nativewind";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useNotificationStore } from "@/stores/useNotificationStore";
+import GlobalText from "@/components/GlobalText";
 
 interface HeaderButton {
   icon: React.ReactNode;
@@ -43,6 +45,7 @@ function RootLayoutNav() {
   const pathname = usePathname();
   const { hasHydrated } = useAuthStore();
   const { colorScheme } = useColorScheme();
+  const { unreadCount } = useNotificationStore();
 
   useEffect(() => {
     if (fontsLoaded) {
@@ -71,8 +74,15 @@ function RootLayoutNav() {
             onPress: () => {},
           },
           rightButton: {
-            icon: <Bell size={24} color="#9CA3AF" />,
-            onPress: () => console.log("알림 버튼 클릭"),
+            icon: (
+              <View>
+                <Bell size={24} color="#9CA3AF" />
+                {unreadCount > 0 && (
+                  <View className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#FF4B4B]" />
+                )}
+              </View>
+            ),
+            onPress: () => router.push("./notification"),
           },
         };
       case "/auth/SignUp":
@@ -84,10 +94,6 @@ function RootLayoutNav() {
         return {
           title: "거래 내역",
           backgroundColor: "#FFFFFF",
-          leftButton: {
-            icon: <ChevronLeft size={24} color="#000000" />,
-            onPress: () => router.back(),
-          },
           rightButton: {
             icon: <Search size={24} color="#000000" />,
             onPress: () => console.log("검색 버튼 클릭"),
@@ -146,10 +152,19 @@ function RootLayoutNav() {
             onPress: () => router.back(),
           },
         };
+      case "/child":
+        return {
+          title: "아이 조회하기",
+          backgroundColor: "#F9FAFB",
+          leftButton: {
+            icon: <ChevronLeft size={24} color="#000000" />,
+            onPress: () => router.back(),
+          },
+        };
       case "/child/Register":
         return {
           title: "아이 등록하기",
-          backgroundColor: "white",
+          backgroundColor: "F9FAFB",
           leftButton: {
             icon: <ChevronLeft size={24} color="#000000" />,
             onPress: () => router.back(),
@@ -158,15 +173,6 @@ function RootLayoutNav() {
       case "/loan/LoanListParent":
         return {
           title: "진행 중인 대출 보기",
-          backgroundColor: "white",
-          leftButton: {
-            icon: <ChevronLeft size={24} color="#000000" />,
-            onPress: () => router.back(),
-          },
-        };
-      case "/child":
-        return {
-          title: "아이 조회하기",
           backgroundColor: "white",
           leftButton: {
             icon: <ChevronLeft size={24} color="#000000" />,
@@ -212,8 +218,8 @@ function RootLayoutNav() {
         };
       case "/report":
         return {
-          title: "월간 레포트",
-          backgroundColor: "white",
+          title: "월간 리포트",
+          backgroundColor: "#F9FAFB",
           leftButton: {
             icon: <ChevronLeft size={24} color="#000000" />,
             onPress: () => router.back(),
@@ -227,6 +233,27 @@ function RootLayoutNav() {
             icon: <ChevronLeft size={24} color="#000000" />,
             onPress: () => router.back(),
           },
+        };
+      case "/notification":
+        return {
+          title: "알림",
+          backgroundColor: "white",
+          leftButton: {
+            icon: <ChevronLeft size={24} color="#000000" />,
+            onPress: () => router.back(),
+          },
+          rightButton:
+            unreadCount > 0
+              ? {
+                  icon: (
+                    <GlobalText className="text-xs text-[#4FC985] font-medium">
+                      모두 읽음
+                    </GlobalText>
+                  ),
+                  onPress: () =>
+                    useNotificationStore.getState().markAllAsRead(),
+                }
+              : undefined,
         };
       default:
         return {

@@ -1,5 +1,4 @@
 import { View, Text } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Slot } from "expo-router";
 import { useAuthStore } from "@/stores/useAuthStore";
 export default function HomeLayout() {
@@ -14,9 +13,5 @@ export default function HomeLayout() {
     );
   }
 
-  return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
-      <Slot />
-    </SafeAreaView>
-  );
+  return <Slot />;
 }

@@ -37,6 +37,18 @@ export const useReportStore = create<ReportState>((set) => ({
             headers: error.config?.headers,
           },
         });
+
+        if (
+          error.response?.status === 404
+        ) {
+          set({
+            monthlyReport: null,
+            isLoading: false,
+            error: "NO_DATA",
+            selectedCategory: null,
+          });
+          return;
+        }
       }
       set({
         error: "리포트 데이터를 불러오는데 실패했습니다.",

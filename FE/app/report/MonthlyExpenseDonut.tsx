@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, Dimensions, Pressable } from "react-native";
 import { PieChart } from "react-native-gifted-charts";
 import { useColorScheme } from "nativewind";
-import { Circle } from "lucide-react-native";
+import { CalendarX, Circle } from "lucide-react-native";
 import { LucideIcon } from "lucide-react-native";
 
 interface CategoryExpense {
@@ -156,6 +156,23 @@ export default function MonthlyExpenseDonut({
         </Text>
         <View className="h-64 items-center justify-center">
           <Text className="text-gray-500">로딩 중...</Text>
+        </View>
+      </View>
+    );
+  }
+
+  // 데이터가 없는 경우 처리
+  if (categories.length === 0) {
+    return (
+      <View className="bg-white dark:bg-gray-800 rounded-xl p-4">
+        <Text className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+          지출 카테고리 분포
+        </Text>
+        <View className="h-64 items-center justify-center">
+          <CalendarX size={48} color="#D1D5DB" />
+          <Text className="text-gray-500 mt-4">
+            이번 달 내역이 없습니다
+          </Text>
         </View>
       </View>
     );

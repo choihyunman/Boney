@@ -157,7 +157,7 @@ export default function MenuPage() {
           </View>
         </View>
 
-        {/* 월간 리포트 */}
+        {/* 월간 레레포트 */}
         <View className="mb-3">
           <View className="flex-row items-center mb-2">
             <BarChart3 size={20} color="#4FC985" />
@@ -166,10 +166,17 @@ export default function MenuPage() {
             </GlobalText>
           </View>
           <View className="gap-1">
-            <TouchableOpacity className="flex-row items-center py-2.5 px-3 rounded-lg">
+            <TouchableOpacity
+              className="flex-row items-center py-2.5 px-3 rounded-lg"
+              onPress={() =>
+                router.push({
+                  pathname: "/report",
+                })
+              }
+            >
               <ChevronRight size={16} color="#4FC985" />
               <GlobalText className="text-sm text-[#374151] ml-2">
-                조회하기
+                이달의 리포트
               </GlobalText>
             </TouchableOpacity>
           </View>

@@ -80,7 +80,7 @@ export default function SendMoneyRecipient() {
         {/* 계좌 직접 입력 버튼 */}
         <View className="mx-5 mt-4 p-1">
           <Pressable
-            className="w-full p-3 bg-white border border-gray-200 rounded-lg flex-row items-center justify-center"
+            className="w-full p-3 bg-white rounded-lg flex-row items-center justify-center border border-gray-100"
             onPress={handleAccountTransfer}
           >
             <GlobalText className="font-medium py-1">
