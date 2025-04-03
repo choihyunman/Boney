@@ -67,8 +67,9 @@ export default function Home() {
               children={[
                 {
                   name: parentData?.child[0]?.child_name || "",
-                  creditScore: Number(parentData?.child[0]?.score) || 0,
-                  loanAmount: Number(parentData?.child[0]?.child_loan) || 0,
+                  creditScore: Number(parentData?.child[0]?.credit_score) || 0,
+                  loanAmount:
+                    Number(parentData?.child[0]?.total_child_loan) || 0,
                   onAllowanceClick: () => {},
                 },
               ]}

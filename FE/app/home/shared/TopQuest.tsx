@@ -10,7 +10,7 @@ export default function MissionSection() {
 
   const quests = user?.role === "CHILD" ? childData?.quests : parentData?.quest;
   const inProgressQuest = quests?.find(
-    (quest) => quest.questStatus === "IN_PROGRESS"
+    (quest) => quest.quest_status === "IN_PROGRESS"
   );
 
   return (
@@ -35,16 +35,16 @@ export default function MissionSection() {
             <View className="flex-1">
               <View className="flex-row justify-between">
                 <GlobalText className="font-medium text-base">
-                  {inProgressQuest.questCategory}
+                  {inProgressQuest.quest_category}
                 </GlobalText>
                 <GlobalText className="text-sm bg-[#4FC985]/10 text-[#4FC985] font-bold px-3 py-1 rounded-full">
                   D-
-                  {new Date(inProgressQuest.endDate).getDate() -
+                  {new Date(inProgressQuest.end_date).getDate() -
                     new Date().getDate()}
                 </GlobalText>
               </View>
               <GlobalText className="text-[#4FC985] font-bold mt-1 text-base">
-                {inProgressQuest.questReward.toLocaleString()}원
+                {inProgressQuest.quest_reward.toLocaleString()}원
               </GlobalText>
             </View>
           </View>

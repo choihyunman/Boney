@@ -47,7 +47,7 @@ export default function TransactionItem({ item }: TransactionItemProps) {
     <View className="w-[412px] h-[89px] flex-row px-6 py-3 bg-white">
       {/* 왼쪽 아이콘 */}
       <View
-        className="w-10 h-10 rounded-full items-center justify-center mt-3"
+        className="w-10 h-10 rounded-full items-center justify-center mt-1"
         style={{
           backgroundColor: backgroundColor.replace("bg-[", "").replace("]", ""),
         }}

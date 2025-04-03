@@ -150,7 +150,6 @@ export default function AccountForm() {
               type: "error",
               text1: "계좌 등록 실패",
               text2: error.message || "계좌 등록 중 오류가 발생했습니다.",
-              position: "bottom",
             });
             return;
           }
