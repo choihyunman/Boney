@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from "expo-router";
-import PromissoryNote from "../PromissoryNote";
+import PromissoryNote from "../parent/PromissoryNote";
 import {
   ActivityIndicator,
   ScrollView,

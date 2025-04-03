@@ -7,9 +7,7 @@ interface PromissoryNoteProps {
   repaymentDate: string;
   formattedToday: string;
   debtorName: string;
-  creditorName?: string;
   debtorSign?: string; // base64 이미지 (data:image/png;base64,...)
-  creditorSign?: string; // base64 이미지 (data:image/png;base64,...)
   minHeight?: number; // minHeight 조절 가능
 }
 
@@ -18,9 +16,7 @@ export default function PromissoryNote({
   repaymentDate,
   formattedToday,
   debtorName,
-  creditorName,
   debtorSign,
-  creditorSign,
   minHeight,
 }: PromissoryNoteProps) {
   return (
@@ -94,45 +90,21 @@ export default function PromissoryNote({
                 }}
               />
             ) : (
-              <GlobalText className="text-md text-gray-400">서명</GlobalText>
+              <GlobalText className="text-lg text-gray-400 italic">
+                서명
+              </GlobalText>
             )}
           </View>
 
           {/* 채권자 서명 */}
-          {creditorName ? (
-            <View className="flex-row items-center">
-              <GlobalText className="text-lg text-gray-700 mr-2">
-                채권자{" "}
-                <GlobalText weight="bold" className="text-lg text-gray-700">
-                  {creditorName}
-                </GlobalText>
-              </GlobalText>
-              {creditorSign ? (
-                <Image
-                  source={{ uri: creditorSign }}
-                  style={{
-                    width: 100,
-                    height: 40,
-                    resizeMode: "contain",
-                  }}
-                />
-              ) : (
-                <GlobalText className="text-md text-gray-400">서명</GlobalText>
-              )}
-            </View>
-          ) : (
-            <View className="flex-row items-center">
-              <GlobalText className="text-lg text-gray-700 mr-2">
-                채권자
-              </GlobalText>
-              <GlobalText
-                className="text-lg text-gray-400"
-                style={{ fontStyle: "italic" }}
-              >
-                서명 대기 중
-              </GlobalText>
-            </View>
-          )}
+          <View className="flex-row items-center">
+            <GlobalText className="text-lg text-gray-700 mr-2">
+              채권자
+            </GlobalText>
+            <GlobalText className="text-lg text-gray-400 italic">
+              서명 대기 중
+            </GlobalText>
+          </View>
         </View>
       </View>
     </View>

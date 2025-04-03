@@ -4,7 +4,7 @@ import {
   LoanItem,
   ReqItem,
   LoanDetail,
-  ApproveResponse,
+  ApproveLoanResponse,
 } from "@/apis/loanParentApi";
 import { zustandSecureStorage } from "@/lib/secureStorage";
 
@@ -28,13 +28,32 @@ type LoanDetailStore = {
 };
 
 type LoanApproveStore = {
-  approve: Partial<ApproveResponse>;
+  approve: Partial<ApproveLoanResponse>;
   isLoaded: boolean;
-  setApprove: <K extends keyof ApproveResponse>(
+  setApprove: <K extends keyof ApproveLoanResponse>(
     key: K,
-    value: ApproveResponse[K]
+    value: ApproveLoanResponse[K]
   ) => void;
   reset: () => void;
+};
+
+// 차용증 데이터 스토어
+type PromissoryNoteStore = {
+  promissoryNoteData: {
+    loanAmount: number;
+    repaymentDate: string;
+    debtorName: string;
+    debtorSign: string;
+    loanId: number;
+  } | null;
+  setPromissoryNoteData: (data: {
+    loanAmount: number;
+    repaymentDate: string;
+    debtorName: string;
+    debtorSign: string;
+    loanId: number;
+  }) => void;
+  clearPromissoryNoteData: () => void;
 };
 
 export const useReqListParentStore = create<LoanParentStore>()(
@@ -118,4 +137,11 @@ export const useApproveStore = create<LoanApproveStore>((set) => ({
       isLoaded: true,
     })),
   reset: () => set({ approve: {} }),
+}));
+
+// 차용증 데이터 스토어 생성
+export const usePromissoryNoteStore = create<PromissoryNoteStore>((set) => ({
+  promissoryNoteData: null,
+  setPromissoryNoteData: (data) => set({ promissoryNoteData: data }),
+  clearPromissoryNoteData: () => set({ promissoryNoteData: null }),
 }));

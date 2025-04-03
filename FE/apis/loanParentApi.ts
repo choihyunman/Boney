@@ -1,13 +1,14 @@
 import { api } from "@/lib/api";
 
-export type ReqItem = {
+export interface ReqItem {
   loan_id: number;
   child_name: string;
   loan_amount: number;
   request_date: string;
   due_date: string;
   child_credit_score: number;
-};
+  child_signature: string;
+}
 
 export type TransferLoan = {
   loan_id: number;
@@ -35,11 +36,24 @@ export type LoanDetail = {
   due_date: string;
 };
 
-export type ApproveResponse = {
-  due_date: string;
-  loan_amount: number;
-  child_name: string;
-};
+interface ApproveLoanRequest {
+  loan_id: number;
+  password: string;
+  parent_signature: string;
+}
+
+export interface ApproveLoanResponse {
+  status: string;
+  message: string;
+  data: {
+    due_date: string;
+    loan_id: number;
+    child_name: string;
+    approved_at: string;
+    loan_status: string;
+    loan_amount: number;
+  };
+}
 
 export const getReqList = async (): Promise<ReqItem[]> => {
   try {
@@ -58,26 +72,14 @@ export const getReqList = async (): Promise<ReqItem[]> => {
 };
 
 export const approveLoan = async (
-  loanId: number,
-  pin: string
-): Promise<ApproveResponse> => {
+  data: ApproveLoanRequest
+): Promise<ApproveLoanResponse> => {
   try {
-    console.log("비밀번호: ", pin, "대출 아이디: ", loanId);
-    const res = await api.post(`/loan/approve`, {
-      loan_id: String(loanId),
-      password: pin,
-    });
-    console.log("✨ 보호자 대출 승인 결과:", res.data);
-    return res.data.data;
-  } catch (error: any) {
-    if (error.response?.status === 400) {
-      console.log("❌ 대출 상태 조회 실패");
-      const message =
-        error.response?.data?.message ?? "❌ 보호자 대출 승인 실패";
-      throw new Error(message);
-    }
-    const message = error.response?.data?.message ?? "❌ 보호자 대출 승인 실패";
-    throw new Error(message);
+    const response = await api.post("/loan/approve", data);
+    return response.data;
+  } catch (error) {
+    console.error("대출 승인 중 오류:", error);
+    throw error;
   }
 };
 
