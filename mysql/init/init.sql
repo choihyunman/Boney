@@ -28,22 +28,67 @@ INSERT INTO `transaction_category` VALUES
 
 -- (B) Transaction_Content
 INSERT INTO `transaction_content` VALUES 
-  (1,'입금',1,'2025-03-23 16:51:23'),
-  (2,'출금',2,'2025-03-23 16:51:23'),
-  (3,'기타',17,'2025-03-23 16:51:23'),
-  (4,'이체',6,'2025-03-25 00:22:13'),
-  (5,'스타벅스',13,'2025-03-23 16:51:23'),
-  (6,'다이소',16,'2025-03-23 16:51:23'),
+  (1,'입금','2025-03-23 16:51:23',1),
+  (2,'출금','2025-03-23 16:51:23',2),
+  (3,'기타','2025-03-23 16:51:23',17),
+  (4,'이체','2025-03-25 00:22:13',6),
+  (5,'스타벅스','2025-03-23 16:51:23',13),
+  (6,'다이소','2025-03-23 16:51:23',16);
+
+  -- 2025년 2월 거래 (10건)
+INSERT INTO `transaction` 
+(account_id, user_id, transaction_content_id, transaction_category_id, transaction_type, transaction_amount, created_at, external_transaction_no, transaction_after_balance)
+VALUES
+(3, 3, 1, 1, 'DEPOSIT', 5000, '2025-02-02 10:00:00', 100001, 10000),
+(3, 3, 2, 2, 'WITHDRAWAL', 2000, '2025-02-04 12:30:00', 100002, 8000),
+(3, 3, 5, 13, 'WITHDRAWAL', 4500, '2025-02-06 14:20:00', 100003, 3500),
+(3, 3, 6, 16, 'WITHDRAWAL', 3000, '2025-02-08 09:00:00', 100004, 500),
+(3, 3, 1, 1, 'DEPOSIT', 7000, '2025-02-10 16:45:00', 100005, 7500),
+(3, 3, 2, 2, 'WITHDRAWAL', 1500, '2025-02-12 11:00:00', 100006, 6000),
+(3, 3, 1, 1, 'DEPOSIT', 10000, '2025-02-15 13:00:00', 100007, 16000),
+(3, 3, 5, 13, 'WITHDRAWAL', 3500, '2025-02-18 15:00:00', 100008, 12500),
+(3, 3, 2, 2, 'WITHDRAWAL', 5000, '2025-02-20 10:30:00', 100009, 7500),
+(3, 3, 1, 1, 'DEPOSIT', 2500, '2025-02-25 18:00:00', 100010, 10000);
+
+-- 2025년 3월 거래 (10건)
+INSERT INTO `transaction` 
+(account_id, user_id, transaction_content_id, transaction_category_id, transaction_type, transaction_amount, created_at, external_transaction_no, transaction_after_balance)
+VALUES
+(3, 3, 1, 1, 'DEPOSIT', 5000, '2025-03-02 09:00:00', 100011, 15000),
+(3, 3, 6, 16, 'WITHDRAWAL', 2000, '2025-03-03 14:30:00', 100012, 13000),
+(3, 3, 2, 2, 'WITHDRAWAL', 1500, '2025-03-05 17:00:00', 100013, 11500),
+(3, 3, 1, 1, 'DEPOSIT', 8000, '2025-03-07 12:00:00', 100014, 19500),
+(3, 3, 5, 13, 'WITHDRAWAL', 3000, '2025-03-10 08:30:00', 100015, 16500),
+(3, 3, 6, 16, 'WITHDRAWAL', 2500, '2025-03-12 11:15:00', 100016, 14000),
+(3, 3, 1, 1, 'DEPOSIT', 9000, '2025-03-16 13:00:00', 100017, 23000),
+(3, 3, 2, 2, 'WITHDRAWAL', 4000, '2025-03-18 10:30:00', 100018, 19000),
+(3, 3, 6, 16, 'WITHDRAWAL', 3500, '2025-03-21 15:45:00', 100019, 15500),
+(3, 3, 1, 1, 'DEPOSIT', 5000, '2025-03-25 17:30:00', 100020, 20500);
+
+-- 2025년 4월 2일 거래 (10건)
+INSERT INTO `transaction` 
+(account_id, user_id, transaction_content_id, transaction_category_id, transaction_type, transaction_amount, created_at, external_transaction_no, transaction_after_balance)
+VALUES
+(3, 3, 1, 1, 'DEPOSIT', 7000, '2025-04-02 08:00:00', 200001, 17000),
+(3, 3, 5, 13, 'WITHDRAWAL', 3000, '2025-04-02 09:30:00', 200002, 14000),
+(3, 3, 6, 16, 'WITHDRAWAL', 2500, '2025-04-02 10:15:00', 200003, 11500),
+(3, 3, 2, 2, 'WITHDRAWAL', 1000, '2025-04-02 11:20:00', 200004, 10500),
+(3, 3, 1, 1, 'DEPOSIT', 5000, '2025-04-02 13:00:00', 200005, 15500),
+(3, 3, 2, 2, 'WITHDRAWAL', 2000, '2025-04-02 14:10:00', 200006, 13500),
+(3, 3, 5, 13, 'WITHDRAWAL', 1500, '2025-04-02 15:30:00', 200007, 12000),
+(3, 3, 6, 16, 'WITHDRAWAL', 1800, '2025-04-02 16:45:00', 200008, 10200),
+(3, 3, 1, 1, 'DEPOSIT', 4000, '2025-04-02 17:50:00', 200009, 14200),
+(3, 3, 5, 13, 'WITHDRAWAL', 2200, '2025-04-02 19:00:00', 200010, 12000);
 
 
--- INSERT 구문: quest_category 데이터
-INSERT INTO quest_category (quest_category_id, category_name)
-VALUES 
-  (1, '집안일'),
-  (2, '우리 가족'),
-  (3, '학습'),
-  (4, '생활습관'),
-  (5, '기타');
+-- -- INSERT 구문: quest_category 데이터
+-- INSERT INTO quest_category (quest_category_id, category_name)
+-- VALUES 
+--   (1, '집안일'),
+--   (2, '우리 가족'),
+--   (3, '학습'),
+--   (4, '생활습관'),
+--   (5, '기타');
 
 INSERT INTO monthly_report (
   child_id,

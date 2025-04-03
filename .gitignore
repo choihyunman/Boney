@@ -49,3 +49,6 @@ jenkins_home/
 #python
 AI/__pycache__/
 AI/*.py[cod]
+
+#firebase
+**/BE/src/main/resources/firebase/serviceAccountKey.json

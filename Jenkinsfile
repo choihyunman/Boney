@@ -106,6 +106,21 @@ pipeline {
             }
         }
 
+        stage('Copy Firebase Key') {
+            when {
+                expression { env.gitlabTargetBranch == 'release' }
+            }
+            steps {
+                echo "🔑 Firebase serviceAccountKey 복사 중..."
+                withCredentials([file(credentialsId: 'firebase-key', variable: 'FIREBASE_KEY')]) {
+                    sh '''
+                    mkdir -p BE/src/main/resources/firebase
+                    cp $FIREBASE_KEY BE/src/main/resources/firebase/serviceAccountKey.json
+                    '''
+                }
+            }
+        }
+
         stage('Copy application-test.yml') {
             when {
                 expression { env.gitlabTargetBranch == 'release' }
