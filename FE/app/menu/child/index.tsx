@@ -91,7 +91,7 @@ export default function MenuPage() {
           </View>
           <View className="gap-1">
             <TouchableOpacity
-              onPress={() => router.push("/quest/child/list")}
+              onPress={() => router.push("/quest/child/List")}
               className="flex-row items-center py-2.5 px-3 rounded-lg"
             >
               <ChevronRight size={16} color="#4FC985" />
