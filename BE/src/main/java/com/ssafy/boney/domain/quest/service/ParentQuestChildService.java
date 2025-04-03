@@ -27,7 +27,8 @@ public class ParentQuestChildService {
                 .map(pc -> new ParentQuestChildResponse(
                         pc.getParentChildId(),
                         pc.getChild().getUserId(),
-                        pc.getChild().getUserName()))
+                        pc.getChild().getUserName(),
+                        pc.getChild().getUserGender()))
                 .collect(Collectors.toList());
     }
 
