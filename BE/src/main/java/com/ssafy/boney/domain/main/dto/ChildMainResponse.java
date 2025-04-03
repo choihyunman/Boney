@@ -30,13 +30,13 @@ public class ChildMainResponse {
                 .credit_score(score)
                 .all_score(avgScore)
                 .quests(quest != null ? List.of(Map.of(
-                        "questId", quest.getQuestId(),
-                        "childName", quest.getParentChild().getChild().getUserName(),
-                        "questTitle", quest.getQuestTitle(),
-                        "questCategory", quest.getQuestCategory().getCategoryName(),
-                        "questReward", quest.getQuestReward(),
-                        "questStatus", quest.getQuestStatus().name(),
-                        "endDate", quest.getEndDate().toLocalDate().toString()
+                        "quest_id", quest.getQuestId(),
+                        "child_name", quest.getParentChild().getChild().getUserName(),
+                        "quest_title", quest.getQuestTitle(),
+                        "quest_category", quest.getQuestCategory().getCategoryName(),
+                        "quest_reward", quest.getQuestReward(),
+                        "quest_status", quest.getQuestStatus().name(),
+                        "end_date", quest.getEndDate().toLocalDate().toString()
                 )) : List.of())
                 .build();
     }
