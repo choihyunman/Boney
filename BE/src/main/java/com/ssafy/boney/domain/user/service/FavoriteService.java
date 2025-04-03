@@ -42,13 +42,12 @@ public class FavoriteService {
         }
 
         // 유효성 검증: SSAFY API를 통해 해당 계좌의 예금주 정보를 조회
-        String apiAccountHolder;
         try {
-            apiAccountHolder = bankingApiService.getAccountHolderName(favoriteAccount);
+            String apiAccountHolder = bankingApiService.getAccountHolderName(favoriteAccount);
+            if (apiAccountHolder == null || apiAccountHolder.isEmpty()) {
+                throw new UserConflictException(UserErrorCode.INVALID_ACCOUNT);
+            }
         } catch (RuntimeException e) {
-            throw new UserConflictException(UserErrorCode.INVALID_ACCOUNT);
-        }
-        if (apiAccountHolder == null || apiAccountHolder.isEmpty()) {
             throw new UserConflictException(UserErrorCode.INVALID_ACCOUNT);
         }
 

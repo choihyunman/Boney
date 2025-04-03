@@ -1,4 +1,4 @@
-package com.ssafy.boney.domain.fcm.entity;
+package com.ssafy.boney.domain.notification.entity;
 
 import com.ssafy.boney.domain.user.entity.User;
 import jakarta.persistence.*;
@@ -9,7 +9,9 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "fcm_tokens")
 @Getter
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class FcmTokens {
 
     @Id
