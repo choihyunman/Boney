@@ -1,5 +1,7 @@
 package com.ssafy.boney.domain.quest.service;
 
+import com.ssafy.boney.domain.notification.dto.NotificationRequest;
+import com.ssafy.boney.domain.notification.service.NotificationService;
 import com.ssafy.boney.domain.quest.dto.ParentQuestCreateRequest;
 import com.ssafy.boney.domain.quest.dto.ParentQuestCreateResponse;
 import com.ssafy.boney.domain.quest.entity.Quest;
@@ -26,6 +28,7 @@ public class ParentQuestService {
     private final ParentChildRepository parentChildRepository;
     private final QuestCategoryRepository questCategoryRepository;
     private final UserService userService;
+    private final NotificationService notificationService;
 
     // (보호자 페이지) 퀘스트 생성
     public ParentQuestCreateResponse createQuest(Integer parentId, ParentQuestCreateRequest requestDto) {
@@ -60,6 +63,16 @@ public class ParentQuestService {
                 .build();
 
         questRepository.save(quest);
+
+        // (FCM) 아이에게 퀘스트 등록 알림 전송
+        User child = parentChild.getChild();
+        NotificationRequest notificationRequest = NotificationRequest.builder()
+                .userId(child.getUserId())
+                .notificationTypeId(2) // QUEST_REGISTERED
+                .message("새로운 퀘스트가 등록되었습니다: " + quest.getQuestTitle())
+                .referenceId(quest.getQuestId())
+                .build();
+        notificationService.sendNotification(notificationRequest);
 
         return ParentQuestCreateResponse.builder()
                 .childName(parentChild.getChild().getUserName())
