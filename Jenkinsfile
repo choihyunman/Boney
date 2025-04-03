@@ -166,7 +166,7 @@ pipeline {
                 expression { env.gitlabTargetBranch == 'release' }
             }
             steps {
-                echo "🧹 테스트 컨테이너 정리 중..."
+                echo "🧹 테스트 컨테이너 정리 중...."
                 sh 'docker compose -f docker-compose.test.yml down --remove-orphans || true'
             }
         }
