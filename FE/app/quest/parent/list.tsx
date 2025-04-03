@@ -5,7 +5,7 @@ import GlobalText from "@/components/GlobalText";
 import { useCustomQuery } from "@/hooks/useCustomQuery";
 import { getQuestListParent, ParentQuestList } from "@/apis/questApi";
 import { getquestIcon } from "@/utils/questUtils";
-
+import { router } from "expo-router";
 export default function QuestListPage() {
   const { data, isLoading } = useCustomQuery({
     queryKey: ["quests"],
@@ -131,7 +131,15 @@ export default function QuestListPage() {
                 }>;
 
                 return (
-                  <TouchableOpacity key={quest.questId}>
+                  <TouchableOpacity
+                    key={quest.questId}
+                    onPress={() => {
+                      router.push({
+                        pathname: "/quest/parent/[questId]" as any,
+                        params: { questId: quest.questId.toString() },
+                      });
+                    }}
+                  >
                     <View
                       className={`${
                         quest.questStatus === "WAITING_REWARD"
