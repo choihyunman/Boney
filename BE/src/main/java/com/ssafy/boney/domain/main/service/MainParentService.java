@@ -90,8 +90,8 @@ public class MainParentService {
         for (Optional<Quest> optQuest : List.of(soonestQuest, oldestWaitingQuest)) {
             optQuest.ifPresent(q -> questSummary.add(Map.of(
                     "quest_id", q.getQuestId(),
-                    "quset_child", q.getParentChild().getChild().getUserName(),
-                    "quest_titile", q.getQuestTitle(),
+                    "quest_child", q.getParentChild().getChild().getUserName(),
+                    "quest_title", q.getQuestTitle(),
                     "quest_reward", q.getQuestReward(),
                     "end_date", q.getEndDate().toLocalDate().toString(),
                     "quest_status", q.getQuestStatus().name()
@@ -101,7 +101,7 @@ public class MainParentService {
         // 6. 응답 반환
         return ResponseEntity.ok(Map.of(
                 "status", "200",
-                "message", "신용 점수가 초기화되었습니다.",
+                "message", "부모 메인 페이지 정보가 조회되었습니다.",
                 "data", ParentMainResponse.of(
                         parent.getUserName(),
                         parentAccount.getAccountNumber(),
