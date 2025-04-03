@@ -1,6 +1,11 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { View, TouchableOpacity, ScrollView } from "react-native";
-import { ChevronLeft, ChevronRight } from "lucide-react-native";
+import {
+  CalendarX,
+  ChevronLeft,
+  ChevronRight,
+  Receipt,
+} from "lucide-react-native";
 import TransactionItem from "./TransactionItem";
 import { getTransactionHistory, Transaction } from "../../apis/transactionApi";
 import { useRouter, useFocusEffect } from "expo-router";
@@ -66,16 +71,22 @@ export default function TransactionHistory() {
       }
 
       setTransactions(response.data);
-    } catch (err) {
+    } catch (err: any) {
       console.error("❌ 거래내역 조회 실패:", err);
       if (err instanceof Error && err.message.includes("권한")) {
         router.replace("/auth");
       }
-      setError(
-        err instanceof Error
-          ? err.message
-          : "거래 내역을 불러오는데 실패했습니다."
-      );
+
+      // 404 에러인 경우
+      if (err.response?.status === 404) {
+        setError("404");
+      } else {
+        setError(
+          err instanceof Error
+            ? err.message
+            : "거래 내역을 불러오는데 실패했습니다."
+        );
+      }
     } finally {
       setLoading(false);
       setTimeout(() => {
@@ -216,9 +227,22 @@ export default function TransactionHistory() {
         {loading ? (
           <View style={{ flex: 1, backgroundColor: "white" }} />
         ) : error ? (
-          <GlobalText className="text-center py-5 text-base text-red-500">
-            {error}
-          </GlobalText>
+          <View className="flex-1 items-center justify-center py-40">
+            <CalendarX size={64} color="#9CA3AF" />
+            <GlobalText className="mt-4 text-lg text-gray-500">
+              {error === "404" ? "이번 달 거래 내역이 없습니다" : error}
+            </GlobalText>
+          </View>
+        ) : transactions.length === 0 ? (
+          <View className="flex-1 items-center justify-center py-20">
+            <Receipt size={64} color="#9CA3AF" />
+            <GlobalText className="mt-4 text-lg text-gray-500">
+              조회할 거래내역이 없습니다
+            </GlobalText>
+            <GlobalText className="mt-2 text-sm text-gray-400">
+              다른 기간을 선택해보세요
+            </GlobalText>
+          </View>
         ) : (
           Object.entries(groupedTransactions).map(([date, items]) => (
             <View key={date} className="pb-3">

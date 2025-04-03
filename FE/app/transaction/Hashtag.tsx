@@ -124,20 +124,19 @@ const HashtagModal: React.FC<HashtagModalProps> = ({
 
             <View className="flex-row justify-end gap-2 mt-4">
               <TouchableOpacity
-                className="px-4 py-3 rounded-md border border-gray-300"
-                onPress={handleAddHashtag}
-              >
-                <GlobalText className="text-base">+ 추가</GlobalText>
-              </TouchableOpacity>
-
-              <TouchableOpacity
                 className="px-4 py-3 rounded-md bg-[#4FC985]"
                 onPress={handleSave}
                 disabled={isLoading}
               >
                 <GlobalText className="text-base text-white font-medium">
-                  {isLoading ? "저장 중..." : "저장하기"}
+                  {isLoading ? "저장 중..." : "저장"}
                 </GlobalText>
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="px-4 py-3 rounded-md border border-gray-300"
+                onPress={handleAddHashtag}
+              >
+                <GlobalText className="text-base">+ 추가</GlobalText>
               </TouchableOpacity>
             </View>
           </View>

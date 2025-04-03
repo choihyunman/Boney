@@ -94,9 +94,9 @@ export default function ParentLoanRequestsPage() {
 
   // 신용 점수에 따른 색상 결정
   const getCreditScoreColor = (score: number) => {
-    if (score >= 80) return "text-[#4FC985]-500";
-    if (score >= 31) return "text-yellow-500";
-    return "text-red-500";
+    if (score >= 80) return "text-[#4FC985]";
+    if (score >= 31) return "text-[#FFD700]";
+    return "text-[#EF4444]";
   };
 
   if (showPinInput) {

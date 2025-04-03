@@ -19,7 +19,7 @@ export const useLoanListParentQuery = () => {
     staleTime: 0,
     refetchOnMount: true,
     refetchOnWindowFocus: true,
-    refetchInterval: 1000,
+    refetchInterval: 1000 * 60,
     onSuccessAction: (data) => {
       setLoanList(data);
     },

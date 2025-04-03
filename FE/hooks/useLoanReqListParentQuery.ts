@@ -19,7 +19,7 @@ export const useLoanReqListParentQuery = () => {
     enabled: isFocused,
     refetchOnMount: true,
     refetchOnWindowFocus: true,
-    refetchInterval: 1000,
+    refetchInterval: 1000 * 60,
   });
 
   // 에러 처리 (v5 스타일)

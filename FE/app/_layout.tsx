@@ -4,7 +4,7 @@ import * as SplashScreen from "expo-splash-screen";
 import * as WebBrowser from "expo-web-browser";
 import { useEffect, useState } from "react";
 import { useFonts } from "expo-font";
-import { View } from "react-native";
+import { View, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import "./global.css";
 import { StatusBar } from "expo-status-bar";
@@ -14,10 +14,10 @@ import { Image } from "react-native";
 import Nav from "@/components/Nav";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { useColorScheme } from "nativewind";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useNotificationStore } from "@/stores/useNotificationStore";
 import GlobalText from "@/components/GlobalText";
+import Toast from "react-native-toast-message";
 
 interface HeaderButton {
   icon: React.ReactNode;
@@ -29,6 +29,11 @@ interface HeaderConfig {
   backgroundColor: string;
   leftButton?: HeaderButton;
   rightButton?: HeaderButton;
+}
+
+interface ToastProps {
+  text1?: string;
+  text2?: string;
 }
 
 WebBrowser.maybeCompleteAuthSession();
@@ -44,7 +49,6 @@ function RootLayoutNav() {
 
   const pathname = usePathname();
   const { hasHydrated } = useAuthStore();
-  const { colorScheme } = useColorScheme();
   const { unreadCount } = useNotificationStore();
 
   useEffect(() => {
@@ -71,7 +75,7 @@ function RootLayoutNav() {
                 resizeMode="contain"
               />
             ),
-            onPress: () => {},
+            onPress: () => router.push("./home"),
           },
           rightButton: {
             icon: (
@@ -188,19 +192,44 @@ function RootLayoutNav() {
             onPress: () => router.back(),
           },
         };
-      case "/mypage":
+      case "/loan/child/Request":
+      case "/loan/child/PromissoryNote":
         return {
-          title: "마이페이지",
-          backgroundColor: "white",
+          title: "대출 신청하기",
+          backgroundColor: "#F9FAFB",
           leftButton: {
             icon: <ChevronLeft size={24} color="#000000" />,
             onPress: () => router.back(),
           },
         };
-      case "/loan/child/Request":
-      case "/loan/child/PromissoryNote":
+      case "/menu":
         return {
-          title: "대출 신청하기",
+          backgroundColor: "#F9FAFB",
+          leftButton: {
+            icon: (
+              <Image
+                source={require("@/assets/icons/logo.png")}
+                style={{ width: 24, height: 24 }}
+                resizeMode="contain"
+              />
+            ),
+            onPress: () => {},
+          },
+          rightButton: {
+            icon: (
+              <View>
+                <Bell size={24} color="#9CA3AF" />
+                {unreadCount > 0 && (
+                  <View className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#FF4B4B]" />
+                )}
+              </View>
+            ),
+            onPress: () => router.push("./notification"),
+          },
+        };
+      case "/mypage":
+        return {
+          title: "나의 정보",
           backgroundColor: "#F9FAFB",
           leftButton: {
             icon: <ChevronLeft size={24} color="#000000" />,
@@ -262,18 +291,21 @@ function RootLayoutNav() {
     }
   };
 
+  // Check if the current path has navigation bar
+  const hasNav =
+    pathname === "/home" || pathname === "/transaction" || pathname === "/menu";
+
   // auth 페이지 중 SignUp 페이지에서만 헤더를 표시 + 메뉴에서 헤더 제거
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
       <StatusBar style="auto" />
-      {(!pathname.includes("auth") || pathname === "/auth/SignUp") &&
-        !pathname.includes("/menu/") &&
-        pathname !== "/menu" && <Header {...getHeaderConfig()} />}
-      <Slot />
-      {(pathname === "/home" ||
-        pathname === "/transaction" ||
-        pathname === "/menu/child" ||
-        pathname === "/menu/parent") && <Nav />}
+      {(!pathname.includes("auth") || pathname === "/auth/SignUp") && (
+        <Header {...getHeaderConfig()} />
+      )}
+      <View style={{ flex: 1, paddingBottom: hasNav ? 60 : 0 }}>
+        <Slot />
+      </View>
+      {hasNav && <Nav />}
     </SafeAreaView>
   );
 }
@@ -287,11 +319,82 @@ export default function RootLayout() {
   // TanStack Query 클라이언트 생성
   const [queryClient] = useState(() => new QueryClient());
 
+  const toastConfig = {
+    success: (props: ToastProps) => (
+      <View
+        style={{
+          height: 72,
+          width: "90%",
+          backgroundColor: "white",
+          borderRadius: 12,
+          padding: 16,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.15,
+          shadowRadius: 8,
+          elevation: 8,
+          position: "absolute",
+          top: 15,
+          borderLeftWidth: 4,
+          borderLeftColor: "#4FC985",
+        }}
+      >
+        <View style={{ flex: 1 }}>
+          <Text
+            style={{
+              color: "#1F2937",
+              fontSize: 16,
+              fontWeight: "700",
+              marginBottom: props.text2 ? 4 : 0,
+            }}
+          >
+            {props.text1}
+          </Text>
+          {props.text2 && (
+            <Text style={{ color: "#6B7280", fontSize: 14 }}>
+              {props.text2}
+            </Text>
+          )}
+        </View>
+      </View>
+    ),
+    error: (props: ToastProps) => (
+      <View
+        style={{
+          height: 72,
+          width: "90%",
+          backgroundColor: "white",
+          borderRadius: 12,
+          padding: 14,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.15,
+          shadowRadius: 8,
+          elevation: 8,
+          position: "absolute",
+          top: 15,
+          borderLeftWidth: 4,
+          borderLeftColor: "#EF4444",
+        }}
+      >
+        <Text style={{ color: "#333", fontSize: 16, fontWeight: "600" }}>
+          {props.text1}
+        </Text>
+        {props.text2 && (
+          <Text style={{ color: "#666", fontSize: 14, marginTop: 4 }}>
+            {props.text2}
+          </Text>
+        )}
+      </View>
+    ),
+  };
+
   return (
     <>
       <QueryClientProvider client={queryClient}>
         <AuthRedirectWrapper />
         <RootLayoutNav />
+        <Toast config={toastConfig} />
       </QueryClientProvider>
     </>
   );

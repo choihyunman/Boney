@@ -3,7 +3,7 @@ import { View, TouchableOpacity, Dimensions } from "react-native";
 import { router, usePathname } from "expo-router";
 import GlobalText from "./GlobalText";
 import { clsx } from "clsx";
-import { Home, FileText, Trophy, Menu } from "lucide-react-native";
+import { Home, FileText, Trophy, Menu, Award } from "lucide-react-native";
 
 const { width } = Dimensions.get("window");
 
@@ -71,7 +71,7 @@ const Nav = () => {
         className="items-center"
         // onPress={() => router.push("/quest")}
       >
-        <Trophy
+        <Award
           size={24}
           color={getActiveTab() === 2 ? activeColor : inactiveColor}
         />

@@ -1,13 +1,13 @@
 import { api } from "@/lib/api";
 
 export interface Quest {
-  questId: number;
-  childName: string;
-  questTitle: string;
-  questCategory: string;
-  questReward: number;
-  questStatus: string;
-  endDate: string;
+  quest_id: number;
+  quest_child: string;
+  quest_title: string;
+  quest_category: string;
+  quest_reward: number;
+  quest_status: string;
+  end_date: string;
 }
 
 export interface ChildMainResponse {
@@ -30,14 +30,10 @@ export interface ErrorResponse {
 }
 
 export interface ChildInfo {
-  child_id: string;
+  child_id: number;
   child_name: string;
-  score: string;
-  child_loan: string;
-}
-
-export interface ParentQuest extends Quest {
-  quest_child: string;
+  credit_score: number;
+  total_child_loan: number;
 }
 
 export interface ParentMainResponse {
@@ -46,9 +42,10 @@ export interface ParentMainResponse {
   data: {
     account_number: string;
     bank_name: string;
-    account_balance: string;
+    account_balance: number;
     child: ChildInfo[];
-    quest: ParentQuest[];
+    quest: Quest[];
+    parent_name: string;
   };
 }
 

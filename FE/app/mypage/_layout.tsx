@@ -5,9 +5,6 @@ export default function MyPageLayout() {
     <Stack
       screenOptions={{
         headerShown: false,
-        contentStyle: {
-          backgroundColor: "#F9FAFB",
-        },
       }}
     />
   );
