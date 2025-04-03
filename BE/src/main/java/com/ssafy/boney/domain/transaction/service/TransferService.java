@@ -2,6 +2,8 @@ package com.ssafy.boney.domain.transaction.service;
 
 import com.ssafy.boney.domain.account.entity.Account;
 import com.ssafy.boney.domain.account.repository.AccountRepository;
+import com.ssafy.boney.domain.notification.dto.NotificationRequest;
+import com.ssafy.boney.domain.notification.service.NotificationService;
 import com.ssafy.boney.domain.transaction.dto.*;
 import com.ssafy.boney.domain.transaction.entity.*;
 import com.ssafy.boney.domain.transaction.entity.enums.TransactionType;
@@ -33,6 +35,7 @@ public class TransferService {
     private final FdsRepository fdsRepository;
     private final TransactionContentRepository transactionContentRepository;
     private final TransactionCategoryRepository transactionCategoryRepository;
+    private final NotificationService notificationService;
 
     // FastAPI 이상 탐지 호출용 Client
     private final FastApiClient fastApiClient;
@@ -98,7 +101,7 @@ public class TransferService {
             throw new CustomException(TransactionErrorCode.ACCOUNT_NOT_FOUND);
         }
 
-        // 6. SSAFY API 계좌 이체 - summary에 보낸 사람(부모)의 이름 포함
+        // 6. SSAFY API 계좌 이체 - summary에 보낸 사람(보호자)의 이름 포함
         String summary = "이체 " + sender.getUserName();
         TransferApiResponseDto transferApiResponse = bankingApiService.transfer(
                 senderAccount.getAccountNumber(),
@@ -124,6 +127,25 @@ public class TransferService {
                 .transactionCounterparty(request.getRecipientAccountNumber())
                 .build();
         transferRecord = transferRepository.save(transferRecord);
+
+
+        // (FCM) 수신자에게 알림 전송
+        final Transaction transactionFinal = transactionEntity;
+        accountRepository.findByAccountNumber(request.getRecipientAccountNumber())
+                .ifPresentOrElse(recipientAccount -> {
+                    User recipientUser = recipientAccount.getUser();
+                    NotificationRequest notificationRequest = NotificationRequest.builder()
+                            .userId(recipientUser.getUserId())
+                            .notificationTypeId(1) // 예: 1번이 'TRANSFER_RECEIVED' 타입이라고 가정
+                            .message("송금이 완료되었습니다. 송금자: " + sender.getUserName())
+                            .referenceId(transactionFinal.getTransactionId())
+                            .build();
+                    notificationService.sendNotification(notificationRequest);
+                }, () -> {
+                    System.out.println("수신자 계좌 " + request.getRecipientAccountNumber() + "가 시스템에 등록되어 있지 않습니다.");
+                });
+
+
 
         // 10. FastAPI 이상 탐지 호출 (추가 Feature 포함)
         AnomalyRequestDto anomalyRequest = buildAnomalyRequest(transferRecord, transactionEntity, senderAccount, request);
