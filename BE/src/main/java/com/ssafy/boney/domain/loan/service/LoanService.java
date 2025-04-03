@@ -396,7 +396,7 @@ public class LoanService {
         }
 
         // 송금 처리
-        String summary = "대출지급 " + relation.getParent().getUserName();
+        String summary = "대출 " + relation.getParent().getUserName();
         bankingApiService.transfer(
                 parentAccount.getAccountNumber(),
                 childAccount.getAccountNumber(),
