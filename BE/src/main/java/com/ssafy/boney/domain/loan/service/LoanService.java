@@ -574,6 +574,7 @@ public class LoanService {
         ));
     }
 
+    // 신청한 대출 취소 - 아이
     @Transactional
     public ResponseEntity<?> deleteRequestedLoan(Integer loanId, Integer childId) {
         Loan loan = loanRepository.findById(loanId).orElse(null);
@@ -600,6 +601,11 @@ public class LoanService {
             ));
         }
 
+        // 관련 전자서명 먼저 삭제
+        loanSignatureRepository.findByLoan(loan)
+                .ifPresent(loanSignatureRepository::delete);
+
+        // 그 다음 loan 삭제
         loanRepository.delete(loan);
 
         return ResponseEntity.ok(Map.of(
