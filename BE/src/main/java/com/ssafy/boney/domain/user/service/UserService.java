@@ -2,6 +2,12 @@ package com.ssafy.boney.domain.user.service;
 
 import com.ssafy.boney.domain.account.entity.Account;
 import com.ssafy.boney.domain.account.repository.AccountRepository;
+import com.ssafy.boney.domain.loan.repository.LoanRepaymentRepository;
+import com.ssafy.boney.domain.loan.repository.LoanRepository;
+import com.ssafy.boney.domain.loan.repository.LoanSignatureRepository;
+import com.ssafy.boney.domain.notification.repository.NotificationRepository;
+import com.ssafy.boney.domain.quest.repository.QuestRepository;
+import com.ssafy.boney.domain.scheduledTransfer.repository.ScheduledTransferRepository;
 import com.ssafy.boney.domain.transaction.entity.Transaction;
 import com.ssafy.boney.domain.transaction.repository.FdsRepository;
 import com.ssafy.boney.domain.transaction.repository.TransactionHashtagRepository;
@@ -9,11 +15,14 @@ import com.ssafy.boney.domain.transaction.repository.TransactionRepository;
 import com.ssafy.boney.domain.transaction.repository.TransferRepository;
 import com.ssafy.boney.domain.user.dto.UserSignupRequest;
 import com.ssafy.boney.domain.user.entity.CreditScore;
+import com.ssafy.boney.domain.user.entity.ParentChild;
 import com.ssafy.boney.domain.user.entity.User;
 import com.ssafy.boney.domain.user.exception.UserErrorCode;
 import com.ssafy.boney.domain.user.exception.UserNotFoundException;
+import com.ssafy.boney.domain.user.repository.ParentChildRepository;
 import com.ssafy.boney.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -43,7 +52,17 @@ public class UserService {
     private final TransferRepository transferRepository;
     private final FdsRepository fdsRepository;
     private final TransactionHashtagRepository transactionHashtagRepository;
+    private final ScheduledTransferRepository scheduledTransferRepository;
+    private final LoanRepaymentRepository loanRepaymentRepository;
+    private final LoanSignatureRepository loanSignatureRepository;
+    private final LoanRepository loanRepository;
+    private final NotificationRepository notificationRepository;
 
+    @Autowired
+    private final QuestRepository questRepository; // DI 필요
+
+    @Autowired
+    private final ParentChildRepository parentChildRepository;
 
     public Optional<User> findByKakaoId(Long kakaoId) {
         return userRepository.findByKakaoId(kakaoId);
@@ -126,7 +145,7 @@ public class UserService {
 
         User user = userOpt.get();
 
-        // 1. 카카오 연결 끊기
+        // 1. 카카오 연결 끊기 시도
         try {
             String unlinkUrl = "https://kapi.kakao.com/v1/user/unlink";
 
@@ -141,35 +160,49 @@ public class UserService {
             HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
             restTemplate.postForEntity(unlinkUrl, request, String.class);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
-                    "status", 500,
-                    "message", "카카오 연결 끊기에 실패했습니다.",
-                    "error", e.getMessage()
-            ));
+            // 카카오 연결 끊기에 실패해도 로컬 DB 삭제는 계속 진행
+            System.out.println("카카오 연결 끊기 실패: " + e.getMessage());
+        }
+        notificationRepository.deleteAllByUser(user);
+        // 2. parent_child 기반으로 연관된 quest, scheduled_transfer 삭제
+        List<ParentChild> relations = user.getParents();  // 자녀인 경우
+        relations.addAll(user.getChildren());             // 부모인 경우
+
+        for (ParentChild relation : relations) {
+            // 퀘스트
+            questRepository.deleteAllByParentChild(relation);
+            // 정기이체
+            scheduledTransferRepository.deleteAllByParentChild(relation);
+            // 대출 상환
+            loanRepaymentRepository.deleteAllByLoan_ParentChild(relation);
+            // 전자 서명
+            loanSignatureRepository.deleteAllByLoan_ParentChild(relation);
+            // 대출
+            loanRepository.deleteAllByParentChild(relation);
         }
 
-        // 2. 계좌별 거래 기록 삭제 (Transaction → Hashtag → Transfer)
+        // parent_child 삭제
+        parentChildRepository.deleteAll(relations);
+
+        // 3. 계좌별 거래 관련 정보 삭제
         List<Account> accounts = user.getAccounts();
         for (Account account : accounts) {
-            List<Transaction> transactions = transactionRepository.findByUserAndCreatedAtBetween(
-                    user,
-                    LocalDateTime.of(2000, 1, 1, 0, 0),
-                    LocalDateTime.now()
-            );
+            List<Transaction> transactions = transactionRepository.findByAccount(account);
 
             for (Transaction tx : transactions) {
                 transactionHashtagRepository.deleteAllByTransaction(tx);
+                fdsRepository.deleteAllByTransaction(tx);
+                transferRepository.deleteAllByTransaction(tx);
             }
 
             transactionRepository.deleteAll(transactions);
-            transferRepository.deleteAllByAccount(account); // 필요 시 구현 필요
-            fdsRepository.deleteAllByAccount(account);       // 필요 시 구현 필요
+            transferRepository.deleteAllByAccount(account);
+            fdsRepository.deleteAllByAccount(account);
         }
 
-        // 3. 계좌 삭제
         accountRepository.deleteAll(accounts);
 
-        // 4. 사용자 삭제 (Cascade로 parentChild, creditScore, favorites, fcmTokens 등 삭제)
+        // 4. 사용자 삭제 (credit_score, favorites, fcm_token 등은 cascade = ALL)
         userRepository.delete(user);
 
         return ResponseEntity.ok(Map.of(
@@ -177,6 +210,5 @@ public class UserService {
                 "message", "회원 탈퇴 및 카카오 연결 해제가 완료되었습니다."
         ));
     }
-
 
 }
