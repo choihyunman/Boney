@@ -1,5 +1,7 @@
 package com.ssafy.boney.domain.quest.service;
 
+import com.ssafy.boney.domain.notification.dto.NotificationRequest;
+import com.ssafy.boney.domain.notification.service.NotificationService;
 import com.ssafy.boney.domain.quest.dto.ChildQuestCompletionResponse;
 import com.ssafy.boney.domain.quest.entity.Quest;
 import com.ssafy.boney.domain.quest.entity.enums.QuestStatus;
@@ -7,6 +9,7 @@ import com.ssafy.boney.domain.quest.exception.QuestErrorCode;
 import com.ssafy.boney.domain.quest.exception.QuestException;
 import com.ssafy.boney.domain.quest.exception.QuestNotFoundException;
 import com.ssafy.boney.domain.quest.repository.QuestRepository;
+import com.ssafy.boney.domain.user.entity.User;
 import com.ssafy.boney.global.s3.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,6 +24,7 @@ public class ChildQuestCompletionService {
 
     private final QuestRepository questRepository;
     private final S3Service s3Service;
+    private final NotificationService notificationService;
 
     // (아이 화면) 퀘스트 완료 요청
     @Transactional
@@ -53,6 +57,16 @@ public class ChildQuestCompletionService {
         }
         // 상태를 WAITING_REWARD로 업데이트
         quest.setQuestStatus(QuestStatus.WAITING_REWARD);
+
+        // (FCM) 보호자에게 완료 요청 알림 전송
+        User parent = quest.getParentChild().getParent();
+        NotificationRequest notificationRequest = NotificationRequest.builder()
+                .userId(parent.getUserId())
+                .notificationTypeId(3) // QUEST_COMPLETION_REQUEST
+                .message("아이가 퀘스트 완료 요청을 보냈습니다: " + quest.getQuestTitle())
+                .referenceId(quest.getQuestId())
+                .build();
+        notificationService.sendNotification(notificationRequest);
 
         String questCategory = quest.getQuestCategory().getCategoryName();
         String questTitle = quest.getQuestTitle();
