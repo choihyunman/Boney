@@ -31,7 +31,7 @@ public class CreditScore {
     private LocalDateTime updatedAt;
 
     public void updateScore(int scoreToAdd) {
-        this.score += scoreToAdd;
+        this.score = Math.max(0, Math.min(this.score + scoreToAdd, 100));
         this.updatedAt = LocalDateTime.now();
     }
 
