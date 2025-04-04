@@ -78,6 +78,12 @@ public class TransactionService {
                     contentName = "용돈";
                 } else if (summary.contains("퀘스트")) {
                     contentName = "퀘스트";
+                } else if (summary.contains("용돈")) {
+                    contentName = "용돈";
+                } else if (summary.contains("대출")) {
+                    contentName = "대출";
+                } else if (summary.contains("대출상환")) {
+                    contentName = "대출상환";
                 } else {
                     contentName = summary;
                 }

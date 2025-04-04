@@ -31,7 +31,7 @@ public class AllowanceScheduleController {
                     .body(new ApiResponse<>(201, "정기 용돈 송금 내역이 생성되었습니다.", response));
         } catch (ResourceAlreadyExistsException ex) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(new ApiResponse<>(409, ex.getMessage(), null));
+                    .body(new ApiResponse<>(404, ex.getMessage(), null));
         }
     }
 
@@ -47,6 +47,19 @@ public class AllowanceScheduleController {
         } catch (ResourceNotFoundException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new ApiResponse<>(404, "해당 부모의 정기 용돈 송금 내역이 없습니다.", null));
+        }
+    }
+
+    @DeleteMapping("/{childId}")
+    public ResponseEntity<ApiResponse<Void>> cancelRegularTransfer(@PathVariable Integer childId,
+                                                                   HttpServletRequest httpRequest) {
+        Integer parentId = (Integer) httpRequest.getAttribute("userId");
+        try {
+            parentChildService.cancelChildRegularTransfer(parentId, childId);
+            return ResponseEntity.ok(new ApiResponse<>(200, "정기 용돈 송금 내역이 해지(삭제)되었습니다.", null));
+        } catch (ResourceNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse<>(404, ex.getMessage(), null));
         }
     }
 }

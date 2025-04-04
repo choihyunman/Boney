@@ -9,6 +9,7 @@ import com.ssafy.boney.domain.scheduledTransfer.entity.enums.TransferCycle;
 import com.ssafy.boney.domain.scheduledTransfer.entity.enums.TransferStatus;
 import com.ssafy.boney.domain.scheduledTransfer.entity.enums.TransferWeekday;
 import com.ssafy.boney.domain.scheduledTransfer.exception.ResourceAlreadyExistsException;
+import com.ssafy.boney.domain.transaction.exception.CustomException;
 import com.ssafy.boney.domain.transaction.exception.ResourceNotFoundException;
 import com.ssafy.boney.domain.user.dto.ChildResponse;
 import com.ssafy.boney.domain.user.dto.RegularTransferResponse;
@@ -20,6 +21,7 @@ import com.ssafy.boney.domain.user.exception.UserErrorCode;
 import com.ssafy.boney.domain.user.exception.UserNotFoundException;
 import com.ssafy.boney.domain.user.repository.UserRepository;
 import com.ssafy.boney.domain.scheduledTransfer.repository.ScheduledTransferRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.ssafy.boney.domain.user.dto.ChildrenDetailResponse;
@@ -221,6 +223,25 @@ public class ParentChildService {
 
         // 업데이트된 정보를 다시 조회해서 ChildrenDetailResponse로 반환 (이미 구현된 메서드 재사용)
         return getChildRegularTransferDetail(parentId, childId);
+    }
+
+    @Transactional
+    public void cancelChildRegularTransfer(Integer parentId, Integer childId) {
+        // 부모–자식 관계 확인
+        ParentChild parentChild = parentChildRepository
+                .findByParentUserIdAndChildUserId(parentId, childId)
+                .orElseThrow(() -> new UserNotFoundException(UserErrorCode.NOT_FOUND));
+
+        // 정기 송금 내역 조회
+        Optional<ScheduledTransfer> scheduledTransferOpt = scheduledTransferRepository.findByParentChild(parentChild);
+        if (scheduledTransferOpt.isPresent()) {
+            ScheduledTransfer scheduledTransfer = scheduledTransferOpt.get();
+            // 활성 상태 여부 확인(선택사항)
+            scheduledTransferRepository.delete(scheduledTransfer);
+        }
+        else {
+            throw new ResourceNotFoundException("해당 부모의 정기 용돈 송금 내역이 없습니다.");
+        }
     }
 
 
