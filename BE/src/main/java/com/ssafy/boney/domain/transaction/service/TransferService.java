@@ -132,6 +132,24 @@ public class TransferService {
                 .build();
         transferRecord = transferRepository.save(transferRecord);
 
+// (FCM) 수신자에게 알림 전송
+        final Transaction transactionFinal = transactionEntity;
+        accountRepository.findByAccountNumber(request.getRecipientAccountNumber())
+                .ifPresentOrElse(recipientAccount -> {
+                    User recipientUser = recipientAccount.getUser();
+                    NotificationRequest notificationRequest = NotificationRequest.builder()
+                            .userId(recipientUser.getUserId())
+                            .notificationTypeId(1) // 1번: 'TRANSFER_RECEIVED'
+                            .notificationTitle("송금을 받았어요")
+                            .notificationContent(sender.getUserName() + "님이 송금했어요")
+                            .notificationAmount(request.getAmount())
+                            .referenceId(transactionFinal.getTransactionId())
+                            .build();
+                    notificationService.sendNotification(notificationRequest);
+                }, () -> {
+                    System.out.println("수신자 계좌 " + request.getRecipientAccountNumber() + "가 시스템에 등록되어 있지 않습니다.");
+                });
+
 
         // 10. FastAPI 이상 탐지 호출 (추가 Feature 포함)
         AnomalyRequestDto anomalyRequest = buildAnomalyRequest(transferRecord, transactionEntity, senderAccount, request);
@@ -147,17 +165,18 @@ public class TransferService {
             fdsRepository.save(fdsRecord);
 
 
-            // (fcm) 이상거래 탐지 시 보호자에게 알림 전송
+            // (FCM) 이상거래 탐지 시 보호자에게 알림 전송
             if (sender.getRole().equals(Role.CHILD)) {
-                final Transaction transactionFinal = transactionEntity;
                 // ParentChildRepository를 통해 자녀의 보호자 조회
                 Optional<ParentChild> parentChildOpt = parentChildRepository.findByChild(sender);
                 if (parentChildOpt.isPresent()) {
                     User parent = parentChildOpt.get().getParent();
                     NotificationRequest abnormalNotificationRequest = NotificationRequest.builder()
                             .userId(parent.getUserId())
-                            .notificationTypeId(10) // 10번이 'ABNORMAL_TRANSACTION' 타입
-                            .message("아이 " + sender.getUserName() + "님의 계좌에서 이상 거래가 탐지되었습니다.")
+                            .notificationTypeId(10) // 10번: 'ABNORMAL_TRANSACTION' 타입
+                            .notificationTitle("이상 거래 탐지")
+                            .notificationContent(sender.getUserName() + "님의 계좌에서 이상 거래가 탐지되었습니다")
+                            .notificationAmount(null)
                             .referenceId(transactionFinal.getTransactionId())
                             .build();
                     notificationService.sendNotification(abnormalNotificationRequest);
