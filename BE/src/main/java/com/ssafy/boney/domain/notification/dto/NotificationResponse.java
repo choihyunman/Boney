@@ -15,7 +15,9 @@ public class NotificationResponse {
     private Integer notificationId;
     private Integer userId;
     private String notificationTypeCode;
-    private String message;
+    private String notificationTitle;
+    private String notificationContent;
+    private Long notificationAmount;
     private Boolean readStatus;
     private LocalDateTime createdAt;
     private Integer referenceId;
