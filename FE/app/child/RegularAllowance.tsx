@@ -9,7 +9,12 @@ import {
 } from "react-native";
 import GlobalText from "../../components/GlobalText";
 import { Calendar, ChevronDown } from "lucide-react-native";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, router } from "expo-router";
+import {
+  createRegularAllowance,
+  updateRegularAllowance,
+} from "../../apis/childApi";
+import { useChildDetailStore } from "../../stores/useChildDetailStore";
 
 const DAYS = [
   { id: 1, name: "월요일" },
@@ -18,7 +23,7 @@ const DAYS = [
   { id: 4, name: "목요일" },
   { id: 5, name: "금요일" },
   { id: 6, name: "토요일" },
-  { id: 0, name: "일요일" },
+  { id: 7, name: "일요일" },
 ];
 
 const DATES = Array.from({ length: 31 }, (_, i) => ({
@@ -30,11 +35,73 @@ export default function RegularAllowance() {
   const params = useLocalSearchParams();
   const childName = params.childName as string;
   const profileImage = params.profileImage as string;
+  const { childDetail } = useChildDetailStore();
 
   const [isWeekly, setIsWeekly] = useState(true);
   const [selectedDay, setSelectedDay] = useState(DAYS[0]);
   const [selectedDate, setSelectedDate] = useState(DATES[0]);
   const [isDayPickerVisible, setIsDayPickerVisible] = useState(false);
+  const [amount, setAmount] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async () => {
+    try {
+      if (!childDetail?.childId) return;
+
+      setLoading(true);
+      const data = {
+        scheduledAmount: parseInt(amount),
+        scheduledFrequency: isWeekly
+          ? ("weekly" as const)
+          : ("monthly" as const),
+        startDate: isWeekly ? selectedDay.id : selectedDate.id,
+      };
+
+      console.log("API 요청 데이터:", {
+        url: `/allowance/schedule/${childDetail.childId}`,
+        method: childDetail?.regularTransfer ? "PUT" : "POST",
+        data,
+        childDetail,
+      });
+
+      let response;
+      if (childDetail?.regularTransfer) {
+        response = await updateRegularAllowance(childDetail.childId, data);
+      } else {
+        response = await createRegularAllowance(childDetail.childId, data);
+      }
+
+      console.log("API 응답:", response);
+      router.back();
+    } catch (error: any) {
+      console.error("정기 용돈 설정 실패:", {
+        error,
+        response: error.response?.data,
+        status: error.response?.status,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancel = async () => {
+    try {
+      if (!childDetail?.childId) return;
+
+      setLoading(true);
+      await updateRegularAllowance(childDetail.childId, {
+        scheduledAmount: 0,
+        scheduledFrequency: "weekly",
+        startDate: 1,
+      });
+
+      router.back();
+    } catch (error) {
+      console.error("정기 용돈 해지 실패:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <View className="flex-1 bg-gray-50 px-4 py-3">
@@ -118,6 +185,8 @@ export default function RegularAllowance() {
               placeholder="금액을 입력해주세요"
               keyboardType="numeric"
               placeholderTextColor="#9CA3AF"
+              value={amount}
+              onChangeText={setAmount}
             />
             <GlobalText className="ml-2 text-sm text-[#020817]">원</GlobalText>
           </View>
@@ -135,15 +204,25 @@ export default function RegularAllowance() {
 
         {/* 버튼 */}
         <View>
-          <TouchableOpacity className="h-10 bg-[#4FC985] rounded-lg items-center justify-center">
+          <TouchableOpacity
+            className="h-10 bg-[#4FC985] rounded-lg items-center justify-center"
+            onPress={handleSubmit}
+            disabled={loading || !amount}
+          >
             <GlobalText className="text-sm text-white">
-              용돈 설정하기
+              {loading ? "저장 중..." : "용돈 설정하기"}
             </GlobalText>
           </TouchableOpacity>
 
-          <TouchableOpacity className="h-10 mt-2 bg-white border border-red-500 rounded-lg items-center justify-center mb-8">
-            <GlobalText className="text-sm text-red-500">해지하기</GlobalText>
-          </TouchableOpacity>
+          {childDetail?.regularTransfer && (
+            <TouchableOpacity
+              className="h-10 mt-2 bg-white border border-red-500 rounded-lg items-center justify-center mb-8"
+              onPress={handleCancel}
+              disabled={loading}
+            >
+              <GlobalText className="text-sm text-red-500">해지하기</GlobalText>
+            </TouchableOpacity>
+          )}
         </View>
 
         {/* 구분선 */}

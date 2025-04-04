@@ -9,29 +9,17 @@ import {
 import { router, useFocusEffect, Stack } from "expo-router";
 import { useAuthStore } from "../../stores/useAuthStore";
 import { Plus } from "lucide-react-native";
-import { api } from "../../lib/api";
+import { getChildren, getChildDetail } from "../../apis/childApi";
 import { useCallback } from "react";
 import GlobalText from "../../components/GlobalText";
-
-interface Child {
-  userId: number;
-  userName: string;
-  userBirth: string;
-  userGender: string;
-  userPhone: string;
-  score: number;
-  totalRemainingLoan: string;
-  createdAt: string;
-  bankName: string;
-  accountNumber: string;
-}
-
-//은행명 계좌번호 수정하고 나머지도 수정해야.
+import { useChildStore } from "../../stores/useChildStore";
+import { useChildDetailStore } from "../../stores/useChildDetailStore";
 
 export default function ChildList() {
-  const [children, setChildren] = useState<Child[]>([]);
   const [loading, setLoading] = useState(true);
   const { token } = useAuthStore();
+  const { children = [], setChildren } = useChildStore();
+  const { setChildDetail } = useChildDetailStore();
 
   const fetchChildren = async () => {
     try {
@@ -40,34 +28,56 @@ export default function ChildList() {
         return;
       }
 
-      const response = await api.get("/parent/child");
-      const { data } = response.data;
-
-      if (response.status === 200) {
-        setChildren(data);
+      const response = await getChildren();
+      if (response?.data?.children) {
+        setChildren(response.data.children);
+      } else {
+        setChildren([]);
       }
     } catch (error) {
       console.error("자녀 목록을 불러오는데 실패했습니다:", error);
+      setChildren([]);
     } finally {
       setLoading(false);
     }
   };
+
+  const handleChildPress = async (child: any) => {
+    try {
+      console.log("클릭한 자녀 정보:", child);
+      console.log("클릭한 자녀 ID:", child.childId);
+      const response = await getChildDetail(child.childId);
+      console.log("API 응답:", response);
+      if (response?.data) {
+        const childData = {
+          ...response.data,
+          regularTransfer: response.data.regularTransfer || null,
+        };
+        console.log("가공된 자녀 데이터:", childData);
+        setChildDetail(childData);
+        router.push({
+          pathname: "/child/[id]",
+          params: {
+            id: child.childId,
+            child: JSON.stringify(childData),
+          },
+        });
+      }
+    } catch (error: any) {
+      console.error("자녀 상세 정보를 불러오는데 실패했습니다:", error);
+      console.error("에러 상세:", error.response?.data || error.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchChildren();
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
       fetchChildren();
     }, [])
   );
-
-  const handleChildPress = (child: Child) => {
-    router.push({
-      pathname: "/child/[id]",
-      params: {
-        id: child.userId,
-        child: JSON.stringify(child),
-      },
-    });
-  };
 
   if (loading) {
     return (
@@ -102,37 +112,38 @@ export default function ChildList() {
           </View>
 
           <View className="flex-row flex-wrap justify-between w-full">
-            {children.map((child) => (
-              <TouchableOpacity
-                key={child.userId}
-                style={{
-                  width: cardWidth,
-                  height: 154,
-                  marginBottom: 16,
-                  shadowColor: "#000",
-                  shadowOffset: {
-                    width: 0,
-                    height: 1,
-                  },
-                  shadowOpacity: 0.05,
-                  shadowRadius: 2,
-                  elevation: 1,
-                }}
-                className="bg-white rounded-xl p-[19px] border border-[#E5E7EB] items-center justify-center"
-                onPress={() => handleChildPress(child)}
-              >
-                <View className="w-20 h-20 rounded-full overflow-hidden mb-3">
-                  <Image
-                    source={require("../../assets/profile/profile.jpg")}
-                    className="w-full h-full"
-                    resizeMode="cover"
-                  />
-                </View>
-                <GlobalText className="text-lg font-bold text-[#18181B]">
-                  {child.userName}
-                </GlobalText>
-              </TouchableOpacity>
-            ))}
+            {Array.isArray(children) &&
+              children.map((child) => (
+                <TouchableOpacity
+                  key={child.childId}
+                  style={{
+                    width: cardWidth,
+                    height: 154,
+                    marginBottom: 16,
+                    shadowColor: "#000",
+                    shadowOffset: {
+                      width: 0,
+                      height: 1,
+                    },
+                    shadowOpacity: 0.05,
+                    shadowRadius: 2,
+                    elevation: 1,
+                  }}
+                  className="bg-white rounded-xl p-[19px] border border-[#E5E7EB] items-center justify-center"
+                  onPress={() => handleChildPress(child)}
+                >
+                  <View className="w-20 h-20 rounded-full overflow-hidden mb-3">
+                    <Image
+                      source={require("../../assets/profile/profile.jpg")}
+                      className="w-full h-full"
+                      resizeMode="cover"
+                    />
+                  </View>
+                  <GlobalText className="text-lg font-bold text-[#18181B]">
+                    {child.childName}
+                  </GlobalText>
+                </TouchableOpacity>
+              ))}
 
             <TouchableOpacity
               style={{

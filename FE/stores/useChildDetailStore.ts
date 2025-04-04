@@ -1,18 +1,28 @@
 import { create } from "zustand";
-import { child } from "@/apis/childApi";
 import { persist, createJSONStorage } from "zustand/middleware";
 import * as SecureStore from "expo-secure-store";
 
-interface Child {
-  parentChildId: number;
-  childId: number;
-  childName: string;
-  childGender: string;
+interface RegularTransfer {
+  scheduledAmount: number;
+  scheduledFrequency: "weekly" | "monthly";
+  startDate: number;
 }
 
-interface ChildStore {
-  children: Child[];
-  setChildren: (children: Child[]) => void;
+interface ChildDetail {
+  childId: number;
+  childName: string;
+  creditScore: number;
+  loanAmount: number;
+  bankName: string;
+  accountNumber: string;
+  regularTransfer?: RegularTransfer;
+}
+
+interface ChildDetailStore {
+  childDetail: ChildDetail | null;
+  setChildDetail: (childDetail: ChildDetail | null) => void;
+  hydrated: boolean;
+  setHydrated: (hydrated: boolean) => void;
 }
 
 const secureStorage = {
@@ -39,27 +49,20 @@ const secureStorage = {
   },
 };
 
-export const useChildStore = create<ChildStore>()(
+export const useChildDetailStore = create<ChildDetailStore>()(
   persist(
     (set) => ({
-      children: [],
-      setChildren: (children) => set({ children }),
+      childDetail: null,
+      setChildDetail: (childDetail) => set({ childDetail }),
+      hydrated: false,
+      setHydrated: (hydrated) => set({ hydrated }),
     }),
     {
-      name: "child-storage",
+      name: "child-detail-storage",
       storage: createJSONStorage(() => secureStorage),
+      onRehydrateStorage: () => (state) => {
+        state?.setHydrated(true);
+      },
     }
   )
 );
-
-type ChildrenStore = {
-  children: child[];
-  setChildren: (data: child[]) => void;
-  reset: () => void;
-};
-
-export const useChildrenStore = create<ChildrenStore>((set) => ({
-  children: [],
-  setChildren: (data) => set({ children: Array.isArray(data) ? data : [] }),
-  reset: () => set({ children: [] }),
-}));
