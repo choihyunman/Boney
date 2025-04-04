@@ -252,6 +252,26 @@ public class TransferService {
         );
     }
 
+    /**
+     * 보호자 -> 자식 자동 송금
+     */
+    @Transactional
+    public void processParentChildTransferAuto(User parent, Account parentAccount, User child, Account childAccount, Long amount, String summary) {
+        // 부모 계좌 잔액 확인
+        Long availableBalance = bankingApiService.getAccountBalance(parentAccount.getAccountNumber());
+        if (availableBalance < amount) {
+            throw new CustomException(TransactionErrorCode.INSUFFICIENT_BALANCE);
+        }
+        // 송금 실행 (자동 송금이므로 비밀번호 검증 생략)
+        TransferApiResponseDto response = bankingApiService.transfer(
+                parentAccount.getAccountNumber(),
+                childAccount.getAccountNumber(),
+                amount,
+                summary
+        );
+        // 추가 후속 처리가 없다면 여기서 종료 (로그 기록 등을 할 수 있음)
+    }
+
     private AnomalyRequestDto buildAnomalyRequest(Transfer transferRecord, Transaction transactionEntity, Account senderAccount, TransferRequest request) {
         AnomalyRequestDto dto = new AnomalyRequestDto();
         dto.setTransferId(transferRecord.getTransferId());
