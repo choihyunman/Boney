@@ -1,20 +1,24 @@
 package com.ssafy.boney.domain.scheduledTransfer.entity;
 
-import com.google.cloud.storage.transfermanager.TransferStatus;
+import com.ssafy.boney.domain.scheduledTransfer.entity.enums.TransferStatus;
 import com.ssafy.boney.domain.scheduledTransfer.entity.enums.TransferCycle;
 import com.ssafy.boney.domain.scheduledTransfer.entity.enums.TransferWeekday;
 import com.ssafy.boney.domain.user.entity.ParentChild;
 import com.ssafy.boney.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "scheduled_transfer")
+@Builder
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ScheduledTransfer {
 
     @Id
@@ -58,6 +62,7 @@ public class ScheduledTransfer {
     @Column(name = "status", nullable = false)
     private TransferStatus status;
 
+    @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false,
             columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
