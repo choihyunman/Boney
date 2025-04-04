@@ -1,16 +1,19 @@
 import { useState, useEffect } from "react";
-import { View, TouchableOpacity, ScrollView, Alert } from "react-native";
+import { View, TouchableOpacity, ScrollView, Alert, Modal } from "react-native";
 import { useRouter } from "expo-router";
 import GlobalText from "../../../components/GlobalText";
-import PromissoryNote from "../PromissoryNote";
+import PromissoryNote from "./PromissoryNote";
 import { useLoanRequestStore, useLoanStore } from "@/stores/useLoanChildStore";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { createLoan } from "@/apis/loanChildApi";
 import { useMutation } from "@tanstack/react-query";
 import { getKSTEndOfDayString } from "@/utils/date";
+import Signature from "./Signature";
+
 export default function PromissoryNotePage() {
   const router = useRouter();
   const [currentTime, setCurrentTime] = useState("");
+  const [showSignature, setShowSignature] = useState(false);
   const setLatestLoan = useLoanStore((state) => state.setLatestLoan);
 
   // 저장소에서 데이터 가져오기
@@ -80,10 +83,7 @@ export default function PromissoryNotePage() {
     ).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
     useLoanRequestStore.getState().setRequest("requestDate", requestDate);
 
-    submitLoan({
-      loan_amount: amount ?? 0,
-      due_date: getKSTEndOfDayString(dueDate ?? ""),
-    });
+    setShowSignature(true);
   };
 
   return (
@@ -117,6 +117,15 @@ export default function PromissoryNotePage() {
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      {/* 서명 모달 */}
+      <Modal
+        visible={showSignature}
+        animationType="slide"
+        onRequestClose={() => setShowSignature(false)}
+      >
+        <Signature onClose={() => setShowSignature(false)} />
+      </Modal>
     </View>
   );
 }

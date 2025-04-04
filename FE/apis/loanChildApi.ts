@@ -3,6 +3,7 @@ import { api } from "@/lib/api";
 export type CreateLoanRequest = {
   loan_amount: number;
   due_date: string;
+  child_signature: string;
 };
 
 export type CreateLoanResponse = {

@@ -1,20 +1,20 @@
-import { useState, useEffect } from "react";
-import { View, TouchableOpacity, ScrollView } from "react-native";
-import GlobalText from "../../../components/GlobalText";
-import LoanModal from "../../../components/PopupModal";
-import { PinInput } from "../../../components/PinInput";
+import React, { useState, useEffect } from "react";
+import { View, TouchableOpacity, ScrollView, Alert } from "react-native";
+import GlobalText from "@/components/GlobalText";
+import LoanModal from "@/components/PopupModal";
 import { router } from "expo-router";
-import {
-  useReqListParentStore,
-  useApproveStore,
-} from "@/stores/useLoanParentStore";
+import { useReqListParentStore } from "@/stores/useLoanParentStore";
 import { useLoanReqListParentQuery } from "@/hooks/useLoanReqListParentQuery";
-import { approveLoan, rejectLoan } from "@/apis/loanParentApi";
+import { rejectLoan, ReqItem } from "@/apis/loanParentApi";
+import { usePromissoryNoteStore } from "@/stores/useLoanParentStore";
 
 export default function ParentLoanRequestsPage() {
   const { data: queryData, error, refetch } = useLoanReqListParentQuery();
   const reqList = useReqListParentStore((state) => state.reqList);
   const hydrated = useReqListParentStore((state) => state.hydrated);
+  const setPromissoryNoteData = usePromissoryNoteStore(
+    (state) => state.setPromissoryNoteData
+  );
 
   // 에러 핸들링 useEffect
   useEffect(() => {
@@ -23,12 +23,8 @@ export default function ParentLoanRequestsPage() {
     }
   }, [error]);
 
-  const [showApproveModal, setShowApproveModal] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
-  const [loanToApprove, setLoanToApprove] = useState<number | null>(null);
   const [loanToReject, setLoanToReject] = useState<number | null>(null);
-  const [showPinInput, setShowPinInput] = useState(false);
-  const [pin, setPin] = useState<string>("");
 
   // 날짜 포맷팅 함수
   const formatDate = (dateString: string) => {
@@ -39,42 +35,26 @@ export default function ParentLoanRequestsPage() {
   };
 
   // 대출 승인 핸들러
-  const handleApprove = (loanId: number) => {
-    setLoanToApprove(loanId);
-    setShowPinInput(true);
+  const handleApprove = (loan: ReqItem) => {
+    console.log("선택된 대출:", loan);
+
+    // 차용증 데이터를 스토어에 저장
+    setPromissoryNoteData({
+      loanAmount: loan.loan_amount,
+      repaymentDate: loan.due_date,
+      debtorName: loan.child_name,
+      debtorSign: loan.child_signature,
+      loanId: loan.loan_id,
+    });
+
+    // 차용증 화면으로 이동
+    router.push("/loan/parent/PromissoryNote");
   };
 
   // 대출 거부 핸들러
   const handleReject = (loanId: number) => {
     setLoanToReject(loanId);
     setShowRejectModal(true);
-  };
-
-  // 비밀번호 입력
-  const handlePasswordInput = async (password: string) => {
-    if (!loanToApprove) return;
-
-    try {
-      console.log("입력 비밀번호: ", password);
-      const res = await approveLoan(loanToApprove, password);
-
-      // 승인된 대출 정보 저장
-      useApproveStore.getState().setApprove("due_date", res.due_date);
-      useApproveStore.getState().setApprove("loan_amount", res.loan_amount);
-      useApproveStore.getState().setApprove("child_name", res.child_name);
-      console.log("approve: ", useApproveStore.getState().approve);
-
-      // UI 흐름 정리
-      setLoanToApprove(null);
-      setShowPinInput(false);
-
-      // 목록 갱신 및 이동
-      await refetch();
-      router.push("/loan/parent/ReqApprove");
-    } catch (err) {
-      console.error("❌ 대출 승인 실패:", err);
-      setShowPinInput(false); // PIN 입력창 닫기
-    }
   };
 
   // 모달에서 거부 확인 시 실행될 핸들러
@@ -87,27 +67,18 @@ export default function ParentLoanRequestsPage() {
 
       setLoanToReject(null);
       setShowRejectModal(false);
-    } catch (err) {
-      console.error("❌ 대출 거부 실패:", err);
+    } catch (error) {
+      console.error("API 호출 중 오류:", error);
+      Alert.alert("오류", "처리 중 오류가 발생했습니다.");
     }
   };
 
-  // 신용 점수에 따른 색상 결정
+  // 신첩 점수에 따른 색상 결정
   const getCreditScoreColor = (score: number) => {
     if (score >= 80) return "text-[#4FC985]";
     if (score >= 31) return "text-[#FFD700]";
     return "text-[#EF4444]";
   };
-
-  if (showPinInput) {
-    return (
-      <PinInput
-        title="송금 비밀번호 입력"
-        subtitle="대출 승인을 위해 비밀번호를 입력해주세요."
-        onPasswordComplete={handlePasswordInput}
-      />
-    );
-  }
 
   // 스토리지 복원 전에는 아무것도 안 그리기
   if (!hydrated) {
@@ -210,7 +181,7 @@ export default function ParentLoanRequestsPage() {
                   </GlobalText>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  onPress={() => handleApprove(loan.loan_id)}
+                  onPress={() => handleApprove(loan)}
                   className="flex-1 py-3 bg-[#4FC985] rounded-lg"
                 >
                   <GlobalText className="text-center text-white" weight="bold">

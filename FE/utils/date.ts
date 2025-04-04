@@ -1,4 +1,4 @@
 export const getKSTEndOfDayString = (dateStr: string) => {
-  const date = `${dateStr}T23:59:59.998`;
-  return date;
+  // 입력된 날짜 문자열을 그대로 반환
+  return dateStr;
 };
