@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Slot, router, usePathname, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import * as WebBrowser from "expo-web-browser";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useFonts } from "expo-font";
 import { View, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -18,6 +18,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useNotificationStore } from "@/stores/useNotificationStore";
 import GlobalText from "@/components/GlobalText";
 import Toast from "react-native-toast-message";
+import { notificationApi } from "@/apis/notificationApi";
+import { NotificationData } from "@/apis/notificationApi";
 
 interface HeaderButton {
   icon: React.ReactNode;
@@ -50,13 +52,70 @@ function RootLayoutNav() {
 
   const pathname = usePathname();
   const { hasHydrated } = useAuthStore();
-  const { unreadCount } = useNotificationStore();
+  const { unreadCount, setUnreadCount } = useNotificationStore();
+  const previousNotificationsRef = useRef<NotificationData[]>([]);
+
+  // 알림 모니터링 함수
+  const fetchNotifications = async () => {
+    try {
+      console.log("🔔 알림 목록 조회 시작");
+      const response = await notificationApi.getNotifications();
+      console.log("✅ 알림 목록 조회 성공:", {
+        totalCount: response.data.length,
+        unreadCount: response.data.filter((n) => !n.readStatus).length,
+      });
+
+      // 읽지 않은 알림 개수 업데이트
+      const unreadCount = response.data.filter((n) => !n.readStatus).length;
+      setUnreadCount(unreadCount);
+
+      // 새로운 알림이 있는지 확인
+      const newNotifications = response.data.filter(
+        (newNoti) =>
+          !previousNotificationsRef.current.some(
+            (prevNoti) => prevNoti.notificationId === newNoti.notificationId
+          )
+      );
+
+      // 새로운 알림이 있으면 Toast 표시
+      if (newNotifications.length > 0) {
+        newNotifications.forEach((notification) => {
+          if (!notification.readStatus) {
+            Toast.show({
+              type: "success",
+              text1: notification.notificationTitle,
+              text2: notification.notificationContent,
+              position: "top",
+              visibilityTime: 3000,
+              autoHide: true,
+              topOffset: 50,
+            });
+          }
+        });
+      }
+
+      // 이전 알림 목록 업데이트
+      previousNotificationsRef.current = response.data;
+    } catch (err) {
+      console.error("❌ 알림 목록 조회 실패:", err);
+    }
+  };
 
   useEffect(() => {
     if (fontsLoaded) {
       SplashScreen.hideAsync();
     }
   }, [fontsLoaded]);
+
+  // 알림 모니터링 시작
+  useEffect(() => {
+    if (hasHydrated) {
+      fetchNotifications();
+      // 5초마다 알림 목록 새로고침
+      const interval = setInterval(fetchNotifications, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [hasHydrated]);
 
   if (!fontsLoaded || !hasHydrated) {
     return <View style={{ flex: 1, backgroundColor: "white" }} />;
@@ -238,7 +297,9 @@ function RootLayoutNav() {
                 resizeMode="contain"
               />
             ),
-            onPress: () => {router.push("/home")},
+            onPress: () => {
+              router.push("/home");
+            },
           },
           rightButton: {
             icon: (
@@ -296,18 +357,29 @@ function RootLayoutNav() {
             icon: <ChevronLeft size={24} color="#000000" />,
             onPress: () => router.back(),
           },
-          rightButton:
-            unreadCount > 0
-              ? {
-                  icon: (
-                    <GlobalText className="text-xs text-[#4FC985] font-medium">
-                      모두 읽음
-                    </GlobalText>
-                  ),
-                  onPress: () =>
-                    useNotificationStore.getState().markAllAsRead(),
-                }
-              : undefined,
+          rightButton: {
+            icon: (
+              <GlobalText className="text-xs text-[#4FC985] font-medium">
+                모두 읽음
+              </GlobalText>
+            ),
+            onPress: async () => {
+              try {
+                console.log("📖 모든 알림 읽음 처리 시작");
+                await notificationApi.markAllAsRead();
+                console.log("✅ 모든 알림 읽음 처리 완료");
+                // 알림 목록 새로고침
+                router.replace("/notification");
+              } catch (error) {
+                console.error("❌ 모든 알림 읽음 처리 실패:", error);
+                Toast.show({
+                  type: "error",
+                  text1: "알림 읽음 처리 실패",
+                  text2: "다시 시도해주세요",
+                });
+              }
+            },
+          },
         };
       default:
         return {

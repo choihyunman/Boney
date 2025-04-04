@@ -1,135 +1,71 @@
 import React, { useEffect } from "react";
-import { View, ScrollView, Pressable, TouchableOpacity } from "react-native";
+import { View, ScrollView, TouchableOpacity } from "react-native";
 import { router } from "expo-router";
 import {
-  ChevronLeft,
   Wallet,
   Trophy,
   AlertCircle,
   CreditCard,
   Check,
   X,
-  Trash2,
+  AlertTriangle,
 } from "lucide-react-native";
 import GlobalText from "@/components/GlobalText";
-import {
-  useNotificationStore,
-  Notification,
-} from "@/stores/useNotificationStore";
+import { useNotifications } from "@/hooks/useNotifications";
+import { notificationApi } from "@/apis/notificationApi";
+import { useNotificationStore } from "@/stores/useNotificationStore";
 
 export default function NotificationsPage() {
-  const {
-    notifications,
-    unreadCount,
-    getNotifications,
-    markAsRead,
-    markAllAsRead,
-    deleteNotification,
-    initializeNotifications,
-  } = useNotificationStore();
+  const { notifications, isLoading, error, refetch } = useNotifications();
+  const { setUnreadCount } = useNotificationStore();
 
-  // 컴포넌트 마운트 시 알림 데이터 로드
+  // 알림 목록이 변경될 때마다 읽지 않은 알림 개수 업데이트
   useEffect(() => {
-    // 알림이 없으면 샘플 데이터 초기화 (실제 앱에서는 필요 없음)
-    if (notifications.length === 0) {
-      initializeNotifications([
-        {
-          id: "1",
-          type: "deposit",
-          title: "용돈이 입금되었어요",
-          message: "팔랑님이 용돈을 보냈어요.",
-          amount: 10000,
-          date: "2023-07-15 14:30",
-          read: false,
-          sender: "팔랑",
-        },
-        {
-          id: "2",
-          type: "quest-created",
-          title: "새로운 퀘스트가 등록되었어요",
-          message: "팔랑님이 새로운 퀘스트를 등록했어요.",
-          amount: 5000,
-          date: "2023-07-14 10:15",
-          read: false,
-          link: "/quests",
-        },
-        {
-          id: "3",
-          type: "quest-completed",
-          title: "퀘스트 성공!",
-          message: "심부름 퀘스트를 성공적으로 완료했어요.",
-          amount: 3000,
-          date: "2023-07-12 18:45",
-          read: true,
-          link: "/quests",
-        },
-        {
-          id: "4",
-          type: "quest-failed",
-          title: "퀘스트 실패",
-          message: "방 청소 퀘스트 기간이 만료되었어요.",
-          amount: 2000,
-          date: "2023-07-10 09:20",
-          read: true,
-          link: "/quests",
-        },
-        {
-          id: "5",
-          type: "loan-due",
-          title: "대출 상환 기간이 임박했어요",
-          message: "3일 후 대출금 상환일이 다가오고 있어요.",
-          amount: 5000,
-          date: "2023-07-08 16:10",
-          read: false,
-          link: "/loan",
-        },
-        {
-          id: "6",
-          type: "deposit",
-          title: "용돈이 입금되었어요",
-          message: "팔랑님이 용돈을 보냈어요.",
-          amount: 5000,
-          date: "2023-07-05 11:30",
-          read: true,
-          sender: "팔랑",
-        },
-      ]);
-    } else {
-      getNotifications();
+    if (!isLoading && !error) {
+      const unreadCount = notifications.filter((n) => !n.readStatus).length;
+      setUnreadCount(unreadCount);
     }
-  }, []);
+  }, [notifications, isLoading, error]);
 
   // 알람 아이콘 렌더링
   const renderNotificationIcon = (type: string) => {
     switch (type) {
-      case "deposit":
+      case "TRANSFER_RECEIVED":
         return (
           <View className="w-8 h-8 rounded-full bg-[#49DB8A]/20 items-center justify-center">
             <Wallet color="#49DB8A" size={16} />
           </View>
         );
-      case "quest-created":
+      case "QUEST_REGISTERED":
+      case "QUEST_COMPLETION_REQUEST":
         return (
           <View className="w-8 h-8 rounded-full bg-blue-100 items-center justify-center">
             <Trophy color="#3B82F6" size={16} />
           </View>
         );
-      case "quest-completed":
+      case "QUEST_APPROVED":
         return (
           <View className="w-8 h-8 rounded-full bg-green-100 items-center justify-center">
             <Check color="#22C55E" size={16} />
           </View>
         );
-      case "quest-failed":
+      case "QUEST_APPROVAL_REJECTED":
         return (
           <View className="w-8 h-8 rounded-full bg-red-100 items-center justify-center">
             <X color="#EF4444" size={16} />
           </View>
         );
-      case "loan-due":
+      case "LOAN_APPLICATION":
+      case "LOAN_REPAYMENT_COMPLETED":
         return (
           <View className="w-8 h-8 rounded-full bg-amber-100 items-center justify-center">
             <CreditCard color="#F59E0B" size={16} />
+          </View>
+        );
+      case "ABNORMAL_TRANSACTION":
+        return (
+          <View className="w-8 h-8 rounded-full bg-red-100 items-center justify-center">
+            <AlertTriangle color="#EF4444" size={16} />
           </View>
         );
       default:
@@ -142,94 +78,154 @@ export default function NotificationsPage() {
   };
 
   // 알람 클릭 처리
-  const handleNotificationClick = (notification: Notification) => {
-    // 읽음 처리
-    markAsRead(notification.id);
+  const handleNotificationClick = async (notification: any) => {
+    try {
+      // 읽지 않은 알림인 경우에만 읽음 처리
+      if (!notification.readStatus) {
+        console.log("📖 알림 읽음 처리 시작:", notification.notificationId);
+        await notificationApi.markAsRead(notification.notificationId);
+        console.log("✅ 알림 읽음 처리 완료:", notification.notificationId);
+        // 알림 목록 새로고침
+        refetch();
+      }
 
-    // 링크가 있으면 해당 페이지로 이동
-    if (notification.link) {
-      router.push(notification.link as any);
+      // 알림 타입에 따른 페이지 이동
+      switch (notification.notificationTypeCode) {
+        case "TRANSFER_RECEIVED":
+          // 송금 내역 페이지로 이동
+          router.push("/transaction" as any);
+          break;
+
+        case "QUEST_REGISTERED":
+          // 퀘스트 목록 페이지로 이동 (아이)
+          router.push("/quest/child/list" as any);
+          break;
+
+        case "QUEST_COMPLETION_REQUEST":
+          // 퀘스트 완료 요청 상세 페이지로 이동 (보호자)
+          router.push("/quest/parent/list" as any);
+          break;
+
+        case "QUEST_APPROVED":
+          // 승인된 퀘스트 상세 페이지로 이동
+          router.push("/quest/child/list" as any);
+          break;
+
+        case "QUEST_APPROVAL_REJECTED":
+          // 거절된 퀘스트 상세 페이지로 이동
+          router.push("/quest/child/list" as any);
+          break;
+
+        case "LOAN_APPLICATION":
+          // 대출 신청 상세 페이지로 이동 (보호자)
+          router.push("/loan/parent/ReqList" as any);
+          break;
+
+        case "LOAN_REPAYMENT_COMPLETED":
+          // 대출 상환 완료 상세 페이지로 이동
+          router.push("/loan/child/LoanList" as any);
+          break;
+
+        case "ABNORMAL_TRANSACTION":
+          // 이상 거래 내역 페이지로 이동
+          router.push("/transaction" as any);
+          break;
+
+        default:
+          console.warn(
+            "알 수 없는 알림 타입:",
+            notification.notificationTypeCode
+          );
+      }
+    } catch (error) {
+      console.error("❌ 알림 읽음 처리 실패:", error);
     }
   };
 
+  if (isLoading) {
+    return (
+      <View className="flex-1 bg-white items-center justify-center">
+        <GlobalText className="text-gray-500">로딩 중...</GlobalText>
+      </View>
+    );
+  }
+
+  if (error || notifications.length === 0) {
+    return (
+      <View className="flex-1 bg-white items-center justify-center">
+        <View className="w-14 h-14 rounded-full bg-gray-100 items-center justify-center mb-3">
+          <AlertCircle color="#9CA3AF" size={28} />
+        </View>
+        <GlobalText className="text-sm text-gray-500">
+          알림이 없습니다
+        </GlobalText>
+      </View>
+    );
+  }
+
   return (
     <View className="flex-1 bg-white">
-      {/* 알림 목록 */}
       <ScrollView className="flex-1 px-3 py-2">
-        {unreadCount > 0 && (
-          <View className="mb-2">
-            <GlobalText className="text-xs text-gray-500">
-              읽지 않은 알림 {unreadCount}개
-            </GlobalText>
-          </View>
-        )}
+        <View className="space-y-2">
+          {notifications.map((notification) => (
+            <TouchableOpacity
+              key={notification.notificationId}
+              className={`p-4 rounded-lg flex-row items-start gap-3 ${
+                notification.readStatus ? "bg-white" : "bg-[#49DB8A]/10"
+              }`}
+              onPress={() => handleNotificationClick(notification)}
+            >
+              {renderNotificationIcon(notification.notificationTypeCode)}
 
-        {notifications.length > 0 ? (
-          <View className="space-y-2">
-            {notifications.map((notification) => (
-              <TouchableOpacity
-                key={notification.id}
-                className={`p-4 rounded-lg flex-row items-start gap-3 ${
-                  notification.read ? "bg-white" : "bg-[#49DB8A]/10"
-                }`}
-                onPress={() => handleNotificationClick(notification)}
-              >
-                {renderNotificationIcon(notification.type)}
+              <View className="flex-1">
+                <View className="flex-row justify-between items-start">
+                  <View className="flex-1">
+                    <GlobalText
+                      className="text-sm font-medium text-black"
+                      numberOfLines={1}
+                    >
+                      {notification.notificationTitle}
+                    </GlobalText>
+                    <GlobalText
+                      className="text-xs text-gray-500 mt-2"
+                      numberOfLines={2}
+                    >
+                      {notification.notificationContent}
+                    </GlobalText>
 
-                <View className="flex-1">
-                  <View className="flex-row justify-between items-start">
-                    <View className="flex-1">
+                    {notification.notificationAmount !== null && (
                       <GlobalText
-                        className="text-sm font-medium text-black"
-                        numberOfLines={1}
+                        className={`text-xs font-semibold mt-2 ${
+                          notification.notificationTypeCode ===
+                          "QUEST_APPROVAL_REJECTED"
+                            ? "text-red-500"
+                            : "text-[#49DB8A]"
+                        }`}
                       >
-                        {notification.title}
+                        {notification.notificationTypeCode ===
+                          "TRANSFER_RECEIVED" ||
+                        notification.notificationTypeCode === "QUEST_APPROVED"
+                          ? `+${notification.notificationAmount.toLocaleString()}원`
+                          : notification.notificationTypeCode ===
+                            "QUEST_APPROVAL_REJECTED"
+                          ? `-${notification.notificationAmount.toLocaleString()}원`
+                          : `${notification.notificationAmount.toLocaleString()}원`}
                       </GlobalText>
-                      <GlobalText
-                        className="text-xs text-gray-500 mt-2"
-                        numberOfLines={2}
-                      >
-                        {notification.message}
-                      </GlobalText>
+                    )}
+                  </View>
 
-                      {notification.amount && (
-                        <GlobalText
-                          className={`text-xs font-semibold mt-2 ${
-                            notification.type === "quest-failed"
-                              ? "text-red-500"
-                              : "text-[#49DB8A]"
-                          }`}
-                        >
-                          {notification.type === "deposit" ||
-                          notification.type === "quest-completed"
-                            ? `+${notification.amount.toLocaleString()}원`
-                            : notification.type === "quest-failed"
-                            ? `-${notification.amount.toLocaleString()}원`
-                            : `${notification.amount.toLocaleString()}원`}
-                        </GlobalText>
-                      )}
-                    </View>
-
-                    <View className="items-end ml-1">
-                      <GlobalText className="text-[10px] text-gray-400">
-                        {notification.date.split(" ")[0].slice(5)}
-                      </GlobalText>
-                    </View>
+                  <View className="items-end ml-1">
+                    <GlobalText className="text-[10px] text-gray-400">
+                      {new Date(notification.createdAt)
+                        .toLocaleDateString()
+                        .slice(5)}
+                    </GlobalText>
                   </View>
                 </View>
-              </TouchableOpacity>
-            ))}
-          </View>
-        ) : (
-          <View className="items-center justify-center py-16">
-            <View className="w-14 h-14 rounded-full bg-gray-100 items-center justify-center mb-3">
-              <AlertCircle color="#9CA3AF" size={28} />
-            </View>
-            <GlobalText className="text-sm text-gray-500">
-              알림이 없습니다
-            </GlobalText>
-          </View>
-        )}
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
       </ScrollView>
     </View>
   );
