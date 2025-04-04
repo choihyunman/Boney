@@ -28,7 +28,6 @@ public class ParentQuestController {
     private final ParentQuestDetailService parentQuestDetailService;
     private final ParentQuestHistoryService parentQuestHistoryService;
     private final ParentQuestListService parentQuestListService;
-    private final ParentQuestWaitingRewardService parentQuestWaitingRewardService;
     private final ParentQuestApprovalService parentQuestApprovalService;
     private final ParentQuestRedoService parentQuestRedoService;
 
@@ -104,17 +103,8 @@ public class ParentQuestController {
     }
 
 
-    // 7. 보상 대기 퀘스트 상세 조회
-    @GetMapping("/{questId}/waiting-reward")
-    public ResponseEntity<ApiResponse<ParentWaitingRewardResponse>> getWaitingRewardQuestDetail(
-            @RequestAttribute("userId") Integer parentId,
-            @PathVariable("questId") Integer questId) {
-        ParentWaitingRewardResponse response = parentQuestWaitingRewardService.getWaitingRewardQuest(parentId, questId);
-        return ResponseEntity.ok(new ApiResponse<>(200, "보상 대기 퀘스트 상세 조회 성공", response));
-    }
 
-
-    // 8. 퀘스트 성공 처리 + 보상 송금
+    // 7. 퀘스트 성공 처리 + 보상 송금
     @PostMapping("/{questId}/approval")
     public ResponseEntity<ApiResponse<ParentQuestApprovalResponse>> approveQuest(
             @RequestAttribute("userId") Integer parentId,
@@ -125,7 +115,7 @@ public class ParentQuestController {
     }
 
 
-    // 9. 퀘스트 다시 하기
+    // 8. 퀘스트 다시 하기
     @PostMapping("/{questId}/redo")
     public ResponseEntity<ApiResponse<Void>> redoQuest(
             @RequestAttribute("userId") Integer parentId,
