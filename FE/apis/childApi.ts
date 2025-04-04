@@ -63,3 +63,15 @@ export const deleteRegularAllowance = async (childId: number) => {
     throw error;
   }
 };
+
+export interface child {
+    parentChildId: number,
+    childId: number,
+    childName: string,
+    childGender: "MALE" | "FEMALE"
+}
+
+export interface children {
+    children: child[];
+}
+

@@ -14,25 +14,35 @@ export const useHome = () => {
     data: childData,
     isLoading: isChildLoading,
     error: childError,
+    refetch: refetchChild,
   } = useQuery({
     queryKey: ["childMain"],
     queryFn: homeApi.getChildMain,
     enabled: user?.role === "CHILD",
     retry: 1,
-    staleTime: 1000 * 60 * 5, // 5분
+    staleTime: 0, // 데이터를 항상 새로 가져오도록 설정
   });
 
   const {
     data: parentData,
     isLoading: isParentLoading,
     error: parentError,
+    refetch: refetchParent,
   } = useQuery({
     queryKey: ["parentMain"],
     queryFn: homeApi.getParentMain,
     enabled: user?.role === "PARENT",
     retry: 1,
-    staleTime: 1000 * 60 * 5, // 5분
+    staleTime: 0, // 데이터를 항상 새로 가져오도록 설정
   });
+
+  useEffect(() => {
+    if (user?.role === "CHILD") {
+      refetchChild();
+    } else if (user?.role === "PARENT") {
+      refetchParent();
+    }
+  }, [user?.role]);
 
   useEffect(() => {
     if (childData?.status === "404") {
@@ -71,5 +81,7 @@ export const useHome = () => {
     parentData: parentData?.data || null,
     isLoading: isChildLoading || isParentLoading,
     error: childError || parentError,
+    refetchChild,
+    refetchParent,
   };
 };

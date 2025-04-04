@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { View, ScrollView } from "react-native";
+import { ScrollView } from "react-native";
 import LoanSummary from "../LoanSummary";
 import LoanListSection from "../LoanListSection";
 import { useLoanListStore } from "@/stores/useLoanChildStore";
 import { useLoanListChildQuery } from "@/hooks/useLoanListChild";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback } from "react";
+import LoanTrendChart from "../LoanTrendChart";
 
 export default function LoanListChild() {
   const { data: queryData, error, refetch } = useLoanListChildQuery();
@@ -45,6 +46,7 @@ export default function LoanListChild() {
         count={loanList.length}
         totalAmount={totalAmount}
       />
+      <LoanTrendChart loans={loanList} />
       <LoanListSection
         title="대출 목록"
         loans={loanList}

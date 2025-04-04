@@ -19,13 +19,14 @@ interface Account {
   id: string;
   bankName: string;
   accountNumber: string;
-  ownerName: string;
+  accountHolder: string;
 }
 
 export default function SendMoneyRecipient() {
   const router = useRouter();
   const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
-  const { setRecipient, clearTransferData } = useTransferStore();
+  const { setRecipient, clearTransferData, saveTransferData } =
+    useTransferStore();
   const [registeredAccounts, setRegisteredAccounts] = useState<Account[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -39,7 +40,7 @@ export default function SendMoneyRecipient() {
           id: item.favoriteId.toString(),
           bankName: item.bankName,
           accountNumber: item.favoriteAccount,
-          ownerName: item.accountHolder,
+          accountHolder: item.accountHolder,
         }));
         setRegisteredAccounts(accounts);
       } catch (error) {
@@ -59,6 +60,7 @@ export default function SendMoneyRecipient() {
     if (selectedAccount) {
       try {
         setRecipient(selectedAccount);
+        await saveTransferData();
         router.push("/transfer/Amount");
       } catch (error) {
         console.error("Error saving recipient data:", error);
@@ -130,7 +132,7 @@ export default function SendMoneyRecipient() {
                                 : ""
                             }`}
                           >
-                            {account.ownerName}
+                            {account.accountHolder}
                           </GlobalText>
                           <GlobalText className="text-sm text-gray-500">
                             {account.bankName}

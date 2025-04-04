@@ -14,10 +14,12 @@ interface Account {
   id: string;
   bankName: string;
   accountNumber: string;
-  ownerName: string;
+  accountHolder: string;
 }
 
-const bankList = [{ id: "boney", name: "버니은행" }];
+const bankList = [
+  { id: "boney", name: "버니은행" },
+];
 
 export default function AccountForm() {
   const { setRecipient, saveTransferData, addSavedAccount, setAmount } =
@@ -30,13 +32,13 @@ export default function AccountForm() {
   const [accountForm, setAccountForm] = useState({
     bankName: "",
     accountNumber: "",
-    ownerName: "",
+    accountHolder: "",
   });
 
   const [errors, setErrors] = useState({
     bankName: "",
     accountNumber: "",
-    ownerName: "",
+    accountHolder: "",
   });
 
   const handleBankSelect = (bankName: string) => {
@@ -82,7 +84,7 @@ export default function AccountForm() {
     const newErrors = {
       bankName: "",
       accountNumber: "",
-      ownerName: "",
+      accountHolder: "",
     };
 
     if (!accountForm.bankName) {
@@ -98,8 +100,8 @@ export default function AccountForm() {
       isValid = false;
     }
 
-    if (!accountForm.ownerName) {
-      newErrors.ownerName = "예금주명을 입력해주세요.";
+    if (!accountForm.accountHolder) {
+      newErrors.accountHolder = "예금주명을 입력해주세요.";
       isValid = false;
     }
 
@@ -119,7 +121,7 @@ export default function AccountForm() {
         id: Date.now().toString(),
         bankName: accountForm.bankName,
         accountNumber: accountForm.accountNumber,
-        ownerName: accountForm.ownerName,
+        accountHolder: accountForm.accountHolder,
       };
 
       try {
@@ -129,7 +131,8 @@ export default function AccountForm() {
           try {
             await addFavoriteAccount(
               accountForm.bankName,
-              accountForm.accountNumber.replace(/-/g, "")
+              accountForm.accountNumber.replace(/-/g, ""),
+              accountForm.accountHolder
             );
             await addSavedAccount(newAccount);
           } catch (error: any) {
@@ -257,17 +260,17 @@ export default function AccountForm() {
               placeholder="예금주명을 입력하세요"
               placeholderTextColor="#9CA3AF"
               className={`p-3 border border-gray-200 rounded-lg text-base ${
-                errors.ownerName && showErrors ? "border-red-500" : ""
+                errors.accountHolder && showErrors ? "border-red-500" : ""
               }`}
               style={{ fontFamily: "NEXONLv1Gothic-Regular" }}
-              value={accountForm.ownerName}
+              value={accountForm.accountHolder}
               onChangeText={(value) =>
-                setAccountForm({ ...accountForm, ownerName: value })
+                setAccountForm({ ...accountForm, accountHolder: value })
               }
             />
-            {errors.ownerName && showErrors && (
+            {errors.accountHolder && showErrors && (
               <GlobalText className="text-xs text-red-500 mt-1">
-                {errors.ownerName}
+                {errors.accountHolder}
               </GlobalText>
             )}
           </View>

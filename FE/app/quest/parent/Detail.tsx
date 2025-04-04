@@ -1,11 +1,16 @@
 import { useState } from "react";
 import { View, ScrollView, TouchableOpacity, TextInput } from "react-native";
-import { Home } from "lucide-react-native";
 import GlobalText from "../../../components/GlobalText";
 import AmountInputModal from "../../../components/AmountInputModal";
 import DatePickerModal from "../../../components/DatePickerModal";
 import { router } from "expo-router";
 import CustomTextArea from "@/components/CustomTextInput";
+import {
+  useQuestCreateResponseStore,
+  useQuestCreateStore,
+} from "@/stores/quests/useQuestCreateStore";
+import { createQuest } from "@/apis/questApi";
+import { getQuestIcon } from "@/utils/getQuestIcon";
 
 export default function QuestCreatePage() {
   const [dueDate, setDueDate] = useState("");
@@ -13,16 +18,41 @@ export default function QuestCreatePage() {
   const [message, setMessage] = useState("");
   const [showAmountModal, setShowAmountModal] = useState(false);
   const [showDateModal, setShowDateModal] = useState(false);
-  //   const { setQuestRequest } = useQuestRequestStore();
+  const { setAll } = useQuestCreateResponseStore();
+  const {
+    parentChildId,
+    questTitle,
+    questCategoryId,
+    questCategoryName,
+    setQuestReward,
+    setEndDate,
+    setQuestMessage,
+  } = useQuestCreateStore();
 
-  const handleSubmitQuest = () => {
-    if (!rewardAmount || !dueDate) return;
+  const handleSubmitQuest = async () => {
+    if (!rewardAmount || !dueDate || !parentChildId || !questCategoryId) return;
 
     const numeric = Number(rewardAmount.replace(/,/g, ""));
-    // setQuestRequest("reward", isNaN(numeric) ? 0 : numeric);
-    // setQuestRequest("dueDate", dueDate);
-    // setQuestRequest("message", message);
-    router.push("/quest/parent/CreateComplete");
+
+    setQuestReward(isNaN(numeric) ? 0 : numeric);
+    setEndDate(dueDate);
+    setQuestMessage(message);
+
+    try {
+      const res = await createQuest({
+        parentChildId: parentChildId,
+        questCategoryId: questCategoryId,
+        questTitle: questTitle,
+        questReward: numeric,
+        endDate: dueDate,
+        questMessage: message,
+      });
+      setAll(res);
+      console.log("퀘스트 생성 성공: ", res);
+      router.push("/quest/parent/CreateComplete");
+    } catch (error) {
+      console.log("퀘스트 생성 실패: ", error);
+    }
   };
 
   return (
@@ -35,13 +65,15 @@ export default function QuestCreatePage() {
           {/* 퀘스트 아이콘 + 제목 + 카테고리 */}
           <View className="flex-row items-center bg-[#F9FAFB] rounded-xl p-4 shadow-sm mb-6">
             <View className="h-12 w-12 rounded-full bg-[#e6f7ef] items-center justify-center mr-4">
-              <Home className="h-6 w-6 text-[#4FC985]" />
+              {getQuestIcon(questTitle)}
             </View>
             <View>
               <GlobalText className="text-base text-gray-800">
-                설거지 하기
+                {questTitle}
               </GlobalText>
-              <GlobalText className="text-sm text-gray-500">집안일</GlobalText>
+              <GlobalText className="text-sm text-gray-500">
+                {questCategoryName}
+              </GlobalText>
             </View>
           </View>
           {/* 날짜 입력 */}
@@ -93,15 +125,17 @@ export default function QuestCreatePage() {
           {/* 하고 싶은 말 입력 */}
           {dueDate && rewardAmount ? (
             <View className="bg-gray-50 rounded-xl p-4 mb-6 mt-6">
-              <GlobalText className="text-sm text-gray-700 mb-2">
+              <GlobalText className="text-md text-gray-700 mb-2">
                 아이에게 전하고 싶은 말
               </GlobalText>
               <CustomTextArea
                 value={message}
                 onChangeText={setMessage}
-                placeholder="예: 설거지 끝나면 같이 아이스크림 먹자 😊"
+                placeholder={`아이에게 전할 말을 작성해주세요.
+(최대 80글자)`}
                 height={96}
-                maxLength={150}
+                maxLength={80}
+                multiline={true}
               />
             </View>
           ) : null}

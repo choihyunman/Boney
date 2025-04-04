@@ -1,6 +1,6 @@
 import { TextInput, TextInputProps, View } from "react-native";
 import GlobalText from "./GlobalText";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface CustomTextAreaProps extends TextInputProps {
   value: string;
@@ -19,6 +19,15 @@ export default function CustomTextArea({
   ...rest
 }: CustomTextAreaProps) {
   const inputRef = useRef<TextInput>(null);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setIsMounted(true); // 렌더링 되고 난 뒤 true
+    }, 0);
+
+    return () => clearTimeout(timeout);
+  }, []);
 
   return (
     <View
@@ -26,15 +35,15 @@ export default function CustomTextArea({
       style={{ height }}
     >
       {/* 커스텀 placeholder */}
-      {value.length === 0 && (
+      {isMounted && value.length === 0 && (
         <GlobalText
           onPress={() => inputRef.current?.focus()}
           className="absolute left-4 top-3 text-gray-400"
           style={{
             fontFamily: "NEXONLv1Gothic-Regular",
-            fontSize: 16,
+            fontSize: 14,
             lineHeight: 24,
-            maxWidth: "90%",
+            maxWidth: "95%",
           }}
         >
           {placeholder}

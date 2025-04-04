@@ -60,7 +60,7 @@ export default function CompleteTransfer() {
   };
 
   return (
-    <View className="flex-1 bg-[#F9FAFB] px-6 pt-8 pb-8 items-center gap-6">
+    <View className="flex-1 bg-[#F5F6F8] px-6 pt-8 pb-8 items-center gap-6">
       {/* Spacer */}
       <View className="h-[102px] w-px" />
 
@@ -104,7 +104,7 @@ export default function CompleteTransfer() {
       <View className="w-full gap-3">
         <TouchableOpacity
           onPress={handleViewDetails}
-          className="w-full border border-gray-200 rounded-xl py-4 items-center"
+          className="w-full bg-white rounded-xl py-4 items-center"
         >
           <GlobalText className="text-gray-700 text-base font-medium">
             거래내역 보기

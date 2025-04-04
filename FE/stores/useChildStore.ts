@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { child } from "@/apis/childApi";
 import { persist, createJSONStorage } from "zustand/middleware";
 import * as SecureStore from "expo-secure-store";
 
@@ -50,3 +51,15 @@ export const useChildStore = create<ChildStore>()(
     }
   )
 );
+
+type ChildrenStore = {
+  children: child[];
+  setChildren: (data: child[]) => void;
+  reset: () => void;
+};
+
+export const useChildrenStore = create<ChildrenStore>((set) => ({
+  children: [],
+  setChildren: (data) => set({ children: Array.isArray(data) ? data : [] }),
+  reset: () => set({ children: [] }),
+}));
