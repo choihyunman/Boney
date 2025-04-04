@@ -2,16 +2,14 @@ package com.ssafy.boney.domain.notification.entity;
 
 import com.ssafy.boney.domain.user.entity.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name="notification")
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -29,10 +27,16 @@ public class Notification {
     @JoinColumn(name = "notification_type_id", nullable = false)
     private NotificationType notificationType;
 
-    @Column(name = "message")
-    private String message;
+    @Column(name = "notification_title", nullable = false, length = 180)
+    private String notificationTitle;
 
-    @Column(name = "read_status")
+    @Column(name = "notification_content", nullable = false, length = 255)
+    private String notificationContent;
+
+    @Column(name = "notification_amount")
+    private Long notificationAmount;
+
+    @Column(name = "read_status", columnDefinition = "TINYINT(1) DEFAULT 0")
     private Boolean readStatus;
 
     @Column(name = "created_at", nullable = false,
