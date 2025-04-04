@@ -1,0 +1,7 @@
+package com.ssafy.boney.domain.scheduledTransfer.exception;
+
+public class ResourceAlreadyExistsException extends RuntimeException {
+    public ResourceAlreadyExistsException(String message) {
+        super(message);
+    }
+}

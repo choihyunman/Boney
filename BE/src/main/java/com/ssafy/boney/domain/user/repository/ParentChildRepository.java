@@ -12,6 +12,7 @@ public interface ParentChildRepository extends JpaRepository<ParentChild, Intege
     // 보호자-아이 관계가 존재하는지 확인
     boolean existsByParentAndChild(User parent, User child);
     List<ParentChild> findByParent(User parent);
+    Optional<ParentChild> findByParentUserIdAndChildUserId(Integer parentUserId, Integer childUserId);
     Optional<ParentChild> findByChild(User child);
 
 }
