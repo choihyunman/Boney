@@ -28,7 +28,7 @@ const Nav = () => {
 
   return (
     <View
-      className="absolute bottom-0 left-0 right-0 w-full bg-white rounded-t-2xl flex-row justify-around py-3"
+      className="absolute bottom-0 left-0 right-0 w-full bg-white rounded-t-2xl flex-row justify-around py-3 shadow-lg"
       style={{ width }}
     >
       <TouchableOpacity
