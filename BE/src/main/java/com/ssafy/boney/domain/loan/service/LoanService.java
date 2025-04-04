@@ -14,6 +14,8 @@ import com.ssafy.boney.domain.loan.entity.enums.LoanStatus;
 import com.ssafy.boney.domain.loan.repository.LoanRepaymentRepository;
 import com.ssafy.boney.domain.loan.repository.LoanRepository;
 import com.ssafy.boney.domain.loan.repository.LoanSignatureRepository;
+import com.ssafy.boney.domain.notification.dto.NotificationRequest;
+import com.ssafy.boney.domain.notification.service.NotificationService;
 import com.ssafy.boney.domain.transaction.entity.Transaction;
 import com.ssafy.boney.domain.transaction.exception.CustomException;
 import com.ssafy.boney.domain.transaction.exception.TransactionErrorCode;
@@ -54,6 +56,7 @@ public class LoanService {
     private final LoanRepaymentRepository loanRepaymentRepository;
     private final CreditScoreRepository creditScoreRepository;
     private final TransactionRepository transactionRepository;
+    private final NotificationService notificationService;
 
     private final S3Service s3Service;
     private final LoanSignatureRepository loanSignatureRepository;
@@ -109,6 +112,15 @@ public class LoanService {
                 .parentChild(relation)
                 .build();
         loanRepository.save(loan);
+
+        // (FCM) 부모에게 대출 신청 알림 전송
+        NotificationRequest notificationRequest = NotificationRequest.builder()
+                .userId(parent.getUserId())
+                .notificationTypeId(7)  // 7번이 'LOAN_APPLICATION' 타입이라고 가정
+                .message(child.getUserName() + "님이 대출을 신청했습니다.")
+                .referenceId(loan.getLoanId())
+                .build();
+        notificationService.sendNotification(notificationRequest);
 
         // 6. 전자서명 base64 → S3 업로드
         try {
@@ -725,6 +737,16 @@ public class LoanService {
             CreditScore creditScore = creditScoreRepository.findByUser(child)
                     .orElseThrow(() -> new IllegalArgumentException("신용 점수 정보가 없습니다."));
             creditScore.updateScore(10);
+
+            // (FCM) 보호자에게 대출 상환 완료 알림 전송
+            User parent = loan.getParentChild().getParent();
+            NotificationRequest notificationRequest = NotificationRequest.builder()
+                    .userId(parent.getUserId())
+                    .notificationTypeId(8)  // 8번이 'LOAN_REPAYMENT_COMPLETED' 타입이라고 가정
+                    .message(child.getUserName() + "님이 대출 상환을 완료했습니다.")
+                    .referenceId(loan.getLoanId())
+                    .build();
+            notificationService.sendNotification(notificationRequest);
         }
 
         Integer updatedScore = creditScoreRepository.findByUser(child)
