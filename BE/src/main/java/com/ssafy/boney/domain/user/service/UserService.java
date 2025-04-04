@@ -1,11 +1,19 @@
 package com.ssafy.boney.domain.user.service;
 
+import com.ssafy.boney.domain.account.entity.Account;
+import com.ssafy.boney.domain.account.repository.AccountRepository;
+import com.ssafy.boney.domain.transaction.entity.Transaction;
+import com.ssafy.boney.domain.transaction.repository.FdsRepository;
+import com.ssafy.boney.domain.transaction.repository.TransactionHashtagRepository;
+import com.ssafy.boney.domain.transaction.repository.TransactionRepository;
+import com.ssafy.boney.domain.transaction.repository.TransferRepository;
 import com.ssafy.boney.domain.user.dto.UserSignupRequest;
 import com.ssafy.boney.domain.user.entity.CreditScore;
 import com.ssafy.boney.domain.user.entity.User;
 import com.ssafy.boney.domain.user.exception.UserErrorCode;
 import com.ssafy.boney.domain.user.exception.UserNotFoundException;
 import com.ssafy.boney.domain.user.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -16,10 +24,12 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
     @Value("${kakao.admin-key}")
@@ -28,10 +38,12 @@ public class UserService {
     private final RestTemplate restTemplate = new RestTemplate();
 
     private final UserRepository userRepository;
+    private final AccountRepository accountRepository;
+    private final TransactionRepository transactionRepository;
+    private final TransferRepository transferRepository;
+    private final FdsRepository fdsRepository;
+    private final TransactionHashtagRepository transactionHashtagRepository;
 
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     public Optional<User> findByKakaoId(Long kakaoId) {
         return userRepository.findByKakaoId(kakaoId);
@@ -114,7 +126,7 @@ public class UserService {
 
         User user = userOpt.get();
 
-        // 1. 카카오 연결 끊기 (unlink)
+        // 1. 카카오 연결 끊기
         try {
             String unlinkUrl = "https://kapi.kakao.com/v1/user/unlink";
 
@@ -136,7 +148,28 @@ public class UserService {
             ));
         }
 
-        // 2. DB에서 사용자 삭제
+        // 2. 계좌별 거래 기록 삭제 (Transaction → Hashtag → Transfer)
+        List<Account> accounts = user.getAccounts();
+        for (Account account : accounts) {
+            List<Transaction> transactions = transactionRepository.findByUserAndCreatedAtBetween(
+                    user,
+                    LocalDateTime.of(2000, 1, 1, 0, 0),
+                    LocalDateTime.now()
+            );
+
+            for (Transaction tx : transactions) {
+                transactionHashtagRepository.deleteAllByTransaction(tx);
+            }
+
+            transactionRepository.deleteAll(transactions);
+            transferRepository.deleteAllByAccount(account); // 필요 시 구현 필요
+            fdsRepository.deleteAllByAccount(account);       // 필요 시 구현 필요
+        }
+
+        // 3. 계좌 삭제
+        accountRepository.deleteAll(accounts);
+
+        // 4. 사용자 삭제 (Cascade로 parentChild, creditScore, favorites, fcmTokens 등 삭제)
         userRepository.delete(user);
 
         return ResponseEntity.ok(Map.of(
