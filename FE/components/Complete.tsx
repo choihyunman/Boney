@@ -4,7 +4,7 @@ import GlobalText from "./GlobalText";
 
 export interface DetailItem {
   label: string;
-  value: string;
+  value: string | React.ReactNode;
   icon?: React.ReactNode;
   valueColor?: string;
   extraDescription?: string;
@@ -45,7 +45,7 @@ const Complete = ({
 
       {/* 상세 내역 정보 카드 */}
       <View className="w-full bg-white rounded-xl px-6 py-3 mb-8 shadow-sm">
-        <View className="flex flex-col gap-3">
+        <View className="flex flex-col gap-2">
           {details.map((item, index) => (
             <View key={index}>
               <View className="flex-row justify-between items-center py-4">
@@ -84,7 +84,7 @@ const Complete = ({
 
               {/* Divider */}
               {index < details.length - 1 && (
-                <View className="h-px bg-gray-200 mx-1 mt-2" />
+                <View className="h-px bg-gray-200 mx-1 mt-1" />
               )}
             </View>
           ))}

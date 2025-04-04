@@ -1,175 +1,19 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { View, ScrollView, TouchableOpacity } from "react-native";
 import { router } from "expo-router";
-import {
-  Home,
-  Users,
-  BookOpen,
-  Heart,
-  Edit3,
-  Settings,
-} from "lucide-react-native";
 import GlobalText from "@/components/GlobalText";
-
-// 카테고리 타입 정의
-type Category = {
-  id: string;
-  name: string;
-  icon: React.ReactNode;
-};
-
-// 퀘스트 타입 정의
-type Quest = {
-  id: string;
-  categoryId: string;
-  title: string;
-  icon: React.ReactNode;
-};
+import { getQuestIcon } from "@/utils/getQuestIcon";
+import CustomQuestModal from "./CustomQuestModal";
+import { useQuestCreateStore } from "@/stores/quests/useQuestCreateStore";
+import { categories } from "@/utils/questCategoryUtils";
+import { quests } from "@/utils/quests";
 
 export default function SelectQuestPage() {
-  const [selectedCategory, setSelectedCategory] = useState<string>("housework");
+  const [selectedCategory, setSelectedCategory] = useState<number>(1);
   const [selectedQuest, setSelectedQuest] = useState<string | null>(null);
-
-  // 카테고리 목록
-  const categories: Category[] = [
-    {
-      id: "housework",
-      name: "집안일",
-      icon: <Home className="h-5 w-5" />,
-    },
-    {
-      id: "family",
-      name: "우리 가족",
-      icon: <Users className="h-5 w-5" />,
-    },
-    {
-      id: "study",
-      name: "학습",
-      icon: <BookOpen className="h-5 w-5" />,
-    },
-    {
-      id: "lifestyle",
-      name: "생활습관",
-      icon: <Heart className="h-5 w-5" />,
-    },
-    {
-      id: "other",
-      name: "기타",
-      icon: <Settings className="h-5 w-5" />,
-    },
-  ];
-
-  // 퀘스트 목록
-  const quests: Quest[] = [
-    {
-      id: "dishes",
-      categoryId: "housework",
-      title: "설거지 하기",
-      icon: <Home className="h-6 w-6" />,
-    },
-    {
-      id: "errand",
-      categoryId: "housework",
-      title: "심부름 다녀오기",
-      icon: <Home className="h-6 w-6" />,
-    },
-    {
-      id: "laundry",
-      categoryId: "housework",
-      title: "빨래 개기",
-      icon: <Home className="h-6 w-6" />,
-    },
-    {
-      id: "custom",
-      categoryId: "housework",
-      title: "직접 입력",
-      icon: <Edit3 className="h-6 w-6" />,
-    },
-    {
-      id: "family1",
-      categoryId: "family",
-      title: "가족 식사",
-      icon: <Users className="h-6 w-6" />,
-    },
-    {
-      id: "family2",
-      categoryId: "family",
-      title: "가족 여행",
-      icon: <Users className="h-6 w-6" />,
-    },
-    {
-      id: "family3",
-      categoryId: "family",
-      title: "가족 게임",
-      icon: <Users className="h-6 w-6" />,
-    },
-    {
-      id: "family4",
-      categoryId: "family",
-      title: "직접 입력",
-      icon: <Edit3 className="h-6 w-6" />,
-    },
-    {
-      id: "study1",
-      categoryId: "study",
-      title: "숙제 완료하기",
-      icon: <BookOpen className="h-6 w-6" />,
-    },
-    {
-      id: "study2",
-      categoryId: "study",
-      title: "독서하기",
-      icon: <BookOpen className="h-6 w-6" />,
-    },
-    {
-      id: "study3",
-      categoryId: "study",
-      title: "시험 준비하기",
-      icon: <BookOpen className="h-6 w-6" />,
-    },
-    {
-      id: "study4",
-      categoryId: "study",
-      title: "직접 입력",
-      icon: <Edit3 className="h-6 w-6" />,
-    },
-    {
-      id: "health1",
-      categoryId: "lifestyle",
-      title: "운동하기",
-      icon: <Heart className="h-6 w-6" />,
-    },
-    {
-      id: "health2",
-      categoryId: "lifestyle",
-      title: "일찍 자기",
-      icon: <Heart className="h-6 w-6" />,
-    },
-    {
-      id: "health3",
-      categoryId: "lifestyle",
-      title: "건강한 식사",
-      icon: <Heart className="h-6 w-6" />,
-    },
-    {
-      id: "health4",
-      categoryId: "lifestyle",
-      title: "직접 입력",
-      icon: <Edit3 className="h-6 w-6" />,
-    },
-    {
-      id: "other1",
-      categoryId: "other",
-      title: "기타 활동",
-      icon: <Settings className="h-6 w-6" />,
-    },
-    {
-      id: "other2",
-      categoryId: "other",
-      title: "직접 입력",
-      icon: <Edit3 className="h-6 w-6" />,
-    },
-  ];
+  const { setQuestTitle, setQuestCategoryId, setQuestCategoryName } =
+    useQuestCreateStore();
+  const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
 
   // 선택된 카테고리에 해당하는 퀘스트 필터링
   const filteredQuests = quests.filter(
@@ -230,12 +74,22 @@ export default function SelectQuestPage() {
                     : "border border-gray-100"
                 }`}
                 onPress={() => {
-                  setSelectedQuest(quest.id);
-                  router.push("/quest/parent/Detail");
+                  if (quest.title === "직접 입력") {
+                    setIsCustomModalOpen(true);
+                  } else {
+                    setQuestTitle(quest.title);
+                    setQuestCategoryId(quest.categoryId);
+                    setQuestCategoryName(
+                      categories.find((c) => c.id === quest.categoryId)?.name ||
+                        ""
+                    );
+                    setSelectedQuest(quest.id);
+                    router.push("/quest/parent/Detail");
+                  }
                 }}
               >
                 <View className="h-12 w-12 rounded-full bg-[#e6f7ef] items-center justify-center mb-2">
-                  {quest.icon}
+                  {getQuestIcon(quest.title)}
                 </View>
                 <GlobalText className="text-sm font-medium text-center">
                   {quest.title}
@@ -257,6 +111,20 @@ export default function SelectQuestPage() {
           </View>
         </TouchableOpacity>
       </View>
+
+      <CustomQuestModal
+        visible={isCustomModalOpen}
+        onClose={() => setIsCustomModalOpen(false)}
+        onSave={(customTitle) => {
+          setQuestTitle(customTitle);
+          setQuestCategoryId(selectedCategory);
+          setQuestCategoryName(
+            categories.find((c) => c.id === selectedCategory)?.name || ""
+          );
+          setIsCustomModalOpen(false);
+          router.push("/quest/parent/Detail");
+        }}
+      />
     </View>
   );
 }
