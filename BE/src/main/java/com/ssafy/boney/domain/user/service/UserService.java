@@ -6,11 +6,14 @@ import com.ssafy.boney.domain.user.entity.User;
 import com.ssafy.boney.domain.user.exception.UserErrorCode;
 import com.ssafy.boney.domain.user.exception.UserNotFoundException;
 import com.ssafy.boney.domain.user.repository.UserRepository;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.ssafy.boney.domain.user.entity.enums.Role;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -18,6 +21,11 @@ import java.util.Optional;
 
 @Service
 public class UserService {
+
+    @Value("${kakao.admin-key}")
+    private String kakaoAdminKey;
+
+    private final RestTemplate restTemplate = new RestTemplate();
 
     private final UserRepository userRepository;
 
@@ -106,12 +114,36 @@ public class UserService {
 
         User user = userOpt.get();
 
-        // 연관된 엔티티 삭제는 User 엔티티에 설정된 cascade = CascadeType.ALL, orphanRemoval = true 덕분에 자동 처리됨
+        // 1. 카카오 연결 끊기 (unlink)
+        try {
+            String unlinkUrl = "https://kapi.kakao.com/v1/user/unlink";
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+            headers.set("Authorization", "KakaoAK " + kakaoAdminKey);
+
+            MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+            body.add("target_id_type", "user_id");
+            body.add("target_id", String.valueOf(kakaoId));
+
+            HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
+            restTemplate.postForEntity(unlinkUrl, request, String.class);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                    "status", 500,
+                    "message", "카카오 연결 끊기에 실패했습니다.",
+                    "error", e.getMessage()
+            ));
+        }
+
+        // 2. DB에서 사용자 삭제
         userRepository.delete(user);
 
         return ResponseEntity.ok(Map.of(
                 "status", 200,
-                "message", "회원 탈퇴가 완료되었습니다."
+                "message", "회원 탈퇴 및 카카오 연결 해제가 완료되었습니다."
         ));
     }
+
+
 }
