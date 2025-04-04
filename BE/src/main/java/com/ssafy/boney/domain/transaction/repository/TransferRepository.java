@@ -1,5 +1,6 @@
 package com.ssafy.boney.domain.transaction.repository;
 
+import com.ssafy.boney.domain.account.entity.Account;
 import com.ssafy.boney.domain.transaction.entity.Transfer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -13,4 +14,10 @@ public interface TransferRepository extends JpaRepository<Transfer, Integer> {
     @Query("SELECT MAX(t.transaction.createdAt) FROM Transfer t WHERE t.account.accountNumber = :accountNumber AND t.transactionCounterparty = :recipientAccount")
     Optional<LocalDateTime> findLastTransactionTime(@Param("accountNumber") String accountNumber,
                                                     @Param("recipientAccount") String recipientAccount);
+
+    // TransferRepository.java
+    void deleteAllByAccount(Account account);
+
+
 }
+
