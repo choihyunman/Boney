@@ -16,4 +16,7 @@ public interface ScheduledTransferRepository extends JpaRepository<ScheduledTran
     @Query("select st from ScheduledTransfer st " +
             "where st.startDate <= :today and (st.endDate is null or st.endDate >= :today)")
     List<ScheduledTransfer> findAllActive(@Param("today") LocalDate today);
+
+    void deleteAllByParentChild(ParentChild parentChild);
+
 }
