@@ -724,7 +724,9 @@ public class LoanService {
             // 신용 점수 +10
             CreditScore creditScore = creditScoreRepository.findByUser(child)
                     .orElseThrow(() -> new IllegalArgumentException("신용 점수 정보가 없습니다."));
-            creditScore.updateScore(10);
+            int currentScore = creditScore.getScore();
+            int newScore = Math.min(currentScore + 10, 100); // 최대 100점 제한
+            creditScore.updateScore(newScore);
         }
 
         Integer updatedScore = creditScoreRepository.findByUser(child)
