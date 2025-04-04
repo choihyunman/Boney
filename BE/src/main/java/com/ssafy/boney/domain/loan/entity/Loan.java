@@ -47,4 +47,7 @@ public class Loan {
 
     @Column(name = "last_amount")
     private Long lastAmount;
+
+    @Column(name = "last_penalized_at")
+    private LocalDateTime lastPenalizedAt;
 }
