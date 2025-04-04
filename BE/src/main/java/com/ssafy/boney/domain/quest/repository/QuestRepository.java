@@ -1,6 +1,7 @@
 package com.ssafy.boney.domain.quest.repository;
 
 import com.ssafy.boney.domain.quest.entity.Quest;
+import com.ssafy.boney.domain.user.entity.ParentChild;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -78,6 +79,8 @@ public interface QuestRepository extends JpaRepository<Quest, Integer> {
             "ORDER BY CASE WHEN q.finishDate IS NULL THEN 1 ELSE 0 END, " +
             "         q.finishDate DESC")
     List<Quest> findPastQuestsByChild(@Param("childId") Integer childId);
+
+    void deleteAllByParentChild(ParentChild parentChild);
 
 }
 
