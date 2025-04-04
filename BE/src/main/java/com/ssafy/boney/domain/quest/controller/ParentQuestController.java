@@ -4,7 +4,6 @@ package com.ssafy.boney.domain.quest.controller;
 import com.ssafy.boney.domain.quest.dto.*;
 import com.ssafy.boney.domain.quest.exception.QuestErrorCode;
 import com.ssafy.boney.domain.quest.exception.QuestException;
-import com.ssafy.boney.domain.quest.exception.QuestNotFoundException;
 import com.ssafy.boney.domain.quest.service.*;
 import com.ssafy.boney.domain.user.entity.User;
 import com.ssafy.boney.domain.user.service.UserService;
