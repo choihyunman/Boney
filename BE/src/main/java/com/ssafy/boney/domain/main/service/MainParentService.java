@@ -36,79 +36,83 @@ public class MainParentService {
         // 1. 보호자 조회
         User parent = userRepository.findById(parentId).orElse(null);
         if (parent == null) {
-            return ResponseEntity.status(404).body(Map.of("status", 404, "message", "해당 보호자가 없습니다."));
+            return ResponseEntity.status(404).body(Map.of(
+                    "status", "404",
+                    "message", "해당 보호자가 없습니다."
+            ));
         }
 
         // 2. 보호자 계좌 조회
         Account parentAccount = accountRepository.findByUser(parent).orElse(null);
         if (parentAccount == null) {
-            return ResponseEntity.status(403).body(Map.of("status", 403, "message", "해당 보호자의 계좌 정보가 없습니다."));
+            return ResponseEntity.status(403).body(Map.of(
+                    "status", "403",
+                    "message", "해당 보호자의 계좌 정보가 없습니다."
+            ));
         }
 
         // 3. 실시간 잔액 조회
         Long balance = bankingApiService.getAccountBalance(parentAccount.getAccountNumber());
 
         // 4. 자녀 목록 조회
-        List<ParentChild> children = parentChildRepository.findByParent(parent);
-        List<Map<String, Object>> childInfoList = new ArrayList<>();
+        List<ParentChild> relations = parentChildRepository.findByParent(parent);
+        List<Map<String, Object>> childList = new ArrayList<>();
 
-        for (ParentChild relation : children) {
+        for (ParentChild relation : relations) {
             User child = relation.getChild();
-            CreditScore score = creditScoreRepository.findByUser(child).orElse(null);
-
-            // 대출 잔액 계산
+            CreditScore creditScore = creditScoreRepository.findByUser(child).orElse(null);
             List<Loan> loans = loanRepository.findByParentChild(relation);
-            long childLoan = loans.stream()
-                    .mapToLong(loan -> loan.getLastAmount() != null ? loan.getLastAmount() : 0L)
+
+            long totalLoan = loans.stream()
+                    .mapToLong(l -> l.getLastAmount() != null ? l.getLastAmount() : 0L)
                     .sum();
 
-            childInfoList.add(Map.of(
+            childList.add(Map.of(
                     "child_id", child.getUserId(),
                     "child_name", child.getUserName(),
-                    "credit_score", score != null ? score.getScore() : 0,
-                    "total_child_loan", childLoan
+                    "credit_score", creditScore != null ? creditScore.getScore() : 0,
+                    "total_child_loan", totalLoan
             ));
         }
 
-        // 5. 퀘스트 정보
+        // 5. 퀘스트 2건 (IN_PROGRESS 가장 빠른 + WAITING_REWARD 가장 오래된)
         List<Quest> allQuests = new ArrayList<>();
-        for (ParentChild relation : children) {
+        for (ParentChild relation : relations) {
             allQuests.addAll(questRepository.findOngoingQuestsByChild(relation.getChild().getUserId()));
         }
 
-        // IN_PROGRESS 중 가장 빠른 마감일 1개
-        Optional<Quest> soonestQuest = allQuests.stream()
+        Optional<Quest> soonestInProgress = allQuests.stream()
                 .filter(q -> q.getQuestStatus().name().equals("IN_PROGRESS"))
                 .min(Comparator.comparing(Quest::getEndDate));
 
-        // WAITING_REWARD 중 가장 오래된 퀘스트 1개
-        Optional<Quest> oldestWaitingQuest = allQuests.stream()
+        Optional<Quest> oldestWaiting = allQuests.stream()
                 .filter(q -> q.getQuestStatus().name().equals("WAITING_REWARD"))
                 .min(Comparator.comparing(Quest::getCreatedAt));
 
-        List<Map<String, Object>> questSummary = new ArrayList<>();
-        for (Optional<Quest> optQuest : List.of(soonestQuest, oldestWaitingQuest)) {
-            optQuest.ifPresent(q -> questSummary.add(Map.of(
-                    "quest_id", q.getQuestId(),
-                    "quset_child", q.getParentChild().getChild().getUserName(),
-                    "quest_titile", q.getQuestTitle(),
-                    "quest_reward", q.getQuestReward(),
-                    "end_date", q.getEndDate().toLocalDate().toString(),
-                    "quest_status", q.getQuestStatus().name()
+        List<Map<String, Object>> questList = new ArrayList<>();
+        for (Optional<Quest> q : List.of(soonestInProgress, oldestWaiting)) {
+            q.ifPresent(quest -> questList.add(Map.of(
+                    "quest_id", quest.getQuestId(),
+                    "quest_title", quest.getQuestTitle(),
+                    "quest_child", quest.getParentChild().getChild().getUserName(),
+                    "quest_status", quest.getQuestStatus().name(),
+                    "quest_category", quest.getQuestCategory().getCategoryName(),
+                    "quest_reward", quest.getQuestReward(),
+                    "end_date", quest.getEndDate().toLocalDate().toString()
             )));
         }
 
-        // 6. 응답 반환
+        // 6. 최종 응답 구성
         return ResponseEntity.ok(Map.of(
                 "status", "200",
-                "message", "신용 점수가 초기화되었습니다.",
+                "message", "부모 메인 페이지 정보가 조회되었습니다.",
                 "data", ParentMainResponse.of(
                         parent.getUserName(),
                         parentAccount.getAccountNumber(),
-                        parentAccount.getBank().getBankName(),
+                        "버니은행", // 또는 parentAccount.getBank().getBankName()
                         balance,
-                        childInfoList,
-                        questSummary
+                        childList,
+                        questList
                 )
         ));
     }
