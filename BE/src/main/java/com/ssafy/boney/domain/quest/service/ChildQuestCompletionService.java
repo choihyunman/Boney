@@ -63,7 +63,9 @@ public class ChildQuestCompletionService {
         NotificationRequest notificationRequest = NotificationRequest.builder()
                 .userId(parent.getUserId())
                 .notificationTypeId(3) // QUEST_COMPLETION_REQUEST
-                .message("아이가 퀘스트 완료 요청을 보냈습니다: " + quest.getQuestTitle())
+                .notificationTitle("퀘스트 완료 요청이 왔어요")
+                .notificationContent(quest.getParentChild().getChild().getUserName() + "님이 퀘스트 완료 요청을 보냈어요")
+                .notificationAmount(null)
                 .referenceId(quest.getQuestId())
                 .build();
         notificationService.sendNotification(notificationRequest);
