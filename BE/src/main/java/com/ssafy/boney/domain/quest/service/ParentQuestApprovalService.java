@@ -3,6 +3,8 @@ package com.ssafy.boney.domain.quest.service;
 import com.ssafy.boney.domain.account.entity.Account;
 import com.ssafy.boney.domain.account.repository.AccountRepository;
 import com.ssafy.boney.domain.account.service.BankingApiService;
+import com.ssafy.boney.domain.notification.dto.NotificationRequest;
+import com.ssafy.boney.domain.notification.service.NotificationService;
 import com.ssafy.boney.domain.quest.dto.ParentQuestApprovalRequest;
 import com.ssafy.boney.domain.quest.dto.ParentQuestApprovalResponse;
 import com.ssafy.boney.domain.quest.entity.Quest;
@@ -34,6 +36,7 @@ public class ParentQuestApprovalService {
     private final UserService userService;
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
+    private final NotificationService notificationService;
 
     // (보호자 페이지) 퀘스트 성공 처리 + 보상 송금
     @Transactional
@@ -100,6 +103,15 @@ public class ParentQuestApprovalService {
         quest.setQuestStatus(QuestStatus.SUCCESS);
         quest.setFinishDate(now);
         questRepository.save(quest);
+
+        // (FCM) 아이에게 승인 알림 전송
+        NotificationRequest notificationRequest = NotificationRequest.builder()
+                .userId(child.getUserId())
+                .notificationTypeId(4) // QUEST_APPROVED
+                .message("퀘스트가 승인되었습니다: " + quest.getQuestTitle())
+                .referenceId(quest.getQuestId())
+                .build();
+        notificationService.sendNotification(notificationRequest);
 
         return responseDto;
     }

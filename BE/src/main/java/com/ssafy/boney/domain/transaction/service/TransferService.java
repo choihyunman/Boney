@@ -2,13 +2,18 @@ package com.ssafy.boney.domain.transaction.service;
 
 import com.ssafy.boney.domain.account.entity.Account;
 import com.ssafy.boney.domain.account.repository.AccountRepository;
+import com.ssafy.boney.domain.notification.dto.NotificationRequest;
+import com.ssafy.boney.domain.notification.service.NotificationService;
 import com.ssafy.boney.domain.transaction.dto.*;
 import com.ssafy.boney.domain.transaction.entity.*;
 import com.ssafy.boney.domain.transaction.entity.enums.TransactionType;
 import com.ssafy.boney.domain.transaction.exception.CustomException;
 import com.ssafy.boney.domain.transaction.exception.TransactionErrorCode;
 import com.ssafy.boney.domain.transaction.repository.*;
+import com.ssafy.boney.domain.user.entity.ParentChild;
 import com.ssafy.boney.domain.user.entity.User;
+import com.ssafy.boney.domain.user.entity.enums.Role;
+import com.ssafy.boney.domain.user.repository.ParentChildRepository;
 import com.ssafy.boney.domain.user.repository.UserRepository;
 import com.ssafy.boney.domain.account.service.BankingApiService;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +38,8 @@ public class TransferService {
     private final FdsRepository fdsRepository;
     private final TransactionContentRepository transactionContentRepository;
     private final TransactionCategoryRepository transactionCategoryRepository;
+    private final NotificationService notificationService;
+    private final ParentChildRepository parentChildRepository;
 
     // FastAPI 이상 탐지 호출용 Client
     private final FastApiClient fastApiClient;
@@ -98,7 +105,7 @@ public class TransferService {
             throw new CustomException(TransactionErrorCode.ACCOUNT_NOT_FOUND);
         }
 
-        // 6. SSAFY API 계좌 이체 - summary에 보낸 사람(부모)의 이름 포함
+        // 6. SSAFY API 계좌 이체 - summary에 보낸 사람(보호자)의 이름 포함
         String summary = "이체 " + sender.getUserName();
         TransferApiResponseDto transferApiResponse = bankingApiService.transfer(
                 senderAccount.getAccountNumber(),
@@ -125,6 +132,7 @@ public class TransferService {
                 .build();
         transferRecord = transferRepository.save(transferRecord);
 
+
         // 10. FastAPI 이상 탐지 호출 (추가 Feature 포함)
         AnomalyRequestDto anomalyRequest = buildAnomalyRequest(transferRecord, transactionEntity, senderAccount, request);
         AnomalyResponseDto anomalyResponse = fastApiClient.detectAnomaly(anomalyRequest);
@@ -137,6 +145,26 @@ public class TransferService {
                     .fdsReason("이체 이상 거래 의심: 점수 " + anomalyResponse.getScore())
                     .build();
             fdsRepository.save(fdsRecord);
+
+
+            // (fcm) 이상거래 탐지 시 보호자에게 알림 전송
+            if (sender.getRole().equals(Role.CHILD)) {
+                final Transaction transactionFinal = transactionEntity;
+                // ParentChildRepository를 통해 자녀의 보호자 조회
+                Optional<ParentChild> parentChildOpt = parentChildRepository.findByChild(sender);
+                if (parentChildOpt.isPresent()) {
+                    User parent = parentChildOpt.get().getParent();
+                    NotificationRequest abnormalNotificationRequest = NotificationRequest.builder()
+                            .userId(parent.getUserId())
+                            .notificationTypeId(10) // 10번이 'ABNORMAL_TRANSACTION' 타입
+                            .message("아이 " + sender.getUserName() + "님의 계좌에서 이상 거래가 탐지되었습니다.")
+                            .referenceId(transactionFinal.getTransactionId())
+                            .build();
+                    notificationService.sendNotification(abnormalNotificationRequest);
+                } else {
+                    System.out.println("해당 자녀의 보호자 정보가 없습니다.");
+                }
+            }
         }
 
         TransferData data = new TransferData();
