@@ -69,17 +69,259 @@ VALUES
 INSERT INTO `transaction` 
 (account_id, user_id, transaction_content_id, transaction_category_id, transaction_type, transaction_amount, created_at, external_transaction_no, transaction_after_balance)
 VALUES
-(3, 3, 1, 1, 'DEPOSIT', 7000, '2025-04-02 08:00:00', 200001, 17000),
-(3, 3, 5, 13, 'WITHDRAWAL', 3000, '2025-04-02 09:30:00', 200002, 14000),
-(3, 3, 6, 16, 'WITHDRAWAL', 2500, '2025-04-02 10:15:00', 200003, 11500),
-(3, 3, 2, 2, 'WITHDRAWAL', 1000, '2025-04-02 11:20:00', 200004, 10500),
-(3, 3, 1, 1, 'DEPOSIT', 5000, '2025-04-02 13:00:00', 200005, 15500),
-(3, 3, 2, 2, 'WITHDRAWAL', 2000, '2025-04-02 14:10:00', 200006, 13500),
-(3, 3, 5, 13, 'WITHDRAWAL', 1500, '2025-04-02 15:30:00', 200007, 12000),
-(3, 3, 6, 16, 'WITHDRAWAL', 1800, '2025-04-02 16:45:00', 200008, 10200),
-(3, 3, 1, 1, 'DEPOSIT', 4000, '2025-04-02 17:50:00', 200009, 14200),
-(3, 3, 5, 13, 'WITHDRAWAL', 2200, '2025-04-02 19:00:00', 200010, 12000);
+(12, 17, 1, 1, 'DEPOSIT', 7000, '2025-04-02 08:00:00', 200001, 17000),
+(12, 17, 5, 13, 'WITHDRAWAL', 3000, '2025-04-02 09:30:00', 200002, 14000),
+(12, 17, 6, 16, 'WITHDRAWAL', 2500, '2025-04-02 10:15:00', 200003, 11500),
+(12, 17, 2, 2, 'WITHDRAWAL', 1000, '2025-04-02 11:20:00', 200004, 10500),
+(12, 17, 1, 1, 'DEPOSIT', 5000, '2025-04-02 13:00:00', 200005, 15500),
+(12, 17, 2, 2, 'WITHDRAWAL', 2000, '2025-04-02 14:10:00', 200006, 13500),
+(12, 17, 5, 13, 'WITHDRAWAL', 1500, '2025-04-02 15:30:00', 200007, 12000),
+(12, 17, 6, 16, 'WITHDRAWAL', 1800, '2025-04-02 16:45:00', 200008, 10200),
+(12, 17, 1, 1, 'DEPOSIT', 4000, '2025-04-02 17:50:00', 200009, 14200),
+(12, 17, 5, 13, 'WITHDRAWAL', 2200, '2025-04-02 19:00:00', 200010, 12000);
 
+
+INSERT INTO monthly_report (
+  child_id,
+  report_month,
+  total_income,
+  total_expense,
+  category_expense,
+  quest_completed,
+  quest_income,
+  income_ratio,
+  expense_ratio
+) VALUES (
+  17,
+  '2025-02-01',
+  60000,
+  30000,
+  '[
+    {
+      "category": "식사",
+      "amount": 8000,
+      "percentage": 26.7,
+      "transactions": [
+        {
+          "transactionId": 301,
+          "amount": 5000,
+          "createdAt": "2025-02-04T12:10:00",
+          "transactionType": "WITHDRAWAL",
+          "transactionContent": "학교 급식비"
+        },
+        {
+          "transactionId": 302,
+          "amount": 3000,
+          "createdAt": "2025-02-10T13:45:00",
+          "transactionType": "WITHDRAWAL",
+          "transactionContent": "분식집 김밥"
+        }
+      ]
+    },
+    {
+      "category": "문구",
+      "amount": 4000,
+      "percentage": 13.3,
+      "transactions": [
+        {
+          "transactionId": 303,
+          "amount": 4000,
+          "createdAt": "2025-02-15T11:00:00",
+          "transactionType": "WITHDRAWAL",
+          "transactionContent": "문구점 색연필"
+        }
+      ]
+    },
+    {
+      "category": "카페/간식",
+      "amount": 5000,
+      "percentage": 16.7,
+      "transactions": [
+        {
+          "transactionId": 304,
+          "amount": 2000,
+          "createdAt": "2025-02-06T15:20:00",
+          "transactionType": "WITHDRAWAL",
+          "transactionContent": "베스킨라빈스"
+        },
+        {
+          "transactionId": 305,
+          "amount": 3000,
+          "createdAt": "2025-02-13T17:00:00",
+          "transactionType": "WITHDRAWAL",
+          "transactionContent": "편의점 과자"
+        }
+      ]
+    },
+    {
+      "category": "교통비",
+      "amount": 3000,
+      "percentage": 10.0,
+      "transactions": [
+        {
+          "transactionId": 306,
+          "amount": 3000,
+          "createdAt": "2025-02-18T08:00:00",
+          "transactionType": "WITHDRAWAL",
+          "transactionContent": "버스 교통카드 충전"
+        }
+      ]
+    },
+    {
+      "category": "문화",
+      "amount": 4000,
+      "percentage": 13.3,
+      "transactions": [
+        {
+          "transactionId": 307,
+          "amount": 4000,
+          "createdAt": "2025-02-22T14:30:00",
+          "transactionType": "WITHDRAWAL",
+          "transactionContent": "영화관 관람"
+        }
+      ]
+    },
+    {
+      "category": "생활/잡화",
+      "amount": 6000,
+      "percentage": 20.0,
+      "transactions": [
+        {
+          "transactionId": 308,
+          "amount": 6000,
+          "createdAt": "2025-02-25T10:30:00",
+          "transactionType": "WITHDRAWAL",
+          "transactionContent": "이마트 장보기"
+        }
+      ]
+    }
+  ]',
+  4,
+  15000,
+  67,
+  33
+);
+
+INSERT INTO monthly_report (
+  child_id,
+  report_month,
+  total_income,
+  total_expense,
+  category_expense,
+  quest_completed,
+  quest_income,
+  income_ratio,
+  expense_ratio
+) VALUES (
+  17,
+  '2025-03-01',
+  70000,
+  40000,
+  '[
+    {
+      "category": "식사",
+      "amount": 10000,
+      "percentage": 25.0,
+      "transactions": [
+        {
+          "transactionId": 401,
+          "amount": 6000,
+          "createdAt": "2025-03-03T12:30:00",
+          "transactionType": "WITHDRAWAL",
+          "transactionContent": "도시락 카페"
+        },
+        {
+          "transactionId": 402,
+          "amount": 4000,
+          "createdAt": "2025-03-09T13:10:00",
+          "transactionType": "WITHDRAWAL",
+          "transactionContent": "편의점 샌드위치"
+        }
+      ]
+    },
+    {
+      "category": "문구",
+      "amount": 3000,
+      "percentage": 7.5,
+      "transactions": [
+        {
+          "transactionId": 403,
+          "amount": 3000,
+          "createdAt": "2025-03-11T10:00:00",
+          "transactionType": "WITHDRAWAL",
+          "transactionContent": "지우개/노트 구매"
+        }
+      ]
+    },
+    {
+      "category": "카페/간식",
+      "amount": 8000,
+      "percentage": 20.0,
+      "transactions": [
+        {
+          "transactionId": 404,
+          "amount": 3000,
+          "createdAt": "2025-03-13T15:45:00",
+          "transactionType": "WITHDRAWAL",
+          "transactionContent": "스타벅스"
+        },
+        {
+          "transactionId": 405,
+          "amount": 5000,
+          "createdAt": "2025-03-16T16:20:00",
+          "transactionType": "WITHDRAWAL",
+          "transactionContent": "편의점 아이스크림"
+        }
+      ]
+    },
+    {
+      "category": "의류/미용",
+      "amount": 5000,
+      "percentage": 12.5,
+      "transactions": [
+        {
+          "transactionId": 406,
+          "amount": 5000,
+          "createdAt": "2025-03-18T13:30:00",
+          "transactionType": "WITHDRAWAL",
+          "transactionContent": "악세서리 구매"
+        }
+      ]
+    },
+    {
+      "category": "문화",
+      "amount": 7000,
+      "percentage": 17.5,
+      "transactions": [
+        {
+          "transactionId": 407,
+          "amount": 7000,
+          "createdAt": "2025-03-21T19:00:00",
+          "transactionType": "WITHDRAWAL",
+          "transactionContent": "뮤지컬 관람"
+        }
+      ]
+    },
+    {
+      "category": "생활/잡화",
+      "amount": 7000,
+      "percentage": 17.5,
+      "transactions": [
+        {
+          "transactionId": 408,
+          "amount": 7000,
+          "createdAt": "2025-03-28T10:30:00",
+          "transactionType": "WITHDRAWAL",
+          "transactionContent": "다이소 생필품"
+        }
+      ]
+    }
+  ]',
+  5,
+  12000,
+  64,
+  36
+);
 
 -- -- INSERT 구문: quest_category 데이터
 -- INSERT INTO quest_category (quest_category_id, category_name)
@@ -331,3 +573,17 @@ INSERT INTO monthly_report (
   64,
   36
 );
+
+INSERT IGNORE INTO notification_type (notification_type_id, type_code)
+VALUES
+  (1, 'TRANSFER_RECEIVED'),
+  (2, 'QUEST_REGISTERED'),
+  (3, 'QUEST_COMPLETION_REQUEST'),
+  (4, 'QUEST_APPROVED'),
+  (5, 'QUEST_EXPIRED'),
+  (6, 'LOAN_REPAYMENT_REMINDER'),
+  (7, 'LOAN_APPLICATION'),
+  (8, 'LOAN_REPAYMENT_COMPLETED'),
+  (9, 'CREDIT_SCORE_PENALTY'),
+  (10, 'ABNORMAL_TRANSACTION'),
+  (11, 'QUEST_APPROVAL_REJECTED');
