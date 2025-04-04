@@ -736,6 +736,9 @@ public class LoanService {
             // 신용 점수 +10
             CreditScore creditScore = creditScoreRepository.findByUser(child)
                     .orElseThrow(() -> new IllegalArgumentException("신용 점수 정보가 없습니다."));
+            int currentScore = creditScore.getScore();
+            int newScore = Math.min(currentScore + 10, 100); // 최대 100점 제한
+            creditScore.updateScore(newScore);
             creditScore.updateScore(10);
 
             // (FCM) 보호자에게 대출 상환 완료 알림 전송
