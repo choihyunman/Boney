@@ -1,5 +1,5 @@
 import { useLocalSearchParams } from "expo-router";
-import PromissoryNote from "../PromissoryNote";
+import PromissoryNote from "./PromissoryNote";
 import { ScrollView, TouchableOpacity, View } from "react-native";
 import { useEffect, useState } from "react";
 import GlobalText from "@/components/GlobalText";

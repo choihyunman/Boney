@@ -159,11 +159,18 @@ function RootLayoutNav() {
         };
       case "/loan/ReqListParent":
         return {
-          title: "대기 중인 대출 보기",
           backgroundColor: "white",
           leftButton: {
             icon: <ChevronLeft size={24} color="#000000" />,
-            onPress: () => router.back(),
+            onPress: () => router.push("/menu"),
+          },
+        };
+      case "/loan/child/ReqList":
+        return {
+          backgroundColor: "white",
+          leftButton: {
+            icon: <ChevronLeft size={24} color="#000000" />,
+            onPress: () => router.push("/menu"),
           },
         };
       case "/child":
@@ -200,6 +207,14 @@ function RootLayoutNav() {
           leftButton: {
             icon: <ChevronLeft size={24} color="#000000" />,
             onPress: () => router.back(),
+          },
+        };
+      case "/loan/child/LoanList":
+        return {
+          backgroundColor: "white",
+          leftButton: {
+            icon: <ChevronLeft size={24} color="#000000" />,
+            onPress: () => router.push("/menu"),
           },
         };
       case "/loan/child/Request":
