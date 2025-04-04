@@ -1,6 +1,6 @@
 import React from "react";
 import { ScrollView, View, ActivityIndicator } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
 import { useEffect } from "react";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useHome } from "@/hooks/useHome";
@@ -13,13 +13,24 @@ import GlobalText from "@/components/GlobalText";
 export default function Home() {
   const router = useRouter();
   const { token, user } = useAuthStore();
-  const { isLoading, childData, parentData } = useHome();
+  const { isLoading, childData, parentData, refetchChild, refetchParent } =
+    useHome();
 
   useEffect(() => {
     if (!token) {
       router.replace("/auth");
     }
   }, [token]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      if (user?.role === "CHILD") {
+        refetchChild();
+      } else if (user?.role === "PARENT") {
+        refetchParent();
+      }
+    }, [user?.role])
+  );
 
   if (isLoading) {
     return (
@@ -90,7 +101,7 @@ export default function Home() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-[#F9FAFB] px-6">
+    <ScrollView className="flex-1 bg-[#F5F6F8] px-6">
       {renderContent()}
     </ScrollView>
   );

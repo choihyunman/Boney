@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { View, Pressable, ScrollView } from "react-native";
 import { router } from "expo-router";
-import { ChevronLeft, Banknote } from "lucide-react-native";
+import { Banknote } from "lucide-react-native";
 import TransferProgress from "./TransferProgress";
 import { useTransferStore } from "@/stores/useTransferStore";
 import BottomButton from "@/components/Button";
@@ -106,7 +106,7 @@ export default function SendMoneyAmount() {
             <View>
               <View className="flex-row items-center gap-2">
                 <GlobalText className="text-lg font-medium">
-                  {transferData.recipient.ownerName}
+                  {transferData.recipient.accountHolder}
                 </GlobalText>
                 <GlobalText className="text-sm text-gray-500">
                   {transferData.recipient.bankName}

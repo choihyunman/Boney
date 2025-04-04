@@ -29,6 +29,7 @@ interface HeaderConfig {
   backgroundColor: string;
   leftButton?: HeaderButton;
   rightButton?: HeaderButton;
+  headerShown?: boolean;
 }
 
 interface ToastProps {
@@ -66,7 +67,7 @@ function RootLayoutNav() {
     switch (pathname) {
       case "/home":
         return {
-          backgroundColor: "#F9FAFB",
+          backgroundColor: "#F5F6F8",
           leftButton: {
             icon: (
               <Image
@@ -75,7 +76,7 @@ function RootLayoutNav() {
                 resizeMode="contain"
               />
             ),
-            onPress: () => router.push("./home"),
+            onPress: () => router.push("/home"),
           },
           rightButton: {
             icon: (
@@ -92,7 +93,7 @@ function RootLayoutNav() {
       case "/auth/SignUp":
         return {
           title: "회원가입",
-          backgroundColor: "#F9FAFB",
+          backgroundColor: "#F5F6F8",
         };
       case "/transaction":
         return {
@@ -115,7 +116,7 @@ function RootLayoutNav() {
       case "/transfer":
         return {
           title: "계좌 선택",
-          backgroundColor: "F9FAFB",
+          backgroundColor: "#F5F6F8",
           leftButton: {
             icon: <ChevronLeft size={24} color="#000000" />,
             onPress: () => router.back(),
@@ -124,7 +125,7 @@ function RootLayoutNav() {
       case "/transfer/Account":
         return {
           title: "계좌 입력",
-          backgroundColor: "F9FAFB",
+          backgroundColor: "#F5F6F8",
           leftButton: {
             icon: <ChevronLeft size={24} color="#000000" />,
             onPress: () => router.back(),
@@ -133,7 +134,7 @@ function RootLayoutNav() {
       case "/transfer/Amount":
         return {
           title: "금액 입력",
-          backgroundColor: "F9FAFB",
+          backgroundColor: "#F5F6F8",
           leftButton: {
             icon: <ChevronLeft size={24} color="#000000" />,
             onPress: () => router.back(),
@@ -141,13 +142,22 @@ function RootLayoutNav() {
         };
       case "/transfer/Confirm":
         return {
-          backgroundColor: "F9FAFB",
+          backgroundColor: "#F5F6F8",
           leftButton: {
             icon: <ChevronLeft size={24} color="#000000" />,
             onPress: () => router.back(),
           },
         };
-      case "/loan/parent/ReqList":
+      case "/transfer/ConfirmPin":
+        return {
+          backgroundColor: "white",
+          leftButton: {
+            icon: <ChevronLeft size={24} color="#000000" />,
+            onPress: () => router.back(),
+          },
+          rightButton: undefined,
+        };
+      case "/loan/ReqListParent":
         return {
           backgroundColor: "white",
           leftButton: {
@@ -166,7 +176,7 @@ function RootLayoutNav() {
       case "/child":
         return {
           title: "아이 조회하기",
-          backgroundColor: "#F9FAFB",
+          backgroundColor: "#F5F6F8",
           leftButton: {
             icon: <ChevronLeft size={24} color="#000000" />,
             onPress: () => router.back(),
@@ -175,7 +185,7 @@ function RootLayoutNav() {
       case "/child/Register":
         return {
           title: "아이 등록하기",
-          backgroundColor: "F9FAFB",
+          backgroundColor: "F5F6F8",
           leftButton: {
             icon: <ChevronLeft size={24} color="#000000" />,
             onPress: () => router.back(),
@@ -211,7 +221,7 @@ function RootLayoutNav() {
       case "/loan/child/PromissoryNote":
         return {
           title: "대출 신청하기",
-          backgroundColor: "#F9FAFB",
+          backgroundColor: "#F5F6F8",
           leftButton: {
             icon: <ChevronLeft size={24} color="#000000" />,
             onPress: () => router.back(),
@@ -219,7 +229,7 @@ function RootLayoutNav() {
         };
       case "/menu":
         return {
-          backgroundColor: "#F9FAFB",
+          backgroundColor: "#F5F6F8",
           leftButton: {
             icon: (
               <Image
@@ -228,7 +238,7 @@ function RootLayoutNav() {
                 resizeMode="contain"
               />
             ),
-            onPress: () => {},
+            onPress: () => {router.push("/home")},
           },
           rightButton: {
             icon: (
@@ -245,7 +255,7 @@ function RootLayoutNav() {
       case "/mypage":
         return {
           title: "나의 정보",
-          backgroundColor: "#F9FAFB",
+          backgroundColor: "#F5F6F8",
           leftButton: {
             icon: <ChevronLeft size={24} color="#000000" />,
             onPress: () => router.back(),
@@ -263,7 +273,7 @@ function RootLayoutNav() {
       case "/report":
         return {
           title: "월간 리포트",
-          backgroundColor: "#F9FAFB",
+          backgroundColor: "#F5F6F8",
           leftButton: {
             icon: <ChevronLeft size={24} color="#000000" />,
             onPress: () => router.back(),
@@ -272,7 +282,7 @@ function RootLayoutNav() {
       case "/child/RegularAllowance":
         return {
           title: "정기 용돈 설정",
-          backgroundColor: "#F9FAFB",
+          backgroundColor: "#F5F6F8",
           leftButton: {
             icon: <ChevronLeft size={24} color="#000000" />,
             onPress: () => router.back(),
@@ -301,7 +311,7 @@ function RootLayoutNav() {
         };
       default:
         return {
-          backgroundColor: "#F9FAFB",
+          backgroundColor: "#F5F6F8",
         };
     }
   };
@@ -312,7 +322,7 @@ function RootLayoutNav() {
 
   // auth 페이지 중 SignUp 페이지에서만 헤더를 표시 + 메뉴에서 헤더 제거
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#F5F6F8" }}>
       <StatusBar style="auto" />
       {(!pathname.includes("auth") || pathname === "/auth/SignUp") && (
         <Header {...getHeaderConfig()} />
