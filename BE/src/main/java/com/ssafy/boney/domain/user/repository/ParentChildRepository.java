@@ -13,4 +13,6 @@ public interface ParentChildRepository extends JpaRepository<ParentChild, Intege
     boolean existsByParentAndChild(User parent, User child);
     List<ParentChild> findByParent(User parent);
     Optional<ParentChild> findByParentUserIdAndChildUserId(Integer parentUserId, Integer childUserId);
+    Optional<ParentChild> findByChild(User child);
+
 }

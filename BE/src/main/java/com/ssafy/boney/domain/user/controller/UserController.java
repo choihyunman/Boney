@@ -22,6 +22,9 @@ import java.util.Optional;
 public class UserController {
 
     @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
+    private String kakaoClientId;
+
+    @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
     private String clientId;
 
     @Value("${spring.security.oauth2.client.registration.kakao.client-secret}")
@@ -29,6 +32,9 @@ public class UserController {
 
     @Value("${spring.security.oauth2.client.registration.kakao.redirect-uri}")
     private String redirectUri;
+
+    @Value("${kakao.logout-redirect-uri}")
+    private String kakaoLogoutRedirectUri;
 
     private final String tokenUrl = "https://kauth.kakao.com/oauth/token";
 
@@ -242,7 +248,6 @@ public class UserController {
         }
 
         String jwt = token.substring(7);
-
         if (!jwtTokenProvider.validateToken(jwt)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of(
@@ -251,9 +256,15 @@ public class UserController {
                     ));
         }
 
+        // 로그아웃 처리 후 카카오 로그아웃 URL 생성
+        String kakaoLogoutUrl = "https://kauth.kakao.com/oauth/logout"
+                + "?client_id=" + kakaoClientId
+                + "&logout_redirect_uri=" + kakaoLogoutRedirectUri;
+
         return ResponseEntity.ok(Map.of(
                 "status", 200,
-                "message", "로그아웃이 완료됐습니다."
+                "message", "로그아웃이 완료됐습니다.",
+                "kakao_logout_url", kakaoLogoutUrl
         ));
     }
 
@@ -309,5 +320,13 @@ public class UserController {
         ));
     }
 
+    // 카카오 로그아웃 후 리디렉션되는 URI
+    @GetMapping("/logout/redirect")
+    public ResponseEntity<Map<String, Object>> kakaoLogoutRedirect() {
+        return ResponseEntity.ok(Map.of(
+                "status", 200,
+                "message", "카카오 로그아웃 리디렉션 완료"
+        ));
+    }
 
 }
