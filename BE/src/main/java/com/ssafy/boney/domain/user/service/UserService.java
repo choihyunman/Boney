@@ -7,6 +7,7 @@ import com.ssafy.boney.domain.loan.repository.LoanRepository;
 import com.ssafy.boney.domain.loan.repository.LoanSignatureRepository;
 import com.ssafy.boney.domain.notification.repository.NotificationRepository;
 import com.ssafy.boney.domain.quest.repository.QuestRepository;
+import com.ssafy.boney.domain.report.repository.MonthlyReportRepository;
 import com.ssafy.boney.domain.scheduledTransfer.repository.ScheduledTransferRepository;
 import com.ssafy.boney.domain.transaction.entity.Transaction;
 import com.ssafy.boney.domain.transaction.repository.FdsRepository;
@@ -63,6 +64,9 @@ public class UserService {
 
     @Autowired
     private final ParentChildRepository parentChildRepository;
+
+    @Autowired
+    private final MonthlyReportRepository monthlyReportRepository;
 
     public Optional<User> findByKakaoId(Long kakaoId) {
         return userRepository.findByKakaoId(kakaoId);
@@ -163,6 +167,7 @@ public class UserService {
             // 카카오 연결 끊기에 실패해도 로컬 DB 삭제는 계속 진행
             System.out.println("카카오 연결 끊기 실패: " + e.getMessage());
         }
+        monthlyReportRepository.deleteAllByChild(user);
         notificationRepository.deleteAllByUser(user);
         // 2. parent_child 기반으로 연관된 quest, scheduled_transfer 삭제
         List<ParentChild> relations = user.getParents();  // 자녀인 경우
