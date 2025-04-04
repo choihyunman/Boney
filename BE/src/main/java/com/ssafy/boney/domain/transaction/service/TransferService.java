@@ -10,7 +10,10 @@ import com.ssafy.boney.domain.transaction.entity.enums.TransactionType;
 import com.ssafy.boney.domain.transaction.exception.CustomException;
 import com.ssafy.boney.domain.transaction.exception.TransactionErrorCode;
 import com.ssafy.boney.domain.transaction.repository.*;
+import com.ssafy.boney.domain.user.entity.ParentChild;
 import com.ssafy.boney.domain.user.entity.User;
+import com.ssafy.boney.domain.user.entity.enums.Role;
+import com.ssafy.boney.domain.user.repository.ParentChildRepository;
 import com.ssafy.boney.domain.user.repository.UserRepository;
 import com.ssafy.boney.domain.account.service.BankingApiService;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +39,7 @@ public class TransferService {
     private final TransactionContentRepository transactionContentRepository;
     private final TransactionCategoryRepository transactionCategoryRepository;
     private final NotificationService notificationService;
+    private final ParentChildRepository parentChildRepository;
 
     // FastAPI 이상 탐지 호출용 Client
     private final FastApiClient fastApiClient;
@@ -129,24 +133,6 @@ public class TransferService {
         transferRecord = transferRepository.save(transferRecord);
 
 
-        // (FCM) 수신자에게 알림 전송
-        final Transaction transactionFinal = transactionEntity;
-        accountRepository.findByAccountNumber(request.getRecipientAccountNumber())
-                .ifPresentOrElse(recipientAccount -> {
-                    User recipientUser = recipientAccount.getUser();
-                    NotificationRequest notificationRequest = NotificationRequest.builder()
-                            .userId(recipientUser.getUserId())
-                            .notificationTypeId(1) // 예: 1번이 'TRANSFER_RECEIVED' 타입이라고 가정
-                            .message("송금이 완료되었습니다. 송금자: " + sender.getUserName())
-                            .referenceId(transactionFinal.getTransactionId())
-                            .build();
-                    notificationService.sendNotification(notificationRequest);
-                }, () -> {
-                    System.out.println("수신자 계좌 " + request.getRecipientAccountNumber() + "가 시스템에 등록되어 있지 않습니다.");
-                });
-
-
-
         // 10. FastAPI 이상 탐지 호출 (추가 Feature 포함)
         AnomalyRequestDto anomalyRequest = buildAnomalyRequest(transferRecord, transactionEntity, senderAccount, request);
         AnomalyResponseDto anomalyResponse = fastApiClient.detectAnomaly(anomalyRequest);
@@ -159,6 +145,26 @@ public class TransferService {
                     .fdsReason("이체 이상 거래 의심: 점수 " + anomalyResponse.getScore())
                     .build();
             fdsRepository.save(fdsRecord);
+
+
+            // (fcm) 이상거래 탐지 시 보호자에게 알림 전송
+            if (sender.getRole().equals(Role.CHILD)) {
+                final Transaction transactionFinal = transactionEntity;
+                // ParentChildRepository를 통해 자녀의 보호자 조회
+                Optional<ParentChild> parentChildOpt = parentChildRepository.findByChild(sender);
+                if (parentChildOpt.isPresent()) {
+                    User parent = parentChildOpt.get().getParent();
+                    NotificationRequest abnormalNotificationRequest = NotificationRequest.builder()
+                            .userId(parent.getUserId())
+                            .notificationTypeId(10) // 10번이 'ABNORMAL_TRANSACTION' 타입
+                            .message("아이 " + sender.getUserName() + "님의 계좌에서 이상 거래가 탐지되었습니다.")
+                            .referenceId(transactionFinal.getTransactionId())
+                            .build();
+                    notificationService.sendNotification(abnormalNotificationRequest);
+                } else {
+                    System.out.println("해당 자녀의 보호자 정보가 없습니다.");
+                }
+            }
         }
 
         TransferData data = new TransferData();
