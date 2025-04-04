@@ -17,19 +17,7 @@ interface Account {
   ownerName: string;
 }
 
-const bankList = [
-  { id: "boney", name: "버니은행" },
-  { id: "kb", name: "KB국민은행" },
-  { id: "shinhan", name: "신한은행" },
-  { id: "woori", name: "우리은행" },
-  { id: "hana", name: "하나은행" },
-  { id: "nh", name: "농협은행" },
-  { id: "ibk", name: "IBK기업은행" },
-  { id: "sc", name: "SC제일은행" },
-  { id: "keb", name: "KEB하나은행" },
-  { id: "kakao", name: "카카오뱅크" },
-  { id: "toss", name: "토스뱅크" },
-];
+const bankList = [{ id: "boney", name: "버니은행" }];
 
 export default function AccountForm() {
   const { setRecipient, saveTransferData, addSavedAccount, setAmount } =
