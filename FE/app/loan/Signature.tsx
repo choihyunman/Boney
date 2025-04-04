@@ -52,18 +52,18 @@ export default function Signature({
       if (finalIsParent && finalLoanId) {
         console.log("5. 부모 서명 처리 시작");
         // 부모 서명인 경우 API 호출
-        console.log("API 호출 데이터:", {
+        const requestData = {
           loan_id: finalLoanId,
           password: password,
           parent_signature: signatureImage!.split(",")[1],
+        };
+        console.log("API 요청 데이터:", {
+          ...requestData,
+          parent_signature:
+            requestData.parent_signature.substring(0, 20) + "...", // 서명 데이터가 너무 길어서 일부만 출력
         });
 
-        const response = await approveLoan({
-          loan_id: finalLoanId,
-          password: password,
-          parent_signature: signatureImage!.split(",")[1],
-        });
-
+        const response = await approveLoan(requestData);
         console.log("API 응답:", response);
 
         // 응답 데이터를 스토어에 저장
@@ -83,8 +83,14 @@ export default function Signature({
         setShowPinInput(false);
         router.push("/loan/child/ReqComplete");
       }
-    } catch (error) {
-      console.error("API 호출 중 오류:", error);
+    } catch (error: any) {
+      console.error("API 호출 중 오류:", {
+        error,
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.response?.message,
+        headers: error.response?.headers,
+      });
       Alert.alert("오류", "처리 중 오류가 발생했습니다.");
     }
   };

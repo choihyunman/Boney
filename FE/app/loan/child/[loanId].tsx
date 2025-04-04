@@ -1,5 +1,4 @@
 import { router, useLocalSearchParams } from "expo-router";
-import PromissoryNote from "../parent/PromissoryNote";
 import {
   ActivityIndicator,
   ScrollView,
@@ -12,16 +11,27 @@ import { useLoanDetailParentStore } from "@/stores/useLoanParentStore";
 import { useLoanDetailParent } from "@/hooks/useLoanDetailParent";
 import BottomButton from "@/components/Button";
 import { useLoanStateStore } from "@/stores/useLoanChildStore";
+import PromissoryNote from "../PromissoryNote";
 
 export default function LoanDetailChild() {
   const { loanId, color } = useLocalSearchParams<{
     loanId: string;
     color: string;
   }>();
-  const { data: loanDetail } = useLoanDetailParent(Number(loanId));
+  const { data: loanDetail, refetch } = useLoanDetailParent(Number(loanId));
   const [currentTime, setCurrentTime] = useState("");
   const { hydrated } = useLoanDetailParentStore((state) => state);
   const { setLoanInfo } = useLoanStateStore((state) => state);
+
+  // 3초마다 자동 새로고침
+  useEffect(() => {
+    const interval = setInterval(() => {
+      console.log("대출 상세 정보 자동 새로고침");
+      refetch();
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [refetch]);
 
   const repaymentDate = loanDetail?.due_date;
   const loanAmount = loanDetail?.loan_amount;
@@ -29,6 +39,8 @@ export default function LoanDetailChild() {
   const childName = loanDetail?.child_name;
   const parentName = loanDetail?.parent_name;
   const approvedAt = loanDetail?.approved_at;
+  const childSignature = loanDetail?.child_signature;
+  const parentSignature = loanDetail?.parent_signature;
 
   if (!hydrated) {
     return null;
@@ -107,6 +119,8 @@ export default function LoanDetailChild() {
           formattedToday={formatApprovedAt()}
           debtorName={childName ?? ""}
           creditorName={parentName ?? ""}
+          debtorSign={childSignature ?? ""}
+          creditorSign={parentSignature ?? ""}
           minHeight={200}
         />
 

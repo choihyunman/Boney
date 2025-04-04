@@ -34,6 +34,8 @@ export type LoanDetail = {
   last_amount: number;
   approved_at: string;
   due_date: string;
+  child_signature: string;
+  parent_signature: string;
 };
 
 interface ApproveLoanRequest {

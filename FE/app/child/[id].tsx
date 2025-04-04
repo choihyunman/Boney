@@ -1,40 +1,27 @@
 import React from "react";
 import { View, TouchableOpacity, Image } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
-import { useTransferStore } from "@/stores/useTransferStore";
 import GlobalText from "../../components/GlobalText";
-
-interface Child {
-  userId: number;
-  userName: string;
-  userBirth: string;
-  userGender: string;
-  userPhone: string;
-  score: number;
-  totalRemainingLoan: string;
-  createdAt: string;
-  bankName: string;
-  accountNumber: string;
-}
+import { useChildDetailStore } from "../../stores/useChildDetailStore";
+import { useTransferStore } from "../../stores/useTransferStore";
 
 export default function ChildDetail() {
   const { child } = useLocalSearchParams();
-  const childData: Child = JSON.parse(child as string);
+  const childData = JSON.parse(child as string);
   const { setRecipient } = useTransferStore();
 
   const handleAllowanceTransfer = () => {
-    // transferData 설정
     setRecipient({
-      id: childData.userId.toString(),
+      id: childData.childId.toString(),
       bankName: childData.bankName,
       accountNumber: childData.accountNumber,
-      ownerName: childData.userName,
+      ownerName: childData.childName,
     });
 
     router.push({
       pathname: "/transfer/Amount",
       params: {
-        userName: childData.userName,
+        userName: childData.childName,
         bankName: childData.bankName,
         accountNumber: childData.accountNumber,
       },
@@ -51,7 +38,7 @@ export default function ChildDetail() {
           />
 
           <GlobalText className="text-xl font-semibold text-black mb-3">
-            {childData.userName}
+            {childData.childName}
           </GlobalText>
 
           <View className="flex-row items-center mb-8">
@@ -60,7 +47,7 @@ export default function ChildDetail() {
                 신용 점수
               </GlobalText>
               <GlobalText className="text-sm text-[#666666]">
-                {childData.score}점
+                {childData.creditScore}점
               </GlobalText>
             </View>
 
@@ -71,7 +58,10 @@ export default function ChildDetail() {
                 대출금
               </GlobalText>
               <GlobalText className="text-sm text-[#666666]">
-                {childData.totalRemainingLoan}원
+                {childData.loanAmount
+                  ? childData.loanAmount.toLocaleString()
+                  : 0}
+                원
               </GlobalText>
             </View>
           </View>
@@ -92,7 +82,7 @@ export default function ChildDetail() {
                 router.push({
                   pathname: "/child/RegularAllowance",
                   params: {
-                    childName: childData.userName,
+                    childName: childData.childName,
                     profileImage: "../../assets/profile/profile.jpg",
                   },
                 })

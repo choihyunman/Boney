@@ -1,5 +1,5 @@
 import { useLocalSearchParams } from "expo-router";
-import PromissoryNote from "./PromissoryNote";
+import PromissoryNote from "../PromissoryNote";
 import { ScrollView, TouchableOpacity, View } from "react-native";
 import { useEffect, useState } from "react";
 import GlobalText from "@/components/GlobalText";
@@ -21,6 +21,8 @@ export default function LoanDetailParent() {
   const childName = loanDetail?.child_name;
   const parentName = loanDetail?.parent_name;
   const approvedAt = loanDetail?.approved_at;
+  const childSignature = loanDetail?.child_signature;
+  const parentSignature = loanDetail?.parent_signature;
 
   if (!hydrated) {
     return null;
@@ -99,6 +101,8 @@ export default function LoanDetailParent() {
           formattedToday={formatApprovedAt()}
           debtorName={childName ?? ""}
           creditorName={parentName ?? ""}
+          debtorSign={childSignature ?? ""}
+          creditorSign={parentSignature ?? ""}
           minHeight={200}
         />
 

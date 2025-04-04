@@ -4,11 +4,30 @@ import LoanSummary from "../LoanSummary";
 import LoanListSection from "../LoanListSection";
 import { useLoanListStore } from "@/stores/useLoanChildStore";
 import { useLoanListChildQuery } from "@/hooks/useLoanListChild";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
+import { useCallback } from "react";
 
 export default function LoanListChild() {
   const { data: queryData, error, refetch } = useLoanListChildQuery();
   const loanList = useLoanListStore((state) => state.loanList);
+
+  // 화면이 포커스될 때마다 데이터 새로고침
+  useFocusEffect(
+    useCallback(() => {
+      console.log("대출 목록 새로고침");
+      refetch();
+    }, [refetch])
+  );
+
+  // 3초마다 자동 새로고침
+  useEffect(() => {
+    const interval = setInterval(() => {
+      console.log("대출 목록 자동 새로고침");
+      refetch();
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [refetch]);
 
   // 에러 핸들링 useEffect
   useEffect(() => {

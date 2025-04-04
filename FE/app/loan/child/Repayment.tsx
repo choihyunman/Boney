@@ -2,9 +2,9 @@ import GlobalText from "@/components/GlobalText";
 import { router, useLocalSearchParams } from "expo-router";
 import { Pressable, ScrollView, View } from "react-native";
 import {
-  useLoanStateStore,
   useRepaymentResultStore,
   useRepaymentStateStore,
+  useLoanListStore,
 } from "@/stores/useLoanChildStore";
 import BottomButton from "@/components/Button";
 import { getBalance } from "@/apis/transferApi";
@@ -12,13 +12,17 @@ import { useEffect } from "react";
 import { useState } from "react";
 import { PinInput } from "@/components/PinInput";
 import { usePinStateStore } from "@/stores/usePinStore";
-import { repayLoan } from "@/apis/loanChildApi";
+import { repayLoan, getLoanList } from "@/apis/loanChildApi";
+import { getLoanDetail } from "@/apis/loanParentApi";
 
 export default function Repayment() {
   const { loanId } = useLocalSearchParams();
   console.log("loanId: ", loanId);
-  const { totalAmount, remainingAmount, remainingDays, remainingDaysColor } =
-    useLoanStateStore();
+  const [loanDetail, setLoanDetail] = useState<any>(null);
+  const [totalAmount, setTotalAmount] = useState<number>(0);
+  const [remainingAmount, setRemainingAmount] = useState<number>(0);
+  const [remainingDays, setRemainingDays] = useState<string>("");
+  const [remainingDaysColor, setRemainingDaysColor] = useState<string>("");
 
   const { repaymentAmount, setRepaymentAmount, reset } =
     useRepaymentStateStore();
@@ -29,10 +33,38 @@ export default function Repayment() {
   const { pin, setPin, reset: resetPin } = usePinStateStore();
   const { setRepaymentResult } = useRepaymentResultStore();
 
+  // 남은 일수 계산 + 색상 적용
+  const getDdayInfo = (dueDate: string) => {
+    if (!dueDate) return { text: "-", color: "text-black" };
+
+    const today = new Date();
+    const due = new Date(dueDate);
+
+    // 시/분/초 제거
+    today.setHours(0, 0, 0, 0);
+    due.setHours(0, 0, 0, 0);
+
+    const diff = due.getTime() - today.getTime();
+    const dayDiff = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+    if (dayDiff === 0) return { text: "D-Day", color: "text-[#4FC985]" };
+    if (dayDiff > 0) return { text: `D-${dayDiff}`, color: "text-[#4FC985]" };
+    return { text: `D+${Math.abs(dayDiff)}`, color: "text-[#D6456B]" };
+  };
+
   // 컴포넌트 마운트 시 저장된 데이터 로드 및 수신자 정보 확인
   useEffect(() => {
     const initializeData = async () => {
       try {
+        // 대출 상세 정보 조회
+        const loanDetailData = await getLoanDetail(Number(loanId));
+        setLoanDetail(loanDetailData);
+        setTotalAmount(loanDetailData.loan_amount);
+        setRemainingAmount(loanDetailData.last_amount);
+        const ddayInfo = getDdayInfo(loanDetailData.due_date);
+        setRemainingDays(ddayInfo.text);
+        setRemainingDaysColor(ddayInfo.color);
+
         // 잔액 조회
         const balanceData = await getBalance();
         console.log("balanceData: ", balanceData);
@@ -45,7 +77,7 @@ export default function Repayment() {
       reset();
     };
     initializeData();
-  }, []);
+  }, [loanId]);
 
   // 금액 입력 처리
   const handleAmountChange = (value: string) => {
@@ -86,6 +118,11 @@ export default function Repayment() {
           password
         );
         setRepaymentResult(res);
+
+        // 대출 목록 새로고침
+        const updatedLoanList = await getLoanList();
+        useLoanListStore.getState().setLoanList(updatedLoanList);
+
         router.replace("./RepaymentComplete");
       } catch (error) {
         console.error("대출 상환 실패:", error);
