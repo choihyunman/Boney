@@ -116,8 +116,10 @@ public class LoanService {
         // (FCM) 부모에게 대출 신청 알림 전송
         NotificationRequest notificationRequest = NotificationRequest.builder()
                 .userId(parent.getUserId())
-                .notificationTypeId(7)  // 7번이 'LOAN_APPLICATION' 타입이라고 가정
-                .message(child.getUserName() + "님이 대출을 신청했습니다.")
+                .notificationTypeId(7)  // 7번: 'LOAN_APPLICATION'
+                .notificationTitle("대출 요청")
+                .notificationContent(child.getUserName() + "님이 대출을 요청했어요")
+                .notificationAmount(loan.getLoanAmount())
                 .referenceId(loan.getLoanId())
                 .build();
         notificationService.sendNotification(notificationRequest);
@@ -739,14 +741,15 @@ public class LoanService {
             int currentScore = creditScore.getScore();
             int newScore = Math.min(currentScore + 10, 100); // 최대 100점 제한
             creditScore.updateScore(newScore);
-            creditScore.updateScore(10);
 
             // (FCM) 보호자에게 대출 상환 완료 알림 전송
             User parent = loan.getParentChild().getParent();
             NotificationRequest notificationRequest = NotificationRequest.builder()
                     .userId(parent.getUserId())
-                    .notificationTypeId(8)  // 8번이 'LOAN_REPAYMENT_COMPLETED' 타입이라고 가정
-                    .message(child.getUserName() + "님이 대출 상환을 완료했습니다.")
+                    .notificationTypeId(8)  // 8번: 'LOAN_REPAYMENT_COMPLETED'
+                    .notificationTitle("대출 상환 완료")
+                    .notificationContent(child.getUserName() + "님이 대출 상환을 완료했어요")
+                    .notificationAmount(loan.getLoanAmount())
                     .referenceId(loan.getLoanId())
                     .build();
             notificationService.sendNotification(notificationRequest);

@@ -10,4 +10,7 @@ import java.util.List;
 public interface LoanRepository extends JpaRepository<Loan, Integer> {
     List<Loan> findByParentChild(ParentChild parentChild);
     List<Loan> findByParentChild_Child(User child);
+
+    void deleteAllByParentChild(ParentChild parentChild);
+
 }
