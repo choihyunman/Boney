@@ -1,6 +1,7 @@
 package com.ssafy.boney.domain.transaction.repository;
 
 import com.ssafy.boney.domain.account.entity.Account;
+import com.ssafy.boney.domain.transaction.entity.Transaction;
 import com.ssafy.boney.domain.transaction.entity.Transfer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -17,7 +18,7 @@ public interface TransferRepository extends JpaRepository<Transfer, Integer> {
 
     // TransferRepository.java
     void deleteAllByAccount(Account account);
-
+    void deleteAllByTransaction(Transaction transaction);
 
 }
 
