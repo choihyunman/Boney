@@ -72,13 +72,15 @@ export const getFavoriteAccounts =
 
 export const addFavoriteAccount = async (
   bankName: string,
-  accountNumber: string
+  accountNumber: string,
+  accountHolder: string
 ): Promise<AddFavoriteAccountResponse> => {
   try {
     const token = useAuthStore.getState().token;
     const requestBody = {
       bankName,
       favoriteAccount: accountNumber,
+      accountHolder,
     };
 
     console.log("계좌 등록 요청 바디:", requestBody);

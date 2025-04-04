@@ -1,12 +1,6 @@
 // 비밀번호 입력 페이지
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  TouchableOpacity,
-  SafeAreaView,
-  Dimensions,
-  Animated,
-} from "react-native";
+import { View, TouchableOpacity, Dimensions, Animated } from "react-native";
 import { Lock, ArrowLeft } from "lucide-react-native";
 import GlobalText from "./GlobalText";
 
@@ -26,6 +20,7 @@ interface PinInputProps {
   subtitle: string;
   onForgotPasswordPress?: () => void;
   onPasswordComplete?: (password: string) => void;
+  onBackPress?: () => void;
 }
 
 export const PinInput = ({
@@ -33,6 +28,7 @@ export const PinInput = ({
   subtitle,
   onForgotPasswordPress,
   onPasswordComplete,
+  onBackPress,
 }: PinInputProps) => {
   const [password, setPassword] = useState<string[]>([]);
   const [animations] = useState(() =>
@@ -99,9 +95,9 @@ export const PinInput = ({
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <View className="flex-1 items-center pt-16">
-        <View className="w-16 h-16 bg-[#49DB8A1A] rounded-full justify-center items-center mb-4">
+    <View className="flex-1 bg-white">
+      <View className="flex-1 items-center">
+        <View className="w-16 h-16 bg-[#49DB8A1A] rounded-full justify-center items-center mt-16 mb-4">
           <View className="w-7 h-7">
             <Lock size={28} color="#4FC885" />
           </View>
@@ -137,13 +133,7 @@ export const PinInput = ({
         </View>
 
         <View className="w-[calc(100%-32px)] px-4">{renderNumPad()}</View>
-
-        <TouchableOpacity className="mt-6" onPress={onForgotPasswordPress}>
-          <GlobalText className="text-sm text-gray-600 underline">
-            비밀번호를 잊으셨나요?
-          </GlobalText>
-        </TouchableOpacity>
       </View>
-    </SafeAreaView>
+    </View>
   );
 };

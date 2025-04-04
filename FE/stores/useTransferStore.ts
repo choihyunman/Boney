@@ -6,7 +6,7 @@ interface Account {
   id: string;
   bankName: string;
   accountNumber: string;
-  ownerName: string;
+  accountHolder: string;
 }
 
 // 송금 데이터 타입 정의
