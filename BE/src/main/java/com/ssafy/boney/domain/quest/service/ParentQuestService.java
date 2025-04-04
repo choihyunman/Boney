@@ -69,7 +69,9 @@ public class ParentQuestService {
         NotificationRequest notificationRequest = NotificationRequest.builder()
                 .userId(child.getUserId())
                 .notificationTypeId(2) // QUEST_REGISTERED
-                .message("새로운 퀘스트가 등록되었습니다: " + quest.getQuestTitle())
+                .notificationTitle("새로운 퀘스트가 등록되었어요")
+                .notificationContent(parent.getUserName() + "님이 새로운 퀘스트를 등록했어요")
+                .notificationAmount(quest.getQuestReward())
                 .referenceId(quest.getQuestId())
                 .build();
         notificationService.sendNotification(notificationRequest);

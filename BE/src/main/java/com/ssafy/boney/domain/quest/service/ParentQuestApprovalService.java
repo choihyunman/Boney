@@ -108,7 +108,9 @@ public class ParentQuestApprovalService {
         NotificationRequest notificationRequest = NotificationRequest.builder()
                 .userId(child.getUserId())
                 .notificationTypeId(4) // QUEST_APPROVED
-                .message("퀘스트가 승인되었습니다: " + quest.getQuestTitle())
+                .notificationTitle("퀘스트 성공!")
+                .notificationContent(quest.getQuestTitle() + " 퀘스트를 성공적으로 완료했어요")
+                .notificationAmount(quest.getQuestReward())
                 .referenceId(quest.getQuestId())
                 .build();
         notificationService.sendNotification(notificationRequest);

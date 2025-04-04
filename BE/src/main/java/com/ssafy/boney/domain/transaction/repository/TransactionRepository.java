@@ -1,4 +1,5 @@
 package com.ssafy.boney.domain.transaction.repository;
+import com.ssafy.boney.domain.account.entity.Account;
 import com.ssafy.boney.domain.transaction.entity.Transaction;
 import com.ssafy.boney.domain.transaction.entity.enums.TransactionType;
 import com.ssafy.boney.domain.user.entity.User;
@@ -44,4 +45,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
     // 특정 시각 이후 해당 계좌의 거래 건수를 계산
     @Query("SELECT COUNT(t) FROM Transaction t WHERE t.account.accountNumber = :accountNumber AND t.createdAt >= :since")
     Integer countTransactionsSince(@Param("accountNumber") String accountNumber, @Param("since") LocalDateTime since);
+
+    List<Transaction> findByAccount(Account account);
+
 }
