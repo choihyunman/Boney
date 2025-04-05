@@ -15,6 +15,7 @@ public class ParentQuestDetailResponse {
     private Integer childId;
     private LocalDateTime endDate;
     private Long questReward;
+    private String questMessage;
     private String questStatus;
     private String questImgUrl;
 }

@@ -39,6 +39,7 @@ public class ParentQuestDetailService {
                 .childId(quest.getParentChild().getChild().getUserId())
                 .endDate(quest.getEndDate())
                 .questReward(quest.getQuestReward())
+                .questMessage(quest.getQuestMessage())
                 .questStatus(quest.getQuestStatus().name())
                 .questImgUrl(quest.getQuestImgUrl())  // 이미지가 없으면 null 또는 빈 문자열
                 .build();
