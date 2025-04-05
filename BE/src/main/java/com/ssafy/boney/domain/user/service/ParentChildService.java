@@ -146,12 +146,25 @@ public class ParentChildService {
                     .build();
         }
 
+        // 자녀의 계좌 정보 조회 (account 테이블에서 user_id를 통해)
+        Account childAccount = accountRepository.findByUser(child).orElse(null);
+        String childAccountNum = null;
+        Integer bankNum = null;
+        if (childAccount != null) {
+            childAccountNum = childAccount.getAccountNumber();
+            if (childAccount.getBank() != null) {
+                bankNum = childAccount.getBank().getBankId();
+            }
+        }
+
         return ChildrenDetailResponse.builder()
                 .childId(child.getUserId())
                 .childName(child.getUserName())
+                .childAccountNum(childAccountNum)
+                .bankNum(bankNum)
                 .creditScore(creditScore)
                 .loanAmount(totalLoanAmount)
-                .regularTransfer(regularTransfer)  // 정기 송금 내역이 없으면 null 또는 빈 객체를 할당할 수 있음
+                .regularTransfer(regularTransfer)
                 .build();
     }
 
