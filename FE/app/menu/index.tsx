@@ -197,12 +197,12 @@ export default function MenuScreen() {
           ),
           route: "/child",
         },
-        {
-          id: "children-allowance",
-          title: "정기 용돈",
-          icon: <Coins size={18} color={isDark ? "#E5E7EB" : "#374151"} />,
-          route: "/child/RegularAllowance",
-        },
+        // {
+        //   id: "children-allowance",
+        //   title: "정기 용돈",
+        //   icon: <Coins size={18} color={isDark ? "#E5E7EB" : "#374151"} />,
+        //   route: "/child/allowance",
+        // },
       ],
     },
     {

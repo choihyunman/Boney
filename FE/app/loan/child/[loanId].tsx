@@ -12,6 +12,7 @@ import { useLoanDetailParent } from "@/hooks/useLoanDetailParent";
 import BottomButton from "@/components/Button";
 import { useLoanStateStore } from "@/stores/useLoanChildStore";
 import PromissoryNote from "../PromissoryNote";
+import Signature from "../parent/Signature";
 
 export default function LoanDetailChild() {
   const { loanId, color } = useLocalSearchParams<{

@@ -17,9 +17,7 @@ interface Account {
   accountHolder: string;
 }
 
-const bankList = [
-  { id: "boney", name: "버니은행" },
-];
+const bankList = [{ id: "boney", name: "버니은행" }];
 
 export default function AccountForm() {
   const { setRecipient, saveTransferData, addSavedAccount, setAmount } =

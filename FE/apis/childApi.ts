@@ -64,14 +64,25 @@ export const deleteRegularAllowance = async (childId: number) => {
   }
 };
 
+export const verifyPassword = async (password: string) => {
+  try {
+    const response = await api.post("/account/password/verify", {
+      send_password: password,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("비밀번호 검증 실패:", error);
+    throw error;
+  }
+};
+
 export interface child {
-    parentChildId: number,
-    childId: number,
-    childName: string,
-    childGender: "MALE" | "FEMALE"
+  parentChildId: number;
+  childId: number;
+  childName: string;
+  childGender: "MALE" | "FEMALE";
 }
 
 export interface children {
-    children: child[];
+  children: child[];
 }
-

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import GlobalText from "@/components/GlobalText";
 import { useLoanDetailParentStore } from "@/stores/useLoanParentStore";
 import { useLoanDetailParent } from "@/hooks/useLoanDetailParent";
+import Signature from "./Signature";
 
 export default function LoanDetailParent() {
   const { loanId, color } = useLocalSearchParams<{

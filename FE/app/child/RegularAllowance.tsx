@@ -6,6 +6,7 @@ import {
   Modal,
   ScrollView,
   Image,
+  Alert,
 } from "react-native";
 import GlobalText from "../../components/GlobalText";
 import { Calendar, ChevronDown } from "lucide-react-native";
@@ -13,8 +14,11 @@ import { useLocalSearchParams, router } from "expo-router";
 import {
   createRegularAllowance,
   updateRegularAllowance,
+  deleteRegularAllowance,
+  verifyPassword,
 } from "../../apis/childApi";
 import { useChildDetailStore } from "../../stores/useChildDetailStore";
+import { PinInput } from "../../components/PinInput";
 
 const DAYS = [
   { id: 1, name: "월요일" },
@@ -43,65 +47,93 @@ export default function RegularAllowance() {
   const [isDayPickerVisible, setIsDayPickerVisible] = useState(false);
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPinInput, setShowPinInput] = useState(false);
+  const [actionType, setActionType] = useState<"save" | "cancel">("save");
 
-  const handleSubmit = async () => {
+  const handlePinComplete = async (password: string) => {
     try {
-      if (!childDetail?.childId) return;
+      const response = await verifyPassword(password);
+      if (response.data.isMatched) {
+        if (actionType === "save") {
+          await handleSaveAction();
+        } else {
+          await handleCancelAction();
+        }
+      } else {
+        Alert.alert("오류", "비밀번호가 일치하지 않습니다.");
+      }
+    } catch (error) {
+      console.error("비밀번호 검증 실패:", error);
+      Alert.alert("오류", "비밀번호 검증에 실패했습니다.");
+    }
+    setShowPinInput(false);
+  };
 
+  const handleSaveAction = async () => {
+    if (!childDetail?.childId) return;
+
+    try {
       setLoading(true);
       const data = {
-        scheduledAmount: parseInt(amount),
+        scheduledAmount: Number(amount),
         scheduledFrequency: isWeekly
           ? ("weekly" as const)
           : ("monthly" as const),
-        startDate: isWeekly ? selectedDay.id : selectedDate.id,
+        startDate: selectedDay.id,
       };
 
-      console.log("API 요청 데이터:", {
-        url: `/allowance/schedule/${childDetail.childId}`,
-        method: childDetail?.regularTransfer ? "PUT" : "POST",
-        data,
-        childDetail,
-      });
-
-      let response;
-      if (childDetail?.regularTransfer) {
-        response = await updateRegularAllowance(childDetail.childId, data);
+      if (childDetail.regularTransfer === null) {
+        await createRegularAllowance(childDetail.childId, data);
+        Alert.alert("알림", "정기 용돈이 설정되었습니다.");
       } else {
-        response = await createRegularAllowance(childDetail.childId, data);
+        await updateRegularAllowance(childDetail.childId, data);
+        Alert.alert("알림", "정기 용돈 설정이 수정되었습니다.");
       }
-
-      console.log("API 응답:", response);
-      router.back();
-    } catch (error: any) {
-      console.error("정기 용돈 설정 실패:", {
-        error,
-        response: error.response?.data,
-        status: error.response?.status,
-      });
+      router.replace("/child");
+    } catch (error) {
+      console.error("정기 용돈 설정 실패:", error);
+      Alert.alert("오류", "정기 용돈 설정에 실패했습니다.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleCancel = async () => {
+  const handleCancelAction = async () => {
     try {
       if (!childDetail?.childId) return;
 
       setLoading(true);
-      await updateRegularAllowance(childDetail.childId, {
-        scheduledAmount: 0,
-        scheduledFrequency: "weekly",
-        startDate: 1,
-      });
-
-      router.back();
+      await deleteRegularAllowance(childDetail.childId);
+      Alert.alert("알림", "정기 용돈이 해지되었습니다.");
+      router.replace("/child");
     } catch (error) {
       console.error("정기 용돈 해지 실패:", error);
+      Alert.alert("오류", "정기 용돈 해지에 실패했습니다.");
     } finally {
       setLoading(false);
     }
   };
+
+  const handleSave = () => {
+    setActionType("save");
+    setShowPinInput(true);
+  };
+
+  const handleCancel = () => {
+    setActionType("cancel");
+    setShowPinInput(true);
+  };
+
+  if (showPinInput) {
+    return (
+      <PinInput
+        title="비밀번호를 입력해주세요"
+        subtitle="정기 용돈 설정을 위해 비밀번호가 필요합니다"
+        onPasswordComplete={handlePinComplete}
+        onBackPress={() => setShowPinInput(false)}
+      />
+    );
+  }
 
   return (
     <View className="flex-1 bg-gray-50 px-4 py-3">
@@ -206,7 +238,7 @@ export default function RegularAllowance() {
         <View>
           <TouchableOpacity
             className="h-10 bg-[#4FC985] rounded-lg items-center justify-center"
-            onPress={handleSubmit}
+            onPress={handleSave}
             disabled={loading || !amount}
           >
             <GlobalText className="text-sm text-white">
