@@ -200,33 +200,20 @@ export default function Signature({
           />
         </View>
 
-        {signatureImage && (
-          <View className="mb-4 p-2 border border-gray-200 rounded-lg">
-            <GlobalText className="text-gray-600 mb-2">
-              서명 미리보기
-            </GlobalText>
-            <Image
-              source={{ uri: signatureImage }}
-              style={{ width: "100%", height: 100, backgroundColor: "white" }}
-              resizeMode="contain"
-            />
-          </View>
-        )}
-
-        <View className="flex-row justify-between px-4">
+        <View className="flex-row justify-between gap-4">
           <TouchableOpacity
+            className="flex-1 bg-gray-100 py-3 rounded-lg"
             onPress={handleClear}
-            className="bg-gray-100 px-6 py-3 rounded-lg"
           >
-            <GlobalText className="text-gray-700 font-medium">
+            <GlobalText className="text-center text-gray-600">
               다시 작성
             </GlobalText>
           </TouchableOpacity>
           <TouchableOpacity
+            className="flex-1 bg-[#4FC985] py-3 rounded-lg"
             onPress={handleSubmit}
-            className="bg-[#4FC985] px-6 py-3 rounded-lg"
           >
-            <GlobalText className="text-white font-medium">
+            <GlobalText className="text-center text-white">
               서명 완료
             </GlobalText>
           </TouchableOpacity>

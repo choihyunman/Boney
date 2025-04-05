@@ -63,7 +63,7 @@ export default function PromissoryNote({
   const handleSign = () => {
     // 서명 화면으로 이동
     router.push({
-      pathname: "/loan/Signature",
+      pathname: "/loan/parent/Signature",
       params: {
         isParent: "true",
         loanId: promissoryNoteData?.loanId,

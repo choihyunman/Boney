@@ -8,23 +8,25 @@ import { useTransferStore } from "../../stores/useTransferStore";
 export default function ChildDetail() {
   const { child } = useLocalSearchParams();
   const childData = JSON.parse(child as string);
-  const { setRecipient } = useTransferStore();
+  const { setRecipient, saveTransferData } = useTransferStore();
+
+  console.log("전체 childData:", childData);
 
   const handleAllowanceTransfer = () => {
+    console.log("전체 childData:", childData);
+    console.log("계좌번호:", childData.childAccountNum);
+
     setRecipient({
       id: childData.childId.toString(),
-      bankName: childData.bankName,
-      accountNumber: childData.accountNumber,
-      ownerName: childData.childName,
+      bankName: "버니은행",
+      accountNumber: childData.childAccountNum,
+      accountHolder: childData.childName,
     });
+
+    saveTransferData();
 
     router.push({
       pathname: "/transfer/Amount",
-      params: {
-        userName: childData.childName,
-        bankName: childData.bankName,
-        accountNumber: childData.accountNumber,
-      },
     });
   };
 
@@ -37,16 +39,16 @@ export default function ChildDetail() {
             className="w-20 h-20 rounded-full mb-[18px]"
           />
 
-          <GlobalText className="text-xl font-semibold text-black mb-3">
+          <GlobalText className="text-xl text-black mb-3">
             {childData.childName}
           </GlobalText>
 
-          <View className="flex-row items-center mb-8">
+          <View className="flex-row items-center mb-2">
             <View className="flex-row items-center">
               <GlobalText className="text-sm text-[#666666] mr-1">
                 신용 점수
               </GlobalText>
-              <GlobalText className="text-sm text-[#666666]">
+              <GlobalText weight="bold" className="text-sm text-[#666666]">
                 {childData.creditScore}점
               </GlobalText>
             </View>
@@ -57,7 +59,10 @@ export default function ChildDetail() {
               <GlobalText className="text-sm text-[#666666] mr-1">
                 대출금
               </GlobalText>
-              <GlobalText className="text-sm text-[#666666]">
+              <GlobalText
+                weight="bold"
+                className="text-sm text-[#666666] font-semibold"
+              >
                 {childData.loanAmount
                   ? childData.loanAmount.toLocaleString()
                   : 0}
@@ -65,6 +70,30 @@ export default function ChildDetail() {
               </GlobalText>
             </View>
           </View>
+
+          {childData.regularTransfer && (
+            <View className="items-center mb-8">
+              <GlobalText className="text-sm text-[#666666]">
+                정기용돈{" "}
+                {childData.regularTransfer.scheduledFrequency === "weekly"
+                  ? "매주"
+                  : "매월"}{" "}
+                <GlobalText weight="bold" className="text-sm text-[#666666]">
+                  {childData.regularTransfer.scheduledFrequency === "weekly"
+                    ? ["월", "화", "수", "목", "금", "토", "일"][
+                        childData.regularTransfer.startDate - 1
+                      ]
+                    : childData.regularTransfer.startDate}
+                  {childData.regularTransfer.scheduledFrequency === "weekly"
+                    ? "요일"
+                    : "일"}
+                </GlobalText>{" "}
+                <GlobalText weight="bold" className="text-sm text-[#666666]">
+                  {childData.regularTransfer.scheduledAmount.toLocaleString()}원
+                </GlobalText>
+              </GlobalText>
+            </View>
+          )}
 
           <View className="w-full gap-3">
             <TouchableOpacity
