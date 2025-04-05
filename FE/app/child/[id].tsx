@@ -4,6 +4,7 @@ import { useLocalSearchParams, router } from "expo-router";
 import GlobalText from "../../components/GlobalText";
 import { useChildDetailStore } from "../../stores/useChildDetailStore";
 import { useTransferStore } from "../../stores/useTransferStore";
+import { getBankName } from "../../constants/bank";
 
 export default function ChildDetail() {
   const { child } = useLocalSearchParams();
@@ -18,7 +19,7 @@ export default function ChildDetail() {
 
     setRecipient({
       id: childData.childId.toString(),
-      bankName: "버니은행",
+      bankName: getBankName(childData.bankNum),
       accountNumber: childData.childAccountNum,
       accountHolder: childData.childName,
     });
