@@ -67,12 +67,12 @@ function RootLayoutNav() {
   // 알림 모니터링 함수
   const fetchNotifications = async () => {
     try {
-      console.log("🔔 알림 목록 조회 시작");
+      // console.log("🔔 알림 목록 조회 시작");
       const response = await notificationApi.getNotifications();
-      console.log("✅ 알림 목록 조회 성공:", {
-        totalCount: response.data.length,
-        unreadCount: response.data.filter((n) => !n.readStatus).length,
-      });
+      // console.log("✅ 알림 목록 조회 성공:", {
+      //   totalCount: response.data.length,
+      //   unreadCount: response.data.filter((n) => !n.readStatus).length,
+      // });
 
       // 읽지 않은 알림 개수 업데이트
       const unreadCount = response.data.filter((n) => !n.readStatus).length;

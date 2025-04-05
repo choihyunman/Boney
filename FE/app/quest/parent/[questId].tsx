@@ -33,19 +33,6 @@ export default function QuestDetailPage() {
     }월 ${date.getDate()}일`;
   };
 
-  const calculateDday = (dueDateStr: string) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const dueDate = new Date(dueDateStr);
-    dueDate.setHours(0, 0, 0, 0);
-    const diffTime = dueDate.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays < 0) return `D+${Math.abs(diffDays)}`;
-    if (diffDays === 0) return "D-Day";
-    return `D-${diffDays}`;
-  };
-
   const handleApproveQuest = async (password: string) => {
     try {
       if (!questId) {

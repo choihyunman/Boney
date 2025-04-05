@@ -1,27 +1,24 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import {
-  Home,
-  BookOpen,
-  Users,
-  Heart,
-  Camera,
-  X,
-  View,
-} from "lucide-react-native";
 import QuestDetailCard from "../QuestDetailCard";
 import { useCustomQuery } from "@/hooks/useCustomQuery";
 import { completeQuest, getQuestDetail } from "@/apis/questApi";
 import { getQuestIcon } from "@/utils/getQuestIcon";
 import { useQuestCompleteStore } from "@/stores/useQuestStore";
+import * as ImagePicker from "expo-image-picker";
+import { Linking } from "react-native";
+import PopupModal from "@/components/PopupModal";
+import { SelectedImage } from "@/apis/questApi";
 
 export default function QuestDetailPage() {
   const params = useLocalSearchParams();
   const questId = params.questId as string;
-  console.log("questId", questId);
   const router = useRouter();
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const [selectedImage, setSelectedImage] = useState<SelectedImage | null>(
+    null
+  );
 
   const { data, isLoading } = useCustomQuery({
     queryKey: ["quest", questId],
@@ -40,29 +37,46 @@ export default function QuestDetailPage() {
     }월 ${date.getDate()}일`;
   };
 
-  const calculateDday = (dueDateStr: string) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const dueDate = new Date(dueDateStr);
-    dueDate.setHours(0, 0, 0, 0);
-    const diffTime = dueDate.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  const now = new Date();
+  const formattedDate = `${now.getFullYear()}${(now.getMonth() + 1)
+    .toString()
+    .padStart(2, "0")}${now.getDate().toString().padStart(2, "0")}`;
 
-    if (diffDays < 0) return `D+${Math.abs(diffDays)}`;
-    if (diffDays === 0) return "D-Day";
-    return `D-${diffDays}`;
-  };
+  const fileName = `quest_${questId}_${formattedDate}.jpg`;
 
   const handleImageSelect = async () => {
-    // Expo ImagePicker 등으로 이미지 선택 구현 예정
+    // 카메라 권한 확인
+    // 권한이 없으면 권한 요청 -> 거부 시 다시 요청 가능
+    // 거부 + 다시 묻지 않기 클릭 시 설정으로 보내야 함
+    // 권한이 있으면 카메라 실행
+    const { status } = await ImagePicker.getCameraPermissionsAsync();
+
+    if (status !== "granted") {
+      const permission = await ImagePicker.requestCameraPermissionsAsync();
+      if (permission.status !== "granted") {
+        setModalVisible(true);
+        return;
+      }
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: "images",
+      allowsEditing: true,
+      quality: 0.7,
+    });
+
+    if (!result.canceled) {
+      const imageUri = result.assets[0].uri;
+      setSelectedImage({
+        uri: imageUri,
+        name: fileName,
+        type: "image/jpeg",
+      });
+    }
   };
 
   const handleRemoveImage = () => {
     setSelectedImage(null);
-  };
-
-  const handleCameraClick = () => {
-    handleImageSelect();
   };
 
   const handleCompleteQuest = async () => {
@@ -102,8 +116,24 @@ export default function QuestDetailPage() {
               ? [{ text: "퀘스트 완료하기", onPress: handleCompleteQuest }]
               : undefined
           }
+          editableImage={true}
+          imageUri={selectedImage?.uri ?? null}
+          onImageSelect={handleImageSelect}
+          onRemoveImage={handleRemoveImage}
         />
       )}
+      <PopupModal
+        visible={modalVisible}
+        title="카메라 권한이 필요합니다"
+        content="설정 화면으로 이동하시겠습니까?"
+        confirmText="설정으로 이동"
+        cancelText="취소"
+        onClose={() => setModalVisible(false)}
+        onConfirm={() => {
+          setModalVisible(false);
+          Linking.openSettings();
+        }}
+      />
     </>
   );
 }
