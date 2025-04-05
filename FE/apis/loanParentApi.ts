@@ -57,6 +57,15 @@ export interface ApproveLoanResponse {
   };
 }
 
+export interface LoanHistoryResponse {
+  loan_completed_list: {
+    child_name: string;
+    loan_id: number;
+    loan_amount: number;
+    repaid_at: string;
+  }[];
+}
+
 export const getReqList = async (): Promise<ReqItem[]> => {
   try {
     console.log("✨ 보호자 대출 요청 목록 조회 시작");
@@ -137,6 +146,17 @@ export const getLoanDetail = async (loanId: number): Promise<LoanDetail> => {
   } catch (error: any) {
     const message =
       error.response?.data?.message ?? "❌ 보호자 대출 상세 조회 실패";
+    throw new Error(message);
+  }
+};
+
+export const getLoanHistory = async (): Promise<LoanHistoryResponse> => {
+  try {
+    const res = await api.get("/loan/parent/repaid");
+    return res.data.data.loan_completed_list;
+  } catch (error: any) {
+    const message =
+      error.response?.data?.message ?? "❌ 보호자 대출 내역 조회 실패";
     throw new Error(message);
   }
 };

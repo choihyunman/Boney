@@ -5,7 +5,7 @@ import { router } from "expo-router";
 import GlobalText from "../../../components/GlobalText";
 import { getQuestListChild } from "@/apis/questApi";
 import { useCustomQuery } from "@/hooks/useCustomQuery";
-import { getquestIcon } from "@/utils/questUtils";
+import { getQuestIcon } from "@/utils/getQuestIcon";
 
 export default function ChildQuestListPage() {
   const { data, isLoading } = useCustomQuery({
@@ -113,7 +113,12 @@ export default function ChildQuestListPage() {
             {sortedQuests.map((quest) => (
               <TouchableOpacity
                 key={quest.questId}
-                // onPress={() => router.push(`/quest-detail/${quest.id}`)}
+                onPress={() => {
+                  router.push({
+                    pathname: "/quest/child/[questId]" as any,
+                    params: { questId: quest.questId.toString() },
+                  });
+                }}
               >
                 <View
                   className={`${
@@ -164,17 +169,12 @@ export default function ChildQuestListPage() {
                   <View className="items-center">
                     <View className="h-16 w-16 rounded-full bg-[#e6f7ef] items-center justify-center mb-3">
                       {(() => {
-                        const { Icon, backgroundColor, iconColor } =
-                          getquestIcon(quest.questCategory);
-                        const IconComponent = Icon as React.FC<{
-                          size?: number;
-                          color?: string;
-                        }>;
+                        const IconElement = getQuestIcon(quest.questTitle);
                         return (
                           <View
-                            className={`h-12 w-12 rounded-full items-center justify-center ${backgroundColor}`}
+                            className={`h-12 w-12 rounded-full items-center justify-center`}
                           >
-                            <IconComponent size={24} color={iconColor} />
+                            {IconElement}
                           </View>
                         );
                       })()}

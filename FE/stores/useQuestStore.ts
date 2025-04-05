@@ -77,3 +77,53 @@ export const useQuestCreateResponseStore = create<QuestCreateResponse>(
     ) => set(data),
   })
 );
+
+export interface QuestCompleteState {
+  categoryName: string;
+  categoryTitle: string;
+  amount: number;
+  finishDate: string;
+  setCategoryName: (name: string) => void;
+  setCategoryTitle: (title: string) => void;
+  setAmount: (amount: number) => void;
+  setFinishDate: (date: string) => void;
+  reset: () => void;
+}
+
+export interface QuestApprovalState {
+  questTitle: string;
+  childName: string;
+  approvalDate: string;
+  amount: number;
+  setQuestTitle: (title: string) => void;
+  setChildName: (name: string) => void;
+  setApprovalDate: (date: string) => void;
+  setAmount: (amount: number) => void;
+  reset: () => void;
+}
+
+export const useQuestCompleteStore = create<QuestCompleteState>((set) => ({
+  categoryName: "",
+  categoryTitle: "",
+  amount: 0,
+  finishDate: "",
+  setCategoryName: (name: string) => set({ categoryName: name }),
+  setCategoryTitle: (title: string) => set({ categoryTitle: title }),
+  setAmount: (amount: number) => set({ amount: amount }),
+  setFinishDate: (date: string) => set({ finishDate: date }),
+  reset: () =>
+    set({ categoryName: "", categoryTitle: "", amount: 0, finishDate: "" }),
+}));
+
+export const useQuestApprovalStore = create<QuestApprovalState>((set) => ({
+  questTitle: "",
+  childName: "",
+  approvalDate: "",
+  amount: 0,
+  setQuestTitle: (title: string) => set({ questTitle: title }),
+  setChildName: (name: string) => set({ childName: name }),
+  setApprovalDate: (date: string) => set({ approvalDate: date }),
+  setAmount: (amount: number) => set({ amount: amount }),
+  reset: () =>
+    set({ questTitle: "", childName: "", approvalDate: "", amount: 0 }),
+}));

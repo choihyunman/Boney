@@ -8,7 +8,7 @@ import CustomTextArea from "@/components/CustomTextInput";
 import {
   useQuestCreateResponseStore,
   useQuestCreateStore,
-} from "@/stores/quests/useQuestCreateStore";
+} from "@/stores/useQuestStore";
 import { createQuest } from "@/apis/questApi";
 import { getQuestIcon } from "@/utils/getQuestIcon";
 

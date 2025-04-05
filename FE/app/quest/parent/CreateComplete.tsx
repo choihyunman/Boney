@@ -1,6 +1,6 @@
 import Complete from "@/components/Complete";
 import { router } from "expo-router";
-import { useQuestCreateResponseStore } from "@/stores/quests/useQuestCreateStore";
+import { useQuestCreateResponseStore } from "@/stores/useQuestStore";
 import GlobalText from "@/components/GlobalText";
 import { View } from "react-native";
 import { getQuestIcon } from "@/utils/getQuestIcon";
@@ -17,7 +17,7 @@ export default function CreateComplete() {
   return (
     <Complete
       onConfirm={() => {
-        router.replace("/quest/parent/list");
+        router.replace("/quest/parent/List");
       }}
       title="퀘스트가 등록되었습니다"
       description={`${childName}님에게 퀘스트를 전달했어요`}

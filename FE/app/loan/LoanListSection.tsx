@@ -18,6 +18,8 @@ export default function LoanListSection({
   const colorPalette = ["#6366F1", "#F59E0B", "#4FC985"];
 
   const calculateDday = (dueDateStr: string) => {
+    if (!dueDateStr) return "날짜 미정";
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const dueDate = new Date(dueDateStr);
@@ -68,7 +70,10 @@ export default function LoanListSection({
                     </GlobalText>
                   </View>
                   <GlobalText className="text-xs text-gray-400 mb-1">
-                    {loan.due_date.replace(/-/g, ".")}까지
+                    {loan.due_date
+                      ? loan.due_date.replace(/-/g, ".")
+                      : "날짜 미정"}
+                    까지
                   </GlobalText>
                 </View>
 

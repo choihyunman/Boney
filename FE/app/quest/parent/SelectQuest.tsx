@@ -4,7 +4,7 @@ import { router } from "expo-router";
 import GlobalText from "@/components/GlobalText";
 import { getQuestIcon } from "@/utils/getQuestIcon";
 import CustomQuestModal from "./CustomQuestModal";
-import { useQuestCreateStore } from "@/stores/quests/useQuestCreateStore";
+import { useQuestCreateStore } from "@/stores/useQuestStore";
 import { categories } from "@/utils/questCategoryUtils";
 import { quests } from "@/utils/quests";
 

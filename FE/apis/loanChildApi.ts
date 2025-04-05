@@ -61,6 +61,14 @@ export type LoanValidationResponse = {
   credit_score: number;
 };
 
+export type LoanHistoryResponse = {
+  loan_completed_list: {
+    loan_id: number;
+    loan_amount: number;
+    repaid_at: string;
+  }[];
+};
+
 export const createLoan = async (
   payload: CreateLoanRequest
 ): Promise<CreateLoanResponse> => {
@@ -149,6 +157,18 @@ export const getLoanValidation = async (): Promise<LoanValidationResponse> => {
     const message =
       error.response?.data?.message ??
       "❌ 대출 상환 검증 중 알 수 없는 오류입니다.";
+    throw new Error(message);
+  }
+};
+
+export const getLoanHistory = async (): Promise<LoanHistoryResponse[]> => {
+  try {
+    const res = await api.get("/loan/child/repaid");
+    return res.data.data.loan_completed_list;
+  } catch (error: any) {
+    const message =
+      error.response?.data?.message ??
+      "❌ 대출 내역 조회 중 알 수 없는 오류입니다.";
     throw new Error(message);
   }
 };

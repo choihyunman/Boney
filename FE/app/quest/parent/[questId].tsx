@@ -1,51 +1,30 @@
 import React, { useState, useRef } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Home, BookOpen, Users, Heart, Camera, X } from "lucide-react-native";
 import QuestDetailCard from "../QuestDetailCard";
-
-type Quest = {
-  id: string;
-  title: string;
-  category: string;
-  categoryIcon: React.ReactNode;
-  reward: number;
-  dueDate: string;
-  isCompleted: boolean;
-  completedDate?: string;
-  photoUrl?: string;
-};
+import { useCustomQuery } from "@/hooks/useCustomQuery";
+import { approvalQuest, getQuestDetail, redoQuest } from "@/apis/questApi";
+import { getQuestIcon } from "@/utils/getQuestIcon";
+import { PinInput } from "@/components/PinInput";
+import { Modal } from "react-native";
+import PopupModal from "@/components/PopupModal";
 
 export default function QuestDetailPage() {
   const params = useLocalSearchParams();
-  const questId = params.id as string;
+  const questId = params.questId as string;
+  console.log("퀘스트 상세 페이지 진입", questId);
   const router = useRouter();
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const fileInputRef = useRef(null);
+  const [isPinModalVisible, setIsPinModalVisible] = useState(false);
+  const [isRedoModalVisible, setIsRedoModalVisible] = useState(false);
 
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case "집안일":
-        return <Home size={32} color="#4FC985" />;
-      case "학습":
-        return <BookOpen size={32} color="#4FC985" />;
-      case "우리 가족":
-        return <Users size={32} color="#4FC985" />;
-      case "생활습관":
-        return <Heart size={32} color="#4FC985" />;
-      default:
-        return <Home size={32} color="#4FC985" />;
-    }
-  };
+  const { data, isLoading } = useCustomQuery({
+    queryKey: ["quest", questId],
+    queryFn: () => getQuestDetail(Number(questId), true),
+    staleTime: 1000 * 60 * 3,
+    refetchInterval: 1000 * 60 * 3,
+  });
 
-  const quest: Quest = {
-    id: questId,
-    title: "설거지 하기",
-    category: "집안일",
-    categoryIcon: getCategoryIcon("집안일"),
-    reward: 5000,
-    dueDate: "2025-03-20",
-    isCompleted: false,
-  };
+  const quest = data;
+  console.log(quest);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -67,46 +46,92 @@ export default function QuestDetailPage() {
     return `D-${diffDays}`;
   };
 
-  const handleImageSelect = async () => {
-    // Expo ImagePicker 등으로 이미지 선택 구현 예정
+  const handleApproveQuest = async (password: string) => {
+    try {
+      if (!questId) {
+        console.error("유효하지 않은 questId");
+        return;
+      }
+      console.log("퀘스트 완료:", questId);
+      await approvalQuest(Number(questId), password);
+      setIsPinModalVisible(false);
+      router.replace("/quest/parent/Approval");
+    } catch (error) {
+      console.error("퀘스트 승인 중 오류 발생:", error);
+      // 여기에 에러 처리 로직 추가 가능
+    }
   };
 
-  const handleRemoveImage = () => {
-    setSelectedImage(null);
-  };
-
-  const handleCameraClick = () => {
-    handleImageSelect();
-  };
-
-  const handleCompleteQuest = () => {
-    console.log("퀘스트 완료:", questId);
-    // router.back();
+  const handleRedoQuest = async () => {
+    console.log("퀘스트 다시 하기:", questId);
+    await redoQuest(Number(questId));
+    setIsRedoModalVisible(false);
+    router.back();
   };
 
   return (
-    <QuestDetailCard
-      title="설거지 하기"
-      category="집안일"
-      dueDate="2025-04-10"
-      icon={<Home size={32} color="#4FC985" />}
-      details={[
-        { label: "마감일", value: formatDate("2025-04-10") },
-        { label: "보상 금액", value: "5,000원", color: "text-[#4FC985]" },
-      ]}
-      extraNote={
-        !quest.isCompleted
-          ? "아이가 아직 퀘스트를 수행 중이에요.\n승인되면 알림을 보내드릴게요."
-          : undefined
-      }
-      buttons={
-        quest.isCompleted
-          ? [
-              { text: "다시 하기", onPress: handleCompleteQuest },
-              { text: "퀘스트 완료 승인하기", onPress: handleCompleteQuest },
-            ]
-          : undefined
-      }
-    ></QuestDetailCard>
+    <>
+      {quest && (
+        <>
+          <QuestDetailCard
+            title={quest.questTitle}
+            category={quest.questCategory}
+            dueDate={quest.endDate}
+            icon={getQuestIcon(quest.questTitle)}
+            details={[
+              { label: "아이 이름", value: quest.childName },
+              { label: "마감일", value: formatDate(quest.endDate) },
+              {
+                label: "보상 금액",
+                value: quest.questReward.toLocaleString() + "원",
+              },
+              { label: "전달 메시지", value: quest.questMessage },
+            ]}
+            imageUri={quest.questImgUrl}
+            extraNote={
+              !(quest.questStatus === "WAITING_REWARD")
+                ? "아이가 아직 퀘스트를 수행 중이에요.\n완료되면 알림을 보내드릴게요."
+                : undefined
+            }
+            buttons={
+              quest.questStatus === "WAITING_REWARD"
+                ? [
+                    {
+                      text: "다시 하기",
+                      onPress: () => setIsRedoModalVisible(true),
+                    },
+                    {
+                      text: "퀘스트 완료 승인하기",
+                      onPress: () => setIsPinModalVisible(true),
+                    },
+                  ]
+                : undefined
+            }
+          />
+          <Modal
+            visible={isPinModalVisible}
+            transparent={true}
+            animationType="slide"
+          >
+            <PinInput
+              title="비밀번호 입력"
+              subtitle="퀘스트 승인을 위해 비밀번호를 입력해주세요"
+              onPasswordComplete={handleApproveQuest}
+              onBackPress={() => setIsPinModalVisible(false)}
+            />
+          </Modal>
+          <PopupModal
+            visible={isRedoModalVisible}
+            onClose={() => setIsRedoModalVisible(false)}
+            onConfirm={handleRedoQuest}
+            title="퀘스트 다시 하기"
+            content="정말로 다시 하기를 보내시겠습니까까?"
+            confirmText="다시 하기"
+            cancelText="취소"
+            confirmColor="#4FC985"
+          />
+        </>
+      )}
+    </>
   );
 }

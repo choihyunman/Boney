@@ -6,7 +6,7 @@ import GlobalText from "@/components/GlobalText";
 import { useChildrenStore } from "@/stores/useChildStore";
 import { getChildren } from "@/apis/childApi";
 import { getChildProfileImage } from "@/utils/getChildProfileImage";
-import { useQuestCreateStore } from "@/stores/quests/useQuestCreateStore";
+import { useQuestCreateStore } from "@/stores/useQuestStore";
 
 export default function SelectChildPage() {
   const children = useChildrenStore((state) => state.children);

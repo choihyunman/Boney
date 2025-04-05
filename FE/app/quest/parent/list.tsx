@@ -4,8 +4,9 @@ import { Clock, Plus } from "lucide-react-native";
 import GlobalText from "@/components/GlobalText";
 import { useCustomQuery } from "@/hooks/useCustomQuery";
 import { getQuestListParent, ParentQuestList } from "@/apis/questApi";
-import { getquestIcon } from "@/utils/questUtils";
+import { getQuestIcon } from "@/utils/getQuestIcon";
 import { router } from "expo-router";
+
 export default function QuestListPage() {
   const { data, isLoading } = useCustomQuery({
     queryKey: ["quests"],
@@ -13,7 +14,6 @@ export default function QuestListPage() {
     staleTime: 1000 * 60 * 3,
     refetchInterval: 1000,
   });
-
   const questList = data?.quests || [];
 
   const calculateDday = (dueDateStr: string) => {
@@ -84,7 +84,12 @@ export default function QuestListPage() {
               </GlobalText>
             </View>
           </View>
-          <TouchableOpacity className="bg-[#4FC985] px-3 py-1 rounded-lg flex-row items-center">
+          <TouchableOpacity
+            className="bg-[#4FC985] px-3 py-1 rounded-lg flex-row items-center"
+            onPress={() => {
+              router.push("/quest/parent/SelectChild");
+            }}
+          >
             <Plus size={16} color="white" className="mr-1" />
             <GlobalText className="text-white text-sm font-medium">
               만들기
@@ -121,14 +126,7 @@ export default function QuestListPage() {
               </View>
             ) : (
               sortedQuests.map((quest) => {
-                const { Icon, backgroundColor, iconColor } = getquestIcon(
-                  quest.questCategory
-                );
-
-                const IconComponent = Icon as React.FC<{
-                  size?: number;
-                  color?: string;
-                }>;
+                const IconElement = getQuestIcon(quest.questTitle);
 
                 return (
                   <TouchableOpacity
@@ -192,12 +190,11 @@ export default function QuestListPage() {
 
                       {/* 본문 줄 */}
                       <View className="flex-row items-center mt-1">
+                        {/* 아이콘 */}
                         <View className="w-10 items-center justify-center mr-3">
                           <View
                             style={{
-                              backgroundColor: backgroundColor
-                                .replace("bg-[", "")
-                                .replace("]", ""),
+                              backgroundColor: "#e6f7ef",
                               borderRadius: 9999,
                               height: 32,
                               width: 32,
@@ -205,7 +202,7 @@ export default function QuestListPage() {
                               justifyContent: "center",
                             }}
                           >
-                            <IconComponent size={20} color={iconColor} />
+                            {IconElement}
                           </View>
                         </View>
 
