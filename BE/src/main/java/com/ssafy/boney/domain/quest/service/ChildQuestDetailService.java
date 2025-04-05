@@ -1,6 +1,6 @@
 package com.ssafy.boney.domain.quest.service;
 
-import com.ssafy.boney.domain.quest.dto.QuestChildDetailResponse;
+import com.ssafy.boney.domain.quest.dto.ChildQuestDetailResponse;
 import com.ssafy.boney.domain.quest.entity.Quest;
 import com.ssafy.boney.domain.quest.exception.QuestErrorCode;
 import com.ssafy.boney.domain.quest.exception.QuestNotFoundException;
@@ -17,7 +17,7 @@ public class ChildQuestDetailService {
 
     // (아이 화면) 퀘스트 상세 조회
     @Transactional(readOnly = true)
-    public QuestChildDetailResponse getChildQuestDetail(Integer childId, Integer questId) {
+    public ChildQuestDetailResponse getChildQuestDetail(Integer childId, Integer questId) {
         Quest quest = questRepository.findById(questId)
                 .orElseThrow(() -> new QuestNotFoundException(QuestErrorCode.QUEST_NOT_FOUND));
 
@@ -25,12 +25,14 @@ public class ChildQuestDetailService {
             throw new QuestNotFoundException(QuestErrorCode.QUEST_NOT_FOUND);
         }
 
-        return QuestChildDetailResponse.builder()
+        return ChildQuestDetailResponse.builder()
                 .questId(quest.getQuestId())
                 .questTitle(quest.getQuestTitle())
                 .questCategory(quest.getQuestCategory().getCategoryName())
                 .endDate(quest.getEndDate())
                 .questReward(quest.getQuestReward())
+                .questMessage(quest.getQuestMessage())
+                .questStatus(quest.getQuestStatus().name())
                 .questImgUrl(quest.getQuestImgUrl())
                 .build();
     }

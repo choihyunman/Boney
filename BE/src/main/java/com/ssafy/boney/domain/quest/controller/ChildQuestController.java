@@ -3,7 +3,7 @@ package com.ssafy.boney.domain.quest.controller;
 import com.ssafy.boney.domain.quest.dto.ChildQuestCompletionResponse;
 import com.ssafy.boney.domain.quest.dto.ChildQuestHistoryResponse;
 import com.ssafy.boney.domain.quest.dto.ChildQuestResponse;
-import com.ssafy.boney.domain.quest.dto.QuestChildDetailResponse;
+import com.ssafy.boney.domain.quest.dto.ChildQuestDetailResponse;
 import com.ssafy.boney.domain.quest.exception.QuestNotFoundException;
 import com.ssafy.boney.domain.quest.service.ChildQuestCompletionService;
 import com.ssafy.boney.domain.quest.service.ChildQuestDetailService;
@@ -71,12 +71,12 @@ public class ChildQuestController {
 
     // 3. 아이 - 퀘스트 상세 조회
     @GetMapping("/{questId}")
-    public ResponseEntity<ApiResponse<QuestChildDetailResponse>> getChildQuestDetail(
+    public ResponseEntity<ApiResponse<ChildQuestDetailResponse>> getChildQuestDetail(
             @RequestAttribute("userId") Integer childId,
             @PathVariable("questId") Integer questId
     ) {
         try {
-            QuestChildDetailResponse responseDto = childQuestDetailService.getChildQuestDetail(childId, questId);
+            ChildQuestDetailResponse responseDto = childQuestDetailService.getChildQuestDetail(childId, questId);
             return ResponseEntity.ok(new ApiResponse<>(200, "퀘스트 상세 조회 성공", responseDto));
         } catch (QuestNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
