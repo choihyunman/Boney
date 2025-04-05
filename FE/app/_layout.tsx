@@ -1,5 +1,11 @@
 import React, { useEffect, useRef } from "react";
-import { Slot, router, usePathname, Stack } from "expo-router";
+import {
+  Slot,
+  router,
+  usePathname,
+  Stack,
+  useLocalSearchParams,
+} from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import * as WebBrowser from "expo-web-browser";
 import { useState } from "react";
@@ -9,7 +15,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import "./global.css";
 import { StatusBar } from "expo-status-bar";
 import Header from "@/components/Header";
-import { Bell, ChevronLeft, Search } from "lucide-react-native";
+import { Bell, ChevronLeft, History, Search } from "lucide-react-native";
 import { Image } from "react-native";
 import Nav from "@/components/Nav";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
@@ -20,9 +26,11 @@ import GlobalText from "@/components/GlobalText";
 import Toast from "react-native-toast-message";
 import { notificationApi } from "@/apis/notificationApi";
 import { NotificationData } from "@/apis/notificationApi";
+import { deleteQuest } from "@/apis/questApi";
 
 interface HeaderButton {
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
+  text?: string;
   onPress: () => void;
 }
 
@@ -51,6 +59,7 @@ function RootLayoutNav() {
   });
 
   const pathname = usePathname();
+  const params = useLocalSearchParams();
   const { hasHydrated } = useAuthStore();
   const { unreadCount, setUnreadCount } = useNotificationStore();
   const previousNotificationsRef = useRef<NotificationData[]>([]);
@@ -123,6 +132,31 @@ function RootLayoutNav() {
 
   // 헤더 설정
   const getHeaderConfig = (): HeaderConfig => {
+    // 퀘스트 상세 페이지에서 삭제 버튼 표시
+    if (pathname.match(/^\/quest\/parent\/\d+$/)) {
+      const questId = pathname.split("/").pop();
+      return {
+        backgroundColor: "#F5F6F8",
+        leftButton: {
+          icon: <ChevronLeft size={24} color="#000000" />,
+          onPress: () => router.back(),
+        },
+        rightButton: {
+          text: "삭제",
+          onPress: () => {
+            console.log("Deleting quest:", questId);
+            deleteQuest(Number(questId)).catch((error: any) => {
+              console.error(
+                "Delete quest error:",
+                error.response?.data || error.message
+              );
+            });
+            router.replace("/quest/parent/List");
+          },
+        },
+      };
+    }
+
     switch (pathname) {
       case "/home":
         return {
@@ -268,19 +302,45 @@ function RootLayoutNav() {
             onPress: () => router.back(),
           },
         };
-      case "/loan/child/LoanList":
-        return {
-          backgroundColor: "white",
-          leftButton: {
-            icon: <ChevronLeft size={24} color="#000000" />,
-            onPress: () => router.push("/menu"),
-          },
-        };
       case "/loan/child/Request":
       case "/loan/child/PromissoryNote":
         return {
           title: "대출 신청하기",
           backgroundColor: "#F5F6F8",
+          leftButton: {
+            icon: <ChevronLeft size={24} color="#000000" />,
+            onPress: () => router.back(),
+          },
+        };
+      case "/loan/child/LoanList":
+        return {
+          backgroundColor: "#F5F6F8",
+          leftButton: {
+            icon: <ChevronLeft size={24} color="#000000" />,
+            onPress: () => router.back(),
+          },
+          rightButton: {
+            icon: <History size={24} color="#000000" />,
+            onPress: () => router.push("/loan/child/History"),
+          },
+        };
+      case "/loan/parent/LoanList":
+        return {
+          backgroundColor: "#F5F6F8",
+          leftButton: {
+            icon: <ChevronLeft size={24} color="#000000" />,
+            onPress: () => router.back(),
+          },
+          rightButton: {
+            icon: <History size={24} color="#000000" />,
+            onPress: () => router.push("/loan/parent/History"),
+          },
+        };
+      case "/loan/parent/History":
+      case "/loan/child/History":
+        return {
+          title: "지난 대출",
+          backgroundColor: "white",
           leftButton: {
             icon: <ChevronLeft size={24} color="#000000" />,
             onPress: () => router.back(),
@@ -379,6 +439,41 @@ function RootLayoutNav() {
                 });
               }
             },
+          },
+        };
+      case "/quest/parent/List":
+        return {
+          backgroundColor: "#F5F6F8",
+          leftButton: {
+            icon: <ChevronLeft size={24} color="#000000" />,
+            onPress: () => router.back(),
+          },
+          rightButton: {
+            icon: <History size={24} color="#000000" />,
+            onPress: () => router.push("/quest/parent/History"),
+          },
+        };
+      case "/quest/child/List":
+        return {
+          backgroundColor: "#F5F6F8",
+          leftButton: {
+            icon: <ChevronLeft size={24} color="#000000" />,
+            onPress: () => router.back(),
+          },
+          rightButton: {
+            icon: <History size={24} color="#000000" />,
+            onPress: () => router.push("/quest/child/History"),
+          },
+        };
+
+      case "/quest/child/History":
+      case "/quest/parent/History":
+        return {
+          title: "지난 퀘스트",
+          backgroundColor: "white",
+          leftButton: {
+            icon: <ChevronLeft size={24} color="#000000" />,
+            onPress: () => router.back(),
           },
         };
       default:
