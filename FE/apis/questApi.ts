@@ -102,7 +102,7 @@ export interface QuestApprovalResponse {
   childName: string;
   questTitle: string;
   amount: number;
-  finishDate: string | null;
+  approvalDate: string;
 }
 
 export interface QuestHistoryResponse {
@@ -115,6 +115,12 @@ export interface QuestHistoryResponse {
     questStatus: "SUCCESS" | "FAILED";
   }[];
 }
+
+export type SelectedImage = {
+  uri: string;
+  name: string;
+  type: string;
+};
 
 export const getQuestListParent = async (): Promise<QuestListResponse> => {
   const res = await api.get("/parents/quests");
@@ -148,13 +154,17 @@ export const getQuestDetail = async (
 
 export const completeQuest = async (
   questId: number,
-  imageFile?: File | null
+  imageFile?: SelectedImage | null
 ): Promise<QuestCompleteResponse> => {
   try {
     const formData = new FormData();
 
     if (imageFile) {
-      formData.append("quest_img_url", imageFile);
+      formData.append("quest_img_url", {
+        uri: imageFile.uri,
+        name: imageFile.name,
+        type: imageFile.type,
+      } as any);
     } else {
       // 파일 없으면 빈 문자열로 보내기
       formData.append("quest_img_url", "");

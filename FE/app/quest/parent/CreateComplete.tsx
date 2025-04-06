@@ -26,7 +26,9 @@ export default function CreateComplete() {
           label: "퀘스트",
           value: (
             <View className="flex-row items-center justify-end gap-2">
-              {getQuestIcon(questTitle)}
+              <View className="h-8 w-8 rounded-full bg-[#e6f7ef] items-center justify-center">
+                {getQuestIcon(questTitle)}
+              </View>
               <GlobalText weight="bold" className="text-lg">
                 {questTitle}
               </GlobalText>

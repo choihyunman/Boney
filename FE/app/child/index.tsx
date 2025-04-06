@@ -14,6 +14,7 @@ import { useCallback } from "react";
 import GlobalText from "../../components/GlobalText";
 import { useChildStore } from "../../stores/useChildStore";
 import { useChildDetailStore } from "../../stores/useChildDetailStore";
+import { getChildProfileImage } from "@/utils/getChildProfileImage";
 
 export default function ChildList() {
   const [loading, setLoading] = useState(true);
@@ -134,7 +135,7 @@ export default function ChildList() {
                 >
                   <View className="w-20 h-20 rounded-full overflow-hidden mb-3">
                     <Image
-                      source={require("../../assets/profile/profile.jpg")}
+                      source={getChildProfileImage(child.childGender)}
                       className="w-full h-full"
                       resizeMode="cover"
                     />

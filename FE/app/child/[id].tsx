@@ -5,6 +5,7 @@ import GlobalText from "../../components/GlobalText";
 import { useChildDetailStore } from "../../stores/useChildDetailStore";
 import { useTransferStore } from "../../stores/useTransferStore";
 import { getBankName } from "../../constants/bank";
+import { getChildProfileImage } from "@/utils/getChildProfileImage";
 
 export default function ChildDetail() {
   const { child } = useLocalSearchParams();
@@ -12,6 +13,7 @@ export default function ChildDetail() {
   const { setRecipient, saveTransferData } = useTransferStore();
 
   console.log("전체 childData:", childData);
+  console.log("childGender:", childData.childGender);
 
   const handleAllowanceTransfer = () => {
     console.log("전체 childData:", childData);
@@ -36,7 +38,7 @@ export default function ChildDetail() {
       <View className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl p-6">
         <View className="items-center py-[63px]">
           <Image
-            source={require("../../assets/profile/profile.jpg")}
+            source={getChildProfileImage(childData.childGender)}
             className="w-20 h-20 rounded-full mb-[18px]"
           />
 

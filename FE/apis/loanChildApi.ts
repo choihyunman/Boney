@@ -161,7 +161,7 @@ export const getLoanValidation = async (): Promise<LoanValidationResponse> => {
   }
 };
 
-export const getLoanHistory = async (): Promise<LoanHistoryResponse[]> => {
+export const getLoanHistory = async (): Promise<LoanHistoryResponse> => {
   try {
     const res = await api.get("/loan/child/repaid");
     return res.data.data.loan_completed_list;

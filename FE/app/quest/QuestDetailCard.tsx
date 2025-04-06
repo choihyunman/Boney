@@ -1,7 +1,10 @@
-import React from "react";
-import { View, TouchableOpacity, Image } from "react-native";
-import { Home, BookOpen, Users, Heart, Camera, X } from "lucide-react-native";
+import React, { useState } from "react";
+import { View, TouchableOpacity, Image, Modal, Linking } from "react-native";
+import * as MediaLibrary from "expo-media-library";
+import { Camera, X, Download } from "lucide-react-native";
 import GlobalText from "../../components/GlobalText";
+import Toast from "react-native-toast-message";
+import PopupModal from "@/components/PopupModal";
 
 type DetailItem = {
   label: string;
@@ -43,6 +46,10 @@ export default function QuestDetailCard({
   onImageSelect,
   onRemoveImage,
 }: QuestDetailCardProps) {
+  const [isImageModalVisible, setIsImageModalVisible] = useState(false);
+  const [savePermissionModalVisible, setSavePermissionModalVisible] =
+    useState(false);
+
   const calculateDday = (dueDateStr: string) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -66,12 +73,16 @@ export default function QuestDetailCard({
           <View className="relative mb-4">
             <View className="h-48 w-48 rounded-lg bg-[#e6f7ef] items-center justify-center overflow-hidden">
               {imageUri ? (
-                <>
-                  <Image
-                    source={{ uri: imageUri }}
-                    className="w-full h-full"
-                    resizeMode="cover"
-                  />
+                <View className="w-full h-full">
+                  <TouchableOpacity
+                    onPress={() => setIsImageModalVisible(true)}
+                  >
+                    <Image
+                      source={{ uri: imageUri }}
+                      className="w-full h-full"
+                      resizeMode="cover"
+                    />
+                  </TouchableOpacity>
                   {editableImage && (
                     <TouchableOpacity
                       onPress={onRemoveImage}
@@ -80,7 +91,7 @@ export default function QuestDetailCard({
                       <X size={20} color="white" />
                     </TouchableOpacity>
                   )}
-                </>
+                </View>
               ) : (
                 icon
               )}
@@ -98,20 +109,12 @@ export default function QuestDetailCard({
           {/* D-Day 뱃지 */}
           <View
             className={`px-2 py-1 rounded-full mb-2 ${
-              dday.includes("+")
-                ? "bg-red-100"
-                : dday === "D-Day"
-                ? "bg-yellow-100"
-                : "bg-[#e6f7ef]"
+              dday.includes("+") ? "bg-red-100" : "bg-[#e6f7ef]"
             }`}
           >
             <GlobalText
               className={`text-sm font-medium ${
-                dday.includes("+")
-                  ? "text-red-600"
-                  : dday === "D-Day"
-                  ? "text-yellow-600"
-                  : "text-[#4FC985]"
+                dday.includes("+") ? "text-red-600" : "text-[#4FC985]"
               }`}
             >
               {dday}
@@ -209,6 +212,75 @@ export default function QuestDetailCard({
           })}
         </View>
       )}
+      {/* 이미지 전체보기 모달 */}
+      <Modal
+        visible={isImageModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setIsImageModalVisible(false)}
+      >
+        <View className="flex-1 bg-black/70 justify-center items-center">
+          {/* 상단 버튼들 */}
+          <View className="absolute top-12 right-6 flex-row items-center gap-x-2 space-x-4">
+            {/* 저장 버튼 */}
+            <TouchableOpacity
+              onPress={async () => {
+                if (!imageUri) return;
+                const { status } = await MediaLibrary.requestPermissionsAsync();
+                if (status !== "granted") {
+                  setSavePermissionModalVisible(true);
+                  return;
+                }
+                try {
+                  await MediaLibrary.saveToLibraryAsync(imageUri);
+                  Toast.show({
+                    type: "success",
+                    text1: "사진이 갤러리에 저장되었습니다!",
+                  });
+                } catch (error) {
+                  console.error("사진 저장 실패:", error);
+                  Toast.show({
+                    type: "error",
+                    text1: "저장에 실패했습니다.",
+                  });
+                }
+              }}
+              className="p-2 bg-white/20 rounded-full"
+            >
+              <Download size={24} color="white" />
+            </TouchableOpacity>
+
+            {/* 닫기 버튼 */}
+            <TouchableOpacity
+              onPress={() => setIsImageModalVisible(false)}
+              className="p-2 bg-white/20 rounded-full"
+            >
+              <X size={24} color="white" />
+            </TouchableOpacity>
+          </View>
+
+          {/* 확대된 이미지 */}
+          {imageUri && (
+            <Image
+              source={{ uri: imageUri }}
+              className="w-[90%] h-[70%] rounded-lg"
+              resizeMode="contain"
+            />
+          )}
+        </View>
+      </Modal>
+      <PopupModal
+        visible={savePermissionModalVisible}
+        title="갤러리 저장 권한이 필요합니다."
+        content="설정 화면으로 이동하시겠습니까?"
+        confirmText="설정으로 이동"
+        cancelText="취소"
+        onConfirm={() => {
+          setSavePermissionModalVisible(false);
+          Linking.openSettings();
+        }}
+        onClose={() => setSavePermissionModalVisible(false)}
+      />
     </View>
   );
 }

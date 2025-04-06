@@ -3,6 +3,7 @@ import { api } from "@/lib/api";
 export const getChildren = async () => {
   try {
     const response = await api.get("/parents/quests/children");
+    console.log("여기 조회: ", response.data);
     return response.data;
   } catch (error) {
     console.error("아이 목록 조회 실패:", error);
