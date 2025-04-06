@@ -9,7 +9,7 @@ export default function ReqComplete() {
     useQuestApprovalStore();
 
   const handleConfirm = () => {
-    router.replace("/quest/child/List");
+    router.replace("/quest/parent/List");
   };
 
   const formatDate = (date: string) => {
@@ -33,7 +33,7 @@ export default function ReqComplete() {
           value: amount.toLocaleString() + "원",
         },
         {
-          label: "완료일",
+          label: "승인일",
           value: formatDate(approvalDate),
         },
         {

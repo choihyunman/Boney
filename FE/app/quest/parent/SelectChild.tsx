@@ -1,34 +1,25 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { View, TouchableOpacity, ScrollView, Image } from "react-native";
 import { ChevronRight } from "lucide-react-native";
 import { router } from "expo-router";
 import GlobalText from "@/components/GlobalText";
-import { useChildrenStore } from "@/stores/useChildStore";
 import { getChildren } from "@/apis/childApi";
 import { getChildProfileImage } from "@/utils/getChildProfileImage";
 import { useQuestCreateStore } from "@/stores/useQuestStore";
+import { useCustomQuery } from "@/hooks/useCustomQuery";
 
 export default function SelectChildPage() {
-  const children = useChildrenStore((state) => state.children);
-  const { setChildren } = useChildrenStore();
   const [selectedChild, setSelectedChild] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const { setParentChildId } = useQuestCreateStore();
 
-  useEffect(() => {
-    const fetchChildren = async () => {
-      try {
-        const response = await getChildren();
-        setChildren(response.children);
-      } catch (error) {
-        console.error("아이 목록 조회 실패:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const { data, isLoading } = useCustomQuery({
+    queryKey: ["questChildren"],
+    queryFn: () => getChildren(),
+    staleTime: 1000 * 60 * 3,
+    refetchInterval: 1000 * 60 * 3,
+  });
 
-    fetchChildren();
-  }, []);
+  const children = data?.data.children;
 
   if (isLoading) {
     return (
@@ -53,7 +44,7 @@ export default function SelectChildPage() {
 
           {/* 아이 목록 */}
           <View className="space-y-4">
-            {children.map((child) => (
+            {children.map((child: any) => (
               <View key={child.childId} className="mb-2">
                 <TouchableOpacity
                   className={`flex-row items-center p-4 bg-[#F9FAFB] rounded-xl border ${

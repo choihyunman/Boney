@@ -102,7 +102,7 @@ export interface QuestApprovalResponse {
   childName: string;
   questTitle: string;
   amount: number;
-  finishDate: string | null;
+  approvalDate: string;
 }
 
 export interface QuestHistoryResponse {

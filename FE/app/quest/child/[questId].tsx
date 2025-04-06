@@ -108,7 +108,7 @@ export default function QuestDetailPage() {
           ]}
           extraNote={
             quest.questStatus === "WAITING_REWARD"
-              ? "보호자가 퀘스트 완료 신청을 검토 중이에요.{\n}승인되면 알림을 보내드릴게요."
+              ? "보호자가 퀘스트 완료 신청을 검토 중이에요.\n승인되면 알림을 보내드릴게요."
               : undefined
           }
           buttons={
@@ -116,8 +116,10 @@ export default function QuestDetailPage() {
               ? [{ text: "퀘스트 완료하기", onPress: handleCompleteQuest }]
               : undefined
           }
-          editableImage={true}
-          imageUri={selectedImage?.uri ?? null}
+          editableImage={quest.questStatus === "IN_PROGRESS"}
+          imageUri={
+            selectedImage?.uri ? selectedImage.uri : quest.questImgUrl ?? null
+          }
           onImageSelect={handleImageSelect}
           onRemoveImage={handleRemoveImage}
         />

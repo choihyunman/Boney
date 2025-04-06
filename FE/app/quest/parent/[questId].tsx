@@ -7,6 +7,7 @@ import { getQuestIcon } from "@/utils/getQuestIcon";
 import { PinInput } from "@/components/PinInput";
 import { Modal } from "react-native";
 import PopupModal from "@/components/PopupModal";
+import { useQuestApprovalStore } from "@/stores/useQuestStore";
 
 export default function QuestDetailPage() {
   const params = useLocalSearchParams();
@@ -40,12 +41,15 @@ export default function QuestDetailPage() {
         return;
       }
       console.log("퀘스트 완료:", questId);
-      await approvalQuest(Number(questId), password);
+      const res = await approvalQuest(Number(questId), password);
       setIsPinModalVisible(false);
+      useQuestApprovalStore.getState().setQuestTitle(res.questTitle);
+      useQuestApprovalStore.getState().setChildName(res.childName);
+      useQuestApprovalStore.getState().setAmount(res.amount);
+      useQuestApprovalStore.getState().setApprovalDate(res.approvalDate);
       router.replace("/quest/parent/Approval");
     } catch (error) {
       console.error("퀘스트 승인 중 오류 발생:", error);
-      // 여기에 에러 처리 로직 추가 가능
     }
   };
 
