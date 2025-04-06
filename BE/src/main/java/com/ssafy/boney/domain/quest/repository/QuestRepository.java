@@ -82,6 +82,31 @@ public interface QuestRepository extends JpaRepository<Quest, Integer> {
 
     void deleteAllByParentChild(ParentChild parentChild);
 
+
+    // 보호자용
+    // 진행 중 퀘스트 중 마감 시간이 지난 퀘스트 조회
+    @Query("SELECT q FROM Quest q " +
+            "JOIN q.parentChild pc " +
+            "JOIN pc.parent p " +
+            "WHERE p.userId = :parentId " +
+            "  AND q.questStatus = 'IN_PROGRESS' " +
+            "  AND q.endDate < :now")
+    List<Quest> findExpiredOngoingQuestsForParent(@Param("parentId") Integer parentId,
+                                                  @Param("now") LocalDateTime now);
+
+    // 아이용
+    // 진행 중 퀘스트 중 마감 시간이 지난 퀘스트 조회
+    @Query("SELECT q FROM Quest q " +
+            "JOIN q.parentChild pc " +
+            "JOIN pc.child c " +
+            "WHERE c.userId = :childId " +
+            "  AND q.questStatus = 'IN_PROGRESS' " +
+            "  AND q.endDate < :now")
+    List<Quest> findExpiredOngoingQuestsForChild(@Param("childId") Integer childId,
+                                                 @Param("now") LocalDateTime now);
+
+
+
 }
 
 

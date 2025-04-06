@@ -6,6 +6,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class ParentQuestApprovalResponse {
+    private String childName;
     private String bankName;
     private String accountNumber;
     private long amount;
