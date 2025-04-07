@@ -6,6 +6,8 @@ import {
   SafeAreaView,
   Alert,
   Image,
+  Linking,
+  Modal,
 } from "react-native";
 import { useColorScheme } from "nativewind";
 import { useRouter } from "expo-router";
@@ -33,6 +35,7 @@ import {
 import GlobalText from "@/components/GlobalText";
 import { getLoanValidation } from "@/apis/loanChildApi";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { WebView } from "react-native-webview";
 
 // 프로필 이미지
 const profileImages = {
@@ -61,8 +64,14 @@ export default function MenuScreen() {
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === "dark";
   const router = useRouter();
-  const { user, logout } = useAuthStore();
+  const user = useAuthStore((state) => state.user);
   const isParent = user?.role === "PARENT";
+  const logout = useAuthStore((state) => state.logout);
+  const [showWebView, setShowWebView] = React.useState(false);
+
+  const KAKAO_REST_API_KEY = process.env.EXPO_PUBLIC_KAKAO_CLIENT_ID!;
+  const REDIRECT_URI = "https://j12b208.p.ssafy.io/api/v1/auth/logout/redirect";
+  const LOGOUT_URL = `https://kauth.kakao.com/oauth/logout?client_id=${KAKAO_REST_API_KEY}&logout_redirect_uri=${REDIRECT_URI}`;
 
   // 프로필 이미지 경로 설정
   const getProfileImage = () => {
@@ -293,15 +302,19 @@ export default function MenuScreen() {
 
   // 로그아웃 처리
   const handleLogout = async () => {
-    try {
-      await logout();
-      router.replace("/auth");
-    } catch (err) {
-      console.error("로그아웃 실패:", err);
-      Alert.alert("알림", "로그아웃 중 오류가 발생했어요.");
-    }
+    setShowWebView(true);
   };
 
+  const handleWebViewNavigation = async (navState: any) => {
+    const { url } = navState;
+    if (url.startsWith(REDIRECT_URI)) {
+      console.log("✅ 카카오 로그아웃 완료, 앱 상태 초기화");
+
+      setShowWebView(false);
+      await logout();
+      router.replace("/auth");
+    }
+  };
   // 사용자 역할에 따라 메뉴 아이템 선택
   const menuItems = isParent ? parentMenuItems : childMenuItems;
 
@@ -393,6 +406,23 @@ export default function MenuScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
+      {/* WebView for Logout */}
+      <Modal
+        visible={showWebView}
+        animationType="slide"
+        onRequestClose={() => setShowWebView(false)}
+      >
+        <WebView
+          source={{ uri: LOGOUT_URL }}
+          onNavigationStateChange={handleWebViewNavigation}
+          startInLoadingState
+          renderLoading={() => (
+            <View className="flex-1 justify-center items-center bg-white">
+              <GlobalText className="text-gray-500">로그아웃 중...</GlobalText>
+            </View>
+          )}
+        />
+      </Modal>
     </SafeAreaView>
   );
 }

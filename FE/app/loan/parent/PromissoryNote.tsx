@@ -33,7 +33,7 @@ export default function PromissoryNote({
   const clearPromissoryNoteData = usePromissoryNoteStore(
     (state) => state.clearPromissoryNoteData
   );
-  const { user } = useAuthStore();
+  const user = useAuthStore((state) => state.user);
 
   // 날짜 포맷팅 함수
   const formatDate = (dateString: string) => {

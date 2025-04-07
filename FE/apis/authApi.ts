@@ -42,3 +42,44 @@ export const deleteAccount = async (
     throw error;
   }
 };
+
+// 인가 코드로 카카오 access token 가져오기
+export async function fetchAccessTokenFromKakao(code: string) {
+  const res = await api.post(`/auth/login/kakao/token?code=${code}`);
+  return res.data.data.access_token;
+}
+
+// 카카오 access token으로 유저 정보 가져오기
+export async function fetchUserInfoFromKakao(token: string) {
+  const res = await api.post(`/auth/login/kakao/user?access_token=${token}`);
+  return res.data.data;
+}
+
+// 카카오 ID로 JWT 발급받기
+export async function fetchJWTFromServer(kakaoId: number) {
+  const res = await api.post(`/auth/login/kakao/jwt`, { kakao_id: kakaoId });
+  return res.data.token;
+}
+
+// 회원가입
+export async function signUpUser(payload: any) {
+  const res = await api.post("/auth/signup", payload);
+  return res.data;
+}
+
+// 계좌 생성
+export async function createAccount() {
+  const res = await api.post("/account/create");
+  return res.data.data.accountNo;
+}
+
+// 계좌 등록
+export async function registerAccount(account: string) {
+  return api.post("/account/register", { accountNo: account });
+}
+
+// 회원가입 여부 체크
+export async function checkUserRegistered() {
+  const res = await api.post("/auth/check");
+  return res.data.data;
+}

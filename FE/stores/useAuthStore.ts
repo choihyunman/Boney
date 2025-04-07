@@ -1,9 +1,18 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { api } from "../lib/api";
+import { zustandSecureStorage } from "@/lib/secureStorage";
 import * as SecureStore from "expo-secure-store";
-import { router } from "expo-router";
-import { zustandSecureStorage } from "../lib/secureStorage";
+import {
+  checkUserRegistered,
+  createAccount,
+  fetchJWTFromServer,
+  registerAccount,
+  signUpUser,
+} from "@/apis/authApi";
+import { fetchUserInfoFromKakao } from "@/apis/authApi";
+import { fetchAccessTokenFromKakao } from "@/apis/authApi";
+import { checkPinRegistered } from "@/apis/pinApi";
+import axios from "axios";
 
 interface UserInfo {
   kakaoId: number;
@@ -23,158 +32,144 @@ interface AuthStore {
   hasHydrated: boolean;
   setHydrated: () => void;
   setUser: (user: UserInfo) => void;
-  kakaoLogin: (code: string) => Promise<UserInfo>;
-  signUp: (userInfo: Omit<UserInfo, "kakaoId" | "userEmail">) => Promise<void>;
-  logout: () => void;
-}
-
-// 카카오 accsess-token 발급
-async function fetchAccessTokenFromKakao(code: string): Promise<string> {
-  console.log("🚀 백엔드에 인가 코드 전송:", code);
-
-  const res = await api.post(`/auth/login/kakao/token?code=${code}`);
-  const { data } = res.data;
-  const accessToken = data.access_token;
-
-  if (typeof accessToken !== "string") {
-    throw new Error("access_token이 문자열이 아닙니다!");
-  }
-
-  console.log("🔐 access_token 조회 완료:", accessToken);
-
-  return accessToken;
-}
-
-// 카카오 유저 정보 조회
-async function fetchUserInfoFromKakao(token: string): Promise<UserInfo> {
-  const res = await api.post(`/auth/login/kakao/user?access_token=${token}`);
-  const { data } = res.data;
-
-  const user: UserInfo = {
-    kakaoId: data.id,
-    userEmail: data.kakao_account.email,
-  };
-
-  console.log("✅ 사용자 정보 수신:", user);
-  return user;
-}
-
-// 서버에서 jwt 발급
-async function fetchJWTFromServer(kakaoId: number): Promise<string> {
-  console.log("🚀 백엔드에 kakaoId 전송:", kakaoId, typeof kakaoId);
-
-  const res = await api.post(`/auth/login/kakao/jwt`, {
-    kakao_id: kakaoId,
-  });
-  const { token } = res.data;
-
-  await SecureStore.setItemAsync("userToken", token);
-  useAuthStore.setState({ token });
-
-  console.log("🔐 jwt 저장 완료:", token);
-
-  return token;
-}
-
-// 계좌 생성
-async function createAccount(): Promise<string> {
-  try {
-    const res = await api.post("/account/create");
-    const account = res.data.data.accountNo;
-    return account;
-  } catch (err) {
-    console.error("❌ 계좌 생성 실패:", err);
-    throw err;
-  }
-}
-
-// 계좌 등록
-async function registerAccount(account: string): Promise<void> {
-  try {
-    await api.post("/account/register", { accountNo: account });
-  } catch (err) {
-    console.error("❌ 계좌 등록 실패:", err);
-    throw err;
-  }
+  setToken: (token: string) => void;
+  setAccount: (account: string) => void;
+  resetAuth: () => void;
+  logout: () => Promise<void>;
+  kakaoLogin: (
+    code: string
+  ) => Promise<{ next: string; kakaoId?: number; userEmail?: string }>;
+  signup: (payload: UserInfo) => Promise<void>;
 }
 
 export const useAuthStore = create<AuthStore>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       user: null,
       token: null,
       account: null,
       hasHydrated: false,
       setHydrated: () => set({ hasHydrated: true }),
-      setUser: (user) => {
-        set({ user });
-      },
-
-      kakaoLogin: async (code): Promise<UserInfo> => {
-        console.log("🚀 백엔드에 카카오 인가 코드 전송:", code);
-
-        try {
-          const token = await fetchAccessTokenFromKakao(code);
-          const user = await fetchUserInfoFromKakao(token);
-
-          set({ user });
-          return user;
-        } catch (err) {
-          console.error("❌ 카카오 로그인 실패:", err);
-          router.replace("/auth");
-          throw err;
-        }
-      },
-
-      signUp: async (userInfo) => {
-        const { user } = get();
-        console.log("🧠 사용자:", user);
-
-        if (!user) {
-          throw new Error("카카오 로그인 되지 않은 상태입니다.");
-        }
-
-        const payload = {
-          ...userInfo,
-          kakaoId: user.kakaoId,
-          userEmail: user.userEmail,
-        };
-
-        try {
-          const res = await api.post("/auth/signup", payload);
-          console.log("🎉 회원가입 성공: ", res.data);
-          const token = await fetchJWTFromServer(user.kakaoId);
-          console.log("🔐 토큰: ", token);
-          const account = await createAccount();
-          console.log("💳 계좌: ", account);
-          await registerAccount(account);
-          console.log("💳 계좌 등록 완료");
-
-          // 사용자 정보, 토큰, 계좌 저장
-          set({ user: payload, token, account });
-          await SecureStore.setItemAsync("userToken", token);
-
-          router.replace("/home");
-        } catch (err) {
-          console.error("❌ 회원가입 실패:", err);
-          throw err;
-        }
-      },
-
+      setUser: (user) => set({ user }),
+      setToken: (token) => set({ token }),
+      setAccount: (account) => set({ account }),
+      resetAuth: () => set({ user: null, token: null, account: null }),
       logout: async () => {
         console.log("👋 로그아웃 실행");
-        await SecureStore.deleteItemAsync("userToken");
+
+        try {
+          await SecureStore.deleteItemAsync("userToken");
+        } catch (error) {
+          console.error("❌ SecureStore 토큰 삭제 실패:", error);
+        }
+
         set({ user: null, token: null, account: null });
+      },
+      kakaoLogin: async (code: string) => {
+        let userData;
+        try {
+          // 1. access token 발급
+          const accessToken = await fetchAccessTokenFromKakao(code);
+          console.log("✅ access_token 수신:", accessToken);
+
+          // 2. 카카오 유저 정보 조회
+          userData = await fetchUserInfoFromKakao(accessToken);
+          console.log("✅ 유저 정보 수신:", userData);
+
+          set({
+            user: {
+              kakaoId: userData.id,
+              userEmail: userData.kakao_account.email,
+            },
+          });
+
+          // 3. JWT 발급
+          const jwtToken = await fetchJWTFromServer(userData.id);
+          set({ token: jwtToken });
+          await SecureStore.setItemAsync("userToken", jwtToken);
+
+          // 4. 회원가입 여부 확인
+          const registeredUser = await checkUserRegistered();
+          console.log("🔑 회원가입 여부 확인: ", registeredUser);
+          const pinInfo = await checkPinRegistered();
+          console.log("🔑 PIN 설정 여부 확인: ", pinInfo);
+
+          set({
+            user: {
+              kakaoId: registeredUser.kakao_id,
+              userId: registeredUser.user_id,
+              userEmail: registeredUser.user_email,
+              userName: registeredUser.user_name,
+              userGender: registeredUser.user_gender,
+              userBirth: registeredUser.user_birth,
+              userPhone: registeredUser.user_phone,
+              role: registeredUser.role,
+            },
+          });
+
+          // PIN 설정 여부
+          if (pinInfo.isPasswordNull) {
+            return { next: "create-pin" };
+          } else {
+            return { next: "home" };
+          }
+        } catch (error) {
+          if (axios.isAxiosError(error)) {
+            const message = error.response?.data.message;
+            console.log("❌ kakaoLogin 실패:", message);
+            if (error.response?.status === 404) {
+              console.log("🆕 등록되지 않은 사용자 → SignUp 이동");
+              return {
+                next: "signup",
+                kakaoId: userData.id,
+                userEmail: userData.kakao_account.email,
+              };
+            }
+            if (error.response?.status === 401) {
+              console.log("⚠️ 401 에러 무시: 재로그인 시도 흐름 유지");
+              return { next: "auth" }; // 예: 로그인 화면으로 안내
+            }
+            throw new Error(message);
+          }
+          throw error;
+        }
+      },
+      signup: async (payload) => {
+        try {
+          await signUpUser(payload);
+
+          const jwtToken = await fetchJWTFromServer(payload.kakaoId);
+          set({ token: jwtToken });
+          await SecureStore.setItemAsync("userToken", jwtToken);
+
+          const accountNo = await createAccount();
+          await registerAccount(accountNo);
+          set({ account: accountNo });
+
+          // ✅ user 정보도 같이 채워줌
+          set({
+            user: {
+              kakaoId: payload.kakaoId,
+              userEmail: payload.userEmail,
+              userName: payload.userName,
+              userBirth: payload.userBirth,
+              userGender: payload.userGender,
+              userPhone: payload.userPhone,
+              role: payload.role,
+            },
+          });
+        } catch (error) {
+          console.error("❌ 회원가입 실패:", error);
+          throw error;
+        }
       },
     }),
     {
-      name: "auth-storage", // 저장될 키 이름
+      name: "auth-storage",
       storage: zustandSecureStorage,
-      onRehydrateStorage: () => {
-        return () => {
-          useAuthStore.getState().setHydrated(); // 복원 완료 후 hasHydrated 상태 업데이트
-          console.log("🔄 복원 완료: hasHydrated = true");
-        };
+      onRehydrateStorage: () => (state) => {
+        state?.setHydrated();
+        console.log("🔄 복원 완료: hasHydrated = true");
       },
     }
   )
