@@ -115,7 +115,8 @@ export default function ChildDetail() {
                   pathname: "/child/RegularAllowance",
                   params: {
                     childName: childData.childName,
-                    profileImage: "../../assets/profile/profile.jpg",
+                    childId: childData.childId,
+                    childGender: childData.childGender,
                   },
                 })
               }
