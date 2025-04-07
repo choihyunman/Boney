@@ -19,7 +19,7 @@ export default function PromissoryNotePage() {
   // 저장소에서 데이터 가져오기
   const { request } = useLoanRequestStore();
   const { amount, dueDate, signImage } = request;
-  const { user } = useAuthStore();
+  const user = useAuthStore((state) => state.user);
   const { userName } = user ?? {};
 
   // 현재 날짜 포맷팅

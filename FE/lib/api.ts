@@ -39,7 +39,7 @@ api.interceptors.request.use(async (config) => {
   if (!isPublic && token) {
     config.headers.Authorization = `Bearer ${token}`;
   } else if (!isPublic && !token) {
-    console.warn("❗️인증 토큰이 없습니다.");
+    // console.warn("❗️인증 토큰이 없습니다.");
   }
 
   return config;

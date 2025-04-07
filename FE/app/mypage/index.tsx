@@ -15,7 +15,8 @@ const profileImages = {
 };
 
 export default function MyPage() {
-  const { user, token } = useAuthStore();
+  const user = useAuthStore((state) => state.user);
+  const token = useAuthStore.getState().token;
   const navigation = useNavigation();
 
   // 프로필 이미지 경로 설정

@@ -13,8 +13,12 @@ import { User, Calendar, Phone } from "lucide-react-native";
 import GlobalText from "../../components/GlobalText";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { router } from "expo-router";
+import { useMutation } from "@tanstack/react-query";
 
 const SignupScreen = () => {
+  const user = useAuthStore((state) => state.user);
+  const signup = useAuthStore((state) => state.signup);
+
   const [userType, setUserType] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: "",
@@ -25,29 +29,28 @@ const SignupScreen = () => {
     phoneNumber: "",
     role: "",
   });
-  const [errors, setErrors] = useState<{
-    name?: string;
-    birth?: string;
-    phoneNumber?: string;
-    [key: string]: string | undefined;
-  }>({});
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+
   const yearRef = useRef<TextInput>(null);
   const monthRef = useRef<TextInput>(null);
   const dayRef = useRef<TextInput>(null);
 
+  const { mutateAsync: signupMutation } = useMutation({
+    mutationFn: async (payload: any) => {
+      await signup(payload);
+      router.replace("/auth/CreatePin");
+    },
+  });
+
   const handleChange = useCallback(
     (name: keyof typeof formData, value: string) => {
-      setFormData((prev) => {
-        const updated = { ...prev, [name]: value };
-        // console.log("🧠 현재 formData:", updated);
-        return updated;
-      });
+      setFormData((prev) => ({ ...prev, [name]: value }));
       if (errors[name]) {
         setErrors((prev) => {
-          const newErrors = { ...prev };
-          delete newErrors[name];
-          return newErrors;
+          const updated = { ...prev };
+          delete updated[name];
+          return updated;
         });
       }
     },
@@ -59,7 +62,6 @@ const SignupScreen = () => {
     value: string
   ) => {
     handleChange(field, value);
-
     if (field === "birthYear" && value.length === 4) {
       monthRef.current?.focus();
     } else if (field === "birthMonth" && value.length === 2) {
@@ -67,28 +69,22 @@ const SignupScreen = () => {
     }
   };
 
-  const handlePhoneChange = useCallback(
-    (value: string) => {
-      const numbers = value.replace(/[^\d]/g, "");
-      if (numbers.length <= 11) {
-        let formatted = numbers;
-        if (numbers.length > 3)
-          formatted = numbers.slice(0, 3) + "-" + numbers.slice(3);
-        if (numbers.length > 7)
-          formatted = formatted.slice(0, 8) + "-" + formatted.slice(8);
-        handleChange("phoneNumber", formatted);
-      }
-    },
-    [handleChange]
-  );
+  const handlePhoneChange = (value: string) => {
+    const numbersOnly = value.replace(/[^\d]/g, "");
+    if (numbersOnly.length <= 11) {
+      let formatted = numbersOnly;
+      if (numbersOnly.length > 3)
+        formatted = numbersOnly.slice(0, 3) + "-" + numbersOnly.slice(3);
+      if (numbersOnly.length > 7)
+        formatted = formatted.slice(0, 8) + "-" + formatted.slice(8);
+      handleChange("phoneNumber", formatted);
+    }
+  };
 
   const validateForm = () => {
-    const newErrors: {
-      name?: string;
-      birth?: string;
-      phoneNumber?: string;
-    } = {};
     const { name, birthYear, birthMonth, birthDay, phoneNumber } = formData;
+    const newErrors: { [key: string]: string } = {};
+
     if (!name.trim()) newErrors.name = "이름을 입력해주세요.";
     if (!birthYear || !birthMonth || !birthDay) {
       newErrors.birth = "생년월일을 모두 입력해주세요.";
@@ -97,32 +93,34 @@ const SignupScreen = () => {
         m = +birthMonth,
         d = +birthDay,
         now = new Date().getFullYear();
-      if (y < 1900 || y > now) newErrors.birth = "올바른 연도";
-      else if (m < 1 || m > 12) newErrors.birth = "올바른 월";
-      else if (d < 1 || d > 31) newErrors.birth = "올바른 일";
+      if (y < 1900 || y > now) newErrors.birth = "올바른 연도입니다.";
+      else if (m < 1 || m > 12) newErrors.birth = "올바른 월입니다.";
+      else if (d < 1 || d > 31) newErrors.birth = "올바른 일입니다.";
       else {
         const daysInMonth = new Date(y, m, 0).getDate();
         if (d > daysInMonth)
           newErrors.birth = `${y}년 ${m}월은 ${daysInMonth}일까지입니다.`;
       }
     }
+
     if (!phoneNumber || phoneNumber.replace(/-/g, "").length !== 11) {
       newErrors.phoneNumber = "올바른 전화번호를 입력해주세요.";
     }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async () => {
+    if (isSubmitting) return;
     if (!validateForm()) return;
-    setIsSubmitting(true);
 
-    console.log("📨 [signUp] 회원가입 요청 시작");
-
-    if (isSubmitting) {
-      console.log("🚫 이미 가입 요청 중이므로 무시");
+    if (!user) {
+      Alert.alert("오류", "카카오 로그인이 필요합니다.");
       return;
     }
+
+    setIsSubmitting(true);
 
     const payload = {
       userName: formData.name,
@@ -130,20 +128,19 @@ const SignupScreen = () => {
       userGender: formData.gender,
       userPhone: formData.phoneNumber,
       role: formData.role || "PARENT",
+      kakaoId: user.kakaoId,
+      userEmail: user.userEmail,
     };
 
-    console.log("🚀 회원가입 제출 데이터:", payload);
-
     try {
-      await useAuthStore.getState().signUp(payload);
-      
-      setIsSubmitting(false);
-      await useAuthStore.getState().user;
+      await signupMutation(payload);
+      console.log("🔑 회원가입 성공");
       router.replace("/auth/CreatePin");
-    } catch (error) {
-      setIsSubmitting(false);
+    } catch (error: any) {
       console.error("❌ 회원가입 실패:", error);
-      Alert.alert("오류", "회원가입 중 오류가 발생했습니다.");
+      Alert.alert("회원가입 실패", "잠시 후 다시 시도해주세요.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 

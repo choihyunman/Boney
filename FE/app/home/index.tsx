@@ -12,7 +12,8 @@ import GlobalText from "@/components/GlobalText";
 
 export default function Home() {
   const router = useRouter();
-  const { token, user } = useAuthStore();
+  const { token } = useAuthStore();
+  const user = useAuthStore((state) => state.user);
   const { isLoading, childData, parentData, refetchChild, refetchParent } =
     useHome();
 

@@ -5,7 +5,7 @@ import { useHomeStore } from "@/stores/useHomeStore";
 import { useEffect } from "react";
 
 export const useHome = () => {
-  const { user } = useAuthStore();
+  const user = useAuthStore((state) => state.user);
   const { setChildData, setParentData, clearData } = useHomeStore();
 
   console.log("🔍 useHome - Current user role:", user?.role);
