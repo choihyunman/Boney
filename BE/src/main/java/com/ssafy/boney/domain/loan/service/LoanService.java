@@ -265,30 +265,35 @@ public class LoanService {
 
         // ✅ 부모 전자서명 처리 (base64 → S3)
         if (request.getParentSignature() != null) {
-            try {
-                byte[] decodedBytes = Base64.decodeBase64(request.getParentSignature());
-                ByteArrayInputStream inputStream = new ByteArrayInputStream(decodedBytes);
+            // 이미 해당 loan에 대해 부모 서명이 있는지 확인
+            boolean parentSigned = loanSignatureRepository.findByLoanAndSignerType(loan, SignerType.PARENT).isPresent();
 
-                ObjectMetadata metadata = new ObjectMetadata();
-                metadata.setContentLength(decodedBytes.length);
-                metadata.setContentType("image/png");
+            if (!parentSigned) {
+                try {
+                    byte[] decodedBytes = Base64.decodeBase64(request.getParentSignature());
+                    ByteArrayInputStream inputStream = new ByteArrayInputStream(decodedBytes);
 
-                String fileName = "loan/signatures/" + UUID.randomUUID() + ".png";
-                amazonS3.putObject(bucket, fileName, inputStream, metadata);
-                String s3Url = amazonS3.getUrl(bucket, fileName).toString();
+                    ObjectMetadata metadata = new ObjectMetadata();
+                    metadata.setContentLength(decodedBytes.length);
+                    metadata.setContentType("image/png");
 
-                LoanSignature signature = LoanSignature.builder()
-                        .loan(loan)
-                        .signatureUrl(s3Url)
-                        .signedAt(LocalDateTime.now())
-                        .signerType(SignerType.PARENT)
-                        .build();
-                loanSignatureRepository.save(signature);
-            } catch (Exception e) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
-                        "status", 500,
-                        "message", "부모 전자 서명 저장 실패: " + e.getMessage()
-                ));
+                    String fileName = "loan/signatures/" + UUID.randomUUID() + ".png";
+                    amazonS3.putObject(bucket, fileName, inputStream, metadata);
+                    String s3Url = amazonS3.getUrl(bucket, fileName).toString();
+
+                    LoanSignature signature = LoanSignature.builder()
+                            .loan(loan)
+                            .signatureUrl(s3Url)
+                            .signedAt(LocalDateTime.now())
+                            .signerType(SignerType.PARENT)
+                            .build();
+                    loanSignatureRepository.save(signature);
+                } catch (Exception e) {
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                            "status", 500,
+                            "message", "부모 전자 서명 저장 실패: " + e.getMessage()
+                    ));
+                }
             }
         }
 
