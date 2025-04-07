@@ -898,13 +898,20 @@ public class LoanService {
         for (Loan loan : approvedLoans) {
             List<LoanRepayment> loanRepayments = loanRepaymentRepository.findAll().stream()
                     .filter(r -> r.getLoan().getLoanId().equals(loan.getLoanId()))
+                    .sorted(Comparator.comparing(LoanRepayment::getRepaymentDate)) // 상환 일자 순 정렬
                     .toList();
 
+            Long totalLoanAmount = loan.getLoanAmount();
+            Long totalRepaid = 0L;
+
             for (LoanRepayment repayment : loanRepayments) {
+                totalRepaid += repayment.getPrincipalAmount(); // 누적 상환
+
                 Map<String, Object> repaymentInfo = new HashMap<>();
                 repaymentInfo.put("loan_id", loan.getLoanId());
                 repaymentInfo.put("repaid_amount", repayment.getPrincipalAmount());
                 repaymentInfo.put("repayment_date", repayment.getRepaymentDate().toLocalDate().toString());
+                repaymentInfo.put("remaining_amount", Math.max(totalLoanAmount - totalRepaid, 0)); // 남은 금액
                 loanRepaymentHistory.add(repaymentInfo);
             }
         }
