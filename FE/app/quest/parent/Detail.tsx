@@ -56,14 +56,14 @@ export default function QuestCreatePage() {
   };
 
   return (
-    <View className="flex-1 bg-[#F9FAFB]">
+    <View className="flex-1 bg-[#F5F6F8]">
       <ScrollView className="flex-1 px-6 mt-6 pb-20">
-        <View className="bg-white rounded-xl shadow-sm p-5">
+        <View className="bg-white rounded-xl p-5">
           <GlobalText weight="bold" className="text-lg text-gray-800 mb-6">
             퀘스트 설정하기
           </GlobalText>
           {/* 퀘스트 아이콘 + 제목 + 카테고리 */}
-          <View className="flex-row items-center bg-[#F9FAFB] rounded-xl p-4 shadow-sm mb-6">
+          <View className="flex-row items-center bg-[#F9FAFB] rounded-xl p-4 mb-6">
             <View className="h-12 w-12 rounded-full bg-[#e6f7ef] items-center justify-center mr-4">
               {getQuestIcon(questTitle)}
             </View>
@@ -132,10 +132,12 @@ export default function QuestCreatePage() {
                 value={message}
                 onChangeText={setMessage}
                 placeholder={`아이에게 전할 말을 작성해주세요.
-(최대 80글자)`}
+(최대 30글자)`}
                 height={96}
-                maxLength={80}
+                maxLength={30}
                 multiline={true}
+                placeholderFontSize={12}
+                inputFontSize={14}
               />
             </View>
           ) : null}
@@ -163,6 +165,7 @@ export default function QuestCreatePage() {
       {/* 모달: 날짜 선택 */}
       {showDateModal && (
         <DatePickerModal
+          title="완료 날짜 선택"
           onSelectDate={(date) => {
             setDueDate(date);
             setShowDateModal(false);

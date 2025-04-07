@@ -14,8 +14,8 @@ export default function LoanSummary({ title, count, totalAmount }: Props) {
         <GlobalText weight="bold" className="text-2xl text-gray-800">
           {title}
         </GlobalText>
-        <View className="bg-[#4FC985] px-2 py-0.5 rounded-full">
-          <GlobalText weight="bold" className="text-white text-md">
+        <View className="bg-[#4FC985] px-3 py-1 rounded-lg">
+          <GlobalText weight="bold" className="text-white">
             {count}건
           </GlobalText>
         </View>

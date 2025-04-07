@@ -65,9 +65,9 @@ export default function QuestDetailCard({
   const dday = calculateDday(dueDate);
 
   return (
-    <View className="space-y-4 px-6">
+    <View className="space-y-4 px-6 bg-[#F5F6F8]">
       {/* 흰색 카드 본체 */}
-      <View className="bg-white rounded-2xl shadow-md p-6 space-y-6">
+      <View className="bg-white rounded-2xl p-6 space-y-6">
         <View className="items-center">
           {/* 대표 이미지 or 아이콘 */}
           <View className="relative mb-4">
@@ -99,7 +99,7 @@ export default function QuestDetailCard({
             {editableImage && (
               <TouchableOpacity
                 onPress={onImageSelect}
-                className="absolute bottom-2 right-2 bg-[#4FC985] rounded-full p-2 shadow-md"
+                className="absolute bottom-2 right-2 bg-[#4FC985] rounded-full p-2"
               >
                 <Camera size={20} color="white" />
               </TouchableOpacity>
@@ -148,6 +148,13 @@ export default function QuestDetailCard({
                 className={`text-lg text-right ${
                   item.color ?? "text-gray-800"
                 }`}
+                style={{
+                  flexShrink: 1,
+                  flexWrap: "wrap",
+                  lineHeight: 24,
+                  textAlign: "right",
+                  marginLeft: 13,
+                }}
               >
                 {item.value}
               </GlobalText>
@@ -196,7 +203,7 @@ export default function QuestDetailCard({
               <TouchableOpacity
                 key={idx}
                 onPress={btn.onPress}
-                className={`flex-1 py-4 rounded-lg shadow-md mr-1 mt-4 ${flexClass} ${
+                className={`flex-1 py-4 rounded-lg mr-1 mt-4 ${flexClass} ${
                   isPrimary ? "bg-[#4FC985]" : "bg-gray-200"
                 }`}
               >

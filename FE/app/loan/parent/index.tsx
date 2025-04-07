@@ -20,7 +20,7 @@ export default function LoanListParent() {
   const totalAmount = loanList.reduce((sum, loan) => sum + loan.last_amount, 0);
 
   return (
-    <ScrollView className="flex-1 bg-[#F9FAFB]">
+    <ScrollView className="flex-1 bg-[#F5F6F8]">
       <LoanSummary
         title="진행 중인 대출"
         count={loanList.length}

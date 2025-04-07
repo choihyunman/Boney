@@ -9,7 +9,7 @@ export default function ReqComplete() {
     useQuestApprovalStore();
 
   const handleConfirm = () => {
-    router.replace("/quest/parent/List");
+    router.replace("/quest/parent");
   };
 
   const formatDate = (date: string) => {

@@ -137,9 +137,9 @@ export default function RegularAllowance() {
   }
 
   return (
-    <View className="flex-1 bg-gray-50 px-4 py-3">
+    <View className="flex-1 bg-[#F5F6F8] px-4 py-3">
       {/* Card Container */}
-      <View className="flex-1 bg-white rounded-2xl p-4 shadow-sm">
+      <View className="flex bg-white rounded-2xl p-4">
         {/* Profile Circle */}
         <View className="items-center mb-5">
           <View className="w-[68px] h-[68px] rounded-full overflow-hidden">
@@ -156,7 +156,7 @@ export default function RegularAllowance() {
 
         {/* 지급 주기 선택 */}
         <View className="mb-5">
-          <GlobalText className="text-sm text-[#020817] mb-2">
+          <GlobalText weight="bold" className="text-md text-[#020817] mb-2">
             지급 주기
           </GlobalText>
           <View className="flex-row gap-3">
@@ -193,14 +193,14 @@ export default function RegularAllowance() {
 
         {/* 지급 요일/일 선택 */}
         <View className="mb-5">
-          <GlobalText className="text-sm text-[#020817] mb-2">
+          <GlobalText weight="bold" className="text-md text-[#020817] mb-2">
             {isWeekly ? "지급 요일" : "지급일"}
           </GlobalText>
           <TouchableOpacity
             onPress={() => setIsDayPickerVisible(true)}
             className="h-10 px-3 bg-white rounded-lg border border-gray-200 flex-row items-center justify-between"
           >
-            <GlobalText className="text-sm text-[#020817]">
+            <GlobalText className="text-md text-[#020817]">
               {isWeekly ? selectedDay.name : selectedDate.name}
             </GlobalText>
             <ChevronDown size={16} color="#9CA3AF" />
@@ -209,7 +209,7 @@ export default function RegularAllowance() {
 
         {/* 용돈 금액 */}
         <View className="mb-2">
-          <GlobalText className="text-sm text-[#020817] mb-2">
+          <GlobalText weight="bold" className="text-md text-[#020817] mb-2">
             용돈 금액
           </GlobalText>
           <View className="flex-row items-center">
@@ -220,15 +220,16 @@ export default function RegularAllowance() {
               placeholderTextColor="#9CA3AF"
               value={amount}
               onChangeText={setAmount}
+              style={{ fontFamily: "NEXONLv1Gothic-Regular" }}
             />
-            <GlobalText className="ml-2 text-sm text-[#020817]">원</GlobalText>
+            <GlobalText className="ml-2 text-md text-[#020817]">원</GlobalText>
           </View>
         </View>
 
         {/* 자동 지급 알림 */}
         <View className="flex-row items-center mb-5">
           <Calendar size={12} color="#9CA3AF" />
-          <GlobalText className="ml-2 text-xs text-gray-500">
+          <GlobalText className="ml-2 text-sm text-gray-500">
             {isWeekly
               ? `매주 ${selectedDay.name}에 자동으로 지급됩니다.`
               : `매월 ${selectedDate.name}에 자동으로 지급됩니다.`}
@@ -256,34 +257,6 @@ export default function RegularAllowance() {
               <GlobalText className="text-sm text-red-500">해지하기</GlobalText>
             </TouchableOpacity>
           )}
-        </View>
-
-        {/* 구분선 */}
-        <View className="h-[1px] bg-gray-200 mb-5" />
-
-        {/* 참고 사항 */}
-        <View>
-          {/* 타이틀 */}
-          <GlobalText weight="bold" className="text-base text-[#020817] mb-2">
-            참고해주세요
-          </GlobalText>
-
-          {/* 목록 */}
-          {[
-            "선택한 날짜가 없는 달엔 말일에 지급돼요.",
-            "지급일이 오늘이면 다음 회차부터 지급돼요.",
-            "이미 설정돼있더라도 새로 입력 시 재설정돼요.",
-          ].map((text, index) => (
-            <View key={index} className="flex-row items-start mb-1.5">
-              <View className="mt-[5px] mr-2 w-1.5 h-1.5 rounded-full bg-[#4FC985]" />
-              <GlobalText
-                className="text-xs text-gray-600"
-                style={{ lineHeight: 20 }}
-              >
-                {text}
-              </GlobalText>
-            </View>
-          ))}
         </View>
       </View>
 
@@ -329,6 +302,36 @@ export default function RegularAllowance() {
           </View>
         </TouchableOpacity>
       </Modal>
+
+      <View className="flex p-4">
+        {/* 구분선 */}
+        <View className="h-[1px] bg-gray-200 mt-2 mb-5" />
+
+        {/* 참고 사항 */}
+        <View>
+          {/* 타이틀 */}
+          <GlobalText weight="bold" className="text-base text-[#020817] mb-2">
+            참고해주세요
+          </GlobalText>
+
+          {/* 목록 */}
+          {[
+            "선택한 날짜가 없는 달엔 말일에 지급돼요.",
+            "지급일이 오늘이면 다음 회차부터 지급돼요.",
+            "이미 설정돼있더라도 새로 입력 시 재설정돼요.",
+          ].map((text, index) => (
+            <View key={index} className="flex-row items-start mb-1.5">
+              <View className="mt-[5px] mr-2 w-1.5 h-1.5 rounded-full bg-[#4FC985]" />
+              <GlobalText
+                className="text-sm text-gray-600"
+                style={{ lineHeight: 20 }}
+              >
+                {text}
+              </GlobalText>
+            </View>
+          ))}
+        </View>
+      </View>
     </View>
   );
 }

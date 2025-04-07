@@ -1,10 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  TouchableOpacity,
-  ScrollView,
-  FlatList,
-} from "react-native";
+import { View, TouchableOpacity, ScrollView, FlatList } from "react-native";
 import GlobalText from "../../../components/GlobalText";
 import PopupModal from "../../../components/PopupModal";
 import { useLoanReqListQuery } from "@/hooks/useLoanReqListChildQuery";
@@ -56,7 +51,7 @@ export default function ChildLoanRequestsPage() {
   };
 
   return (
-    <View className="flex-1 bg-[#F9FAFB]">
+    <View className="flex-1 bg-[#F5F6F8]">
       <PopupModal
         title="대출 신청 취소"
         content="정말 대출 신청을 취소하시겠습니까?"
@@ -87,7 +82,7 @@ export default function ChildLoanRequestsPage() {
           </View>
         }
         renderItem={({ item: loan }) => (
-          <View className="mb-4 bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+          <View className="mb-4 bg-white rounded-xl p-5 border border-gray-100">
             <View className="flex-row justify-between items-center mb-4">
               <GlobalText className="text-xl text-gray-800" weight="bold">
                 신청 대출금

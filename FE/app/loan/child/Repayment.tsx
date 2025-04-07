@@ -153,9 +153,9 @@ export default function Repayment() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-[#F9FAFB]">
+    <ScrollView className="flex-1 bg-[#F5F6F8]">
       <View className="px-6">
-        <View className="bg-white rounded-2xl px-6 py-6 shadow-sm mt-2">
+        <View className="bg-white rounded-2xl px-6 py-6 mt-2">
           <View className="flex flex-col space-y-6">
             <GlobalText weight="bold" className="text-xl text-gray-800 mb-2">
               대출 정보

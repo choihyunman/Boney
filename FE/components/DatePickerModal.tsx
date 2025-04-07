@@ -11,9 +11,11 @@ const todayString = dayjs().format("YYYY-MM-DD");
 export default function LoanDatePickerModal({
   onSelectDate,
   onClose,
+  title = "상환 날짜 선택",
 }: {
   onSelectDate: (date: string) => void;
   onClose: () => void;
+  title?: string;
 }) {
   const [selectedDate, setSelectedDate] = useState<string>("");
 
@@ -49,7 +51,7 @@ export default function LoanDatePickerModal({
     <View className="absolute inset-0 bg-black/50 justify-end">
       <View className="bg-white rounded-t-3xl p-5">
         <GlobalText weight="bold" className="text-lg mb-4">
-          상환 날짜 선택
+          {title}
         </GlobalText>
 
         {/* 빠른 선택 버튼 */}

@@ -70,7 +70,7 @@ export default function QuestListPage() {
     : 0;
 
   return (
-    <View className="flex-1 bg-[#F9FAFB]">
+    <View className="flex-1 bg-[#F5F6F8]">
       <ScrollView className="flex-1 px-6 mt-6 pb-20">
         {/* 헤더 */}
         <View className="flex-row justify-between items-center mb-6">
@@ -98,7 +98,7 @@ export default function QuestListPage() {
         </View>
 
         {/* 목록 */}
-        <View className="bg-white rounded-xl shadow-sm p-5">
+        <View className="bg-white rounded-xl p-5">
           <View className="flex-row justify-between items-center mb-4">
             <GlobalText weight="bold" className="text-lg text-gray-800">
               퀘스트 목록
@@ -164,8 +164,6 @@ export default function QuestListPage() {
                             className={`px-2 py-1 rounded-full ${
                               calculateDday(quest.endDate).includes("+")
                                 ? "bg-red-100"
-                                : calculateDday(quest.endDate) === "D-Day"
-                                ? "bg-yellow-100"
                                 : "bg-[#e6f7ef]"
                             }`}
                           >
@@ -173,8 +171,6 @@ export default function QuestListPage() {
                               className={`text-xs font-medium ${
                                 calculateDday(quest.endDate).includes("+")
                                   ? "text-red-600"
-                                  : calculateDday(quest.endDate) === "D-Day"
-                                  ? "text-yellow-600"
                                   : "text-[#4FC985]"
                               }`}
                             >

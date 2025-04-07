@@ -94,5 +94,5 @@ export const useAuthRedirect = () => {
     };
 
     redirect();
-  }, [hasHydrated, navigationState, token, user]);
+  }, [hasHydrated, navigationState?.key, token, user]);
 };

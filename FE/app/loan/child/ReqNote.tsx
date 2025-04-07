@@ -87,7 +87,7 @@ export default function PromissoryNotePage() {
   };
 
   return (
-    <View className="flex-1 bg-[#F9FAFB]">
+    <View className="flex-1 bg-[#F5F6F8]">
       {/* 앱 컨텐츠 */}
       <ScrollView className="flex-1 px-6 mt-6 space-y-6 pb-20">
         <PromissoryNote
@@ -103,7 +103,7 @@ export default function PromissoryNotePage() {
         <View className="flex-row space-x-3 mt-4">
           <TouchableOpacity
             onPress={handleRewrite}
-            className="py-4 px-6 rounded-lg shadow-sm bg-gray-200 flex-1 mr-2"
+            className="py-4 px-6 rounded-lg bg-gray-200 flex-1 mr-2"
           >
             <GlobalText className="text-gray-700 text-center">
               다시 쓰기
@@ -111,7 +111,7 @@ export default function PromissoryNotePage() {
           </TouchableOpacity>
           <TouchableOpacity
             onPress={handleSubmitLoan}
-            className="py-4 px-6 rounded-lg shadow-sm bg-[#4FC985] flex-[1.5]"
+            className="py-4 px-6 rounded-lg bg-[#4FC985] flex-[1.5]"
           >
             <GlobalText className="text-white text-center">서명하기</GlobalText>
           </TouchableOpacity>

@@ -4,7 +4,7 @@ import HistoryItem from "@/components/HistoryItem";
 import { useQuery } from "@tanstack/react-query";
 import { getLoanHistory } from "@/apis/loanChildApi";
 
-export default function ChildQuestHistoryPage() {
+export default function ChildLoanHistoryPage() {
   const useLoanHistoryQuery = useQuery({
     queryKey: ["loanHistoryChild"],
     queryFn: getLoanHistory,
@@ -31,7 +31,7 @@ export default function ChildQuestHistoryPage() {
   });
 
   return (
-    <View className="flex-1 bg-[#F9FAFB]">
+    <View className="flex-1 bg-[#F5F6F8]">
       <View className="flex-1">
         <View className="bg-white mt-1">
           {sortedLoans.map((loan) => (

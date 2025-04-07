@@ -16,7 +16,7 @@ export default function SignupCompletePage() {
   };
 
   return (
-    <View className="flex-1 bg-[#F9FAFB] px-6 pt-8 pb-8 items-center gap-6">
+    <View className="flex-1 bg-[#F5F6F8] px-6 pt-8 pb-8 items-center gap-6">
       {/* Spacer */}
       <View className="h-[102px] w-px" />
 
@@ -31,7 +31,7 @@ export default function SignupCompletePage() {
       </View>
 
       {/* 계좌 정보 카드 */}
-      <View className="w-full bg-white rounded-xl p-6 mb-8 shadow-sm">
+      <View className="w-full bg-white rounded-xl p-6 mb-8">
         <GlobalText className="text-base font-normal text-gray-700 mb-4">
           아래 계좌 번호로 앱을 이용할 수 있어요.
         </GlobalText>
@@ -51,7 +51,7 @@ export default function SignupCompletePage() {
       {/* 확인 버튼 */}
       <TouchableOpacity
         onPress={handleConfirm}
-        className="w-full bg-[#4FC985] rounded-lg shadow-sm py-4 items-center"
+        className="w-full bg-[#4FC985] rounded-lg py-4 items-center"
       >
         <GlobalText className="text-white text-base font-medium">
           홈으로
