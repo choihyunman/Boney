@@ -25,6 +25,7 @@ public class ExternalApiProperties {
         private String userKey;
         private String urlAccountCreate;
         private String accountTypeUniqueNo;
+        private String urlAccountDeposit;
     }
 
     @Getter

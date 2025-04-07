@@ -52,8 +52,8 @@ public class AccountAuthController {
 
         try {
             Map<String, Object> result = accountAuthService.createDemandDepositAccount();
-
             Map<String, Object> rec = (Map<String, Object>) result.get("REC");
+
             if (rec == null || !rec.containsKey("accountNo")) {
                 return ResponseEntity.status(400).body(Map.of(
                         "status", "400",
@@ -61,11 +61,16 @@ public class AccountAuthController {
                 ));
             }
 
+            String accountNo = rec.get("accountNo").toString();
+
+            // 50,000원 입금 로직 호출
+            accountAuthService.depositToAccount(accountNo, 50000L);
+
             return ResponseEntity.ok(Map.of(
                     "status", "200",
-                    "message", "계좌 생성에 성공했습니다.",
+                    "message", "계좌 생성 및 입금 성공하였습니다.",
                     "data", Map.of(
-                            "accountNo", rec.get("accountNo")
+                            "accountNo", accountNo
                     )
             ));
 

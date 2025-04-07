@@ -95,6 +95,7 @@ public class AccountAuthService {
                 .block();
     }
 
+    // 계좌 생성 api
     public Map<String, Object> createDemandDepositAccount() {
         LocalDateTime now = LocalDateTime.now();
         String transmissionDate = now.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
@@ -121,6 +122,46 @@ public class AccountAuthService {
 
         return webClient.post()
                 .uri(externalApiProperties.getAccountAuth().getUrlAccountCreate())
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .bodyValue(body)
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {})
+                .block();
+    }
+
+
+    // 입급 api 
+    public Map<String, Object> depositToAccount(String accountNo, Long amount) {
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HHmmss");
+
+        String transmissionDate = now.format(dateFormatter);
+        String transmissionTime = now.format(timeFormatter);
+        String random6 = String.format("%06d", new Random().nextInt(1_000_000));
+        String institutionTransactionUniqueNo = transmissionDate + transmissionTime + random6;
+
+        Map<String, Object> header = Map.of(
+                "apiName", "updateDemandDepositAccountDeposit",
+                "transmissionDate", transmissionDate,
+                "transmissionTime", transmissionTime,
+                "institutionCode", externalApiProperties.getAccountAuth().getInstitutionCode(),
+                "fintechAppNo", externalApiProperties.getAccountAuth().getFintechAppNo(),
+                "apiServiceCode", "updateDemandDepositAccountDeposit",
+                "institutionTransactionUniqueNo", institutionTransactionUniqueNo,
+                "apiKey", externalApiProperties.getAccountAuth().getApiKey(),
+                "userKey", externalApiProperties.getAccountAuth().getUserKey()
+        );
+
+        Map<String, Object> body = Map.of(
+                "Header", header,
+                "accountNo", accountNo,
+                "transactionBalance", String.valueOf(amount),
+                "transactionSummary", "입금"
+        );
+
+        return webClient.post()
+                .uri(externalApiProperties.getAccountAuth().getUrlAccountDeposit())
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .bodyValue(body)
                 .retrieve()
