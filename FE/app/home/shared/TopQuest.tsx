@@ -5,7 +5,7 @@ import { useHomeStore } from "@/stores/useHomeStore";
 import { useAuthStore } from "@/stores/useAuthStore";
 
 export default function MissionSection() {
-  const { user } = useAuthStore();
+  const user = useAuthStore((state) => state.user);
   const { childData, parentData } = useHomeStore();
 
   const quests = user?.role === "CHILD" ? childData?.quests : parentData?.quest;

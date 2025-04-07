@@ -105,7 +105,7 @@ function RootLayoutNav() {
       // 이전 알림 목록 업데이트
       previousNotificationsRef.current = response.data;
     } catch (err) {
-      console.error("❌ 알림 목록 조회 실패:", err);
+      // console.error("❌ 알림 목록 조회 실패:", err);
     }
   };
 

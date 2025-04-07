@@ -7,7 +7,7 @@ import { useHomeStore } from "@/stores/useHomeStore";
 import { router } from "expo-router";
 
 export default function BalanceSection() {
-  const { user } = useAuthStore();
+  const user = useAuthStore((state) => state.user);
   const { childData, parentData } = useHomeStore();
 
   const data = user?.role === "CHILD" ? childData : parentData;
@@ -52,7 +52,7 @@ export default function BalanceSection() {
           </View>
 
           <View className="self-center">
-            <TouchableOpacity 
+            <TouchableOpacity
               className="bg-[#4FC985] px-4 py-2 rounded-full flex-row items-center gap-1"
               onPress={() => router.push("/transfer")}
             >

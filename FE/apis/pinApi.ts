@@ -1,6 +1,6 @@
 import axios from "axios";
 import { API_BASE_URL } from "../config";
-import { useAuthStore } from "@/stores/useAuthStore";
+import { api } from "@/lib/api";
 
 interface VerifyPasswordResponse {
   data: {
@@ -14,21 +14,14 @@ export const verifyPassword = async (
   password: string
 ): Promise<VerifyPasswordResponse> => {
   try {
-    const token = useAuthStore.getState().token;
     const requestBody = {
       send_password: password,
     };
     console.log("🔐 비밀번호 검증 API 요청 바디:", requestBody);
 
-    const response = await axios.post(
+    const response = await api.post(
       `${API_BASE_URL}/api/v1/account/password/verify`,
-      requestBody,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
+      requestBody
     );
     console.log("🔐 비밀번호 검증 API 응답:", response.data);
     return response.data;
@@ -46,3 +39,9 @@ export const verifyPassword = async (
     throw error;
   }
 };
+
+// PIN 등록 여부 체크
+export async function checkPinRegistered() {
+  const res = await api.post("/account/password/check");
+  return res.data.data;
+}

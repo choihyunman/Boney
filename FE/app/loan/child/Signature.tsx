@@ -49,7 +49,8 @@ export default function Signature({ onClose }: SignatureProps) {
       });
 
       setLatestLoan(response.data);
-      router.push("/loan/child/ReqComplete");
+      router.replace("/");
+      router.replace("/loan/child/ReqComplete");
     } catch (error) {
       console.error("❌ 서명 처리 중 오류:", error);
       Alert.alert("오류", "서명 처리 중 오류가 발생했습니다.");

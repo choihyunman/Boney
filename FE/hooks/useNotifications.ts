@@ -14,7 +14,7 @@ export const useNotifications = () => {
       setNotifications(response.data);
       setError(null);
     } catch (err) {
-      console.error("❌ 알림 목록 조회 실패:", err);
+      // console.error("❌ 알림 목록 조회 실패:", err);
       setError(
         err instanceof Error
           ? err
