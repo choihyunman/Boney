@@ -105,7 +105,7 @@ export default function MenuScreen() {
           id: "quests-active",
           title: "진행 중인 퀘스트",
           icon: <FileClock size={18} color={isDark ? "#E5E7EB" : "#374151"} />,
-          route: "/quest/child/List",
+          route: "/quest/child/list",
         },
         // {
         //   id: "quests-completed",
@@ -220,7 +220,7 @@ export default function MenuScreen() {
           id: "quests-active",
           title: "진행 중인 퀘스트",
           icon: <FileClock size={18} color={isDark ? "#E5E7EB" : "#374151"} />,
-          route: "/quest/parent/List",
+          route: "/quest/parent/list",
         },
       ],
     },
