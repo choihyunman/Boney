@@ -24,7 +24,7 @@ export default function PromissoryNote({
   minHeight = 400,
 }: PromissoryNoteProps) {
   return (
-    <View className="bg-white rounded-xl shadow-sm p-5 items-center">
+    <View className="bg-white rounded-xl p-5 items-center">
       <GlobalText weight="bold" className="text-lg text-gray-800 mb-2">
         차용증
       </GlobalText>

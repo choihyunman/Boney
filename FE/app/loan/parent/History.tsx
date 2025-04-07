@@ -31,7 +31,7 @@ export default function ParentLoanHistoryPage() {
   });
 
   return (
-    <View className="flex-1 bg-[#F9FAFB]">
+    <View className="flex-1 bg-[#F5F6F8]">
       <View className="flex-1">
         <View className="bg-white mt-1">
           {sortedLoans.map((loan) => (

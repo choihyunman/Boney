@@ -55,7 +55,7 @@ export default function LoanListChild() {
   const hasValidChartData = loanList.length > 0 && repaymentHistory.length > 0;
 
   return (
-    <ScrollView className="flex-1 bg-[#F9FAFB]">
+    <ScrollView className="flex-1 bg-[#F5F6F8]">
       <LoanSummary
         title="보유 중인 대출"
         count={loanList.length}

@@ -8,6 +8,8 @@ interface CustomTextAreaProps extends TextInputProps {
   placeholder: string;
   maxLength?: number;
   height?: number;
+  placeholderFontSize?: number;
+  inputFontSize?: number;
 }
 
 export default function CustomTextArea({
@@ -16,6 +18,8 @@ export default function CustomTextArea({
   placeholder,
   maxLength,
   height = 100,
+  placeholderFontSize = 14,
+  inputFontSize = 16,
   ...rest
 }: CustomTextAreaProps) {
   const inputRef = useRef<TextInput>(null);
@@ -41,7 +45,7 @@ export default function CustomTextArea({
           className="absolute left-4 top-3 text-gray-400"
           style={{
             fontFamily: "NEXONLv1Gothic-Regular",
-            fontSize: 14,
+            fontSize: placeholderFontSize,
             lineHeight: 24,
             maxWidth: "95%",
           }}
@@ -60,7 +64,7 @@ export default function CustomTextArea({
         className="w-full px-4 py-3 text-base"
         style={{
           fontFamily: "NEXONLv1Gothic-Regular",
-          fontSize: 16,
+          fontSize: inputFontSize,
           lineHeight: 24,
         }}
         {...rest}

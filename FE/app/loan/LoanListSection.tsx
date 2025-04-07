@@ -32,7 +32,7 @@ export default function LoanListSection({
 
   return (
     <View className="px-6">
-      <View className="bg-white rounded-2xl px-6 py-6 shadow-sm mt-4">
+      <View className="bg-white rounded-2xl px-6 py-6 mt-4">
         <View className="flex flex-col space-y-6">
           <GlobalText weight="bold" className="text-xl text-gray-800 mb-4">
             {title}

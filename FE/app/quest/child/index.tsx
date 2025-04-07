@@ -79,7 +79,7 @@ export default function ChildQuestListPage() {
     : 0;
 
   return (
-    <View className="flex-1 bg-[#F9FAFB]">
+    <View className="flex-1 bg-[#F5F6F8]">
       {/* 앱 컨텐츠 */}
       <ScrollView className="flex-1 px-6 mt-6 pb-20">
         {/* 퀘스트 요약 */}
@@ -104,7 +104,7 @@ export default function ChildQuestListPage() {
         </View>
 
         {/* 퀘스트 목록 */}
-        <View className="bg-white rounded-xl shadow-sm p-5">
+        <View className="bg-white rounded-xl p-5">
           <GlobalText weight="bold" className="text-lg text-gray-800 mb-4">
             퀘스트 목록
           </GlobalText>

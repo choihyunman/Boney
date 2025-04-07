@@ -24,7 +24,7 @@ const Complete = ({
   details = [],
 }: CompleteProps) => {
   return (
-    <View className="flex-1 bg-[#F9FAFB] px-6 pt-16 pb-8 items-center gap-6">
+    <View className="flex-1 bg-[#F5F6F8] px-6 pt-16 pb-8 items-center gap-6">
       {/* Spacer */}
       <View className="w-px" />
 
@@ -44,7 +44,7 @@ const Complete = ({
       </View>
 
       {/* 상세 내역 정보 카드 */}
-      <View className="w-full bg-white rounded-xl px-6 py-3 mb-8 shadow-sm">
+      <View className="w-full bg-white rounded-xl px-6 py-3 mb-8">
         <View className="flex flex-col gap-2">
           {details.map((item, index) => (
             <View key={index}>
@@ -62,15 +62,28 @@ const Complete = ({
                 </View>
 
                 {/* 값 */}
-                <GlobalText
-                  weight="bold"
-                  className="text-lg font-lg tracking-wider"
-                  style={
-                    item.valueColor ? { color: item.valueColor } : undefined
-                  }
-                >
-                  {item.value}
-                </GlobalText>
+                {typeof item.value === "string" ? (
+                  <GlobalText
+                    weight="bold"
+                    className="text-lg font-lg tracking-wider"
+                    style={[
+                      {
+                        flexShrink: 1,
+                        flexWrap: "wrap",
+                        lineHeight: 24,
+                        textAlign: "right",
+                        marginLeft: 10,
+                      },
+                      item.valueColor ? { color: item.valueColor } : undefined,
+                    ]}
+                  >
+                    {item.value}
+                  </GlobalText>
+                ) : (
+                  <View className="flex-1 items-end" style={{ marginLeft: 10 }}>
+                    {item.value}
+                  </View>
+                )}
               </View>
 
               {/* 부가 설명 박스 */}
@@ -94,7 +107,7 @@ const Complete = ({
       {/* 확인 버튼 */}
       <TouchableOpacity
         onPress={onConfirm}
-        className="w-full bg-[#4FC985] rounded-lg shadow-sm py-4 items-center"
+        className="w-full bg-[#4FC985] rounded-lg py-4 items-center"
       >
         <GlobalText weight="bold" className="text-white text-base">
           확인

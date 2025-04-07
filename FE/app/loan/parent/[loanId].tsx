@@ -93,7 +93,7 @@ export default function LoanDetailParent() {
   }, []);
 
   return (
-    <View className="flex-1 bg-[#F9FAFB]">
+    <View className="flex-1 bg-[F5F6F8]">
       {/* 앱 컨텐츠 */}
       <ScrollView className="flex-1 px-6 mt-6 space-y-6 pb-20">
         <PromissoryNote
@@ -108,7 +108,7 @@ export default function LoanDetailParent() {
         />
 
         {/* 세부 내역 영역 */}
-        <View className="w-full bg-white rounded-xl px-6 py-3 mt-4 mb-8 shadow-sm">
+        <View className="w-full bg-white rounded-xl px-6 py-3 mt-4 mb-8">
           <View className="flex flex-col">
             <View className="flex-row justify-between items-center py-4">
               <View className="flex-row items-center">

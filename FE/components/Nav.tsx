@@ -4,11 +4,13 @@ import { router, usePathname } from "expo-router";
 import GlobalText from "./GlobalText";
 import { clsx } from "clsx";
 import { Home, FileText, Trophy, Menu, Award } from "lucide-react-native";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 const { width } = Dimensions.get("window");
 
 const Nav = () => {
   const pathname = usePathname();
+  const user = useAuthStore((state) => state.user);
 
   useEffect(() => {
     console.log("📍 Nav - Current Path:", pathname);
@@ -25,6 +27,14 @@ const Nav = () => {
 
   const activeColor = "#4FC985";
   const inactiveColor = "#9CA3AF";
+
+  const handleQuestPress = () => {
+    if (user?.role === "CHILD") {
+      router.push("/quest/child");
+    } else if (user?.role === "PARENT") {
+      router.push("/quest/parent");
+    }
+  };
 
   return (
     <View
@@ -67,10 +77,7 @@ const Nav = () => {
         </GlobalText>
       </TouchableOpacity>
 
-      <TouchableOpacity
-        className="items-center"
-        // onPress={() => router.push("/quest")}
-      >
+      <TouchableOpacity className="items-center" onPress={handleQuestPress}>
         <Award
           size={24}
           color={getActiveTab() === 2 ? activeColor : inactiveColor}
