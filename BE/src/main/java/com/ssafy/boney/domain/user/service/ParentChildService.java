@@ -160,6 +160,7 @@ public class ParentChildService {
         return ChildrenDetailResponse.builder()
                 .childId(child.getUserId())
                 .childName(child.getUserName())
+                .childGender(child.getUserGender().toString())
                 .childAccountNum(childAccountNum)
                 .bankNum(bankNum)
                 .creditScore(creditScore)
