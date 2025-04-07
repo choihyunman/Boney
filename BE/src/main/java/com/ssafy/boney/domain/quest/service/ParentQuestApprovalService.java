@@ -86,6 +86,7 @@ public class ParentQuestApprovalService {
         String nowStr = now.format(DateTimeFormatter.ISO_DATE_TIME);
 
         ParentQuestApprovalResponse responseDto = ParentQuestApprovalResponse.builder()
+                .childName(quest.getParentChild().getChild().getUserName())
                 .bankName(bankName)
                 .accountNumber(fromAccount)
                 .amount(quest.getQuestReward())
