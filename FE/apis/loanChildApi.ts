@@ -28,12 +28,8 @@ export type LoanItem = {
   loan_amount: number;
   last_amount: number;
   due_date: string;
-  loan_repayment_history: {
-    loan_id: number;
-    repaid_loan: number;
-    due_date: string;
-    create_date: string;
-  }[];
+  parent_name: string;
+  child_credit_score: number;
 };
 
 export type CancelLoanRequest = {
@@ -69,6 +65,18 @@ export type LoanHistoryResponse = {
   }[];
 };
 
+export type RepaymentHistoryItem = {
+  loan_id: number;
+  repayment_date: string;
+  repaid_amount: number;
+  remaining_amount: number;
+};
+
+export type LoanListResponse = {
+  loan_repayment_history: RepaymentHistoryItem[];
+  active_loans: LoanItem[];
+};
+
 export const createLoan = async (
   payload: CreateLoanRequest
 ): Promise<CreateLoanResponse> => {
@@ -85,10 +93,6 @@ export const createLoan = async (
 export const getReqList = async (): Promise<ReqItem[]> => {
   try {
     const res = await api.get("/loan/child/requested");
-    console.log(
-      "🔑 대출 요청 목록 조회 결과:",
-      res.data.data.loan_pending_list
-    );
     return res.data.data.loan_pending_list;
   } catch (error: any) {
     if (error.response?.status === 404) {
@@ -112,11 +116,20 @@ export const cancelLoan = async (payload: CancelLoanRequest): Promise<void> => {
   }
 };
 
-export const getLoanList = async (): Promise<LoanItem[]> => {
+export const getLoanList = async (): Promise<{
+  data: LoanListResponse;
+  message: string;
+  status: string;
+}> => {
   try {
     const res = await api.get("/loan/child/approved");
-    console.log("🔑 아이 대출 목록 조회 결과:", res.data.data.active_loans);
-    return res.data.data.active_loans;
+    // 응답 구조 확인
+    if (res.data && res.data.data) {
+      res.data.data.active_loans.forEach((loan: any, index: number) => {
+      });
+    }
+
+    return res.data;
   } catch (error: any) {
     const message =
       error.response?.data?.message ??

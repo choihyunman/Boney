@@ -10,16 +10,6 @@ export const useNotifications = () => {
     try {
       setIsLoading(true);
       const response = await notificationApi.getNotifications();
-      // console.log("✅ 알림 목록 조회 성공:", {
-      //   totalCount: response.data.length,
-      //   unreadCount: response.data.filter((n) => !n.readStatus).length,
-      //   notifications: response.data.map((n) => ({
-      //     id: n.notificationId,
-      //     type: n.notificationTypeCode,
-      //     title: n.notificationTitle,
-      //     read: n.readStatus,
-      //   })),
-      // });
 
       setNotifications(response.data);
       setError(null);

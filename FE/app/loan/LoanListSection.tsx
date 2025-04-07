@@ -1,6 +1,5 @@
 import { TouchableOpacity, View } from "react-native";
 import GlobalText from "@/components/GlobalText";
-import { router } from "expo-router";
 
 type Props = {
   title: string;
@@ -15,7 +14,7 @@ export default function LoanListSection({
   showCreditorTitle = true,
   onPress,
 }: Props) {
-  const colorPalette = ["#6366F1", "#F59E0B", "#4FC985"];
+  const colorPalette = ["#5E1675", "#EE4266", "#FFD23F", "#3E77E9"];
 
   const calculateDday = (dueDateStr: string) => {
     if (!dueDateStr) return "날짜 미정";
