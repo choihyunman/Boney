@@ -49,6 +49,7 @@ export default function Signature({ onClose }: SignatureProps) {
       });
 
       setLatestLoan(response.data);
+      router.replace("/");
       router.replace("/loan/child/ReqComplete");
     } catch (error) {
       console.error("❌ 서명 처리 중 오류:", error);
