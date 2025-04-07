@@ -69,7 +69,8 @@ export default function Signature({
         // 응답 데이터를 스토어에 저장
         setApprove("data", response.data);
         setShowPinInput(false);
-        router.push("/loan/parent/ReqApprove");
+        router.replace("/");
+        router.replace("/loan/parent/ReqApprove");
       } else {
         const response = await createLoan({
           loan_amount: amount ?? 0,
