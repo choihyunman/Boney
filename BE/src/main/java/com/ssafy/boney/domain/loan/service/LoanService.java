@@ -123,33 +123,39 @@ public class LoanService {
                 .referenceId(loan.getLoanId())
                 .build();
         notificationService.sendNotification(notificationRequest);
+        
+        // 6. 전자서명 base64 → S3 업로드 (CHILD 서명 중복 방지 포함)
+        if (request.getSignature() != null) {
+            boolean alreadySigned = loanSignatureRepository.findByLoanAndSignerType(loan, SignerType.CHILD).isPresent();
 
-        // 6. 전자서명 base64 → S3 업로드
-        try {
-            byte[] decodedBytes = Base64.decodeBase64(request.getSignature());
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(decodedBytes);
+            if (!alreadySigned) {
+                try {
+                    byte[] decodedBytes = Base64.decodeBase64(request.getSignature());
+                    ByteArrayInputStream inputStream = new ByteArrayInputStream(decodedBytes);
 
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentLength(decodedBytes.length);
-            metadata.setContentType("image/png");
+                    ObjectMetadata metadata = new ObjectMetadata();
+                    metadata.setContentLength(decodedBytes.length);
+                    metadata.setContentType("image/png");
 
-            String fileName = "loan/signatures/" + UUID.randomUUID() + ".png";
-            amazonS3.putObject(bucket, fileName, inputStream, metadata);
-            String s3Url = amazonS3.getUrl(bucket, fileName).toString();
+                    String fileName = "loan/signatures/" + UUID.randomUUID() + ".png";
+                    amazonS3.putObject(bucket, fileName, inputStream, metadata);
+                    String s3Url = amazonS3.getUrl(bucket, fileName).toString();
 
-            // 7. LoanSignature 저장 (CHILD로 명시)
-            LoanSignature signature = LoanSignature.builder()
-                    .loan(loan)
-                    .signatureUrl(s3Url)
-                    .signedAt(LocalDateTime.now())
-                    .signerType(SignerType.CHILD)
-                    .build();
-            loanSignatureRepository.save(signature);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
-                    "status", 500,
-                    "message", "전자 서명 업로드 실패: " + e.getMessage()
-            ));
+                    // 7. LoanSignature 저장 (CHILD로 명시)
+                    LoanSignature signature = LoanSignature.builder()
+                            .loan(loan)
+                            .signatureUrl(s3Url)
+                            .signedAt(LocalDateTime.now())
+                            .signerType(SignerType.CHILD)
+                            .build();
+                    loanSignatureRepository.save(signature);
+                } catch (Exception e) {
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                            "status", 500,
+                            "message", "전자 서명 업로드 실패: " + e.getMessage()
+                    ));
+                }
+            }
         }
 
         // 8. 응답
