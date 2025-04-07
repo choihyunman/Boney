@@ -19,6 +19,7 @@ import {
 } from "../../apis/childApi";
 import { useChildDetailStore } from "../../stores/useChildDetailStore";
 import { PinInput } from "../../components/PinInput";
+import { getChildProfileImage } from "@/utils/getChildProfileImage";
 
 const DAYS = [
   { id: 1, name: "월요일" },
@@ -38,7 +39,7 @@ const DATES = Array.from({ length: 31 }, (_, i) => ({
 export default function RegularAllowance() {
   const params = useLocalSearchParams();
   const childName = params.childName as string;
-  const profileImage = params.profileImage as string;
+  const childGender = params.childGender as string;
   const { childDetail } = useChildDetailStore();
 
   const [isWeekly, setIsWeekly] = useState(true);
@@ -143,7 +144,7 @@ export default function RegularAllowance() {
         <View className="items-center mb-5">
           <View className="w-[68px] h-[68px] rounded-full overflow-hidden">
             <Image
-              source={require("../../assets/profile/profile.jpg")}
+              source={getChildProfileImage(childGender)}
               className="w-full h-full"
               resizeMode="cover"
             />
@@ -271,6 +272,7 @@ export default function RegularAllowance() {
           {[
             "선택한 날짜가 없는 달엔 말일에 지급돼요.",
             "지급일이 오늘이면 다음 회차부터 지급돼요.",
+            "이미 설정돼있더라도 새로 입력 시 재설정돼요.",
           ].map((text, index) => (
             <View key={index} className="flex-row items-start mb-1.5">
               <View className="mt-[5px] mr-2 w-1.5 h-1.5 rounded-full bg-[#4FC985]" />
