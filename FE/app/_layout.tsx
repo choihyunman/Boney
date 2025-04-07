@@ -67,7 +67,6 @@ function RootLayoutNav() {
   // 알림 모니터링 함수
   const fetchNotifications = async () => {
     try {
-      // console.log("🔔 알림 목록 조회 시작");
       const response = await notificationApi.getNotifications();
       // console.log("✅ 알림 목록 조회 성공:", {
       //   totalCount: response.data.length,
@@ -165,7 +164,7 @@ function RootLayoutNav() {
             icon: (
               <Image
                 source={require("@/assets/icons/logo.png")}
-                style={{ width: 24, height: 24 }}
+                style={{ width: 28, height: 28 }}
                 resizeMode="contain"
               />
             ),
@@ -353,7 +352,7 @@ function RootLayoutNav() {
             icon: (
               <Image
                 source={require("@/assets/icons/logo.png")}
-                style={{ width: 24, height: 24 }}
+                style={{ width: 28, height: 28 }}
                 resizeMode="contain"
               />
             ),

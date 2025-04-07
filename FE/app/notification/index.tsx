@@ -89,26 +89,26 @@ export default function NotificationsPage() {
         refetch();
       }
 
-      // 알림 타입에 따른 페이지 이동
+      // 알림 타입에 따른 페이지 이동 (referenceId 활용)
       switch (notification.notificationTypeCode) {
         case "TRANSFER_RECEIVED":
-          // 송금 내역 페이지로 이동
+          // 거래래 내역 페이지로 이동
           router.push("/transaction" as any);
           break;
 
         case "QUEST_REGISTERED":
           // 퀘스트 목록 페이지로 이동 (아이)
-          router.push("/quest/child/list" as any);
+          router.push(`/quest/child/${notification.referenceId}` as any);
           break;
 
         case "QUEST_COMPLETION_REQUEST":
           // 퀘스트 완료 요청 상세 페이지로 이동 (보호자)
-          router.push("/quest/parent/list" as any);
+          router.push(`/quest/parent/${notification.referenceId}` as any);
           break;
 
         case "QUEST_APPROVED":
           // 승인된 퀘스트 상세 페이지로 이동
-          router.push("/quest/child/list" as any);
+          router.push(`/quest/child/${notification.referenceId}` as any);
           break;
 
         case "QUEST_APPROVAL_REJECTED":
@@ -118,12 +118,12 @@ export default function NotificationsPage() {
 
         case "LOAN_APPLICATION":
           // 대출 신청 상세 페이지로 이동 (보호자)
-          router.push("/loan/parent/ReqList" as any);
+          router.push(`/loan/parent/${notification.referenceId}` as any);
           break;
 
         case "LOAN_REPAYMENT_COMPLETED":
           // 대출 상환 완료 상세 페이지로 이동
-          router.push("/loan/child/LoanList" as any);
+          router.push(`/loan/parent/${notification.referenceId}` as any);
           break;
 
         case "ABNORMAL_TRANSACTION":

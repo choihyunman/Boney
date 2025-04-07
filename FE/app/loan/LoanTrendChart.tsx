@@ -1,106 +1,351 @@
-import React from "react";
+import React, { useEffect, useMemo } from "react";
 import { View, Dimensions } from "react-native";
 import { LineChart } from "react-native-gifted-charts";
 import GlobalText from "@/components/GlobalText";
+import { LoanItem, RepaymentHistoryItem } from "@/apis/loanChildApi";
 
 interface LoanTrendChartProps {
-  loans: {
-    loan_id: number;
-    loan_amount: number;
-    last_amount: number;
-    due_date: string;
-    child_name?: string;
-  }[];
+  loans: LoanItem[];
+  repaymentHistory: RepaymentHistoryItem[];
 }
 
 const { width } = Dimensions.get("window");
-const chartWidth = width - 50;
+const chartWidth = width * 0.67;
 
-export default function LoanTrendChart({ loans }: LoanTrendChartProps) {
-  // 대출 데이터를 월별로 그룹화
-  const groupedData = loans.reduce((acc, loan) => {
-    const month = loan.due_date.substring(0, 7); // YYYY-MM 형식
-    if (!acc[month]) {
-      acc[month] = {
-        total: 0,
-        loans: {},
+export default function LoanTrendChart({
+  loans,
+  repaymentHistory = [],
+}: LoanTrendChartProps) {
+  // Validate input data
+  const hasValidData = useMemo(() => {
+    return loans.length > 0 && repaymentHistory.length > 0;
+  }, [loans, repaymentHistory]);
+
+  // Group repayment history by loan_id using useMemo
+  const repaymentByLoanId = useMemo(() => {
+    if (!hasValidData) return [];
+
+    const grouped = loans.map((loan) => {
+      const repayments = repaymentHistory.filter(
+        (repayment) => repayment.loan_id === loan.loan_id
+      );
+      return repayments;
+    });
+
+    return grouped;
+  }, [loans, repaymentHistory, hasValidData]);
+
+  // Create datasets for individual loans
+  const datasets = useMemo(() => {
+    if (!hasValidData) return [];
+
+    // Get all unique dates from all repayments
+    const allDates = [
+      ...new Set(
+        repaymentHistory
+          .map((r) => r.repayment_date)
+          .sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
+      ),
+    ];
+
+    // Calculate total initial amount
+    const totalInitialAmount = loans.reduce(
+      (sum, loan) => sum + loan.loan_amount,
+      0
+    );
+
+    // Create datasets for individual loans
+    const individualDatasets = repaymentByLoanId.map((repayments, index) => {
+      const colors = ["#5E1675", "#EE4266", "#FFD23F", "#3E77E9"];
+      const color = colors[index % colors.length];
+      const loan = loans[index];
+
+      // Create initial data point with loan amount
+      const initialPoint = {
+        value: loan.loan_amount,
+        label: "", // Empty label for initial point
+        dataPointText: "",
       };
-    }
-    acc[month].total += loan.last_amount;
-    acc[month].loans[loan.loan_id] = loan.last_amount;
-    return acc;
-  }, {} as Record<string, { total: number; loans: Record<number, number> }>);
 
-  // 차트 데이터 준비
-  const months = Object.keys(groupedData).sort();
-  const chartData = months.map((month) => ({
-    value: groupedData[month].total / 10000, // 만원 단위로 변환
-    label: month.substring(5) + "월", // MM월 형식
-    dataPointText: Math.round(groupedData[month].total / 10000).toString(),
-  }));
+      // Create data points for each date
+      const datePoints = allDates.map((date) => {
+        // Find the repayment for this loan and date
+        const repayment = repayments.find((r) => r.repayment_date === date);
 
-  // 개별 대출 데이터 준비
-  const individualLoanData = loans.map((loan, index) => {
-    const color = ["#6366F1", "#F59E0B", "#4FC985"][index % 3];
-    return {
-      value:
-        groupedData[months[months.length - 1]]?.loans[loan.loan_id] / 10000 ||
-        0,
-      label: months[months.length - 1].substring(5) + "월",
-      color,
-      name: loan.child_name || `대출 ${index + 1}`,
+        if (!repayment) {
+          // If no repayment found for this date, find the last known amount
+          const previousRepayment = repayments
+            .filter((r) => new Date(r.repayment_date) < new Date(date))
+            .sort(
+              (a, b) =>
+                new Date(b.repayment_date).getTime() -
+                new Date(a.repayment_date).getTime()
+            )[0];
+
+          const amount = previousRepayment
+            ? previousRepayment.remaining_amount
+            : loan.loan_amount;
+
+          const dateObj = new Date(date);
+          return {
+            value: amount,
+            label: `${dateObj.getMonth() + 1}.${dateObj.getDate()}`,
+            dataPointText: "",
+            isEmpty: true,
+          };
+        }
+
+        const dateObj = new Date(date);
+        return {
+          value: repayment.remaining_amount,
+          label: `${dateObj.getMonth() + 1}.${dateObj.getDate()}`,
+          dataPointText: "",
+        };
+      });
+
+      // Combine initial point with date points
+      const dataPoints = [initialPoint, ...datePoints];
+
+      return {
+        data: dataPoints,
+        color: () => color,
+        strokeWidth: 2,
+      };
+    });
+
+    // Create dataset for total amount
+    const totalInitialPoint = {
+      value: totalInitialAmount,
+      label: "", // Empty label for initial point
+      dataPointText: "",
     };
-  });
+
+    // Create data points for total amount
+    const totalDatePoints = allDates.map((date) => {
+      // Calculate total remaining amount for this date
+      const totalRemaining = loans.reduce((sum, loan) => {
+        const repayments = repaymentHistory.filter(
+          (r) => r.loan_id === loan.loan_id
+        );
+        const repayment = repayments.find((r) => r.repayment_date === date);
+
+        if (!repayment) {
+          // If no repayment found for this date, find the last known amount
+          const previousRepayment = repayments
+            .filter((r) => new Date(r.repayment_date) < new Date(date))
+            .sort(
+              (a, b) =>
+                new Date(b.repayment_date).getTime() -
+                new Date(a.repayment_date).getTime()
+            )[0];
+
+          return (
+            sum +
+            (previousRepayment
+              ? previousRepayment.remaining_amount
+              : loan.loan_amount)
+          );
+        }
+
+        return sum + repayment.remaining_amount;
+      }, 0);
+
+      const dateObj = new Date(date);
+      return {
+        value: totalRemaining,
+        label: `${dateObj.getMonth() + 1}.${dateObj.getDate()}`,
+        dataPointText: "",
+      };
+    });
+
+    // Combine initial point with date points for total
+    const totalDataPoints = [totalInitialPoint, ...totalDatePoints];
+
+    // Add total dataset
+    const totalDataset = {
+      data: totalDataPoints,
+      color: () => "#4FC985",
+      strokeWidth: 2,
+    };
+
+    return [totalDataset, ...individualDatasets];
+  }, [loans, repaymentByLoanId, hasValidData, repaymentHistory]);
+
+  // Calculate max value for y-axis using useMemo
+  const maxValue = useMemo(() => {
+    if (!hasValidData) return 0;
+
+    // Find the actual maximum value from total amounts
+    const totalInitialAmount = loans.reduce(
+      (sum, loan) => sum + loan.loan_amount,
+      0
+    );
+    const maxRemainingAmount = Math.max(
+      ...repaymentHistory.map((repayment) => {
+        const loanRepayments = repaymentHistory.filter(
+          (r) => r.loan_id === repayment.loan_id
+        );
+        const totalRemaining = loanRepayments.reduce(
+          (sum, r) => sum + r.remaining_amount,
+          0
+        );
+        return totalRemaining;
+      })
+    );
+
+    const actualMax = Math.max(totalInitialAmount, maxRemainingAmount);
+
+    // Round up to the nearest 10000 (1만)
+    return Math.ceil(actualMax / 10000) * 10000;
+  }, [loans, repaymentHistory, hasValidData]);
+
+  // Create props for LineChart with multiple lines using useMemo
+  const chartProps = useMemo(() => {
+    if (!hasValidData || datasets.length === 0) {
+      return null;
+    }
+
+    // Format number to Korean '만원' format
+    const formatToKoreanWon = (value: number) => {
+      const won = Math.floor(value / 10000);
+      if (won === 0) return "0";
+      return `${won}만`;
+    };
+
+    // Calculate section values in exact 1만원 units
+    const maxWon = Math.ceil(maxValue / 10000);
+    const sectionCount = 5;
+    // Calculate wonPerSection to ensure it's 1 when maxValue is 50000
+    const wonPerSection = Math.max(1, Math.ceil(maxWon / sectionCount));
+
+    const sectionValues = Array.from(
+      { length: sectionCount + 1 },
+      (_, i) => i * wonPerSection * 10000
+    );
+
+    const props: any = {
+      data: datasets[0]?.data || [],
+      height: 180,
+      width: chartWidth,
+      spacing: 30,
+      initialSpacing: 0,
+      color1: "#4FC985",
+      thickness: 0,
+      startFillColor: "#4FC985".replace(")", ", 0.3)").replace("rgb", "rgba"),
+      endFillColor: "#4FC985".replace(")", ", 0.1)").replace("rgb", "rgba"),
+      startOpacity: 0.3,
+      endOpacity: 0.1,
+      backgroundColor: "white",
+      xAxisColor: "#E2E8F0",
+      yAxisColor: "#E2E8F0",
+      yAxisTextStyle: { color: "#374151", fontSize: 10 },
+      xAxisLabelTextStyle: { color: "#374151", fontSize: 10 },
+      hideDataPoints: true,
+      dataPointsColor1: "#4FC985",
+      dataPointsRadius: 0,
+      noOfSections: sectionCount,
+      maxValue: Math.max(...sectionValues),
+      minValue: 0,
+      yAxisLabelTexts: sectionValues.map(formatToKoreanWon),
+      isAnimated: true,
+      animationDuration: 300,
+      animationStartTime: 0,
+      showVerticalLines: false,
+      verticalLinesColor: "rgba(226, 232, 240, 0.5)",
+      verticalLinesSpacing: 30,
+      showXAxisIndices: false,
+      xAxisIndicesColor: "#E2E8F0",
+      xAxisIndicesHeight: 4,
+      xAxisIndicesWidth: 1,
+      showYAxisIndices: false,
+      yAxisIndicesColor: "#E2E8F0",
+      yAxisIndicesWidth: 1,
+      yAxisIndicesHeight: 4,
+      curved: true,
+      curvature: 0.2,
+      areaChart: true,
+      hideRules: true,
+      rulesColor: "transparent",
+      showFractionalValues: false,
+      roundToDigits: 0,
+      formatYLabel: (value: number) => formatToKoreanWon(value),
+      horizSections: sectionValues.map((value) => ({ value })),
+    };
+
+    // Add additional datasets for individual loans
+    if (datasets.length > 1) {
+      datasets.slice(1).forEach((dataset, index) => {
+        const colorIndex = index + 1;
+        const baseColor = dataset.color();
+        props[`data${colorIndex + 1}`] = dataset.data;
+        props[`color${colorIndex + 1}`] = baseColor;
+        props[`dataPointsColor${colorIndex + 1}`] = baseColor;
+        props[`startFillColor${colorIndex + 1}`] = baseColor
+          .replace(")", ", 0.3)")
+          .replace("rgb", "rgba");
+        props[`endFillColor${colorIndex + 1}`] = baseColor
+          .replace(")", ", 0.1)")
+          .replace("rgb", "rgba");
+        props[`thickness${colorIndex + 1}`] = 0;
+        props[`startOpacity${colorIndex + 1}`] = 0.3;
+        props[`endOpacity${colorIndex + 1}`] = 0.1;
+        props[`hideDataPoints${colorIndex + 1}`] = true;
+        props[`dataPointsRadius${colorIndex + 1}`] = 0;
+        props[`curved${colorIndex + 1}`] = true;
+        props[`curvature${colorIndex + 1}`] = 0.2;
+        props[`areaChart${colorIndex + 1}`] = true;
+        props[`animationStartTime${colorIndex + 1}`] = 0;
+      });
+    }
+
+    return props;
+  }, [datasets, maxValue, hasValidData]);
+
+  if (!hasValidData) {
+    return (
+      <View className="bg-white rounded-xl p-4 my-2 mx-6">
+        <GlobalText className="text-lg font-bold text-gray-800 mb-4">
+          대출 추이
+        </GlobalText>
+        <View className="h-64 items-center justify-center">
+          <GlobalText className="text-gray-500">
+            대출 데이터가 없습니다.
+          </GlobalText>
+        </View>
+      </View>
+    );
+  }
 
   return (
-    <View className="bg-white rounded-xl p-4 my-2">
+    <View className="bg-white rounded-xl p-4 my-2 mx-6">
       <GlobalText className="text-lg font-bold text-gray-800 mb-4">
         대출 추이
       </GlobalText>
       <View className="h-64 items-center">
-        <LineChart
-          data={chartData}
-          data2={individualLoanData}
-          height={180}
-          width={chartWidth}
-          spacing={38}
-          initialSpacing={30}
-          color="#4FC985"
-          thickness={2}
-          startFillColor="rgba(79, 201, 133, 0.3)"
-          endFillColor="rgba(79, 201, 133, 0.01)"
-          startOpacity={0.9}
-          endOpacity={0.2}
-          backgroundColor="white"
-          xAxisColor="#E2E8F0"
-          yAxisColor="#E2E8F0"
-          yAxisTextStyle={{ color: "#374151", fontSize: 10 }}
-          xAxisLabelTextStyle={{ color: "#374151", fontSize: 10 }}
-          hideDataPoints={false}
-          dataPointsColor="#4FC985"
-          dataPointsRadius={4}
-          yAxisLabelSuffix="만"
-          noOfSections={5}
-          maxValue={Math.ceil(Math.max(...chartData.map((d) => d.value)) * 1.1)}
-          isAnimated
-          animationDuration={500}
-        />
+        {chartProps ? (
+          <LineChart
+            key={`chart-${repaymentHistory.length}-${datasets.length}`}
+            {...chartProps}
+          />
+        ) : (
+          <View className="h-64 items-center justify-center">
+            <GlobalText className="text-gray-500">
+              차트 데이터를 처리중입니다...
+            </GlobalText>
+          </View>
+        )}
       </View>
 
       {/* 범례 */}
       <View className="flex-row flex-wrap justify-center items-center mt-4 gap-4">
-        <View className="flex-row items-center">
-          <View className="w-3 h-3 rounded-full bg-[#4FC985] mr-2" />
-          <GlobalText className="text-xs text-gray-700">총 대출액</GlobalText>
-        </View>
-        {individualLoanData.map((loan, index) => (
+        {datasets.map((dataset, index) => (
           <View key={index} className="flex-row items-center">
             <View
               className="w-3 h-3 rounded-full mr-2"
-              style={{ backgroundColor: loan.color }}
+              style={{ backgroundColor: dataset.color() }}
             />
             <GlobalText className="text-xs text-gray-700">
-              {loan.name}
+              {index === 0 ? "전체" : `대출 ${index}`}
             </GlobalText>
           </View>
         ))}

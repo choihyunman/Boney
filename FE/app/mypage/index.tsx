@@ -85,119 +85,125 @@ export default function MyPage() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-gray-50">
-      {/* Profile Card */}
-      <View className="items-center p-5 mx-5 bg-white rounded-xl">
-        <View className="items-center">
-          <View className="items-center justify-center my-1">
-            {getProfileImage() ? (
-              <Image
-                source={getProfileImage()}
-                resizeMode="cover"
-                style={{
-                  width: 128,
-                  height: 200,
-                  borderRadius: 25,
-                }}
-              />
-            ) : (
-              <GlobalText className="text-lg font-bold text-blue-500">
-                {user?.userName?.[0] || "?"}
-              </GlobalText>
-            )}
+    <View className="flex-1 bg-gray-50">
+      <ScrollView className="flex-1">
+        {/* Profile Card */}
+        <View className="items-center p-5 mx-5 bg-white rounded-xl">
+          <View className="items-center">
+            <View className="items-center justify-center my-1">
+              {getProfileImage() ? (
+                <Image
+                  source={getProfileImage()}
+                  resizeMode="cover"
+                  style={{
+                    width: 128,
+                    height: 200,
+                    borderRadius: 25,
+                  }}
+                />
+              ) : (
+                <GlobalText className="text-lg font-bold text-blue-500">
+                  {user?.userName?.[0] || "?"}
+                </GlobalText>
+              )}
+            </View>
+            <GlobalText className="mt-4 text-xl font-bold text-[#020817]">
+              {user?.userName || "사용자"}
+            </GlobalText>
           </View>
-          <GlobalText className="mt-4 text-xl font-bold text-[#020817]">
-            {user?.userName || "사용자"}
-          </GlobalText>
         </View>
+
+        {/* Info Card */}
+        <View className="mx-5 mt-4 p-7 bg-white rounded-xl">
+          <View className="space-y-4">
+            <View className="flex-row items-center pb-4">
+              <View className="w-10 h-10 p-[11px] bg-[#49db8a1a] rounded-full items-center justify-center">
+                <Calendar size={18} color="#4FC985" />
+              </View>
+              <View className="ml-4">
+                <GlobalText className="text-sm text-gray-500">
+                  생년월일
+                </GlobalText>
+                <GlobalText className="text-lg font-bold text-[#020817]">
+                  {user?.userBirth || "생년월일 없음"}
+                </GlobalText>
+              </View>
+            </View>
+
+            <View className="h-px bg-gray-100" />
+
+            <View className="flex-row items-center py-4">
+              <View className="w-10 h-10 p-[11px] bg-[#49db8a1a] rounded-full items-center justify-center">
+                <Phone size={18} color="#4FC985" />
+              </View>
+              <View className="ml-4">
+                <GlobalText className="text-sm text-gray-500">
+                  핸드폰 번호
+                </GlobalText>
+                <GlobalText className="text-lg font-bold text-[#020817]">
+                  {user?.userPhone || "전화번호 없음"}
+                </GlobalText>
+              </View>
+            </View>
+
+            <View className="h-px bg-gray-100" />
+
+            <View className="flex-row items-center pt-4">
+              <View className="w-10 h-10 p-[11px] bg-[#49db8a1a] rounded-full items-center justify-center">
+                <Phone size={18} color="#4FC985" />
+              </View>
+              <View className="ml-4">
+                <GlobalText className="text-sm text-gray-500">
+                  이메일
+                </GlobalText>
+                <GlobalText className="text-lg font-bold text-[#020817]">
+                  {user?.userEmail || "이메일 없음"}
+                </GlobalText>
+              </View>
+            </View>
+          </View>
+        </View>
+      </ScrollView>
+
+      {/* Bottom Buttons Container */}
+      <View className="px-5 pb-5">
+        <TouchableOpacity
+          onPress={() => router.push("/mypage/ChangePassword")}
+          className="p-4 flex-row items-center justify-between bg-white"
+          style={{
+            borderTopLeftRadius: 16,
+            borderTopRightRadius: 16,
+          }}
+        >
+          <View className="flex-row items-center gap-2.5">
+            <View className="bg-white rounded-full items-center justify-center">
+              <Lock size={18} color="#020817" />
+            </View>
+            <GlobalText className="text-base font-bold text-[#020817]">
+              앱 비밀번호 변경하기
+            </GlobalText>
+          </View>
+        </TouchableOpacity>
+
+        {/* Delete Account Button */}
+        <TouchableOpacity
+          onPress={handleDeleteAccount}
+          className="p-4 flex-row items-center justify-between bg-[#FEF2F2]"
+          style={{
+            borderBottomLeftRadius: 16,
+            borderBottomRightRadius: 16,
+          }}
+        >
+          <View className="flex-row items-center">
+            <View className="items-center justify-center">
+              <UserX size={18} color="#EF4444" />
+            </View>
+            <GlobalText className="text-base font-bold text-[#EF4444] ml-3">
+              회원탈퇴
+            </GlobalText>
+          </View>
+        </TouchableOpacity>
       </View>
-
-      {/* Info Card */}
-      <View className="mx-5 mt-4 p-7 bg-white rounded-xl">
-        <View className="space-y-4">
-          <View className="flex-row items-center pb-4">
-            <View className="w-10 h-10 p-[11px] bg-[#49db8a1a] rounded-full items-center justify-center">
-              <Calendar size={18} color="#4FC985" />
-            </View>
-            <View className="ml-4">
-              <GlobalText className="text-sm text-gray-500">
-                생년월일
-              </GlobalText>
-              <GlobalText className="text-lg font-bold text-[#020817]">
-                {user?.userBirth || "생년월일 없음"}
-              </GlobalText>
-            </View>
-          </View>
-
-          <View className="h-px bg-gray-100" />
-
-          <View className="flex-row items-center py-4">
-            <View className="w-10 h-10 p-[11px] bg-[#49db8a1a] rounded-full items-center justify-center">
-              <Phone size={18} color="#4FC985" />
-            </View>
-            <View className="ml-4">
-              <GlobalText className="text-sm text-gray-500">
-                핸드폰 번호
-              </GlobalText>
-              <GlobalText className="text-lg font-bold text-[#020817]">
-                {user?.userPhone || "전화번호 없음"}
-              </GlobalText>
-            </View>
-          </View>
-
-          <View className="h-px bg-gray-100" />
-
-          <View className="flex-row items-center pt-4">
-            <View className="w-10 h-10 p-[11px] bg-[#49db8a1a] rounded-full items-center justify-center">
-              <Phone size={18} color="#4FC985" />
-            </View>
-            <View className="ml-4">
-              <GlobalText className="text-sm text-gray-500">이메일</GlobalText>
-              <GlobalText className="text-lg font-bold text-[#020817]">
-                {user?.userEmail || "이메일 없음"}
-              </GlobalText>
-            </View>
-          </View>
-        </View>
-      </View>
-
-      {/* Password Change Button */}
-      <TouchableOpacity
-        onPress={() => router.push("/mypage/ChangePassword")}
-        className="mx-5 mt-4 p-4 flex-row items-center justify-between bg-white"
-        style={{
-          borderTopLeftRadius: 16,
-          borderTopRightRadius: 16,
-        }}
-      >
-        <View className="flex-row items-center gap-2.5">
-          <View className="bg-white rounded-full items-center justify-center">
-            <Lock size={18} color="#020817" />
-          </View>
-          <GlobalText className="text-base font-bold text-[#020817]">
-            앱 비밀번호 변경하기
-          </GlobalText>
-        </View>
-      </TouchableOpacity>
-
-      {/* Delete Account Button */}
-      <TouchableOpacity
-        onPress={handleDeleteAccount}
-        className="mx-5 p-4 flex-row items-center justify-between bg-[#FEF2F2]"
-        style={{
-          borderBottomLeftRadius: 16,
-          borderBottomRightRadius: 16,
-        }}
-      >
-        <View className="flex-row items-center">
-          <View className="items-center justify-center">
-            <UserX size={18} color="#EF4444" />
-          </View>
-          <GlobalText className="text-base font-bold text-[#EF4444] ml-3">
-            회원탈퇴
-          </GlobalText>
-        </View>
-      </TouchableOpacity>
-    </ScrollView>
+    </View>
   );
 }
