@@ -3,6 +3,7 @@ import { router } from "expo-router";
 import { useLoanStore } from "@/stores/useLoanChildStore";
 
 const handleConfirm = () => {
+  router.replace("/");
   router.replace("/loan/child/ReqList");
 };
 

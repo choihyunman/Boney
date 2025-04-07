@@ -9,6 +9,7 @@ export default function ReqApprovePage() {
 
   const handleConfirm = async () => {
     reset();
+    router.replace("/");
     router.replace("/loan/parent/LoanList");
   };
 
