@@ -27,6 +27,9 @@ import Toast from "react-native-toast-message";
 import { notificationApi } from "@/apis/notificationApi";
 import { NotificationData } from "@/apis/notificationApi";
 import { deleteQuest } from "@/apis/questApi";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
+import * as Notifications from "expo-notifications";
+import { createCustomNotification } from "@/utils/pushNotifications";
 
 interface HeaderButton {
   icon?: React.ReactNode;
@@ -60,18 +63,18 @@ function RootLayoutNav() {
 
   const pathname = usePathname();
   const params = useLocalSearchParams();
-  const { hasHydrated } = useAuthStore();
+  const { hasHydrated, user } = useAuthStore();
   const { unreadCount, setUnreadCount } = useNotificationStore();
   const previousNotificationsRef = useRef<NotificationData[]>([]);
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // 푸시 알림 설정
+  usePushNotifications();
 
   // 알림 모니터링 함수
   const fetchNotifications = async () => {
     try {
       const response = await notificationApi.getNotifications();
-      // console.log("✅ 알림 목록 조회 성공:", {
-      //   totalCount: response.data.length,
-      //   unreadCount: response.data.filter((n) => !n.readStatus).length,
-      // });
 
       // 읽지 않은 알림 개수 업데이트
       const unreadCount = response.data.filter((n) => !n.readStatus).length;
@@ -85,29 +88,99 @@ function RootLayoutNav() {
           )
       );
 
-      // 새로운 알림이 있으면 Toast 표시
+      // 새로운 알림이 있으면 Toast 표시 및 푸시 알림 발송
       if (newNotifications.length > 0) {
         newNotifications.forEach((notification) => {
           if (!notification.readStatus) {
+            // Toast 표시
             Toast.show({
               type: "success",
               text1: notification.notificationTitle,
               text2: notification.notificationContent,
               position: "top",
-              visibilityTime: 3000,
-              autoHide: true,
-              topOffset: 50,
             });
+
+            // 푸시 알림 발송
+            sendPushNotification(notification);
           }
         });
       }
 
-      // 이전 알림 목록 업데이트
+      // 현재 알림 목록 저장
       previousNotificationsRef.current = response.data;
-    } catch (err) {
-      // console.error("❌ 알림 목록 조회 실패:", err);
+    } catch (error) {
+      console.error("❌ 알림 목록 조회 실패:", error);
     }
   };
+
+  // 푸시 알림 발송 함수
+  const sendPushNotification = async (notification: NotificationData) => {
+    try {
+      // 알림 데이터 준비
+      const notificationData = {
+        notificationId: notification.notificationId,
+        notificationTypeCode: notification.notificationTypeCode,
+        referenceId: notification.referenceId,
+        amount: notification.notificationAmount,
+      };
+
+      // 알림 내용 생성
+      const notificationContent = await createCustomNotification({
+        title: notification.notificationTitle,
+        body: notification.notificationContent,
+        data: notificationData,
+        channelId: getChannelIdByType(notification.notificationTypeCode),
+      });
+
+      if (notificationContent) {
+        // 푸시 알림 발송
+        await Notifications.scheduleNotificationAsync({
+          content: notificationContent,
+          trigger: null, // 즉시 발송
+        });
+        console.log("🔔 푸시 알림 발송 성공:", notification.notificationId);
+      }
+    } catch (error) {
+      console.error("🔔 푸시 알림 발송 실패:", error);
+    }
+  };
+
+  // 알림 타입에 따른 채널 ID 반환
+  const getChannelIdByType = (type: string): string => {
+    switch (type) {
+      case "TRANSFER_RECEIVED":
+        return "default";
+      case "QUEST_REGISTERED":
+      case "QUEST_COMPLETION_REQUEST":
+      case "QUEST_APPROVED":
+      case "QUEST_APPROVAL_REJECTED":
+        return "quest";
+      case "LOAN_APPLICATION":
+      case "LOAN_REPAYMENT_COMPLETED":
+      case "ABNORMAL_TRANSACTION":
+        return "important";
+      default:
+        return "default";
+    }
+  };
+
+  // 주기적으로 알림 확인 (1분마다)
+  useEffect(() => {
+    // 초기 알림 확인
+    fetchNotifications();
+
+    // 주기적으로 알림 확인
+    pollingIntervalRef.current = setInterval(() => {
+      fetchNotifications();
+    }, 60000); // 1분마다 확인
+
+    // 컴포넌트 언마운트 시 인터벌 정리
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (fontsLoaded) {

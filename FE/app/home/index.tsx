@@ -1,5 +1,10 @@
 import React from "react";
-import { ScrollView, View, ActivityIndicator } from "react-native";
+import {
+  ScrollView,
+  View,
+  ActivityIndicator,
+  TouchableOpacity,
+} from "react-native";
 import { useRouter, useFocusEffect } from "expo-router";
 import { useEffect } from "react";
 import { useAuthStore } from "@/stores/useAuthStore";
