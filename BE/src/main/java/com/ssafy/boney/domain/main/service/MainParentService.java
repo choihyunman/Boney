@@ -75,32 +75,26 @@ public class MainParentService {
             ));
         }
 
-        // 5. 퀘스트 2건 (IN_PROGRESS 가장 빠른 + WAITING_REWARD 가장 오래된)
+        // 5. 모든 자녀 퀘스트 중 WAITING_REWARD 상태면서 마감일이 가장 빠른 퀘스트 하나 가져오기
         List<Quest> allQuests = new ArrayList<>();
         for (ParentChild relation : relations) {
             allQuests.addAll(questRepository.findOngoingQuestsByChild(relation.getChild().getUserId()));
         }
 
-        Optional<Quest> soonestInProgress = allQuests.stream()
-                .filter(q -> q.getQuestStatus().name().equals("IN_PROGRESS"))
+        Optional<Quest> nearestWaitingReward = allQuests.stream()
+                .filter(q -> q.getQuestStatus().name().equals("WAITING_REWARD"))
                 .min(Comparator.comparing(Quest::getEndDate));
 
-        Optional<Quest> oldestWaiting = allQuests.stream()
-                .filter(q -> q.getQuestStatus().name().equals("WAITING_REWARD"))
-                .min(Comparator.comparing(Quest::getCreatedAt));
-
         List<Map<String, Object>> questList = new ArrayList<>();
-        for (Optional<Quest> q : List.of(soonestInProgress, oldestWaiting)) {
-            q.ifPresent(quest -> questList.add(Map.of(
-                    "quest_id", quest.getQuestId(),
-                    "quest_title", quest.getQuestTitle(),
-                    "quest_child", quest.getParentChild().getChild().getUserName(),
-                    "quest_status", quest.getQuestStatus().name(),
-                    "quest_category", quest.getQuestCategory().getCategoryName(),
-                    "quest_reward", quest.getQuestReward(),
-                    "end_date", quest.getEndDate().toLocalDate().toString()
-            )));
-        }
+        nearestWaitingReward.ifPresent(quest -> questList.add(Map.of(
+                "quest_id", quest.getQuestId(),
+                "quest_title", quest.getQuestTitle(),
+                "quest_child", quest.getParentChild().getChild().getUserName(),
+                "quest_status", quest.getQuestStatus().name(),
+                "quest_category", quest.getQuestCategory().getCategoryName(),
+                "quest_reward", quest.getQuestReward(),
+                "end_date", quest.getEndDate().toLocalDate().toString()
+        )));
 
         // 6. 최종 응답 구성
         return ResponseEntity.ok(Map.of(
@@ -109,7 +103,7 @@ public class MainParentService {
                 "data", ParentMainResponse.of(
                         parent.getUserName(),
                         parentAccount.getAccountNumber(),
-                        "버니은행", // 또는 parentAccount.getBank().getBankName()
+                        "버니은행",
                         balance,
                         childList,
                         questList
