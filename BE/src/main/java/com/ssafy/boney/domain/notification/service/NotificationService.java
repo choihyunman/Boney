@@ -45,8 +45,7 @@ public class NotificationService {
                     .setToken(token.getFcmToken())
                     .setNotification(com.google.firebase.messaging.Notification.builder()
                             .setTitle(requestDto.getNotificationTitle())
-                            .setBody(requestDto.getNotificationContent() +
-                                    (requestDto.getNotificationAmount() != null ? requestDto.getNotificationAmount() + "원": ""))
+                            .setBody(requestDto.getNotificationContent())
                             .build())
                     .build();
             try {
