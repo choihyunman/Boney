@@ -86,7 +86,7 @@ export default function ParentLoanRequestsPage() {
   }
 
   return (
-    <View className="flex-1 bg-[#F9FAFB]">
+    <View className="flex-1 bg-[#F5F6F8]">
       <View className="h-px w-full" />
       {/* 앱 컨텐츠 */}
       <ScrollView className="flex-1 px-6 mt-6">
@@ -107,7 +107,7 @@ export default function ParentLoanRequestsPage() {
           {reqList.map((loan) => (
             <View
               key={loan.loan_id}
-              className="bg-white rounded-xl p-5 shadow-sm border border-gray-100"
+              className="bg-white rounded-xl p-5 border border-gray-100"
             >
               <LoanModal
                 title="대출 요청 거부"

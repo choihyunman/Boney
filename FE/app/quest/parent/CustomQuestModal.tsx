@@ -71,7 +71,7 @@ const CustomQuestModal: React.FC<CustomQuestModalProps> = ({
       onRequestClose={handleClose}
     >
       <SafeAreaView className="flex-1 bg-black/50 justify-center items-center p-5">
-        <View className="bg-white rounded-lg w-full max-w-[400px] shadow-lg">
+        <View className="bg-white rounded-lg w-full max-w-[400px]">
           <View className="p-4 border-b border-gray-200 flex-row justify-between items-center">
             <GlobalText className="text-xl font-semibold text-gray-900">
               직접 입력

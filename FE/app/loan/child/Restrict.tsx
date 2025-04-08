@@ -1,5 +1,4 @@
 import GlobalText from "@/components/GlobalText";
-import { useLoanStore } from "@/stores/useLoanChildStore";
 import { router, useLocalSearchParams } from "expo-router";
 import { AlertCircle, Gauge } from "lucide-react-native";
 import { TouchableOpacity } from "react-native";
@@ -10,7 +9,7 @@ export default function Restrict() {
   const { credit_score } = useLocalSearchParams();
 
   return (
-    <View className="flex-1 bg-[#F9FAFB] px-6 pt-8 pb-8 items-center gap-6">
+    <View className="flex-1 bg-[#F5F6F8] px-6 pt-8 pb-8 items-center gap-6">
       {/* Spacer */}
       <View className="h-[102px] w-px" />
 
@@ -25,7 +24,7 @@ export default function Restrict() {
       </View>
 
       {/* 신용 점수 카드 */}
-      <View className="w-full bg-white rounded-xl p-6 mb-8 shadow-sm">
+      <View className="w-full bg-white rounded-xl p-6 mb-8">
         <GlobalText className="text-base font-normal text-gray-700 mb-4">
           신용 점수가 30점 미만이면 대출을 할 수 없어요.
         </GlobalText>
@@ -50,7 +49,7 @@ export default function Restrict() {
       {/* 확인 버튼 */}
       <TouchableOpacity
         onPress={() => router.push("/home")}
-        className="w-full bg-[#4FC985] rounded-lg shadow-sm py-4 items-center"
+        className="w-full bg-[#4FC985] rounded-lg py-4 items-center"
       >
         <GlobalText className="text-white text-base font-medium">
           홈으로

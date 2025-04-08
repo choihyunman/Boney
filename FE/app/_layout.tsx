@@ -1,11 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import {
-  Slot,
-  router,
-  usePathname,
-  Stack,
-  useLocalSearchParams,
-} from "expo-router";
+import { Slot, router, usePathname } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import * as WebBrowser from "expo-web-browser";
 import { useState } from "react";
@@ -62,8 +56,7 @@ function RootLayoutNav() {
   });
 
   const pathname = usePathname();
-  const params = useLocalSearchParams();
-  const { hasHydrated, user } = useAuthStore();
+  const { hasHydrated } = useAuthStore();
   const { unreadCount, setUnreadCount } = useNotificationStore();
   const previousNotificationsRef = useRef<NotificationData[]>([]);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -208,6 +201,7 @@ function RootLayoutNav() {
     if (pathname.match(/^\/quest\/parent\/\d+$/)) {
       const questId = pathname.split("/").pop();
       return {
+        title: "퀘스트 상세 보기",
         backgroundColor: "#F5F6F8",
         leftButton: {
           icon: <ChevronLeft size={24} color="#000000" />,
@@ -223,8 +217,18 @@ function RootLayoutNav() {
                 error.response?.data || error.message
               );
             });
-            router.replace("/quest/parent/List");
+            router.replace("/quest/parent");
           },
+        },
+      };
+    }
+    if (pathname.match(/^\/quest\/child\/\d+$/)) {
+      return {
+        title: "퀘스트 상세 보기",
+        backgroundColor: "#F5F6F8",
+        leftButton: {
+          icon: <ChevronLeft size={24} color="#000000" />,
+          onPress: () => router.back(),
         },
       };
     }
@@ -356,19 +360,10 @@ function RootLayoutNav() {
             onPress: () => router.back(),
           },
         };
-      case "/loan/LoanListParent":
+      case "/loan/parent/ReqList":
+      case "/loan/child/ReqList":
         return {
-          title: "진행 중인 대출 보기",
-          backgroundColor: "white",
-          leftButton: {
-            icon: <ChevronLeft size={24} color="#000000" />,
-            onPress: () => router.back(),
-          },
-        };
-      case "/loan/ReqListChild":
-        return {
-          title: "요청 중인 대출 보기",
-          backgroundColor: "white",
+          backgroundColor: "#F5F6F8",
           leftButton: {
             icon: <ChevronLeft size={24} color="#000000" />,
             onPress: () => router.back(),
@@ -384,7 +379,7 @@ function RootLayoutNav() {
             onPress: () => router.back(),
           },
         };
-      case "/loan/child/LoanList":
+      case "/loan/child":
         return {
           backgroundColor: "#F5F6F8",
           leftButton: {
@@ -396,7 +391,7 @@ function RootLayoutNav() {
             onPress: () => router.push("/loan/child/History"),
           },
         };
-      case "/loan/parent/LoanList":
+      case "/loan/parent":
         return {
           backgroundColor: "#F5F6F8",
           leftButton: {
@@ -513,7 +508,7 @@ function RootLayoutNav() {
             },
           },
         };
-      case "/quest/parent/List":
+      case "/quest/parent":
         return {
           backgroundColor: "#F5F6F8",
           leftButton: {
@@ -525,7 +520,7 @@ function RootLayoutNav() {
             onPress: () => router.push("/quest/parent/History"),
           },
         };
-      case "/quest/child/List":
+      case "/quest/child":
         return {
           backgroundColor: "#F5F6F8",
           leftButton: {
@@ -543,6 +538,17 @@ function RootLayoutNav() {
         return {
           title: "지난 퀘스트",
           backgroundColor: "white",
+          leftButton: {
+            icon: <ChevronLeft size={24} color="#000000" />,
+            onPress: () => router.back(),
+          },
+        };
+      case "/quest/parent/SelectChild":
+      case "/quest/parent/SelectQuest":
+      case "/quest/parent/Detail":
+        return {
+          title: "퀘스트 만들기",
+          backgroundColor: "#F5F6F8",
           leftButton: {
             icon: <ChevronLeft size={24} color="#000000" />,
             onPress: () => router.back(),

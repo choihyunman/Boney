@@ -1,15 +1,18 @@
+import React from "react";
 import { Stack } from "expo-router";
 
-export default function LoanLayout() {
+export default function LoanChildLayout() {
   return (
     <Stack
       screenOptions={{
         headerShown: false,
+        animation: "fade",
+        presentation: "modal",
+        animationDuration: 200,
         gestureEnabled: true,
         gestureDirection: "vertical",
-        contentStyle: { backgroundColor: "#FFFFFF" },
         animationTypeForReplace: "push",
       }}
-    ></Stack>
+    />
   );
 }

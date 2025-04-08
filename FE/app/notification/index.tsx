@@ -113,7 +113,7 @@ export default function NotificationsPage() {
 
         case "QUEST_APPROVAL_REJECTED":
           // 거절된 퀘스트 상세 페이지로 이동
-          router.push("/quest/child/list" as any);
+          router.push("/quest/child" as any);
           break;
 
         case "LOAN_APPLICATION":

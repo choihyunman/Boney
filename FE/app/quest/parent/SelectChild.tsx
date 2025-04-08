@@ -23,7 +23,7 @@ export default function SelectChildPage() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 bg-[#F9FAFB] items-center justify-center">
+      <View className="flex-1 bg-[#F5F6F8] items-center justify-center">
         <GlobalText>로딩 중...</GlobalText>
       </View>
     );
@@ -32,9 +32,9 @@ export default function SelectChildPage() {
   console.log(children);
 
   return (
-    <View className="flex-1 bg-[#F9FAFB]">
+    <View className="flex-1 bg-[#F5F6F8]">
       <ScrollView className="flex-1 px-6 mt-8">
-        <View className="bg-white rounded-xl shadow-sm p-5">
+        <View className="bg-white rounded-xl p-5">
           <GlobalText weight="bold" className="text-lg text-gray-800 mb-2">
             아이 선택
           </GlobalText>

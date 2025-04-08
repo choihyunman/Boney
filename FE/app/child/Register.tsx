@@ -14,6 +14,7 @@ import * as SecureStore from "expo-secure-store";
 import { api } from "../../lib/api";
 import { router } from "expo-router";
 import GlobalText from "../../components/GlobalText";
+import CustomPlaceholderInput from "../../components/CustomPlaceholderInput";
 
 export default function ChildIndex() {
   const [email, setEmail] = useState("");
@@ -156,22 +157,25 @@ export default function ChildIndex() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-gray-50">
+    <ScrollView className="flex-1 bg-[#F5F6F8]">
       <View className="p-6 space-y-6">
-        <View className="bg-white p-6 rounded-2xl shadow-sm">
+        <View className="bg-white p-6 rounded-2xl">
           <View className="space-y-4">
             {/* 이메일 입력 섹션 */}
             <View className="mb-2">
-              <GlobalText className="text-sm text-black">
+              <GlobalText className="text-md text-black">
                 아이의 이메일
               </GlobalText>
 
               <View className="flex-row items-center mt-2">
-                <GlobalText className="text-xs bg-gray-100 px-1 py-0.5 rounded text-gray-700">
-                  카카오톡 {">"} 설정 {">"} 카카오 계정
+                <GlobalText className="text-sm text-gray-500">
+                  아이가 회원가입한{" "}
                 </GlobalText>
-                <GlobalText className="text-xs text-gray-500">
-                  에서 확인할 수 있어요.
+                <GlobalText className="text-sm bg-gray-100 px-1 py-0.5 rounded text-gray-700">
+                  카카오톡 이메일
+                </GlobalText>
+                <GlobalText className="text-sm text-gray-500">
+                  을 등록해주세요.
                 </GlobalText>
               </View>
 
@@ -189,12 +193,14 @@ export default function ChildIndex() {
                       zIndex: 1,
                     }}
                   />
-                  <TextInput
-                    className="h-full pl-10 text-sm text-[#020817]"
-                    placeholder="아이디"
-                    placeholderTextColor="#71717A"
+                  <CustomPlaceholderInput
                     value={email}
                     onChangeText={setEmail}
+                    placeholder="아이디"
+                    style={{
+                      paddingLeft: 40,
+                      paddingRight: 10,
+                    }}
                     keyboardType="email-address"
                     autoCapitalize="none"
                   />
@@ -270,12 +276,12 @@ export default function ChildIndex() {
 
             {/* 핸드폰 번호 입력 섹션 */}
             <View className="mt-2">
-              <GlobalText className="text-sm text-black">
+              <GlobalText className="text-md text-black">
                 아이의 핸드폰 번호
               </GlobalText>
 
-              <GlobalText className="text-xs text-gray-500 mt-2 mb-4">
-                아이가 사용하는 핸드폰 번호를 입력하세요.
+              <GlobalText className="text-sm text-gray-500 mt-2 mb-4">
+                아이가 회원가입한 핸드폰 번호를 입력하세요.
               </GlobalText>
 
               <View className="relative h-14">
@@ -290,12 +296,14 @@ export default function ChildIndex() {
                       zIndex: 1,
                     }}
                   />
-                  <TextInput
-                    className="h-full pl-10 text-sm text-[#020817]"
-                    placeholder="000-0000-0000"
-                    placeholderTextColor="#71717A"
+                  <CustomPlaceholderInput
                     value={phone}
                     onChangeText={handlePhoneChange}
+                    placeholder="010-0000-0000"
+                    style={{
+                      paddingLeft: 40,
+                      paddingRight: 10,
+                    }}
                     keyboardType="phone-pad"
                     maxLength={13}
                   />

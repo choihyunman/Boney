@@ -79,7 +79,7 @@ export default function MonthlyReport() {
 
   if (error === "NO_DATA") {
     return (
-      <View className="flex-1 items-center justify-center bg-[#F9FAFB]">
+      <View className="flex-1 items-center justify-center bg-[#F5F6F8]">
         <CalendarX size={64} color="#D1D5DB" />
         <Text className="text-gray-500 mt-4 text-lg">
           이번 달 내역이 없습니다
@@ -125,7 +125,7 @@ export default function MonthlyReport() {
     : null;
 
   return (
-    <ScrollView className="flex-1 bg-[#F9FAFB]">
+    <ScrollView className="flex-1 bg-[#F5F6F8]">
       {/* 1. 현재 월 선택 */}
       <View className="bg-[#F9FAFB] p-4 items-center justify-center">
         <View className="flex-row items-center justify-center">

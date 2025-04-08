@@ -21,9 +21,9 @@ export default function SelectQuestPage() {
   );
 
   return (
-    <View className="flex-1 bg-[#F9FAFB]">
+    <View className="flex-1 bg-[#F5F6F8]">
       <View className="flex flex-col px-6 mt-6">
-        <View className="bg-white rounded-xl shadow-sm p-6 mb-6">
+        <View className="bg-white rounded-xl p-6 mb-6">
           <GlobalText weight="bold" className="text-lg text-gray-800 mb-6">
             퀘스트 선택
           </GlobalText>
@@ -32,36 +32,40 @@ export default function SelectQuestPage() {
           </GlobalText>
 
           {/* 카테고리 스크롤 */}
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            className="mb-6"
-          >
-            <View className="flex-row space-x-4 pb-2">
-              {categories.map((category) => (
-                <View key={category.id} className="mr-2">
-                  <TouchableOpacity
-                    className={`flex items-center justify-center p-3 ${
-                      selectedCategory === category.id
-                        ? "bg-[#4FC985]"
-                        : "bg-[#F9FAFB]"
-                    } rounded-lg h-12 px-4 shadow-sm`}
-                    onPress={() => setSelectedCategory(category.id)}
-                  >
-                    <GlobalText
-                      className={`text-sm font-medium ${
+          <View className="relative">
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={true}
+              className="mb-6"
+            >
+              <View className="flex-row space-x-4 pb-2">
+                {categories.map((category) => (
+                  <View key={category.id} className="mr-2">
+                    <TouchableOpacity
+                      className={`flex items-center justify-center p-3 ${
                         selectedCategory === category.id
-                          ? "text-white"
-                          : "text-gray-700"
-                      }`}
+                          ? "bg-[#4FC985]"
+                          : "bg-[#F9FAFB]"
+                      } rounded-lg h-12 px-4 shadow-sm`}
+                      onPress={() => setSelectedCategory(category.id)}
                     >
-                      {category.name}
-                    </GlobalText>
-                  </TouchableOpacity>
-                </View>
-              ))}
-            </View>
-          </ScrollView>
+                      <GlobalText
+                        className={`text-sm font-medium ${
+                          selectedCategory === category.id
+                            ? "text-white"
+                            : "text-gray-700"
+                        }`}
+                      >
+                        {category.name}
+                      </GlobalText>
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </View>
+            </ScrollView>
+            <View className="absolute left-0 top-0 bottom-0 w-6 bg-gradient-to-r from-[#F5F6F8] to-transparent" />
+            <View className="absolute right-0 top-0 bottom-0 w-6 bg-gradient-to-l from-[#F5F6F8] to-transparent" />
+          </View>
 
           {/* 퀘스트 그리드 */}
           <View className="flex-row flex-wrap justify-between">
@@ -104,7 +108,7 @@ export default function SelectQuestPage() {
           className="mt-6 mb-20"
           onPress={() => router.push("/quest/parent/Detail")}
         >
-          <View className="w-full py-4 bg-[#4FC985] rounded-lg shadow-sm">
+          <View className="w-full py-4 bg-[#4FC985] rounded-lg">
             <GlobalText className="text-white font-medium text-center">
               다음
             </GlobalText>

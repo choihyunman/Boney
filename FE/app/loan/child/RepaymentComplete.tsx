@@ -39,7 +39,7 @@ export default function RepaymentComplete() {
       description="상환이 완료되었습니다."
       onConfirm={() => {
         router.replace("/"); // 먼저 루트로 이동
-        router.replace("/loan/child/LoanList"); // 그 다음 목록 페이지로 이동
+        router.replace("/loan/child"); // 그 다음 목록 페이지로 이동
       }}
       details={detailItems}
     />

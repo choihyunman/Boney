@@ -28,10 +28,10 @@ export default function LoanCreatePage() {
   };
 
   return (
-    <View className="flex-1 bg-[#F9FAFB]">
+    <View className="flex-1 bg-[#F5F6F8]">
       <ScrollView className="flex-1 px-6 mt-6 pb-20">
         {/* 흰색 카드 박스 */}
-        <View className="bg-white rounded-xl shadow-sm p-5">
+        <View className="bg-white rounded-xl p-5">
           {/* 제목 */}
           <GlobalText weight="bold" className="text-lg text-gray-800 mb-6">
             대출 금액과 날짜 정하기

@@ -82,7 +82,7 @@ export default function ChildList() {
 
   if (loading) {
     return (
-      <View className="flex-1 bg-[#F9FAFB]">
+      <View className="flex-1 bg-[#F5F6F8]">
         <GlobalText>로딩 중...</GlobalText>
       </View>
     );
@@ -95,18 +95,18 @@ export default function ChildList() {
           headerTitle: "",
           headerShadowVisible: false,
           headerStyle: {
-            backgroundColor: "#F9FAFB",
+            backgroundColor: "#F5F6F8",
           },
         }}
       />
-      <View className="flex-1 bg-[#F9FAFB]">
+      <View className="flex-1 bg-[#F5F6F8]">
         <View className="flex-1 p-6">
           <View className="flex-row items-center mb-4">
             <GlobalText className="text-lg font-semibold text-[#1F2937]">
               내 아이
             </GlobalText>
             <View className="bg-[#4fc88533] rounded-full px-2 py-0.5 ml-2">
-              <GlobalText className="text-[#4fc885] text-sm font-medium">
+              <GlobalText weight="bold" className="text-[#4fc885] text-sm ">
                 {children.length}
               </GlobalText>
             </View>
@@ -140,7 +140,7 @@ export default function ChildList() {
                       resizeMode="cover"
                     />
                   </View>
-                  <GlobalText className="text-lg font-bold text-[#18181B]">
+                  <GlobalText weight="bold" className="text-lg text-[#18181B]">
                     {child.childName}
                   </GlobalText>
                 </TouchableOpacity>

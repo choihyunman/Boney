@@ -114,7 +114,7 @@ export default function MenuScreen() {
           id: "quests-active",
           title: "진행 중인 퀘스트",
           icon: <FileClock size={18} color={isDark ? "#E5E7EB" : "#374151"} />,
-          route: "/quest/child/list",
+          route: "/quest/child",
         },
         // {
         //   id: "quests-completed",
@@ -139,7 +139,7 @@ export default function MenuScreen() {
           id: "loan-list",
           title: "대출 목록",
           icon: <ScrollText size={18} color={isDark ? "#E5E7EB" : "#374151"} />,
-          route: "/loan/child/LoanList",
+          route: "/loan/child",
         },
         {
           id: "loan-req-list",
@@ -229,7 +229,7 @@ export default function MenuScreen() {
           id: "quests-active",
           title: "진행 중인 퀘스트",
           icon: <FileClock size={18} color={isDark ? "#E5E7EB" : "#374151"} />,
-          route: "/quest/parent/list",
+          route: "/quest/parent",
         },
       ],
     },
@@ -248,7 +248,7 @@ export default function MenuScreen() {
           id: "loan-list",
           title: "대출 목록",
           icon: <ScrollText size={18} color={isDark ? "#E5E7EB" : "#374151"} />,
-          route: "/loan/parent/LoanList",
+          route: "/loan/parent",
         },
       ],
     },
@@ -319,7 +319,7 @@ export default function MenuScreen() {
   const menuItems = isParent ? parentMenuItems : childMenuItems;
 
   return (
-    <SafeAreaView className="flex-1 bg-[#F9FAFB] dark:bg-gray-900">
+    <SafeAreaView className="flex-1 bg-[#F5F6F8] dark:bg-gray-900">
       <ScrollView className="flex-1 pb-20">
         <View className="px-6">
           {/* 프로필 카드 */}

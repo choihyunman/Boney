@@ -17,7 +17,7 @@ export default function CreateComplete() {
   return (
     <Complete
       onConfirm={() => {
-        router.replace("/quest/parent/List");
+        router.replace("/quest/parent");
       }}
       title="퀘스트가 등록되었습니다"
       description={`${childName}님에게 퀘스트를 전달했어요`}
@@ -25,7 +25,7 @@ export default function CreateComplete() {
         {
           label: "퀘스트",
           value: (
-            <View className="flex-row items-center justify-end gap-2">
+            <View className="flex-1 flex-row items-center gap-2">
               <View className="h-8 w-8 rounded-full bg-[#e6f7ef] items-center justify-center">
                 {getQuestIcon(questTitle)}
               </View>
@@ -44,7 +44,7 @@ export default function CreateComplete() {
           value: endDate,
         },
         {
-          label: "전하고 싶은 말",
+          label: "전달 메시지",
           value: questMessage,
         },
       ]}
