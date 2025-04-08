@@ -10,7 +10,7 @@ export default function ReqApprovePage() {
   const handleConfirm = async () => {
     reset();
     router.replace("/");
-    router.replace("/loan/parent/LoanList");
+    router.replace("/loan/parent");
   };
 
   if (!isLoaded) return null;
