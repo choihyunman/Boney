@@ -27,10 +27,15 @@ export default function CompleteTransfer() {
         recipient: transferData.recipient,
         amount: transferData.amount,
       });
-      // 데이터 표시 후 transfer store 초기화
-      clearTransferData();
     }
   }, [transferData]);
+
+  // 컴포넌트 언마운트 시 transfer store 초기화
+  useEffect(() => {
+    return () => {
+      clearTransferData();
+    };
+  }, []);
 
   const formatAmount = (value: string) => {
     if (!value) return "0";

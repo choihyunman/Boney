@@ -13,6 +13,7 @@ import { fetchUserInfoFromKakao } from "@/apis/authApi";
 import { fetchAccessTokenFromKakao } from "@/apis/authApi";
 import { checkPinRegistered } from "@/apis/pinApi";
 import axios from "axios";
+import { fcmApi } from "@/apis/fcmApi";
 
 interface UserInfo {
   kakaoId: number;
@@ -58,6 +59,17 @@ export const useAuthStore = create<AuthStore>()(
         console.log("👋 로그아웃 실행");
 
         try {
+          // FCM 토큰 등록 해제
+          const fcmToken = await SecureStore.getItemAsync("fcmToken");
+          if (fcmToken) {
+            try {
+              await fcmApi.unregisterToken(fcmToken);
+              await SecureStore.deleteItemAsync("fcmToken");
+            } catch (error) {
+              console.error("❌ FCM 토큰 등록 해제 실패:", error);
+            }
+          }
+          
           await SecureStore.deleteItemAsync("userToken");
         } catch (error) {
           console.error("❌ SecureStore 토큰 삭제 실패:", error);
