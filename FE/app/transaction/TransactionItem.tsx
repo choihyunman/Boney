@@ -18,8 +18,6 @@ type TransactionItemProps = {
 };
 
 export default function TransactionItem({ item }: TransactionItemProps) {
-  console.log("🎯 TransactionItem received data:", item);
-
   // 카테고리 이름에 따른 아이콘 가져오기
   const { Icon, backgroundColor, iconColor } = getCategoryIcon(
     item.transactionCategoryName
@@ -44,7 +42,7 @@ export default function TransactionItem({ item }: TransactionItemProps) {
   };
 
   return (
-    <View className="w-[412px] h-[89px] flex-row px-6 py-3 bg-white">
+    <View className="w-full h-[89px] flex-row px-6 py-3 bg-white">
       {/* 왼쪽 아이콘 */}
       <View
         className="w-10 h-10 rounded-full items-center justify-center mt-1"
@@ -57,14 +55,14 @@ export default function TransactionItem({ item }: TransactionItemProps) {
 
       {/* 중앙 컨텐츠 */}
       <View className="ml-3 flex-1">
-        <View className="flex-row items-center">
+        <View className="flex-row items-center flex-wrap">
           <View className="relative pr-2 mr-2">
             <GlobalText className="text-sm leading-6">
               {item.transactionCategoryName}
             </GlobalText>
             <View className="absolute right-0 top-1/2 -translate-y-[7px] w-[1px] h-3.5 bg-black" />
           </View>
-          <GlobalText className="text-base leading-6">
+          <GlobalText className="text-base leading-6 flex-shrink">
             {item.transactionContent}
           </GlobalText>
         </View>
@@ -74,7 +72,7 @@ export default function TransactionItem({ item }: TransactionItemProps) {
 
         {/* 해시시태그 컨테이너 */}
         {item.hashtags && item.hashtags.length > 0 && (
-          <View className="flex-row mt-2 gap-1">
+          <View className="flex-row mt-2 gap-1 flex-wrap">
             {item.hashtags.map((tag, index) => (
               <View
                 key={index}
@@ -90,7 +88,7 @@ export default function TransactionItem({ item }: TransactionItemProps) {
       </View>
 
       {/* 오른쪽 금액 */}
-      <View className="items-end justify-start mt-0.5">
+      <View className="items-end justify-start mt-0.5 ml-2">
         <GlobalText
           className={`text-base leading-6 ${
             item.transactionType === "DEPOSIT" ? "text-[#4FC985]" : "text-black"

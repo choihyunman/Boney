@@ -58,6 +58,7 @@ export async function fetchUserInfoFromKakao(token: string) {
 // 카카오 ID로 JWT 발급받기
 export async function fetchJWTFromServer(kakaoId: number) {
   const res = await api.post(`/auth/login/kakao/jwt`, { kakao_id: kakaoId });
+  console.log("발급된 JWT 토큰:", res.data.token);
   return res.data.token;
 }
 

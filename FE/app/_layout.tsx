@@ -554,6 +554,21 @@ function RootLayoutNav() {
             onPress: () => router.back(),
           },
         };
+      case "/boneyshop":
+        return {
+          title: "버니 상점",
+          backgroundColor: "white",
+          leftButton: {
+            icon: (
+              <Image
+                source={require("@/assets/icons/logo.png")}
+                style={{ width: 28, height: 28 }}
+                resizeMode="contain"
+              />
+            ),
+            onPress: () => router.push("/home"),
+          },
+        };
       default:
         return {
           backgroundColor: "#F5F6F8",

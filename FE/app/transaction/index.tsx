@@ -32,7 +32,6 @@ export default function TransactionHistory() {
     if (isDebouncingRef.current) return;
 
     if (!token) {
-      console.log("❌ 인증 토큰 없음:", { token });
       setError("로그인이 필요합니다.");
       router.replace("/auth");
       return;
@@ -51,21 +50,12 @@ export default function TransactionHistory() {
           ? "withdrawal"
           : "deposit";
 
-      console.log("📡 거래내역 조회 요청:", {
-        year,
-        month,
-        type,
-        hasToken: !!token,
-        tokenLength: token?.length,
-      });
-
       const response = await getTransactionHistory(
         { year, month, type },
         token
       );
 
       if (!response.data || !Array.isArray(response.data)) {
-        console.error("❌ API 응답 데이터 형식 오류:", response);
         setError("거래 내역 데이터 형식이 올바르지 않습니다.");
         return;
       }
@@ -106,7 +96,6 @@ export default function TransactionHistory() {
 
   // 컴포넌트 마운트 시 초기 데이터 로드
   useEffect(() => {
-    console.log("🚀 Component mounted, initial data load");
     if (token) {
       debouncedFetchTransactions();
     }
