@@ -27,6 +27,9 @@ export default function CompleteTransfer() {
         recipient: transferData.recipient,
         amount: transferData.amount,
       });
+    } else {
+      // 데이터가 없으면 홈으로 이동
+      router.push("/home");
     }
   }, [transferData]);
 
@@ -60,6 +63,11 @@ export default function CompleteTransfer() {
   const handleHome = () => {
     router.push("/home");
   };
+
+  // 데이터가 없으면 아무것도 표시하지 않음
+  if (!completedTransfer.recipient || !completedTransfer.amount) {
+    return null;
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-[#F5F6F8]">

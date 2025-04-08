@@ -5,10 +5,9 @@ import { useTransferStore } from "@/stores/useTransferStore";
 import { router } from "expo-router";
 import { verifyPassword } from "@/apis/pinApi";
 import { transferMoney } from "@/apis/transferApi";
-import * as SecureStore from "expo-secure-store";
 
 export default function PinInputScreen() {
-  const { transferData, clearTransferData } = useTransferStore();
+  const { transferData } = useTransferStore();
 
   const formatAmount = (value: string) => {
     if (!value) return "0";
@@ -40,21 +39,6 @@ export default function PinInputScreen() {
         const transferResponse = await transferMoney(transferRequest);
 
         if (transferResponse.status === "200") {
-          // 송금 완료 페이지로 이동하기 전에 데이터 저장
-          const completedTransferData = {
-            recipient: transferData.recipient,
-            amount: transferData.amount,
-          };
-          await SecureStore.setItemAsync(
-            "completedTransfer",
-            JSON.stringify(completedTransferData)
-          );
-
-          // Clear stored data
-          await SecureStore.deleteItemAsync("sendMoneyRecipient");
-          await SecureStore.deleteItemAsync("sendMoneyAmount");
-          clearTransferData();
-
           // 송금 완료 페이지로 이동
           router.push("/transfer/CompleteTransfer");
         } else {
