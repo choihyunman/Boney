@@ -19,7 +19,7 @@ public class ChildMainResponse {
     private Long all_loan;
     private int credit_score;
     private double all_score;
-    private List<Map<String, Object>> quests;
+    private List<Map<String, Object>> quest;
 
     public static ChildMainResponse of(Account account, Long balance, Long totalLoan, int score, double avgScore, Quest quest) {
         return ChildMainResponse.builder()
@@ -29,7 +29,7 @@ public class ChildMainResponse {
                 .all_loan(totalLoan)
                 .credit_score(score)
                 .all_score(avgScore)
-                .quests(quest != null ? List.of(Map.of(
+                .quest(quest != null ? List.of(Map.of(
                         "quest_id", quest.getQuestId(),
                         "child_name", quest.getParentChild().getChild().getUserName(),
                         "quest_title", quest.getQuestTitle(),
