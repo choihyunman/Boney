@@ -15,7 +15,9 @@ import com.ssafy.boney.domain.quest.exception.QuestNotFoundException;
 import com.ssafy.boney.domain.quest.repository.QuestRepository;
 import com.ssafy.boney.domain.transaction.exception.CustomException;
 import com.ssafy.boney.domain.transaction.exception.TransactionErrorCode;
+import com.ssafy.boney.domain.user.entity.CreditScore;
 import com.ssafy.boney.domain.user.entity.User;
+import com.ssafy.boney.domain.user.repository.CreditScoreRepository;
 import com.ssafy.boney.domain.user.service.CreditScoreService;
 import com.ssafy.boney.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +34,7 @@ public class ParentQuestApprovalService {
 
     private final QuestRepository questRepository;
     private final BankingApiService bankingApiService;
-    private final CreditScoreService creditScoreService;
+    private final CreditScoreRepository creditScoreRepository;
     private final UserService userService;
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
@@ -98,7 +100,10 @@ public class ParentQuestApprovalService {
                 .build();
 
         // 7. 아이 신용점수 증가 (2점)
-        creditScoreService.increaseCreditScore(child.getUserId(), 2);
+        CreditScore creditScore = creditScoreRepository.findByUser(child)
+                .orElseThrow(() -> new IllegalArgumentException("신용 점수 정보가 없습니다."));
+        creditScore.updateScore(2);
+        creditScoreRepository.save(creditScore);
 
         // 8. 퀘스트 상태 업데이트: SUCCESS, finish_date 기록
         quest.setQuestStatus(QuestStatus.SUCCESS);
