@@ -82,11 +82,6 @@ export const getTransactionDetail = async (
   }
 
   try {
-    console.log("📡 API 호출:", {
-      url: `${API_BASE_URL}/api/v1/transaction/${transactionId}`,
-      hasToken: true,
-    });
-
     const response = await axios.get(
       `${API_BASE_URL}/api/v1/transaction/${transactionId}`,
       {
@@ -100,12 +95,6 @@ export const getTransactionDetail = async (
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      console.error("🚫 API 에러:", {
-        status: error.response?.status,
-        message: error.response?.data?.message,
-        transactionId,
-      });
-
       switch (error.response?.status) {
         case 401:
           throw new Error("인증이 만료되었습니다. 다시 로그인해주세요.");

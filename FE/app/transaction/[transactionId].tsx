@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  TouchableOpacity,
-  Alert,
-} from "react-native";
+import { View, TouchableOpacity, Alert } from "react-native";
 import { ChevronRight, Wallet } from "lucide-react-native";
 import CategoryModal from "./CategoryModal";
 import HashtagModal from "./Hashtag";
@@ -47,11 +43,6 @@ export default function TransactionDetail() {
   });
 
   useEffect(() => {
-    console.log("🔄 TransactionDetail mounted:", {
-      transactionId,
-      hasToken: !!token,
-      tokenLength: token?.length,
-    });
     if (transactionId && token) {
       fetchTransactionDetail();
     }
@@ -69,8 +60,6 @@ export default function TransactionDetail() {
 
   const fetchTransactionDetail = async () => {
     if (!transactionId || !/^\d+$/.test(transactionId)) {
-      console.log("❌ 잘못된 거래 ID:", transactionId);
-      console.log("🧐 useLocalSearchParams 결과:", params);
       setError("유효하지 않은 거래 내역입니다.");
       router.back();
       return;
@@ -81,11 +70,6 @@ export default function TransactionDetail() {
       setError(null);
 
       const currentToken = useAuthStore.getState().token;
-      console.log("📡 거래 상세 조회 요청:", {
-        transactionId: transactionId,
-        hasToken: !!currentToken,
-        token: currentToken,
-      });
 
       if (!currentToken) {
         throw new Error("인증 토큰이 없습니다.");
@@ -127,19 +111,11 @@ export default function TransactionDetail() {
     }
 
     try {
-      console.log("📡 카테고리 수정 요청:", {
-        transactionId,
-        categoryId,
-        categoryName,
-      });
-
       const response = await updateTransactionCategory(
         Number(transactionId),
         categoryId,
         token
       );
-
-      console.log("✅ 카테고리 수정 성공:", response);
 
       // 선택된 카테고리 상태 업데이트
       setSelectedCategory({ id: categoryId, name: categoryName });
@@ -204,7 +180,7 @@ export default function TransactionDetail() {
       {/* Main Top: Amount */}
       <View className="items-center justify-center py-16 px-4">
         <View
-          className="rounded-full p-6 mb-4"
+          className="rounded-full p-6 mb-14"
           style={{
             backgroundColor: backgroundColor
               .replace("bg-[", "")
@@ -222,7 +198,7 @@ export default function TransactionDetail() {
       </View>
 
       {/* Main Bottom: Transaction Info */}
-      <View className="px-6">
+      <View className="px-6 sm:px-6">
         <View className="bg-white rounded-lg border border-gray-200">
           {/* Category */}
           <TouchableOpacity
@@ -231,7 +207,7 @@ export default function TransactionDetail() {
           >
             <GlobalText className="text-gray-600">카테고리</GlobalText>
             <View className="flex-row items-center">
-              <GlobalText className="mr-2">
+              <GlobalText className="mr-2 flex-shrink">
                 {transaction.transactionCategoryName}
               </GlobalText>
               <ChevronRight size={20} color="#9CA3AF" />
@@ -241,7 +217,7 @@ export default function TransactionDetail() {
           {/* Transaction Content */}
           <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
             <GlobalText className="text-gray-600">거래내용</GlobalText>
-            <GlobalText className="mr-2">
+            <GlobalText className="mr-2 flex-shrink text-right">
               {transaction.transactionContent}
             </GlobalText>
           </View>
@@ -249,7 +225,7 @@ export default function TransactionDetail() {
           {/* Transaction Date */}
           <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
             <GlobalText className="text-gray-600">거래일시</GlobalText>
-            <GlobalText className="mr-2">
+            <GlobalText className="mr-2 flex-shrink text-right">
               {new Date(transaction.transactionDate).toLocaleString()}
             </GlobalText>
           </View>
@@ -257,7 +233,7 @@ export default function TransactionDetail() {
           {/* Balance */}
           <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
             <GlobalText className="text-gray-600">잔액</GlobalText>
-            <GlobalText className="mr-2">
+            <GlobalText className="mr-2 flex-shrink text-right">
               {Math.abs(transaction.transactionAmount).toLocaleString()}원
             </GlobalText>
           </View>
@@ -268,7 +244,7 @@ export default function TransactionDetail() {
             onPress={() => setIsHashtagModalOpen(true)}
           >
             <GlobalText className="text-gray-600">해시태그</GlobalText>
-            <View className="flex-row items-center gap-2">
+            <View className="flex-row items-center gap-2 flex-wrap justify-end">
               {transaction.hashtags.map((tag, index) => (
                 <GlobalText key={index} className="text-[#4FC985] text-sm">
                   #{tag}

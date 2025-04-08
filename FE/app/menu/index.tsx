@@ -31,6 +31,7 @@ import {
   Award,
   LogOut,
   ContactRound,
+  Utensils,
 } from "lucide-react-native";
 import GlobalText from "@/components/GlobalText";
 import { getLoanValidation } from "@/apis/loanChildApi";
@@ -166,7 +167,7 @@ export default function MenuScreen() {
     },
   ];
 
-  // 부모 메뉴 데이터
+  // 보호자 메뉴 데이터
   const parentMenuItems: MenuItem[] = [
     {
       id: "wallet",
@@ -249,21 +250,6 @@ export default function MenuScreen() {
           title: "대출 목록",
           icon: <ScrollText size={18} color={isDark ? "#E5E7EB" : "#374151"} />,
           route: "/loan/parent",
-        },
-      ],
-    },
-    {
-      id: "report",
-      title: "월간 리포트",
-      icon: <CalendarFold size={20} color={isDark ? "#E5E7EB" : "#374151"} />,
-      subMenus: [
-        {
-          id: "monthly-report",
-          title: "이달의 리포트",
-          icon: (
-            <ChartColumn size={18} color={isDark ? "#E5E7EB" : "#374151"} />
-          ),
-          route: "/report",
         },
       ],
     },
@@ -388,6 +374,21 @@ export default function MenuScreen() {
               </View>
             ))}
           </View>
+
+          <TouchableOpacity
+            onPress={() => router.push("/boneyshop")}
+            className="bg-white dark:bg-gray-800 rounded-xl p-4 mb-4 flex-row items-center justify-between"
+            activeOpacity={0.7}
+          >
+            <View className="flex-row items-center">
+              <View className="items-center justify-center ml-2">
+                <Utensils size={18} color={isDark ? "#E5E7EB" : "#374151"} />
+              </View>
+              <GlobalText className="text-base font-bold text-[#374151] dark:text-white ml-3">
+                버니가게
+              </GlobalText>
+            </View>
+          </TouchableOpacity>
 
           {/* 로그아웃 카드 */}
           <TouchableOpacity
