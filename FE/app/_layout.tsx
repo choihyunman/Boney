@@ -94,7 +94,7 @@ function RootLayoutNav() {
             });
 
             // 푸시 알림 발송
-            sendPushNotification(notification);
+            // sendPushNotification(notification);
           }
         });
       }
