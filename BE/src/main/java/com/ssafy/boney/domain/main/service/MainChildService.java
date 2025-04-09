@@ -52,7 +52,7 @@ public class MainChildService {
             return ResponseEntity.status(402).body(Map.of("status", 402, "message", "신용 점수 정보를 찾을 수 없습니다."));
         }
 
-        // 5. 전체 평균 신용 점수 (소수 둘째 자리에서 반올림)
+        // 5. 전체 평균 신용 점수
         List<CreditScore> allScores = creditScoreRepository.findAll();
         double avgScore = allScores.stream()
                 .mapToInt(CreditScore::getScore)
@@ -69,19 +69,35 @@ public class MainChildService {
                 .mapToLong(loan -> loan.getLastAmount() != null ? loan.getLastAmount() : 0L)
                 .sum();
 
-        // 7. 마감이 임박한 IN_PROGRESS 퀘스트 1건
-        List<Quest> inProgressQuests = questRepository.findOngoingQuestsByChild(childId).stream()
+        // 7. 퀘스트 조회
+        List<Quest> allQuests = questRepository.findOngoingQuestsByChild(childId);
+
+        // 7-1. WAITING_REWARD 중 마감일이 가장 빠른 퀘스트
+        Optional<Quest> waitingRewardQuest = allQuests.stream()
+                .filter(q -> q.getQuestStatus().name().equals("WAITING_REWARD"))
+                .min(Comparator.comparing(Quest::getEndDate));
+
+        // 7-2. 없으면 IN_PROGRESS 중 마감일이 가장 빠른 퀘스트
+        Optional<Quest> inProgressQuest = allQuests.stream()
                 .filter(q -> q.getQuestStatus().name().equals("IN_PROGRESS"))
-                .sorted(Comparator.comparing(Quest::getEndDate))
-                .toList();
-        Quest nearestQuest = inProgressQuests.isEmpty() ? null : inProgressQuests.get(0);
+                .min(Comparator.comparing(Quest::getEndDate));
+
+        Quest finalQuest = waitingRewardQuest.orElse(inProgressQuest.orElse(null));
 
         // 8. 응답 반환
         return ResponseEntity.ok(Map.of(
                 "status", "200",
                 "message", "메인 페이지가 조회되었습니다.",
-                "data", ChildMainResponse.of(account, realTimeBalance, totalLoanBalance, creditScore.getScore(), avgScore, nearestQuest)
+                "data", ChildMainResponse.of(
+                        account,
+                        realTimeBalance,
+                        totalLoanBalance,
+                        creditScore.getScore(),
+                        avgScore,
+                        finalQuest
+                )
         ));
     }
 
+    
 }
