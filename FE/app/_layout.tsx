@@ -232,6 +232,19 @@ function RootLayoutNav() {
         },
       };
     }
+    if (
+      pathname.match(/^\/loan\/child\/\d+$/) ||
+      pathname.match(/^\/loan\/parent\/\d+$/)
+    ) {
+      return {
+        title: "대출 상세 보기",
+        backgroundColor: "#F5F6F8",
+        leftButton: {
+          icon: <ChevronLeft size={24} color="#000000" />,
+          onPress: () => router.back(),
+        },
+      };
+    }
 
     switch (pathname) {
       case "/home":
@@ -325,22 +338,6 @@ function RootLayoutNav() {
             onPress: () => router.back(),
           },
           rightButton: undefined,
-        };
-      case "/loan/ReqListParent":
-        return {
-          backgroundColor: "white",
-          leftButton: {
-            icon: <ChevronLeft size={24} color="#000000" />,
-            onPress: () => router.push("/menu"),
-          },
-        };
-      case "/loan/child/ReqList":
-        return {
-          backgroundColor: "white",
-          leftButton: {
-            icon: <ChevronLeft size={24} color="#000000" />,
-            onPress: () => router.push("/menu"),
-          },
         };
       case "/child":
         return {
