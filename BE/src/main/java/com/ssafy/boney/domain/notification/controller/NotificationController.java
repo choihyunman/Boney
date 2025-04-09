@@ -17,6 +17,13 @@ public class NotificationController {
 
     private final NotificationService notificationService;
 
+    @PostMapping("/send")
+    public ResponseEntity<ApiResponse<Object>> sendNotification(@RequestBody NotificationRequest requestDto) {
+        notificationService.sendNotification(requestDto);
+        ApiResponse<Object> response = new ApiResponse<>(200, "알림이 성공적으로 전송되었습니다.", null);
+        return ResponseEntity.ok(response);
+    }
+
     // 사용자 알림 목록 조회 (생성일 내림차순)
     @GetMapping
     public ResponseEntity<ApiResponse<List<NotificationResponse>>> getNotifications(@RequestAttribute("userId") Integer userId) {
