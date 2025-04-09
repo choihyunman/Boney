@@ -19,21 +19,20 @@ export const useLoanDetailParent = (loanId: number) => {
   >({
     queryKey: ["loan-detail-parent", loanId],
     queryFn: async () => {
-      console.log("🔍 대출 상세 조회 시작, loanId:", loanId);
       const res = await getLoanDetail(loanId);
       return res;
     },
-    enabled: isFocused,
-    staleTime: 1000 * 60 * 3,
+    enabled: true,
+    staleTime: 0,
     refetchOnMount: true,
-    refetchOnWindowFocus: true,
-    refetchInterval: 1000 * 60 * 3,
+    refetchOnWindowFocus: false,
+    refetchInterval: 3000,
   });
 
-  // 에러 처리 (v5 스타일)
+  // 에러 처리
   useEffect(() => {
     if (query.isError && query.error) {
-      console.error("❌ 대출 상세 조회 실패:", query.error.message);
+      console.error("대출 상세 조회 실패:", query.error.message);
     }
   }, [query.isError, query.error]);
 

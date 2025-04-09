@@ -9,7 +9,7 @@ export default function ChildQuestHistoryPage() {
     queryKey: ["questHistoryChild"],
     queryFn: getQuestHistoryChild,
     staleTime: 1000 * 60 * 5,
-    refetchInterval: 1000 * 60 * 3,
+    refetchInterval: 1000 * 60 * 1,
   });
 
   const { data: questHistory } = useQuestHistoryQuery;

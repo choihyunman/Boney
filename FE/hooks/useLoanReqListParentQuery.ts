@@ -15,11 +15,11 @@ export const useLoanReqListParentQuery = () => {
       const res = await getReqList();
       return res;
     },
-    staleTime: 0,
+    staleTime: 1000,
     enabled: isFocused,
     refetchOnMount: true,
     refetchOnWindowFocus: true,
-    refetchInterval: 1000 * 60,
+    refetchInterval: 1000,
   });
 
   // 에러 처리 (v5 스타일)

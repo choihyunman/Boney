@@ -1,13 +1,18 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { View, ScrollView, TouchableOpacity } from "react-native";
 import { Clock, Plus } from "lucide-react-native";
 import GlobalText from "@/components/GlobalText";
 import { useCustomQuery } from "@/hooks/useCustomQuery";
 import { getQuestListParent, ParentQuestList } from "@/apis/questApi";
 import { getQuestIcon } from "@/utils/getQuestIcon";
-import { router } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
+import { BackHandler } from "react-native";
 
 export default function QuestListPage() {
+  const params = useLocalSearchParams();
+  const fromComplete = params.fromComplete;
+  const fromApproval = params.fromApproval;
+
   const { data, isLoading } = useCustomQuery({
     queryKey: ["quests"],
     queryFn: getQuestListParent,
@@ -15,6 +20,26 @@ export default function QuestListPage() {
     refetchInterval: 1000,
   });
   const questList = data?.quests || [];
+
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        if (fromComplete) {
+          router.replace("/home");
+          return true;
+        } else if (fromApproval) {
+          router.replace("/home");
+          return true;
+        }
+        return false;
+      };
+
+      BackHandler.addEventListener("hardwareBackPress", onBackPress);
+      return () => {
+        BackHandler.removeEventListener("hardwareBackPress", onBackPress);
+      };
+    }, [fromComplete])
+  );
 
   const calculateDday = (dueDateStr: string) => {
     const today = new Date();

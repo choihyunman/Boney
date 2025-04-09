@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter, useRootNavigationState } from "expo-router";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { checkUserRegistered, fetchJWTFromServer } from "@/apis/authApi";
@@ -7,12 +7,32 @@ import * as SecureStore from "expo-secure-store";
 import { useMutation } from "@tanstack/react-query";
 
 export const useAuthRedirect = () => {
+  const router = useRouter();
+  const navigationState = useRootNavigationState();
   const { hasHydrated, token, setToken, setUser, resetAuth, logout } =
     useAuthStore();
   const user = useAuthStore((state) => state.user);
-  const router = useRouter();
-  const navigationState = useRootNavigationState();
   const hasRun = useRef(false);
+  const [ready, setReady] = useState(false);
+
+  // 상태 찍기 (디버깅용)
+  useEffect(() => {
+    console.log(
+      "🔵 [useAuthRedirect] navigationState?.key:",
+      navigationState?.key
+    );
+    console.log("🟣 [useAuthRedirect] hasHydrated:", hasHydrated);
+    console.log("🟡 [useAuthRedirect] token:", token);
+    console.log("🟢 [useAuthRedirect] ready:", ready);
+  }, [navigationState?.key, hasHydrated, token, ready]);
+
+  // navigationState와 hasHydrated 준비 체크
+  useEffect(() => {
+    if (!navigationState?.key) return;
+    if (!hasHydrated) return;
+    console.log("✅ [useAuthRedirect] Root + Zustand Hydration 완료!");
+    setReady(true);
+  }, [navigationState?.key, hasHydrated]);
 
   const { mutateAsync: refreshJwt } = useMutation({
     mutationFn: (kakaoId: number) => fetchJWTFromServer(kakaoId),
@@ -27,12 +47,16 @@ export const useAuthRedirect = () => {
   });
 
   useEffect(() => {
-    if (!hasHydrated || !navigationState?.key || hasRun.current) return;
+    if (!ready) return;
+    if (hasRun.current) return;
+
+    hasRun.current = true;
 
     const redirect = async () => {
-      hasRun.current = true;
-
       try {
+        console.log("⏳ [useAuthRedirect] 100ms 딜레이 후 리다이렉트 시작");
+        await new Promise((resolve) => setTimeout(resolve, 100)); // 100ms 기다림
+
         if (!token) {
           if (user?.kakaoId) {
             const newToken = await refreshJwt(user.kakaoId);
@@ -40,6 +64,7 @@ export const useAuthRedirect = () => {
             await SecureStore.setItemAsync("userToken", newToken);
           } else {
             await resetAuth();
+            console.log("🚀 [useAuthRedirect] 토큰 없음 ➔ /auth 이동");
             router.replace("/auth");
             return;
           }
@@ -60,15 +85,20 @@ export const useAuthRedirect = () => {
         });
 
         if (pinData.isPasswordNull) {
+          console.log(
+            "🚀 [useAuthRedirect] PIN 설정 안 함 ➔ /auth/CreatePin 이동"
+          );
           router.replace("/auth/CreatePin");
         } else {
+          console.log("🚀 [useAuthRedirect] PIN 설정 완료 ➔ /home 이동");
           router.replace("/home");
         }
       } catch (err: any) {
         const status = err?.response?.status;
+        console.error("❌ [useAuthRedirect] redirect 중 에러:", err);
 
         if (status === 404) {
-          console.log("🆕 회원가입 필요 → SignUp으로 이동");
+          console.log("🆕 회원가입 필요 ➔ /auth/SignUp 이동");
           if (user?.kakaoId && user?.userEmail) {
             router.replace({
               pathname: "/auth/SignUp",
@@ -82,11 +112,11 @@ export const useAuthRedirect = () => {
             router.replace("/auth");
           }
         } else if (status === 401) {
-          console.log("❌ 토큰 만료 → 로그인 페이지로 이동");
+          console.log("❌ 토큰 만료 ➔ /auth 이동");
           await logout();
           router.replace("/auth");
         } else {
-          console.error("❌ 예상치 못한 에러:", err);
+          console.log("❌ 예상치 못한 에러 ➔ /auth 이동");
           await logout();
           router.replace("/auth");
         }
@@ -94,5 +124,5 @@ export const useAuthRedirect = () => {
     };
 
     redirect();
-  }, [hasHydrated, navigationState?.key, token, user]);
+  }, [ready, token]);
 };

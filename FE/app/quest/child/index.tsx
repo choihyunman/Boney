@@ -1,13 +1,15 @@
-import React from "react";
-import { View, ScrollView, TouchableOpacity } from "react-native";
+import React, { useCallback } from "react";
+import { View, ScrollView, TouchableOpacity, BackHandler } from "react-native";
 import { Clock } from "lucide-react-native";
-import { router } from "expo-router";
+import { router, useLocalSearchParams, useFocusEffect } from "expo-router";
 import GlobalText from "../../../components/GlobalText";
 import { getQuestListChild } from "@/apis/questApi";
 import { useCustomQuery } from "@/hooks/useCustomQuery";
 import { getQuestIcon } from "@/utils/getQuestIcon";
-
 export default function ChildQuestListPage() {
+  const params = useLocalSearchParams();
+  const fromComplete = params.fromComplete;
+
   const { data, isLoading } = useCustomQuery({
     queryKey: ["quests"],
     queryFn: getQuestListChild,
@@ -15,6 +17,22 @@ export default function ChildQuestListPage() {
     refetchInterval: 1000,
   });
 
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        if (fromComplete) {
+          router.replace("/home");
+          return true;
+        }
+        return false;
+      };
+
+      BackHandler.addEventListener("hardwareBackPress", onBackPress);
+      return () => {
+        BackHandler.removeEventListener("hardwareBackPress", onBackPress);
+      };
+    }, [fromComplete])
+  );
   const questList = data?.quests || [];
 
   // D-day 계산 함수

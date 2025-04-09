@@ -49,7 +49,7 @@ export default function QuestCreatePage() {
       });
       setAll(res);
       console.log("퀘스트 생성 성공: ", res);
-      router.push("/quest/parent/CreateComplete");
+      router.replace("/quest/parent/CreateComplete");
     } catch (error) {
       console.log("퀘스트 생성 실패: ", error);
     }
