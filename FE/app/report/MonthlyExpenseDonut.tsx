@@ -248,13 +248,13 @@ export default function MonthlyExpenseDonut({
             <ChartLabelComponent
               key={label.category}
               label={label}
-              radius={chartSize / 2 + (label.isTop ? 8 : 4)}
+              radius={chartSize / 2 + (label.isTop ? 20 : 10)}
             />
           ))}
         </View>
 
         {/* 카테고리 범례 */}
-        <View className="flex-row flex-wrap justify-center mt-4">
+        <View className="flex-row flex-wrap justify-center mt-8">
           {categories.map((category) => (
             <Pressable
               key={category.category}
