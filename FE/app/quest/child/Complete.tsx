@@ -1,15 +1,37 @@
 import Complete from "@/components/Complete";
 import { router } from "expo-router";
 import { useQuestCompleteStore } from "@/stores/useQuestStore";
-import { View, Image } from "react-native";
 import { getQuestIcon } from "@/utils/getQuestIcon";
+import { useEffect } from "react";
+import { BackHandler, View } from "react-native";
+import GlobalText from "@/components/GlobalText";
 
 export default function ReqComplete() {
-  const { categoryName, categoryTitle, amount, finishDate } =
-    useQuestCompleteStore();
+  const { categoryTitle, amount, finishDate, reset } = useQuestCompleteStore();
+
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      () => true
+    );
+    return () => backHandler.remove();
+  }, []);
+
+  if (!categoryTitle || !amount || !finishDate) {
+    console.log("🛑 데이터 준비 안됨, 렌더링 보류");
+    return (
+      <View className="flex-1 items-center justify-center">
+        <GlobalText className="text-gray-400">로딩 중...</GlobalText>
+      </View>
+    );
+  }
 
   const handleConfirm = () => {
-    router.replace("/quest/child");
+    reset();
+    router.replace({
+      pathname: "/quest/child",
+      params: { fromComplete: "true" },
+    });
   };
 
   const formatDate = (date: string) => {
