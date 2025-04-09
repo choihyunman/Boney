@@ -595,7 +595,11 @@ function RootLayoutNav() {
 
   // Check if the current path has navigation bar
   const hasNav =
-    pathname === "/home" || pathname === "/transaction" || pathname === "/menu";
+    pathname === "/home" ||
+    pathname === "/transaction" ||
+    pathname === "/menu" ||
+    pathname === "/quest/child" ||
+    pathname === "/quest/parent";
 
   // auth 페이지 중 SignUp 페이지에서만 헤더를 표시 + 메뉴에서 헤더 제거
   return (
