@@ -20,7 +20,7 @@ export interface ChildMainResponse {
     all_loan: number;
     credit_score: number;
     all_score: number;
-    quests: Quest[];
+    quest: Quest[];
   };
 }
 

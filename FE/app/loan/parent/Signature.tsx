@@ -1,14 +1,21 @@
-import React, { useRef, useState } from "react";
-import { View, TouchableOpacity, Alert, Image } from "react-native";
+import React, { useRef, useState, useEffect } from "react";
+import {
+  View,
+  TouchableOpacity,
+  Alert,
+  Image,
+  Modal,
+  BackHandler,
+} from "react-native";
 import SignatureCanvas from "react-native-signature-canvas";
 import GlobalText from "@/components/GlobalText";
 import { router, useLocalSearchParams } from "expo-router";
 import { useLoanRequestStore, useLoanStore } from "@/stores/useLoanChildStore";
 import { createLoan } from "@/apis/loanChildApi";
-import { getKSTEndOfDayString } from "@/utils/date";
-import { PinInput } from "@/components/PinInput";
+import { PinInput, PinInputRef } from "@/components/PinInput";
 import { approveLoan } from "@/apis/loanParentApi";
 import { useApproveStore } from "@/stores/useLoanParentStore";
+import Toast from "react-native-toast-message";
 
 interface SignatureProps {
   onClose: () => void;
@@ -27,7 +34,11 @@ export default function Signature({
   const signatureRef = useRef<SignatureCanvas>(null);
   const [signatureImage, setSignatureImage] = useState<string | null>(null);
   const [showPinInput, setShowPinInput] = useState(false);
+  const pinInputRef = useRef<PinInputRef>(null);
   const { setApprove } = useApproveStore();
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [shouldNavigateToReqList, setShouldNavigateToReqList] = useState(false);
   const { isParent: isParentParam, loanId: loanIdParam } =
     useLocalSearchParams<{ isParent?: string; loanId?: string }>();
 
@@ -92,8 +103,47 @@ export default function Signature({
         message: error.response?.message,
         headers: error.response?.headers,
       });
-      Alert.alert("오류", "처리 중 오류가 발생했습니다.");
+
+      // 잔액 부족 오류 처리
+      if (error.response?.status === 400) {
+        // 잔액 부족 오류 메시지 확인
+        const errorMessage = error.response?.data?.message || "";
+        if (errorMessage.includes("잔액") || errorMessage.includes("부족")) {
+          setErrorMessage("잔액이 부족합니다\n 충전 후 다시 시도해주세요");
+        } else {
+          // 다른 400 오류
+          setErrorMessage(errorMessage || "처리 중 오류가 발생했습니다.");
+        }
+
+        // 결제 실패 시 모달 표시 후 ReqList 페이지로 이동
+        setShowErrorModal(true);
+      } else if (error.response?.status === 401) {
+        // 비밀번호 불일치 오류 - 토스트 알림 사용
+        Toast.show({
+          type: "error",
+          text1: "비밀번호 오류",
+          text2: "비밀번호가 일치하지 않습니다.",
+        });
+
+        // 비밀번호 오류 시에는 페이지 이동 없이 입력창 초기화
+        if (pinInputRef.current) {
+          pinInputRef.current.clearPassword();
+        }
+      } else {
+        // 기타 오류
+        setErrorMessage("처리 중 오류가 발생했습니다.");
+
+        // 결제 실패 시 모달 표시 후 ReqList 페이지로 이동
+        setShowErrorModal(true);
+      }
     }
+  };
+
+  // 모달 확인 버튼 처리
+  const handleModalConfirm = () => {
+    setShowErrorModal(false);
+    setShowPinInput(false);
+    router.replace("/loan/parent/ReqList");
   };
 
   const handleSignature = async (signatureImage: string) => {
@@ -146,29 +196,75 @@ export default function Signature({
     }
   };
 
+  // Back button handler
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      () => {
+        router.back();
+        return true;
+      }
+    );
+
+    return () => backHandler.remove();
+  }, []);
+
   if (showPinInput) {
     return (
-      <PinInput
-        title="송금 비밀번호 입력"
-        subtitle="대출 승인을 위해 비밀번호를 입력해주세요."
-        onPasswordComplete={handlePasswordInput}
-      />
+      <>
+        <PinInput
+          ref={pinInputRef}
+          title="송금 비밀번호 입력"
+          subtitle="대출 승인을 위해 비밀번호를 입력해주세요."
+          onPasswordComplete={handlePasswordInput}
+        />
+
+        {/* 오류 모달 */}
+        <Modal
+          visible={showErrorModal}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setShowErrorModal(false)}
+        >
+          <View className="flex-1 justify-center items-center bg-black/50">
+            <View className="bg-white rounded-xl p-6 w-[80%] max-w-md">
+              <GlobalText className="text-lg font-bold text-center mb-4">
+                결제 실패
+              </GlobalText>
+              <GlobalText className="text-base text-center mb-6">
+                {errorMessage}
+              </GlobalText>
+              <TouchableOpacity
+                className="bg-[#4FC985] py-3 rounded-lg"
+                onPress={handleModalConfirm}
+              >
+                <GlobalText className="text-white text-center font-bold">
+                  확인
+                </GlobalText>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      </>
     );
   }
 
   return (
-    <View className="flex-1 bg-white">
-      <View className="p-4 bg-gray-50 border-b border-gray-200">
-        <GlobalText className="text-gray-600 text-center mb-2">
+    <View className="flex-1 bg-[#F5F6F8]">
+      <View className="pb-6 bg-white">
+        <GlobalText className="text-xl text-gray-700 text-center mb-3">
           서명 안내
         </GlobalText>
         <GlobalText className="text-gray-500 text-sm text-center">
-          여기에 서명해 주세요. 정해진 날짜 안에 꼭 갚겠다는 소중한 약속이에요.
+          여기에 서명해 주세요
+        </GlobalText>
+        <GlobalText className="text-gray-500 text-sm text-center">
+          정해진 날짜 안에 꼭 갚겠다는 소중한 약속이에요
         </GlobalText>
       </View>
 
-      <View className="flex-1 p-4">
-        <View className="h-[300px] bg-white rounded-lg overflow-hidden mb-4 border border-gray-200">
+      <View className="flex-1 p-6">
+        <View className="h-[300px] bg-white rounded-lg overflow-hidden mb-4">
           <SignatureCanvas
             ref={signatureRef}
             key={signatureKey}
@@ -203,7 +299,7 @@ export default function Signature({
 
         <View className="flex-row justify-between gap-4">
           <TouchableOpacity
-            className="flex-1 bg-gray-100 py-3 rounded-lg"
+            className="flex-1 bg-white py-4 rounded-lg"
             onPress={handleClear}
           >
             <GlobalText className="text-center text-gray-600">
@@ -211,7 +307,7 @@ export default function Signature({
             </GlobalText>
           </TouchableOpacity>
           <TouchableOpacity
-            className="flex-1 bg-[#4FC985] py-3 rounded-lg"
+            className="flex-1 bg-[#4FC985] py-4 rounded-lg"
             onPress={handleSubmit}
           >
             <GlobalText className="text-center text-white">

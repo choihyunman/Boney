@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   ScrollView,
   View,
@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useRouter, useFocusEffect } from "expo-router";
-import { useEffect } from "react";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useHome } from "@/hooks/useHome";
 import Wallet from "./shared/Wallet";
@@ -22,23 +21,33 @@ export default function Home() {
   const { isLoading, childData, parentData, refetchChild, refetchParent } =
     useHome();
 
+  // Log user and data state
+  useEffect(() => {
+    console.log("🏠 Home - Token:", token);
+  }, [user, token, childData, parentData]);
+
   useEffect(() => {
     if (!token) {
+      console.log("🚫 No token found, redirecting to auth");
       router.replace("/auth");
     }
   }, [token]);
 
   useFocusEffect(
     React.useCallback(() => {
+      console.log("🔍 Home - Screen focused");
       if (user?.role === "CHILD") {
+        console.log("🔄 Home - Refetching child data");
         refetchChild();
       } else if (user?.role === "PARENT") {
+        console.log("🔄 Home - Refetching parent data");
         refetchParent();
       }
     }, [user?.role])
   );
 
   if (isLoading) {
+    console.log("⏳ Home - Loading data");
     return (
       <View className="flex-1 items-center justify-center">
         <ActivityIndicator />
@@ -47,6 +56,7 @@ export default function Home() {
   }
 
   if (user?.role === "CHILD" && !childData) {
+    console.log("⚠️ Home - No child data available");
     return (
       <View className="flex-1 items-center justify-center">
         <GlobalText className="text-gray-500">
@@ -57,6 +67,7 @@ export default function Home() {
   }
 
   if (user?.role === "PARENT" && !parentData) {
+    console.log("⚠️ Home - No parent data available");
     return (
       <View className="flex-1 items-center justify-center">
         <GlobalText className="text-gray-500">
@@ -67,6 +78,7 @@ export default function Home() {
   }
 
   const renderContent = () => {
+    console.log("🏠 Home - Rendering content for role:", user?.role);
     switch (user?.role) {
       case "CHILD":
         return (

@@ -70,7 +70,7 @@ export default function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
   if (!isReady) {
     return (
       <View className="bg-white dark:bg-gray-800 rounded-xl p-4 my-2">
-        <Text className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+        <Text className="text-xl font-bold text-gray-900 dark:text-white mb-4">
           최근 수입/지출 추이
         </Text>
         <View className="h-64 items-center justify-center">
@@ -84,7 +84,7 @@ export default function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
   if (data.length === 0) {
     return (
       <View className="bg-white dark:bg-gray-800 rounded-xl p-4 my-2">
-        <Text className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+        <Text className="text-xl font-bold text-gray-900 dark:text-white mb-4">
           최근 수입/지출 추이
         </Text>
         <View className="h-64 items-center justify-center">
@@ -99,7 +99,7 @@ export default function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
 
   return (
     <View className="bg-white dark:bg-gray-800 rounded-xl p-4 my-2">
-      <Text className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+      <Text className="text-xl font-bold text-gray-900 dark:text-white mb-4">
         최근 수입/지출 추이
       </Text>
 

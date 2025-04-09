@@ -82,22 +82,22 @@ function RootLayoutNav() {
       );
 
       // 새로운 알림이 있으면 Toast 표시 및 푸시 알림 발송
-      if (newNotifications.length > 0) {
-        newNotifications.forEach((notification) => {
-          if (!notification.readStatus) {
-            // Toast 표시
-            Toast.show({
-              type: "success",
-              text1: notification.notificationTitle,
-              text2: notification.notificationContent,
-              position: "top",
-            });
+      // if (newNotifications.length > 0) {
+      //   newNotifications.forEach((notification) => {
+      //     if (!notification.readStatus) {
+      //       // Toast 표시
+      //       Toast.show({
+      //         type: "success",
+      //         text1: notification.notificationTitle,
+      //         text2: notification.notificationContent,
+      //         position: "top",
+      //       });
 
-            // 푸시 알림 발송
-            // sendPushNotification(notification);
-          }
-        });
-      }
+      //       // 푸시 알림 발송
+      //       sendPushNotification(notification);
+      //     }
+      //   });
+      // }
 
       // 현재 알림 목록 저장
       previousNotificationsRef.current = response.data;
@@ -268,10 +268,6 @@ function RootLayoutNav() {
         return {
           title: "거래 내역",
           backgroundColor: "#FFFFFF",
-          rightButton: {
-            icon: <Search size={24} color="#000000" />,
-            onPress: () => console.log("검색 버튼 클릭"),
-          },
         };
       case pathname.startsWith("/transaction/") ? pathname : "":
         return {
@@ -361,6 +357,22 @@ function RootLayoutNav() {
           },
         };
       case "/loan/parent/ReqList":
+      case "/loan/parent/PromissoryNote":
+        return {
+          backgroundColor: "#F5F6F8",
+          leftButton: {
+            icon: <ChevronLeft size={24} color="#000000" />,
+            onPress: () => router.back(),
+          },
+        };
+      case "/loan/parent/Signature":
+        return {
+          backgroundColor: "white",
+          leftButton: {
+            icon: <ChevronLeft size={24} color="#000000" />,
+            onPress: () => router.back(),
+          },
+        };
       case "/loan/child/ReqList":
         return {
           backgroundColor: "#F5F6F8",
@@ -549,6 +561,14 @@ function RootLayoutNav() {
         return {
           title: "퀘스트 만들기",
           backgroundColor: "#F5F6F8",
+          leftButton: {
+            icon: <ChevronLeft size={24} color="#000000" />,
+            onPress: () => router.back(),
+          },
+        };
+      case "/quest/parent/QuestPinInput":
+        return {
+          backgroundColor: "white",
           leftButton: {
             icon: <ChevronLeft size={24} color="#000000" />,
             onPress: () => router.back(),

@@ -3,7 +3,6 @@ import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 import {
   ChevronLeft,
   ChevronRight,
-  Calendar,
   ArrowUp,
   ArrowDown,
   Trophy,
@@ -15,6 +14,46 @@ import MonthlyTrendChart from "./MonthlyTrendChart";
 import { useRouter } from "expo-router";
 import { useReportStore } from "@/stores/useReportStore";
 import { getCategoryIcon } from "@/utils/categoryUtils";
+
+// 월 선택기 컴포넌트
+const MonthSelector = ({
+  currentDate,
+  changeMonth,
+  isLastMonth,
+}: {
+  currentDate: { year: number; month: number };
+  changeMonth: (direction: "prev" | "next") => void;
+  isLastMonth: boolean;
+}) => {
+  const formatMonth = (monthStr: string) => {
+    const [year, month] = monthStr.split("-");
+    return `${year}년 ${month}월`;
+  };
+
+  return (
+    <View className="bg-white rounded-xl mx-4 mt-2">
+      <View className="flex-row items-center justify-between p-4">
+        <TouchableOpacity onPress={() => changeMonth("prev")}>
+          <ChevronLeft size={20} color="#000000" />
+        </TouchableOpacity>
+
+        <View className="flex-row items-center">
+          <Text className="text-xl font-bold text-gray-800">
+            {formatMonth(`${currentDate.year}-${currentDate.month}`)}
+          </Text>
+        </View>
+
+        <TouchableOpacity
+          onPress={() => changeMonth("next")}
+          disabled={isLastMonth}
+          style={{ opacity: isLastMonth ? 0.5 : 1 }}
+        >
+          <ChevronRight size={20} color={isLastMonth ? "#9CA3AF" : "#000000"} />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+};
 
 export default function MonthlyReport() {
   const router = useRouter();
@@ -79,11 +118,18 @@ export default function MonthlyReport() {
 
   if (error === "NO_DATA") {
     return (
-      <View className="flex-1 items-center justify-center bg-[#F5F6F8]">
-        <CalendarX size={64} color="#D1D5DB" />
-        <Text className="text-gray-500 mt-4 text-lg">
-          이번 달 내역이 없습니다
-        </Text>
+      <View className="flex-1 bg-[#F5F6F8]">
+        <MonthSelector
+          currentDate={currentDate}
+          changeMonth={changeMonth}
+          isLastMonth={isLastMonth}
+        />
+        <View className="flex-1 items-center justify-center p-4">
+          <CalendarX size={64} color="#D1D5DB" />
+          <Text className="text-gray-500 mt-4 text-lg">
+            이번 달 내역이 없습니다
+          </Text>
+        </View>
       </View>
     );
   }
@@ -99,12 +145,6 @@ export default function MonthlyReport() {
   if (!monthlyReport) {
     return null;
   }
-
-  // 월 표시 형식 변환 (YYYY-MM -> YYYY년 MM월)
-  const formatMonth = (monthStr: string) => {
-    const [year, month] = monthStr.split("-");
-    return `${year}년 ${month}월`;
-  };
 
   // 수입/지출 비율 계산
   const incomeRatio = Math.round(
@@ -125,38 +165,14 @@ export default function MonthlyReport() {
     : null;
 
   return (
-    <ScrollView className="flex-1 bg-[#F5F6F8]">
-      {/* 1. 현재 월 선택 */}
-      <View className="bg-[#F9FAFB] p-4 items-center justify-center">
-        <View className="flex-row items-center justify-center">
-          <TouchableOpacity
-            onPress={() => changeMonth("prev")}
-            className="rounded-full"
-          >
-            <ChevronLeft size={24} color="#000000" />
-          </TouchableOpacity>
-
-          <View className="flex-row items-center gap-2 mx-4">
-            <Calendar size={20} color="#4FC985" />
-            <Text className="text-lg font-semibold">
-              {formatMonth(`${currentDate.year}-${currentDate.month}`)}
-            </Text>
-          </View>
-
-          <TouchableOpacity
-            onPress={() => changeMonth("next")}
-            className="rounded-full"
-            disabled={isLastMonth}
-          >
-            <ChevronRight
-              size={24}
-              color={isLastMonth ? "transparent" : "#000000"}
-            />
-          </TouchableOpacity>
-        </View>
-      </View>
+    <ScrollView className="flex-1 bg-[#F5F6F8] px-2">
+      <MonthSelector
+        currentDate={currentDate}
+        changeMonth={changeMonth}
+        isLastMonth={isLastMonth}
+      />
       <View className="p-4">
-        {/* 2. 지출 내역 도넛 그래프 */}
+        {/* 1. 지출 내역 도넛 그래프 */}
         <View className="mb-4">
           <MonthlyExpenseDonut
             categories={monthlyReport.categoryExpense.map((category) => ({
@@ -170,7 +186,7 @@ export default function MonthlyReport() {
           />
         </View>
 
-        {/* 4. 선택된 카테고리 지출 내역 */}
+        {/* 2. 선택된 카테고리 지출 내역 */}
         {selectedCategory && selectedCategoryData && (
           <View className="bg-white rounded-xl p-6 mb-6">
             <View className="flex-row justify-between items-center mb-4">
@@ -223,7 +239,7 @@ export default function MonthlyReport() {
 
         {/* 3. 수입/지출 비교 막대 */}
         <View className="bg-white rounded-xl p-4 mb-4">
-          <Text className="text-lg font-semibold mb-4">수입/지출 비교</Text>
+          <Text className="text-xl font-semibold mb-4">수입/지출 비교</Text>
           {monthlyReport.totalIncome === 0 &&
           monthlyReport.totalExpense === 0 ? (
             <View className="h-16 items-center justify-center">
@@ -294,7 +310,7 @@ export default function MonthlyReport() {
           )}
         </View>
 
-        {/* 5. 3개월 수입/지출 추이 그래프 - API 데이터 사용 */}
+        {/* 4. 3개월 수입/지출 추이 그래프 - API 데이터 사용 */}
         <View className="h-96 mb-4">
           <MonthlyTrendChart
             data={monthlyReport.threeMonthsTrend.map((item) => ({
@@ -304,9 +320,9 @@ export default function MonthlyReport() {
             }))}
           />
         </View>
-        {/* 6. 이번 달 퀘스트 완료 건수 카드 */}
+        {/* 5. 이번 달 퀘스트 완료 건수 카드 */}
         <View className="bg-white rounded-xl p-6">
-          <Text className="text-lg font-semibold mb-4">이번 달 퀘스트</Text>
+          <Text className="text-xl font-semibold mb-4">이번 달 퀘스트</Text>
           <View className="flex-row items-center gap-6">
             <View className="w-16 h-16 rounded-full bg-[#4FC985]/20 items-center justify-center">
               <Trophy size={32} color="#4FC985" />
