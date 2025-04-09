@@ -47,6 +47,9 @@ public class Transaction {
     @Column(name = "transaction_amount", nullable = false)
     private Long transactionAmount; // 거래 금액
 
+    @Column(name = "transaction_memo", nullable = false)
+    private String transactionMemo; // 거래 금액
+
     @Column(name = "transaction_after_balance")
     private Long transactionAfterBalance;
 
@@ -64,6 +67,7 @@ public class Transaction {
             Integer externalTransactionNo,
             Long transactionAmount,
             Long transactionAfterBalance,
+            String transactionMemo,
             LocalDateTime createdAt,
             TransactionType transactionType,
             Account account,
@@ -75,6 +79,7 @@ public class Transaction {
         transaction.externalTransactionNo = externalTransactionNo;
         transaction.transactionAmount = transactionAmount;
         transaction.transactionAfterBalance = transactionAfterBalance;
+        transaction.transactionMemo = transactionMemo;
         transaction.createdAt = createdAt;
         transaction.transactionType = transactionType;
         transaction.account = account;

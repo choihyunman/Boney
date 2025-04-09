@@ -250,6 +250,7 @@ public class TransferService {
                 history.getRec().getTransactionDate() + history.getRec().getTransactionTime(),
                 DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
         );
+        String transactionMemo = history.getRec().getTransactionSummary();
         TransactionType transactionType = TransactionType.WITHDRAWAL; // 전송이므로 출금 타입
 
         // 거래 내용 조회
@@ -262,6 +263,7 @@ public class TransferService {
                 externalTransactionNo,
                 transactionAmount,
                 transactionAfterBalance,
+                transactionMemo,
                 createdAt,
                 transactionType,
                 senderAccount,
