@@ -11,7 +11,7 @@ export const useLoanListChildQuery = () => {
     queryKey: ["child"],
     queryFn: getChildren,
     enabled: isFocused,
-    staleTime: 0,
+    staleTime: 1000,
     refetchOnMount: true,
     refetchOnWindowFocus: true,
     refetchInterval: 1000,

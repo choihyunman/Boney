@@ -3,7 +3,7 @@ import {
   UseQueryOptions,
   UseQueryResult,
 } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 type CustomQueryOptions<TData, TError> = {
   queryKey: UseQueryOptions<TData, TError>["queryKey"];
@@ -46,12 +46,8 @@ export function useCustomQuery<TData, TError = Error>({
   }, [query.isSuccess, query.data, onSuccessAction]);
 
   useEffect(() => {
-    if (query.isError && query.error) {
-      if (onErrorAction) {
-        onErrorAction(query.error);
-      } else {
-        console.error("❌ Query Error:", query.error);
-      }
+    if (query.isError && query.error && onErrorAction) {
+      onErrorAction(query.error);
     }
   }, [query.isError, query.error, onErrorAction]);
 

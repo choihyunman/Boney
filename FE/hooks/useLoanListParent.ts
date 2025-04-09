@@ -16,10 +16,10 @@ export const useLoanListParentQuery = () => {
       return res;
     },
     enabled: isFocused,
-    staleTime: 0,
+    staleTime: 1000,
     refetchOnMount: true,
     refetchOnWindowFocus: true,
-    refetchInterval: 1000 * 60,
+    refetchInterval: 1000,
     onSuccessAction: (data) => {
       setLoanList(data);
     },

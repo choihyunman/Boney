@@ -1,31 +1,44 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import QuestDetailCard from "../QuestDetailCard";
 import { useCustomQuery } from "@/hooks/useCustomQuery";
-import { approvalQuest, getQuestDetail, redoQuest } from "@/apis/questApi";
+import {
+  approvalQuest,
+  getQuestDetail,
+  redoQuest,
+  QuestDetailResponse,
+} from "@/apis/questApi";
 import { getQuestIcon } from "@/utils/getQuestIcon";
 import { PinInput } from "@/components/PinInput";
-import { Modal } from "react-native";
+import { Modal, View } from "react-native";
 import PopupModal from "@/components/PopupModal";
 import { useQuestApprovalStore } from "@/stores/useQuestStore";
+import GlobalText from "@/components/GlobalText";
 
 export default function QuestDetailPage() {
   const params = useLocalSearchParams();
-  const questId = params.questId as string;
+  const questId = Number(params.questId as string);
   console.log("퀘스트 상세 페이지 진입", questId);
   const router = useRouter();
   const [isPinModalVisible, setIsPinModalVisible] = useState(false);
   const [isRedoModalVisible, setIsRedoModalVisible] = useState(false);
 
-  const { data, isLoading } = useCustomQuery({
-    queryKey: ["quest", questId],
-    queryFn: () => getQuestDetail(Number(questId), true),
-    staleTime: 1000 * 60 * 3,
-    refetchInterval: 1000 * 60 * 3,
+  // 퀘스트 상세 정보 조회
+  const {
+    data: quest,
+    isLoading,
+    error,
+  } = useCustomQuery<QuestDetailResponse, Error>({
+    queryKey: ["parent-quest", questId],
+    queryFn: async () => {
+      return await getQuestDetail(questId, true); // isParent=true로 설정
+    },
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    onErrorAction: (error) => {
+      console.error("퀘스트 상세 조회 실패:", error);
+    },
   });
-
-  const quest = data;
-  console.log(quest);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -43,6 +56,7 @@ export default function QuestDetailPage() {
       console.log("퀘스트 완료:", questId);
       const res = await approvalQuest(Number(questId), password);
       setIsPinModalVisible(false);
+
       useQuestApprovalStore.getState().setQuestTitle(res.questTitle);
       useQuestApprovalStore.getState().setChildName(res.childName);
       useQuestApprovalStore.getState().setAmount(res.amount);
@@ -50,19 +64,40 @@ export default function QuestDetailPage() {
       router.replace("/quest/parent/Approval");
     } catch (error) {
       console.error("퀘스트 승인 중 오류 발생:", error);
+
+      setIsPinModalVisible(false);
     }
   };
 
   const handleRedoQuest = async () => {
-    console.log("퀘스트 다시 하기:", questId);
-    await redoQuest(Number(questId));
-    setIsRedoModalVisible(false);
-    router.back();
+    try {
+      console.log("퀘스트 다시 하기:", questId);
+      await redoQuest(Number(questId));
+      setIsRedoModalVisible(false);
+
+      // 약간의 지연 후 네비게이션 수행
+      setTimeout(() => {
+        router.replace("/quest/parent");
+      }, 100);
+    } catch (error) {
+      console.error("퀘스트 다시 하기 실패:", error);
+      setIsRedoModalVisible(false);
+    }
   };
 
   return (
-    <>
-      {quest && (
+    <View className="flex-1 bg-[#F5F6F8]">
+      {isLoading ? (
+        <View className="flex-1 items-center justify-center">
+          <GlobalText className="text-gray-500">로딩 중...</GlobalText>
+        </View>
+      ) : !quest ? (
+        <View className="flex-1 items-center justify-center">
+          <GlobalText className="text-gray-500">
+            퀘스트를 찾을 수 없습니다.
+          </GlobalText>
+        </View>
+      ) : (
         <>
           <QuestDetailCard
             title={quest.questTitle}
@@ -70,13 +105,13 @@ export default function QuestDetailPage() {
             dueDate={quest.endDate}
             icon={getQuestIcon(quest.questTitle)}
             details={[
-              { label: "아이 이름", value: quest.childName },
+              { label: "아이 이름", value: quest.childName || "" },
               { label: "마감일", value: formatDate(quest.endDate) },
               {
                 label: "보상 금액",
                 value: quest.questReward.toLocaleString() + "원",
               },
-              { label: "전달 메시지", value: quest.questMessage },
+              { label: "전달 메시지", value: quest.questMessage || "" },
             ]}
             imageUri={quest.questImgUrl}
             extraNote={
@@ -116,13 +151,13 @@ export default function QuestDetailPage() {
             onClose={() => setIsRedoModalVisible(false)}
             onConfirm={handleRedoQuest}
             title="퀘스트 다시 하기"
-            content="정말로 다시 하기를 보내시겠습니까까?"
+            content="정말로 다시 하기를 보내시겠습니까?"
             confirmText="다시 하기"
             cancelText="취소"
             confirmColor="#4FC985"
           />
         </>
       )}
-    </>
+    </View>
   );
 }

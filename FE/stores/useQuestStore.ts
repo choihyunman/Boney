@@ -1,5 +1,9 @@
 import { create } from "zustand";
-import { QuestCreateResponse } from "@/apis/questApi";
+import {
+  QuestCreateResponse,
+  ChildQuestList,
+  ParentQuestList,
+} from "@/apis/questApi";
 
 interface QuestCreateState {
   parentChildId: number | null;
@@ -126,4 +130,29 @@ export const useQuestApprovalStore = create<QuestApprovalState>((set) => ({
   setAmount: (amount: number) => set({ amount: amount }),
   reset: () =>
     set({ questTitle: "", childName: "", approvalDate: "", amount: 0 }),
+}));
+
+export interface QuestListState {
+  questList: ChildQuestList[]; // 그냥 배열!
+  setQuestList: (questList: ChildQuestList[]) => void;
+  reset: () => void;
+}
+
+export const useQuestListStore = create<QuestListState>((set) => ({
+  questList: [], // 초기값은 배열
+  setQuestList: (questList: ChildQuestList[]) => set({ questList }),
+  reset: () => set({ questList: [] }),
+}));
+
+export interface QuestListParentState {
+  questList: ParentQuestList[];
+  setQuestList: (questList: ParentQuestList[]) => void;
+  reset: () => void;
+}
+
+export const useQuestListParentStore = create<QuestListParentState>((set) => ({
+  questList: [],
+  setQuestList: (questList) =>
+    set({ questList: Array.isArray(questList) ? questList : [] }),
+  reset: () => set({ questList: [] }),
 }));

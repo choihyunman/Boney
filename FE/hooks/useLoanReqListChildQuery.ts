@@ -16,7 +16,7 @@ export const useLoanReqListQuery = () => {
       const res = await getReqList();
       return res;
     },
-    staleTime: 1000 * 60 * 3,
+    staleTime: 1000,
     refetchInterval: 1000,
     enabled: isFocused,
   });

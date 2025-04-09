@@ -1,23 +1,34 @@
 import Complete from "@/components/Complete";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { useQuestCreateResponseStore } from "@/stores/useQuestStore";
 import GlobalText from "@/components/GlobalText";
-import { View } from "react-native";
+import { BackHandler, View } from "react-native";
 import { getQuestIcon } from "@/utils/getQuestIcon";
+import { useCallback } from "react";
 export default function CreateComplete() {
-  const {
-    childName,
-    questTitle,
-    questCategory,
-    questReward,
-    endDate,
-    questMessage,
-  } = useQuestCreateResponseStore();
+  const { childName, questTitle, questReward, endDate, questMessage } =
+    useQuestCreateResponseStore();
+
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        // 뒤로가기 막기
+        return true;
+      };
+      BackHandler.addEventListener("hardwareBackPress", onBackPress);
+      return () => {
+        BackHandler.removeEventListener("hardwareBackPress", onBackPress);
+      };
+    }, [])
+  );
 
   return (
     <Complete
       onConfirm={() => {
-        router.replace("/quest/parent");
+        router.replace({
+          pathname: "/quest/parent",
+          params: { fromComplete: "true" },
+        });
       }}
       title="퀘스트가 등록되었습니다"
       description={`${childName}님에게 퀘스트를 전달했어요`}
