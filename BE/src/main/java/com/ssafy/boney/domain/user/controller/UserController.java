@@ -329,4 +329,29 @@ public class UserController {
         ));
     }
 
+    @DeleteMapping("/delete/kakao")
+    public ResponseEntity<Map<String, Object>> disconnectKakaoOnly(
+            @RequestHeader("Authorization") String authHeader) {
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                    "status", 401,
+                    "message", "유효한 액세스 토큰이 필요합니다."
+            ));
+        }
+
+        String token = authHeader.substring(7);
+        if (!jwtTokenProvider.validateToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                    "status", 401,
+                    "message", "유효한 액세스 토큰이 필요합니다."
+            ));
+        }
+
+        Claims claims = jwtTokenProvider.parseToken(token);
+        Long kakaoId = claims.get("kakao_id", Long.class);
+
+        return userService.disconnectKakaoOnly(kakaoId);
+    }
+
 }
