@@ -27,7 +27,7 @@ export const useLoanDetailParent = (loanId: number) => {
     staleTime: 1000 * 60 * 3,
     refetchOnMount: true,
     refetchOnWindowFocus: true,
-    refetchInterval: 1000 * 60 * 3,
+    refetchInterval: 1000 * 60 * 1,
   });
 
   // 에러 처리 (v5 스타일)

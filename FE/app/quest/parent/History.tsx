@@ -9,7 +9,7 @@ export default function ParentQuestHistoryPage() {
     queryKey: ["questHistory"],
     queryFn: getQuestHistory,
     staleTime: 1000 * 60 * 5,
-    refetchInterval: 1000 * 60 * 3,
+    refetchInterval: 1000 * 60 * 1,
   });
 
   const pastQuests = Array.isArray(questHistory) ? questHistory : [];

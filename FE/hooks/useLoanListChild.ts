@@ -37,7 +37,7 @@ export const useLoanListChildQuery = () => {
       }
     },
     enabled: isFocused,
-    staleTime: 0,
+    staleTime: 1000,
     refetchOnMount: true,
     refetchOnWindowFocus: true,
     onSuccessAction: (data: LoanListResponse) => {

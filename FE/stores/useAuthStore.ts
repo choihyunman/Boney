@@ -182,6 +182,7 @@ export const useAuthStore = create<AuthStore>()(
       onRehydrateStorage: () => (state) => {
         state?.setHydrated();
         console.log("🔄 복원 완료: hasHydrated = true");
+        console.log("🫡 유저 정보: ", state?.user, state?.token);
       },
     }
   )
