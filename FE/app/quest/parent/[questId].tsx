@@ -24,6 +24,7 @@ export default function QuestDetailPage() {
   const [isRedoModalVisible, setIsRedoModalVisible] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isPinModalVisible, setIsPinModalVisible] = useState(false);
   const [questDetail, setQuestDetail] = useState<QuestDetailResponse | null>(
     null
   );
@@ -62,7 +63,7 @@ export default function QuestDetailPage() {
     );
   };
 
-  const handleQuestError = (error: any) => {
+  const handleQuestError = async (error: any, password: string) => {
     console.error("퀘스트 승인 실패:", error);
     if (error.response) {
       const errorData = error.response.data;

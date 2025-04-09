@@ -101,6 +101,12 @@ export const PinInput = forwardRef<PinInputRef, PinInputProps>(
       try {
         const response = await approvalQuest(questId, password);
         onPasswordComplete?.(response);
+
+        // 승인 데이터 저장
+        useQuestApprovalStore.getState().setQuestTitle(response.questTitle);
+        useQuestApprovalStore.getState().setChildName(response.childName);
+        useQuestApprovalStore.getState().setAmount(response.amount);
+        useQuestApprovalStore.getState().setApprovalDate(response.approvalDate);
       } catch (error: any) {
         console.error("퀘스트 승인 실패:", error);
         if (error.response) {
