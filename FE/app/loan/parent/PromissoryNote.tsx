@@ -225,7 +225,7 @@ export default function PromissoryNote({
             className="py-4 px-6 rounded-lg bg-gray-200 flex-1 mr-2"
           >
             <GlobalText className="text-gray-700 text-center">
-              다시 쓰기
+              뒤로 가기
             </GlobalText>
           </TouchableOpacity>
           <TouchableOpacity

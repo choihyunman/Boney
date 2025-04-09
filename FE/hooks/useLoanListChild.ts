@@ -12,7 +12,7 @@ export const useLoanListChildQuery = () => {
     queryFn: async () => {
       try {
         const res = await getLoanList();
-        console.log("대출 목록 조회 결과:", res.data);
+        // console.log("대출 목록 조회 결과:", res.data);
 
         if (!res?.data) {
           return {

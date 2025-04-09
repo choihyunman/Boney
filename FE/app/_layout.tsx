@@ -232,6 +232,19 @@ function RootLayoutNav() {
         },
       };
     }
+    if (
+      pathname.match(/^\/loan\/child\/\d+$/) ||
+      pathname.match(/^\/loan\/parent\/\d+$/)
+    ) {
+      return {
+        title: "대출 상세 보기",
+        backgroundColor: "#F5F6F8",
+        leftButton: {
+          icon: <ChevronLeft size={24} color="#000000" />,
+          onPress: () => router.back(),
+        },
+      };
+    }
 
     switch (pathname) {
       case "/home":
@@ -321,22 +334,6 @@ function RootLayoutNav() {
             onPress: () => router.back(),
           },
           rightButton: undefined,
-        };
-      case "/loan/ReqListParent":
-        return {
-          backgroundColor: "white",
-          leftButton: {
-            icon: <ChevronLeft size={24} color="#000000" />,
-            onPress: () => router.push("/menu"),
-          },
-        };
-      case "/loan/child/ReqList":
-        return {
-          backgroundColor: "white",
-          leftButton: {
-            icon: <ChevronLeft size={24} color="#000000" />,
-            onPress: () => router.push("/menu"),
-          },
         };
       case "/child":
         return {
@@ -598,7 +595,11 @@ function RootLayoutNav() {
 
   // Check if the current path has navigation bar
   const hasNav =
-    pathname === "/home" || pathname === "/transaction" || pathname === "/menu";
+    pathname === "/home" ||
+    pathname === "/transaction" ||
+    pathname === "/menu" ||
+    pathname === "/quest/child" ||
+    pathname === "/quest/parent";
 
   // auth 페이지 중 SignUp 페이지에서만 헤더를 표시 + 메뉴에서 헤더 제거
   return (

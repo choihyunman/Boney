@@ -68,9 +68,6 @@ export const useAuthStore = create<AuthStore>()(
 
           // zustand 초기화
           set({ user: null, token: null, account: null });
-
-          // (선택) 로그아웃 후 /auth로 이동하려면 router.replace("/auth") 호출
-          // router.replace("/auth");  // 필요하면 추가
         } catch (error: any) {
           console.error("❌ 로그아웃 중 에러:", error);
         }

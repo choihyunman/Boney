@@ -43,7 +43,7 @@ export default function LoanListChild() {
   useEffect(() => {
     const interval = setInterval(() => {
       if (!isMounted) return;
-      console.log("대출 목록 자동 새로고침");
+      // console.log("대출 목록 자동 새로고침");
       refetch();
     }, 3000);
 

@@ -75,8 +75,15 @@ export default function Repayment() {
         setIsLoading(false);
       }
       reset();
+      resetPin();
     };
     initializeData();
+
+    // cleanup 함수: 화면을 나갈 때 초기화
+    return () => {
+      reset();
+      resetPin();
+    };
   }, [loanId]);
 
   // 금액 입력 처리
@@ -88,11 +95,18 @@ export default function Repayment() {
   };
 
   // 금액 버튼 클릭 처리
-  const handleAmountButtonClick = (value: number) => {
+  const handleAmountButtonClick = (value: number | string) => {
     const currentAmount = Number.parseInt(String(localAmount || "0"));
-    const newAmount = (currentAmount + value).toString();
-    setRepaymentAmount(Number(newAmount));
-    setLocalAmount(Number(newAmount));
+    let newAmount: number;
+
+    if (value === "전액") {
+      newAmount = remainingAmount;
+    } else {
+      newAmount = currentAmount + (value as number);
+    }
+
+    setRepaymentAmount(newAmount);
+    setLocalAmount(newAmount);
   };
 
   const handlePasswordInput = async (password: string) => {
@@ -121,7 +135,9 @@ export default function Repayment() {
 
         // 대출 목록 새로고침
         const updatedLoanList = await getLoanList();
-        useLoanListStore.getState().setLoanList(updatedLoanList);
+        useLoanListStore
+          .getState()
+          .setLoanList(updatedLoanList.data.active_loans);
 
         router.replace("./RepaymentComplete");
       } catch (error) {
@@ -202,7 +218,7 @@ export default function Repayment() {
             </View>
 
             {/* 금액 입력 */}
-            <View className="mx-5 bg-white rounded-xl p-6 border border-gray-100">
+            <View className="mt-4 bg-white rounded-xl p-6 border border-gray-100">
               <View className="items-center">
                 <GlobalText className="text-sm text-gray-500 mb-5">
                   상환 금액
@@ -231,14 +247,16 @@ export default function Repayment() {
 
               {/* 빠른 금액 선택 버튼 */}
               <View className="flex-row justify-between mt-6">
-                {[1000, 5000, 10000].map((value) => (
+                {[1000, 5000, "전액"].map((value) => (
                   <Pressable
                     key={value}
                     className="flex-1 py-2 bg-gray-100 rounded-lg mx-1"
                     onPress={() => handleAmountButtonClick(value)}
                   >
                     <GlobalText className="text-sm font-medium text-center">
-                      +{value.toLocaleString()}원
+                      {value === "전액"
+                        ? "전액"
+                        : `+${value.toLocaleString()}원`}
                     </GlobalText>
                   </Pressable>
                 ))}

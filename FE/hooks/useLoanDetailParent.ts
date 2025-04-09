@@ -23,10 +23,10 @@ export const useLoanDetailParent = (loanId: number) => {
       return res;
     },
     enabled: true,
-    staleTime: 0,
+    staleTime: 3000,
     refetchOnMount: true,
     refetchOnWindowFocus: false,
-    refetchInterval: 3000,
+    refetchInterval: 1000,
   });
 
   // 에러 처리

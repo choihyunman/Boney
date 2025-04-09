@@ -15,6 +15,7 @@ export default function Signature({ onClose }: SignatureProps) {
   const [signatureKey, setSignatureKey] = useState(Date.now());
   const signatureRef = useRef<SignatureCanvas>(null);
   const [signatureImage, setSignatureImage] = useState<string | null>(null);
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const setLatestLoan = useLoanStore((state) => state.setLatestLoan);
 
   const { request } = useLoanRequestStore();
@@ -68,8 +69,13 @@ export default function Signature({ onClose }: SignatureProps) {
   };
 
   const handleSubmit = () => {
+    if (isSubmitted) {
+      return;
+    }
+
     console.log("📤 서명 완료 버튼 누름");
     if (signatureRef.current) {
+      setIsSubmitted(true);
       signatureRef.current.readSignature();
     } else {
       Alert.alert("오류", "서명 참조를 가져올 수 없습니다.");
@@ -145,10 +151,17 @@ export default function Signature({ onClose }: SignatureProps) {
           </TouchableOpacity>
           <TouchableOpacity
             onPress={handleSubmit}
-            className="bg-[#4FC985] px-6 py-3 rounded-lg"
+            disabled={isSubmitted}
+            className={`px-6 py-3 rounded-lg ${
+              isSubmitted ? "bg-gray-300" : "bg-[#4FC985]"
+            }`}
           >
-            <GlobalText className="text-white font-medium">
-              서명 완료
+            <GlobalText
+              className={`font-medium ${
+                isSubmitted ? "text-gray-500" : "text-white"
+              }`}
+            >
+              {isSubmitted ? "서명 제출 중" : "서명 완료"}
             </GlobalText>
           </TouchableOpacity>
         </View>

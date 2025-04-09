@@ -141,7 +141,7 @@ export const getLoanList = async (): Promise<LoanItem[]> => {
 export const getLoanDetail = async (loanId: number): Promise<LoanDetail> => {
   try {
     const res = await api.get(`/loan/${loanId}`);
-    console.log("✨ 보호자 대출 상세 조회 결과:", res.data.data);
+    // console.log("✨ 보호자 대출 상세 조회 결과:", res.data.data);
     return res.data.data;
   } catch (error: any) {
     const message =
