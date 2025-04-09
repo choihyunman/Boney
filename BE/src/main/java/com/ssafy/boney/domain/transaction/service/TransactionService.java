@@ -116,6 +116,7 @@ public class TransactionService {
                     externalNo,
                     Long.parseLong(tx.get("transactionBalance")),
                     afterBalance,
+                    summary,
                     parsedDateTime,
                     transType,
                     account,
@@ -147,7 +148,7 @@ public class TransactionService {
                         t.getTransactionId(),
                         t.getCreatedAt(),
                         // 가맹점명 or 기타
-                        t.getTransactionContent().getContentName(),
+                        t.getTransactionMemo(),
                         t.getTransactionAmount(),
                         t.getTransactionType().name(),
                         t.getTransactionCategory().getTransactionCategoryName(),
@@ -168,7 +169,7 @@ public class TransactionService {
         return new TransactionResponse(
                 transaction.getTransactionId(),
                 transaction.getCreatedAt(),
-                transaction.getTransactionContent().getContentName(),
+                transaction.getTransactionMemo(),
                 transaction.getTransactionAmount(),
                 transaction.getTransactionType().name(),
                 transaction.getTransactionCategory().getTransactionCategoryName(),
