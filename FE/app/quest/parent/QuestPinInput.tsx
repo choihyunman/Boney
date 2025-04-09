@@ -18,6 +18,7 @@ import GlobalText from "@/components/GlobalText";
 import Toast from "react-native-toast-message";
 import { approvalQuest } from "@/apis/questApi";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { useQuestApprovalStore } from "@/stores/useQuestStore";
 
 const { width } = Dimensions.get("window");
 const BUTTON_SIZE = 56;
@@ -224,6 +225,8 @@ export default function QuestPinInputPage() {
   const pinInputRef = useRef<PinInputRef>(null);
   const [showInsufficientBalanceModal, setShowInsufficientBalanceModal] =
     useState(false);
+  const { setQuestTitle, setChildName, setApprovalDate, setAmount } =
+    useQuestApprovalStore();
 
   const handlePasswordComplete = (response: any) => {
     // 성공 시 처리
@@ -235,9 +238,15 @@ export default function QuestPinInputPage() {
       autoHide: true,
     });
 
-    // 이전 페이지로 돌아가기
+    // 승인 데이터를 스토어에 저장
+    setQuestTitle(response.questTitle);
+    setChildName(response.childName);
+    setApprovalDate(response.approvalDate);
+    setAmount(response.amount);
+
+    // 승인 완료 페이지로 이동
     setTimeout(() => {
-      router.back();
+      router.push("/quest/parent/Approval");
     }, 1500);
   };
 
