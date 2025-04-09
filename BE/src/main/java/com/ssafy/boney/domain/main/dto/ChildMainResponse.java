@@ -31,7 +31,7 @@ public class ChildMainResponse {
                 .all_score(avgScore)
                 .quest(quest != null ? List.of(Map.of(
                         "quest_id", quest.getQuestId(),
-                        "child_name", quest.getParentChild().getChild().getUserName(),
+                        "quest_child", quest.getParentChild().getChild().getUserName(),
                         "quest_title", quest.getQuestTitle(),
                         "quest_category", quest.getQuestCategory().getCategoryName(),
                         "quest_reward", quest.getQuestReward(),
