@@ -15,6 +15,12 @@ export default function LoanListChild() {
     RepaymentHistoryItem[]
   >([]);
   const [key, setKey] = useState(0);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+    return () => setIsMounted(false);
+  }, []);
 
   // queryData 변경 시 상태 업데이트
   useEffect(() => {
@@ -27,19 +33,22 @@ export default function LoanListChild() {
   // Use useFocusEffect to refetch data when the screen comes into focus
   useFocusEffect(
     useCallback(() => {
+      if (!isMounted) return;
+      console.log("대출 목록 페이지 포커스됨 - 데이터 리패칭");
       refetch();
-    }, [refetch])
+    }, [refetch, isMounted])
   );
 
   // 3초마다 자동 새로고침
   useEffect(() => {
     const interval = setInterval(() => {
+      if (!isMounted) return;
       console.log("대출 목록 자동 새로고침");
       refetch();
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [refetch]);
+  }, [refetch, isMounted]);
 
   // 에러 핸들링 useEffect
   useEffect(() => {

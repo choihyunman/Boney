@@ -9,7 +9,7 @@ export default function ChildLoanHistoryPage() {
     queryKey: ["loanHistoryChild"],
     queryFn: getLoanHistory,
     staleTime: 1000 * 60 * 5,
-    refetchInterval: 1000 * 60 * 3,
+    refetchInterval: 1000 * 60 * 1,
   });
 
   const { data: loanHistory } = useLoanHistoryQuery;

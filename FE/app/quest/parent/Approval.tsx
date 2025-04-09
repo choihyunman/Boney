@@ -1,23 +1,38 @@
 import Complete from "@/components/Complete";
 import { router } from "expo-router";
 import { useQuestApprovalStore } from "@/stores/useQuestStore";
-import { View, Image } from "react-native";
 import { getQuestIcon } from "@/utils/getQuestIcon";
 import { useEffect } from "react";
+import { BackHandler, View } from "react-native";
+import GlobalText from "@/components/GlobalText";
 
 export default function ReqComplete() {
-  const { questTitle, childName, approvalDate, amount } =
+  const { questTitle, childName, approvalDate, amount, reset } =
     useQuestApprovalStore();
 
-  // 데이터가 없는 경우 퀘스트 목록 페이지로 리다이렉트
   useEffect(() => {
-    if (!questTitle || !childName || !approvalDate || amount === 0) {
-      router.replace("/quest/parent");
-    }
-  }, [questTitle, childName, approvalDate, amount]);
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      () => true
+    );
+    return () => backHandler.remove();
+  }, []);
+
+  if (!questTitle || !childName || !approvalDate || !amount) {
+    console.log("🛑 데이터 준비 안됨, 렌더링 보류");
+    return (
+      <View className="flex-1 items-center justify-center">
+        <GlobalText className="text-gray-400">로딩 중...</GlobalText>
+      </View>
+    );
+  }
 
   const handleConfirm = () => {
-    router.replace("/quest/parent");
+    reset();
+    router.replace({
+      pathname: "/quest/parent",
+      params: { fromApproval: "true" },
+    });
   };
 
   const formatDate = (date: string) => {

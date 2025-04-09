@@ -4,6 +4,7 @@ import {
   ScrollView,
   TouchableOpacity,
   View,
+  Alert,
 } from "react-native";
 import { useEffect, useState } from "react";
 import GlobalText from "@/components/GlobalText";
@@ -19,33 +20,79 @@ export default function LoanDetailChild() {
     loanId: string;
     color: string;
   }>();
-  const { data: loanDetail, refetch } = useLoanDetailParent(Number(loanId));
+  const {
+    data: loanDetail,
+    isLoading,
+    refetch,
+    error,
+  } = useLoanDetailParent(Number(loanId));
   const [currentTime, setCurrentTime] = useState("");
   const { hydrated } = useLoanDetailParentStore((state) => state);
   const { setLoanInfo } = useLoanStateStore((state) => state);
 
-  // 3초마다 자동 새로고침
+  // 모든 hooks를 최상위에 배치
   useEffect(() => {
-    const interval = setInterval(() => {
-      console.log("대출 상세 정보 자동 새로고침");
+    if (hydrated && !isLoading) {
       refetch();
-    }, 3000);
+    }
+  }, [hydrated, isLoading, refetch]);
 
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      const hours = now.getHours().toString().padStart(2, "0");
+      const minutes = now.getMinutes().toString().padStart(2, "0");
+      setCurrentTime(`${hours}:${minutes}`);
+    };
+
+    updateTime();
+    const interval = setInterval(updateTime, 60000);
     return () => clearInterval(interval);
-  }, [refetch]);
+  }, []);
 
-  const repaymentDate = loanDetail?.due_date;
-  const loanAmount = loanDetail?.loan_amount;
-  const lastAmount = loanDetail?.last_amount;
-  const childName = loanDetail?.child_name;
-  const parentName = loanDetail?.parent_name;
-  const approvedAt = loanDetail?.approved_at;
-  const childSignature = loanDetail?.child_signature;
-  const parentSignature = loanDetail?.parent_signature;
-
-  if (!hydrated) {
-    return null;
+  // 로딩 상태일 때
+  if (isLoading) {
+    return (
+      <View className="flex-1 bg-[#F5F6F8]">
+        <View className="flex-1 justify-center items-center">
+          <ActivityIndicator size="large" color="#4FC985" />
+          <GlobalText className="mt-2">데이터 로딩 중...</GlobalText>
+        </View>
+      </View>
+    );
   }
+
+  // 에러 상태
+  if (error) {
+    return (
+      <View className="flex-1 bg-[#F5F6F8]">
+        <View className="flex-1 justify-center items-center">
+          <GlobalText>데이터 로딩 중 오류가 발생했습니다.</GlobalText>
+          <GlobalText className="mt-2">{error.message}</GlobalText>
+        </View>
+      </View>
+    );
+  }
+
+  // 데이터 없음
+  if (!loanDetail) {
+    return (
+      <View className="flex-1 bg-[#F5F6F8]">
+        <View className="flex-1 justify-center items-center">
+          <GlobalText>대출 정보를 불러올 수 없습니다.</GlobalText>
+        </View>
+      </View>
+    );
+  }
+
+  const repaymentDate = loanDetail.due_date;
+  const loanAmount = loanDetail.loan_amount;
+  const lastAmount = loanDetail.last_amount;
+  const childName = loanDetail.child_name;
+  const parentName = loanDetail.parent_name;
+  const approvedAt = loanDetail.approved_at;
+  const childSignature = loanDetail.child_signature;
+  const parentSignature = loanDetail.parent_signature;
 
   // 마감 날짜 포맷팅
   const formatRepaymentDate = () => {
@@ -95,20 +142,6 @@ export default function LoanDetailChild() {
     if (dayDiff > 0) return { text: `D-${dayDiff}`, color: "text-[#4FC985]" };
     return { text: `D+${Math.abs(dayDiff)}`, color: "text-[#D6456B]" };
   };
-
-  // 상태 표시줄의 시간 업데이트
-  useEffect(() => {
-    const updateTime = () => {
-      const now = new Date();
-      const hours = now.getHours().toString().padStart(2, "0");
-      const minutes = now.getMinutes().toString().padStart(2, "0");
-      setCurrentTime(`${hours}:${minutes}`);
-    };
-
-    updateTime();
-    const interval = setInterval(updateTime, 60000);
-    return () => clearInterval(interval);
-  }, []);
 
   return (
     <View className="flex-1 bg-[#F5F6F8]">

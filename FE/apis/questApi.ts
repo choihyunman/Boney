@@ -128,8 +128,26 @@ export const getQuestListParent = async (): Promise<QuestListResponse> => {
 };
 
 export const getQuestListChild = async (): Promise<ChildQuestListResponse> => {
-  const res = await api.get("/children/quests");
-  return res.data.data;
+  try {
+    const res = await api.get("/children/quests");
+
+    // 응답 데이터 검증
+    if (!res || !res.data || !res.data.data) {
+      console.log("API 응답이 올바르지 않습니다:", res);
+      return { quests: [] };
+    }
+
+    // quests 필드가 없거나 배열이 아닌 경우 빈 배열로 초기화
+    if (!res.data.data.quests || !Array.isArray(res.data.data.quests)) {
+      console.log("API 응답에 quests 배열이 없습니다:", res.data.data);
+      return { quests: [] };
+    }
+
+    return res.data.data;
+  } catch (error) {
+    console.error("퀘스트 목록 조회 API 호출 실패:", error);
+    return { quests: [] };
+  }
 };
 
 export const createQuest = async (

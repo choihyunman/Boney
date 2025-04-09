@@ -1,34 +1,66 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import QuestDetailCard from "../QuestDetailCard";
 import { useCustomQuery } from "@/hooks/useCustomQuery";
-import { completeQuest, getQuestDetail } from "@/apis/questApi";
+import {
+  completeQuest,
+  getQuestDetail,
+  QuestDetailResponse,
+} from "@/apis/questApi";
 import { getQuestIcon } from "@/utils/getQuestIcon";
 import { useQuestCompleteStore } from "@/stores/useQuestStore";
 import * as ImagePicker from "expo-image-picker";
-import { Linking } from "react-native";
+import { Linking, View } from "react-native";
 import PopupModal from "@/components/PopupModal";
 import { SelectedImage } from "@/apis/questApi";
+import { useMutation } from "@tanstack/react-query";
+import GlobalText from "@/components/GlobalText";
 
 export default function QuestDetailPage() {
   const params = useLocalSearchParams();
-  const questId = params.questId as string;
+  const questId = Number(params.questId as string);
   const router = useRouter();
   const [modalVisible, setModalVisible] = useState(false);
-
   const [selectedImage, setSelectedImage] = useState<SelectedImage | null>(
     null
   );
+  const { setCategoryName, setCategoryTitle, setAmount, setFinishDate } =
+    useQuestCompleteStore();
 
-  const { data, isLoading } = useCustomQuery({
+  // 퀘스트 상세 정보 조회
+  const {
+    data: quest,
+    isLoading,
+    error,
+  } = useCustomQuery<QuestDetailResponse, Error>({
     queryKey: ["quest", questId],
-    queryFn: () => getQuestDetail(Number(questId), false),
-    staleTime: 1000 * 60 * 3,
-    refetchInterval: 1000 * 60 * 3,
+    queryFn: async () => {
+      return await getQuestDetail(questId, false);
+    },
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    onErrorAction: (error) => {
+      console.error("퀘스트 상세 조회 실패:", error);
+    },
   });
 
-  const quest = data;
-  console.log("quest", quest);
+  // 퀘스트 완료 뮤테이션
+  const completeQuestMutation = useMutation({
+    mutationFn: async () => {
+      return await completeQuest(questId, selectedImage);
+    },
+    onSuccess: async (data) => {
+      console.log("퀘스트 완료 성공:", data);
+      setCategoryName(data.categoryName);
+      setCategoryTitle(data.categoryTitle);
+      setAmount(data.amount);
+      setFinishDate(data.finishDate);
+      router.replace("/quest/child/Complete");
+    },
+    onError: (error) => {
+      console.error("퀘스트 완료 실패:", error);
+    },
+  });
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -49,6 +81,10 @@ export default function QuestDetailPage() {
     // 권한이 없으면 권한 요청 -> 거부 시 다시 요청 가능
     // 거부 + 다시 묻지 않기 클릭 시 설정으로 보내야 함
     // 권한이 있으면 카메라 실행
+    if (!quest) {
+      console.warn("퀘스트 데이터가 준비되지 않았습니다.");
+      return;
+    }
     const { status } = await ImagePicker.getCameraPermissionsAsync();
 
     if (status !== "granted") {
@@ -61,7 +97,6 @@ export default function QuestDetailPage() {
 
     const result = await ImagePicker.launchCameraAsync({
       mediaTypes: "images",
-      allowsEditing: true,
       quality: 0.7,
     });
 
@@ -80,19 +115,22 @@ export default function QuestDetailPage() {
   };
 
   const handleCompleteQuest = async () => {
-    console.log("퀘스트 완료:", questId);
-    const res = await completeQuest(Number(questId), selectedImage);
-    console.log("퀘스트 완료 결과:", res);
-    useQuestCompleteStore.getState().setCategoryName(res.categoryName);
-    useQuestCompleteStore.getState().setCategoryTitle(res.categoryTitle);
-    useQuestCompleteStore.getState().setAmount(res.amount);
-    useQuestCompleteStore.getState().setFinishDate(res.finishDate);
-    router.replace("/quest/child/Complete");
+    completeQuestMutation.mutate();
   };
 
   return (
-    <>
-      {quest && (
+    <View className="flex-1 bg-[#F5F6F8]">
+      {isLoading ? (
+        <View className="flex-1 items-center justify-center">
+          <GlobalText className="text-gray-500">로딩 중...</GlobalText>
+        </View>
+      ) : !quest ? (
+        <View className="flex-1 items-center justify-center">
+          <GlobalText className="text-gray-500">
+            퀘스트를 찾을 수 없습니다.
+          </GlobalText>
+        </View>
+      ) : (
         <QuestDetailCard
           title={quest.questTitle}
           category={quest.questCategory}
@@ -112,7 +150,7 @@ export default function QuestDetailPage() {
               : undefined
           }
           buttons={
-            !(quest.questStatus === "WAITING_REWARD")
+            quest.questStatus === "IN_PROGRESS"
               ? [{ text: "퀘스트 완료하기", onPress: handleCompleteQuest }]
               : undefined
           }
@@ -136,6 +174,6 @@ export default function QuestDetailPage() {
           Linking.openSettings();
         }}
       />
-    </>
+    </View>
   );
 }

@@ -288,6 +288,9 @@ export default function MenuScreen() {
 
   // 로그아웃 처리
   const handleLogout = async () => {
+    const currentUser = useAuthStore.getState().user;
+
+    // WebView 열기
     setShowWebView(true);
   };
 
@@ -416,6 +419,10 @@ export default function MenuScreen() {
         <WebView
           source={{ uri: LOGOUT_URL }}
           onNavigationStateChange={handleWebViewNavigation}
+          onError={(syntheticEvent) => {
+            const { nativeEvent } = syntheticEvent;
+            console.error("❌ WebView 에러 발생:", nativeEvent);
+          }}
           startInLoadingState
           renderLoading={() => (
             <View className="flex-1 justify-center items-center bg-white">
