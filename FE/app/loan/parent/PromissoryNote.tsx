@@ -1,5 +1,11 @@
 import React, { useEffect } from "react";
-import { View, Image, TouchableOpacity, ScrollView } from "react-native";
+import {
+  View,
+  Image,
+  TouchableOpacity,
+  ScrollView,
+  BackHandler,
+} from "react-native";
 import GlobalText from "@/components/GlobalText";
 import { usePromissoryNoteStore } from "@/stores/useLoanParentStore";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -70,6 +76,19 @@ export default function PromissoryNote({
       },
     });
   };
+
+  // Back button handler
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      () => {
+        router.back();
+        return true;
+      }
+    );
+
+    return () => backHandler.remove();
+  }, []);
 
   return (
     <View className="flex-1 bg-[#F5F6F8]">

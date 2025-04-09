@@ -6,9 +6,11 @@ import { useEffect } from "react";
 
 export const useHome = () => {
   const user = useAuthStore((state) => state.user);
+  const token = useAuthStore((state) => state.token);
   const { setChildData, setParentData, clearData } = useHomeStore();
 
   console.log("🔍 useHome - Current user role:", user?.role);
+  console.log("🔑 useHome - JWT Token:", token);
 
   const {
     data: childData,
@@ -38,8 +40,10 @@ export const useHome = () => {
 
   useEffect(() => {
     if (user?.role === "CHILD") {
+      console.log("🔄 Refetching child data...");
       refetchChild();
     } else if (user?.role === "PARENT") {
+      console.log("🔄 Refetching parent data...");
       refetchParent();
     }
   }, [user?.role]);
@@ -51,6 +55,7 @@ export const useHome = () => {
     }
     if (childData?.data) {
       console.log("📦 Child Data from API:", childData);
+      console.log("🔍 Child Quest Data:", childData.data.quest);
       setChildData(childData.data);
     }
   }, [childData]);
@@ -62,6 +67,7 @@ export const useHome = () => {
     }
     if (parentData?.data) {
       console.log("📦 Parent Data from API:", parentData);
+      console.log("🔍 Parent Quest Data:", parentData.data.quest);
       setParentData(parentData.data);
     }
   }, [parentData]);
@@ -74,7 +80,10 @@ export const useHome = () => {
   }
 
   console.log("🔄 Loading states:", { isChildLoading, isParentLoading });
-  console.log("📊 Current data:", { childData, parentData });
+  console.log("📊 Current data:", {
+    childData: childData?.data || null,
+    parentData: parentData?.data || null,
+  });
 
   return {
     childData: childData?.data || null,

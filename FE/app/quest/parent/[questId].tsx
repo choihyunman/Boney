@@ -20,8 +20,14 @@ export default function QuestDetailPage() {
   const questId = Number(params.questId as string);
   console.log("퀘스트 상세 페이지 진입", questId);
   const router = useRouter();
-  const [isPinModalVisible, setIsPinModalVisible] = useState(false);
   const [isRedoModalVisible, setIsRedoModalVisible] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [questDetail, setQuestDetail] = useState<QuestDetailResponse | null>(
+    null
+  );
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
   // 퀘스트 상세 정보 조회
   const {
@@ -47,11 +53,33 @@ export default function QuestDetailPage() {
     }월 ${date.getDate()}일`;
   };
 
-  const handleApproveQuest = async (password: string) => {
-    try {
-      if (!questId) {
-        console.error("유효하지 않은 questId");
-        return;
+  const handleApproveQuest = (response: any) => {
+    setQuestDetail((prev: QuestDetailResponse | null) =>
+      prev
+        ? {
+            ...prev,
+            questStatus: "SUCCESS",
+          }
+        : null
+    );
+    setShowSuccessModal(true);
+    setSuccessMessage(
+      `${response.childName}님이 ${response.questTitle} 퀘스트를 완료했습니다. ${response.amount}원이 지급되었습니다.`
+    );
+  };
+
+  const handleQuestError = (error: any) => {
+    console.error("퀘스트 승인 실패:", error);
+    if (error.response) {
+      const errorData = error.response.data;
+      if (error.response.status === 400) {
+        setShowErrorModal(true);
+        setErrorMessage("잔액이 부족합니다.");
+      } else {
+        setShowErrorModal(true);
+        setErrorMessage(
+          errorData.error?.message || "퀘스트 승인 중 오류가 발생했습니다."
+        );
       }
       console.log("퀘스트 완료:", questId);
       const res = await approvalQuest(Number(questId), password);
@@ -69,6 +97,11 @@ export default function QuestDetailPage() {
     }
   };
 
+  // 모달 확인 버튼 처리
+  const handleModalConfirm = () => {
+    setShowErrorModal(false);
+  };
+
   const handleRedoQuest = async () => {
     try {
       console.log("퀘스트 다시 하기:", questId);
@@ -83,6 +116,13 @@ export default function QuestDetailPage() {
       console.error("퀘스트 다시 하기 실패:", error);
       setIsRedoModalVisible(false);
     }
+  };
+
+  const navigateToPinInput = () => {
+    router.push({
+      pathname: "/quest/parent/QuestPinInput",
+      params: { questId: questId },
+    });
   };
 
   return (
@@ -127,25 +167,41 @@ export default function QuestDetailPage() {
                       onPress: () => setIsRedoModalVisible(true),
                     },
                     {
-                      text: "퀘스트 완료 승인하기",
-                      onPress: () => setIsPinModalVisible(true),
+                      text: "승인하기",
+                      onPress: navigateToPinInput,
                     },
                   ]
                 : undefined
             }
           />
+
+          {/* 오류 모달 */}
           <Modal
-            visible={isPinModalVisible}
+            visible={showErrorModal}
             transparent={true}
-            animationType="slide"
+            animationType="fade"
+            onRequestClose={() => setShowErrorModal(false)}
           >
-            <PinInput
-              title="비밀번호 입력"
-              subtitle="퀘스트 승인을 위해 비밀번호를 입력해주세요"
-              onPasswordComplete={handleApproveQuest}
-              onBackPress={() => setIsPinModalVisible(false)}
-            />
+            <View className="flex-1 justify-center items-center bg-black/50">
+              <View className="bg-white rounded-xl p-6 w-[80%] max-w-md">
+                <GlobalText className="text-lg font-bold text-center mb-4">
+                  결제 실패
+                </GlobalText>
+                <GlobalText className="text-base text-center mb-6">
+                  {errorMessage}
+                </GlobalText>
+                <TouchableOpacity
+                  className="bg-[#4FC985] py-3 rounded-lg"
+                  onPress={handleModalConfirm}
+                >
+                  <GlobalText className="text-white text-center font-bold">
+                    확인
+                  </GlobalText>
+                </TouchableOpacity>
+              </View>
+            </View>
           </Modal>
+
           <PopupModal
             visible={isRedoModalVisible}
             onClose={() => setIsRedoModalVisible(false)}
