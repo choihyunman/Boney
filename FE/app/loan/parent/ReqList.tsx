@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { View, TouchableOpacity, ScrollView, Alert } from "react-native";
+import {
+  View,
+  TouchableOpacity,
+  ScrollView,
+  Alert,
+  BackHandler,
+} from "react-native";
 import GlobalText from "@/components/GlobalText";
 import LoanModal from "@/components/PopupModal";
 import { router } from "expo-router";
@@ -15,6 +21,19 @@ export default function ParentLoanRequestsPage() {
   const setPromissoryNoteData = usePromissoryNoteStore(
     (state) => state.setPromissoryNoteData
   );
+
+  // Back button handler
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      () => {
+        router.push("/menu");
+        return true;
+      }
+    );
+
+    return () => backHandler.remove();
+  }, []);
 
   // 에러 핸들링 useEffect
   useEffect(() => {

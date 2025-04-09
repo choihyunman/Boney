@@ -14,10 +14,12 @@ export const useHomeStore = create<HomeStore>((set) => ({
   parentData: null,
   setChildData: (data) => {
     console.log("💾 Setting child data in store:", data);
+    console.log("🔍 Child quest data:", data?.quest);
     set({ childData: data });
   },
   setParentData: (data) => {
     console.log("💾 Setting parent data in store:", data);
+    console.log("🔍 Parent quest data:", data?.quest);
     set({ parentData: data });
   },
   clearData: () => {

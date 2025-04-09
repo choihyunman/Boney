@@ -19,13 +19,14 @@ interface MonthlyExpenseDonutProps {
 }
 
 const { width } = Dimensions.get("window");
-const chartSize = width - 200; // 차트 크기를 더 줄임
+const chartSize = width - 100; // 차트 크기를 더 크게 조정 (200에서 100으로 변경)
 
 interface ChartLabel {
   category: string;
   percentage: number;
   color: string;
   angle: number;
+  isTop?: boolean;
 }
 
 function ChartLabelComponent({
@@ -56,7 +57,7 @@ function ChartLabelComponent({
           { translateX: x },
           { translateY: y },
           { translateX: isRight ? 5 : -5 },
-          { translateX: isRight ? 0 : -80 }, // 왼쪽 라벨의 경우 너비만큼 이동
+          { translateX: isRight ? 0 : -80 },
         ],
         width: 80,
       }}
@@ -126,11 +127,19 @@ export default function MonthlyExpenseDonut({
 
       // 라벨의 각도는 해당 섹션의 중앙
       const labelAngle = currentAngle + angle / 2;
+
+      // 상단에 있는 라벨인지 확인 (각도 기준)
+      // 상단: -90도 ~ -45도 또는 45도 ~ 90도
+      const isTop =
+        (labelAngle >= -90 && labelAngle <= -45) ||
+        (labelAngle >= 45 && labelAngle <= 90);
+
       labels.push({
         category: category.category,
         percentage,
         color: category.color,
         angle: labelAngle,
+        isTop,
       });
 
       currentAngle += angle;
@@ -151,7 +160,7 @@ export default function MonthlyExpenseDonut({
   if (!isReady) {
     return (
       <View className="bg-white dark:bg-gray-800 rounded-xl p-4">
-        <Text className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+        <Text className="text-xl font-bold text-gray-900 dark:text-white mb-4">
           지출 카테고리 분포
         </Text>
         <View className="h-64 items-center justify-center">
@@ -165,14 +174,12 @@ export default function MonthlyExpenseDonut({
   if (categories.length === 0) {
     return (
       <View className="bg-white dark:bg-gray-800 rounded-xl p-4">
-        <Text className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+        <Text className="text-xl font-bold text-gray-900 dark:text-white mb-4">
           지출 카테고리 분포
         </Text>
         <View className="h-64 items-center justify-center">
           <CalendarX size={48} color="#D1D5DB" />
-          <Text className="text-gray-500 mt-4">
-            이번 달 내역이 없습니다
-          </Text>
+          <Text className="text-gray-500 mt-4">이번 달 내역이 없습니다</Text>
         </View>
       </View>
     );
@@ -180,7 +187,7 @@ export default function MonthlyExpenseDonut({
 
   return (
     <View className="bg-white dark:bg-gray-800 rounded-xl p-4">
-      <Text className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+      <Text className="text-xl font-bold text-gray-900 dark:text-white mb-4">
         지출 카테고리 분포
       </Text>
 
@@ -191,7 +198,7 @@ export default function MonthlyExpenseDonut({
             height: chartSize,
             position: "relative",
             alignSelf: "center",
-            marginVertical: 20,
+            marginVertical: 30,
           }}
         >
           <View
@@ -241,7 +248,7 @@ export default function MonthlyExpenseDonut({
             <ChartLabelComponent
               key={label.category}
               label={label}
-              radius={chartSize / 2 + 4}
+              radius={chartSize / 2 + (label.isTop ? 8 : 4)}
             />
           ))}
         </View>

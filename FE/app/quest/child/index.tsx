@@ -123,7 +123,7 @@ export default function ChildQuestListPage() {
                 <View
                   className={`${
                     quest.questStatus === "WAITING_REWARD"
-                      ? "bg-[#FFF8FA] border-2 border-[#FFE2EC] shadow-md"
+                      ? "bg-[#FFF8FA] border-2 border-[#FFE2EC]"
                       : "bg-[#F9FAFB]"
                   } rounded-xl p-4 mb-4`}
                 >
