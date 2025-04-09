@@ -37,6 +37,7 @@ import GlobalText from "@/components/GlobalText";
 import { getLoanValidation } from "@/apis/loanChildApi";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { WebView } from "react-native-webview";
+import { api } from "@/lib/api";
 
 // 프로필 이미지
 const profileImages = {
@@ -288,22 +289,28 @@ export default function MenuScreen() {
 
   // 로그아웃 처리
   const handleLogout = async () => {
-    const currentUser = useAuthStore.getState().user;
-
-    // WebView 열기
-    setShowWebView(true);
-  };
-
-  const handleWebViewNavigation = async (navState: any) => {
-    const { url } = navState;
-    if (url.startsWith(REDIRECT_URI)) {
-      console.log("✅ 카카오 로그아웃 완료, 앱 상태 초기화");
-
-      setShowWebView(false);
+    try {
+      await api.delete("/delete/kakao");
       await logout();
       router.replace("/auth");
+    } catch (err) {
+      console.log("로그아웃 중 오류:", err);
     }
+
+    // WebView 열기
+    // setShowWebView(true);
   };
+
+  // const handleWebViewNavigation = async (navState: any) => {
+  //   const { url } = navState;
+  //   if (url.startsWith(REDIRECT_URI)) {
+  //     console.log("✅ 카카오 로그아웃 완료, 앱 상태 초기화");
+
+  //     setShowWebView(false);
+  //     await logout();
+  //     router.replace("/auth");
+  //   }
+  // };
   // 사용자 역할에 따라 메뉴 아이템 선택
   const menuItems = isParent ? parentMenuItems : childMenuItems;
 
@@ -411,7 +418,7 @@ export default function MenuScreen() {
         </View>
       </ScrollView>
       {/* WebView for Logout */}
-      <Modal
+      {/* <Modal
         visible={showWebView}
         animationType="slide"
         onRequestClose={() => setShowWebView(false)}
@@ -430,7 +437,7 @@ export default function MenuScreen() {
             </View>
           )}
         />
-      </Modal>
+      </Modal> */}
     </SafeAreaView>
   );
 }
