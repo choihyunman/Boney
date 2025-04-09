@@ -128,9 +128,9 @@ const MenuScreen = () => {
             >
               <View className="w-24 h-24 bg-gray-200">
                 <Image
-                  source={{ uri: item.image }}
+                  source={item.image}
                   className="w-full h-full"
-                  defaultSource={require("@/assets/icons/logo.png")}
+                  defaultSource={require("../../assets/icons/logo.png")}
                 />
               </View>
 
@@ -184,9 +184,9 @@ const MenuScreen = () => {
               >
                 <View className="w-full h-32 bg-gray-200 relative">
                   <Image
-                    source={{ uri: item.image }}
+                    source={item.image}
                     className="w-full h-full"
-                    defaultSource={require("@/assets/icons/logo.png")}
+                    defaultSource={require("../../assets/icons/logo.png")}
                   />
                   {categoryInfo && (
                     <View

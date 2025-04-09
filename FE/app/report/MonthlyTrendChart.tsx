@@ -52,7 +52,7 @@ export default function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
         spacing: 12,
         labelTextStyle: {
           color: isDark ? "#4FC985" : "#374151",
-          fontSize: 11,
+          fontSize: 13,
         },
       });
 
@@ -70,7 +70,7 @@ export default function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
   if (!isReady) {
     return (
       <View className="bg-white dark:bg-gray-800 rounded-xl p-4 my-2">
-        <Text className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+        <Text className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
           최근 수입/지출 추이
         </Text>
         <View className="h-64 items-center justify-center">
@@ -84,14 +84,12 @@ export default function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
   if (data.length === 0) {
     return (
       <View className="bg-white dark:bg-gray-800 rounded-xl p-4 my-2">
-        <Text className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+        <Text className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
           최근 수입/지출 추이
         </Text>
         <View className="h-64 items-center justify-center">
           <Circle size={48} color="#D1D5DB" />
-          <Text className="text-gray-500 mt-4">
-            이번 달 내역이 없습니다
-          </Text>
+          <Text className="text-gray-500 mt-4">이번 달 내역이 없습니다</Text>
         </View>
       </View>
     );
@@ -99,7 +97,7 @@ export default function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
 
   return (
     <View className="bg-white dark:bg-gray-800 rounded-xl p-4 my-2">
-      <Text className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+      <Text className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
         최근 수입/지출 추이
       </Text>
 
@@ -116,7 +114,7 @@ export default function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
           yAxisColor={isDark ? "#4FC985" : "#E2E8F0"}
           yAxisTextStyle={{
             color: isDark ? "#E5E7EB" : "#374151",
-            fontSize: 10,
+            fontSize: 12,
           }}
           noOfSections={5}
           yAxisLabelSuffix="만"
@@ -141,7 +139,7 @@ export default function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
       <View className="flex-row justify-center items-center my-1">
         <View className="flex-row items-center mr-4">
           <Circle size={10} fill="#4FC985" color="#4FC985" />
-          <Text className="text-xs text-gray-700 dark:text-gray-300 ml-1">
+          <Text className="text-sm text-gray-700 dark:text-gray-300 ml-1">
             수입
           </Text>
         </View>
@@ -151,7 +149,7 @@ export default function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
             fill={isDark ? "#4B5563" : "#E2E8F0"}
             color={isDark ? "#4B5563" : "#E2E8F0"}
           />
-          <Text className="text-xs text-gray-700 dark:text-gray-300 ml-1">
+          <Text className="text-sm text-gray-700 dark:text-gray-300 ml-1">
             지출
           </Text>
         </View>

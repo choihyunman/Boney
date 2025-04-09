@@ -229,15 +229,6 @@ export default function QuestPinInputPage() {
     useQuestApprovalStore();
 
   const handlePasswordComplete = (response: any) => {
-    // 성공 시 처리
-    Toast.show({
-      type: "success",
-      text1: "퀘스트 승인이 완료되었습니다",
-      position: "top",
-      visibilityTime: 3000,
-      autoHide: true,
-    });
-
     // 승인 데이터를 스토어에 저장
     setQuestTitle(response.questTitle);
     setChildName(response.childName);
