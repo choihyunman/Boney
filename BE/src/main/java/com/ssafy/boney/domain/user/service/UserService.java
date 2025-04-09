@@ -216,4 +216,44 @@ public class UserService {
         ));
     }
 
+
+    @Transactional
+    public ResponseEntity<Map<String, Object>> disconnectKakaoOnly(Long kakaoId) {
+        Optional<User> userOpt = userRepository.findByKakaoId(kakaoId);
+
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                    "status", 404,
+                    "message", "해당 사용자를 찾을 수 없습니다."
+            ));
+        }
+
+        try {
+            String unlinkUrl = "https://kapi.kakao.com/v1/user/unlink";
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+            headers.set("Authorization", "KakaoAK " + kakaoAdminKey);
+
+            MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+            body.add("target_id_type", "user_id");
+            body.add("target_id", String.valueOf(kakaoId));
+
+            HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
+            restTemplate.postForEntity(unlinkUrl, request, String.class);
+
+            return ResponseEntity.ok(Map.of(
+                    "status", 200,
+                    "message", "카카오 연결이 성공적으로 해제되었습니다."
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                    "status", 500,
+                    "message", "카카오 연결 해제 중 오류가 발생했습니다.",
+                    "error", e.getMessage()
+            ));
+        }
+    }
+
+
 }

@@ -75,18 +75,24 @@ public class MainParentService {
             ));
         }
 
-        // 5. 모든 자녀 퀘스트 중 WAITING_REWARD 상태면서 마감일이 가장 빠른 퀘스트 하나 가져오기
+        // 5. 모든 자녀 퀘스트 중 WAITING_REWARD → 없으면 IN_PROGRESS 중 마감일 가장 빠른 퀘스트 하나만
         List<Quest> allQuests = new ArrayList<>();
         for (ParentChild relation : relations) {
             allQuests.addAll(questRepository.findOngoingQuestsByChild(relation.getChild().getUserId()));
         }
 
-        Optional<Quest> nearestWaitingReward = allQuests.stream()
+        Optional<Quest> selectedQuest = allQuests.stream()
                 .filter(q -> q.getQuestStatus().name().equals("WAITING_REWARD"))
                 .min(Comparator.comparing(Quest::getEndDate));
 
+        if (selectedQuest.isEmpty()) {
+            selectedQuest = allQuests.stream()
+                    .filter(q -> q.getQuestStatus().name().equals("IN_PROGRESS"))
+                    .min(Comparator.comparing(Quest::getEndDate));
+        }
+
         List<Map<String, Object>> questList = new ArrayList<>();
-        nearestWaitingReward.ifPresent(quest -> questList.add(Map.of(
+        selectedQuest.ifPresent(quest -> questList.add(Map.of(
                 "quest_id", quest.getQuestId(),
                 "quest_title", quest.getQuestTitle(),
                 "quest_child", quest.getParentChild().getChild().getUserName(),
