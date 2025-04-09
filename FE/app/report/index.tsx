@@ -33,7 +33,9 @@ const MonthSelector = ({
   return (
     <View className="bg-white rounded-xl mx-4 mt-2">
       <View className="flex-row items-center justify-between p-4">
-        <TouchableOpacity onPress={() => changeMonth("prev")}>
+        <TouchableOpacity
+          onPress={() => changeMonth("prev")}
+        >
           <ChevronLeft size={20} color="#000000" />
         </TouchableOpacity>
 

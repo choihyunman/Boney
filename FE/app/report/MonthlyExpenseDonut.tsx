@@ -19,7 +19,7 @@ interface MonthlyExpenseDonutProps {
 }
 
 const { width } = Dimensions.get("window");
-const chartSize = width - 100; // 차트 크기를 더 크게 조정 (200에서 100으로 변경)
+const chartSize = width - 200; // 차트 크기를 더 줄임
 
 interface ChartLabel {
   category: string;
@@ -47,6 +47,15 @@ function ChartLabelComponent({
   const isRight = x > 0;
   const isBottom = y > 0;
 
+  // 가장 중앙에 있는 라벨인지 확인 (각도 기준)
+  const isCenter =
+    Math.abs(label.angle) < 10 ||
+    Math.abs(label.angle - 180) < 10 ||
+    Math.abs(label.angle + 180) < 10;
+
+  // 중앙 라벨은 더 안쪽으로
+  const radiusOffset = isCenter ? 0.9 : 1;
+
   return (
     <View
       style={{
@@ -54,12 +63,11 @@ function ChartLabelComponent({
         left: "50%",
         top: "50%",
         transform: [
-          { translateX: x },
-          { translateY: y },
-          { translateX: isRight ? 5 : -5 },
-          { translateX: isRight ? 0 : -80 },
+          { translateX: x * radiusOffset },
+          { translateY: y * radiusOffset },
+          { translateX: isRight ? 5 : -50 },
         ],
-        width: 80,
+        width: 60,
       }}
     >
       <View
@@ -82,7 +90,7 @@ function ChartLabelComponent({
         )}
         <View
           style={{
-            width: 12,
+            width: 13,
             height: 1,
             backgroundColor: label.color,
             marginHorizontal: 2,
@@ -160,7 +168,7 @@ export default function MonthlyExpenseDonut({
   if (!isReady) {
     return (
       <View className="bg-white dark:bg-gray-800 rounded-xl p-4">
-        <Text className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+        <Text className="text-2xl font-bold text-gray-900">
           지출 카테고리 분포
         </Text>
         <View className="h-64 items-center justify-center">
@@ -208,13 +216,14 @@ export default function MonthlyExpenseDonut({
               height: "100%",
               justifyContent: "center",
               alignItems: "center",
+              padding: 20,
             }}
           >
             <PieChart
               data={chartData}
               donut
               radius={chartSize / 2}
-              innerRadius={chartSize / 2.5}
+              innerRadius={chartSize / 3}
               focusOnPress
               showValuesAsLabels={false}
               onPress={(_item: any, index: number) => {
@@ -233,7 +242,7 @@ export default function MonthlyExpenseDonut({
                 );
                 return (
                   <View className="items-center">
-                    <Text className="text-sm text-gray-500 dark:text-gray-400">
+                    <Text className="text-base text-gray-500 dark:text-gray-400">
                       총 지출
                     </Text>
                     <Text className="text-lg font-bold text-gray-900 dark:text-white">
@@ -248,30 +257,32 @@ export default function MonthlyExpenseDonut({
             <ChartLabelComponent
               key={label.category}
               label={label}
-              radius={chartSize / 2 + (label.isTop ? 20 : 10)}
+              radius={chartSize / 2 + (label.isTop ? 15 : 8)}
             />
           ))}
         </View>
 
         {/* 카테고리 범례 */}
-        <View className="flex-row flex-wrap justify-center mt-8">
+        <View className="flex-row flex-wrap justify-between mt-4 px-2">
           {categories.map((category) => (
             <Pressable
               key={category.category}
               onPress={() => onCategorySelect(category.category)}
-              className={`flex-row items-center m-2 px-4 py-2 rounded-full ${
+              className={`flex-row items-center mb-3 px-3 py-2 rounded-full ${
                 selectedCategory === category.category
                   ? "bg-gray-100 dark:bg-gray-700"
                   : ""
               }`}
+              style={{ width: (width - 80) / 4 }} // 3개씩 배치하기 위한 너비 계산
             >
               <Circle size={10} fill={category.color} color={category.color} />
               <Text
-                className={`text-sm ml-2 ${
+                className={`text-base ml-2 ${
                   selectedCategory === category.category
                     ? "text-gray-900 dark:text-white font-medium"
                     : "text-gray-600 dark:text-gray-400"
                 }`}
+                numberOfLines={1}
               >
                 {category.category}
               </Text>

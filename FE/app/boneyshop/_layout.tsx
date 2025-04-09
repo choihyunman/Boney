@@ -124,7 +124,7 @@ export const menuItems = [
     price: 7500,
     category: 1,
     rating: 4.8,
-    image: "https://via.placeholder.com/200",
+    image: require("../../assets/icons/icon.png"),
   },
   {
     id: 2,
@@ -132,7 +132,7 @@ export const menuItems = [
     price: 8000,
     category: 1,
     rating: 4.7,
-    image: "https://via.placeholder.com/200",
+    image: require("../../assets/icons/icon.png"),
   },
   {
     id: 3,
@@ -140,7 +140,7 @@ export const menuItems = [
     price: 8500,
     category: 1,
     rating: 4.6,
-    image: "https://via.placeholder.com/200",
+    image: require("../../assets/icons/icon.png"),
   },
 
   // 교통비
@@ -150,7 +150,7 @@ export const menuItems = [
     price: 55000,
     category: 2,
     rating: 4.9,
-    image: "https://via.placeholder.com/200",
+    image: require("../../assets/icons/icon.png"),
   },
   {
     id: 5,
@@ -158,7 +158,7 @@ export const menuItems = [
     price: 60000,
     category: 2,
     rating: 4.8,
-    image: "https://via.placeholder.com/200",
+    image: require("../../assets/icons/icon.png"),
   },
   {
     id: 6,
@@ -166,7 +166,7 @@ export const menuItems = [
     price: 10000,
     category: 2,
     rating: 4.5,
-    image: "https://via.placeholder.com/200",
+    image: require("../../assets/icons/icon.png"),
   },
 
   // 학습
@@ -176,7 +176,7 @@ export const menuItems = [
     price: 15000,
     category: 3,
     rating: 4.7,
-    image: "https://via.placeholder.com/200",
+    image: require("../../assets/icons/icon.png"),
   },
   {
     id: 8,
@@ -184,7 +184,7 @@ export const menuItems = [
     price: 12000,
     category: 3,
     rating: 4.6,
-    image: "https://via.placeholder.com/200",
+    image: require("../../assets/icons/icon.png"),
   },
   {
     id: 9,
@@ -192,7 +192,7 @@ export const menuItems = [
     price: 50000,
     category: 3,
     rating: 4.9,
-    image: "https://via.placeholder.com/200",
+    image: require("../../assets/icons/icon.png"),
   },
 
   // 문구
@@ -202,7 +202,7 @@ export const menuItems = [
     price: 8500,
     category: 4,
     rating: 4.5,
-    image: "https://via.placeholder.com/200",
+    image: require("../../assets/icons/icon.png"),
   },
   {
     id: 11,
@@ -210,7 +210,7 @@ export const menuItems = [
     price: 6000,
     category: 4,
     rating: 4.4,
-    image: "https://via.placeholder.com/200",
+    image: require("../../assets/icons/icon.png"),
   },
   {
     id: 12,
@@ -218,7 +218,7 @@ export const menuItems = [
     price: 4500,
     category: 4,
     rating: 4.3,
-    image: "https://via.placeholder.com/200",
+    image: require("../../assets/icons/icon.png"),
   },
 
   // 문화
@@ -228,7 +228,7 @@ export const menuItems = [
     price: 12000,
     category: 5,
     rating: 4.8,
-    image: "https://via.placeholder.com/200",
+    image: require("../../assets/icons/icon.png"),
   },
   {
     id: 14,
@@ -236,7 +236,7 @@ export const menuItems = [
     price: 15000,
     category: 5,
     rating: 4.7,
-    image: "https://via.placeholder.com/200",
+    image: require("../../assets/icons/icon.png"),
   },
   {
     id: 15,
@@ -244,7 +244,7 @@ export const menuItems = [
     price: 55000,
     category: 5,
     rating: 4.9,
-    image: "https://via.placeholder.com/200",
+    image: require("../../assets/icons/icon.png"),
   },
 
   // 카페/간식
@@ -254,7 +254,7 @@ export const menuItems = [
     price: 4500,
     category: 6,
     rating: 4.6,
-    image: "https://via.placeholder.com/200",
+    image: require("../../assets/icons/icon.png"),
   },
   {
     id: 17,
@@ -262,7 +262,7 @@ export const menuItems = [
     price: 5000,
     category: 6,
     rating: 4.5,
-    image: "https://via.placeholder.com/200",
+    image: require("../../assets/icons/icon.png"),
   },
   {
     id: 18,
@@ -270,7 +270,7 @@ export const menuItems = [
     price: 5500,
     category: 6,
     rating: 4.7,
-    image: "https://via.placeholder.com/200",
+    image: require("../../assets/icons/icon.png"),
   },
 
   // 의류/미용
@@ -280,7 +280,7 @@ export const menuItems = [
     price: 15000,
     category: 7,
     rating: 4.4,
-    image: "https://via.placeholder.com/200",
+    image: require("../../assets/icons/icon.png"),
   },
   {
     id: 20,
@@ -288,7 +288,7 @@ export const menuItems = [
     price: 25000,
     category: 7,
     rating: 4.6,
-    image: "https://via.placeholder.com/200",
+    image: require("../../assets/icons/icon.png"),
   },
   {
     id: 21,
@@ -296,7 +296,7 @@ export const menuItems = [
     price: 35000,
     category: 7,
     rating: 4.8,
-    image: "https://via.placeholder.com/200",
+    image: require("../../assets/icons/icon.png"),
   },
 
   // 의료
@@ -306,7 +306,7 @@ export const menuItems = [
     price: 8000,
     category: 8,
     rating: 4.7,
-    image: "https://via.placeholder.com/200",
+    image: require("../../assets/icons/icon.png"),
   },
   {
     id: 23,
@@ -314,7 +314,7 @@ export const menuItems = [
     price: 25000,
     category: 8,
     rating: 4.8,
-    image: "https://via.placeholder.com/200",
+    image: require("../../assets/icons/icon.png"),
   },
   {
     id: 24,
@@ -322,7 +322,7 @@ export const menuItems = [
     price: 12000,
     category: 8,
     rating: 4.6,
-    image: "https://via.placeholder.com/200",
+    image: require("../../assets/icons/icon.png"),
   },
 
   // 생활/잡화
@@ -332,7 +332,7 @@ export const menuItems = [
     price: 15000,
     category: 9,
     rating: 4.5,
-    image: "https://via.placeholder.com/200",
+    image: require("../../assets/icons/icon.png"),
   },
   {
     id: 26,
@@ -340,7 +340,7 @@ export const menuItems = [
     price: 22000,
     category: 9,
     rating: 4.6,
-    image: "https://via.placeholder.com/200",
+    image: require("../../assets/icons/icon.png"),
   },
   {
     id: 27,
@@ -348,7 +348,7 @@ export const menuItems = [
     price: 18000,
     category: 9,
     rating: 4.7,
-    image: "https://via.placeholder.com/200",
+    image: require("../../assets/icons/icon.png"),
   },
 
   // 기타
@@ -358,7 +358,7 @@ export const menuItems = [
     price: 10000,
     category: 10,
     rating: 4.9,
-    image: "https://via.placeholder.com/200",
+    image: require("../../assets/icons/icon.png"),
   },
   {
     id: 29,
@@ -366,7 +366,7 @@ export const menuItems = [
     price: 30000,
     category: 10,
     rating: 4.8,
-    image: "https://via.placeholder.com/200",
+    image: require("../../assets/icons/icon.png"),
   },
   {
     id: 30,
@@ -374,6 +374,6 @@ export const menuItems = [
     price: 5000,
     category: 10,
     rating: 5.0,
-    image: "https://via.placeholder.com/200",
+    image: require("../../assets/icons/icon.png"),
   },
 ];
