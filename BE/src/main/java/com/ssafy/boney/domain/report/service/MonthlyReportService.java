@@ -170,11 +170,112 @@ public class MonthlyReportService {
                     .completedQuests(completedQuests)
                     .threeMonthsTrend(threeMonthsTrend)
                     .build();
-        } else {
-            // 현재 달이 아닌 경우: 기존에 생성된 레포트를 그대로 조회
-            MonthlyReport report = monthlyReportRepository.findByChild_UserIdAndReportMonth(user.getUserId(), requestedMonth)
-                    .orElseThrow(() -> new MonthlyReportNotFoundException("월간 레포트가 존재하지 않습니다. (월: " + requestedMonth + ")"));
+        }
+        else {
+            // 현재 달이 아닌 경우: 기존에 생성된 레포트를 조회하거나, 없으면 거래 내역을 바탕으로 새로 생성
+            Optional<MonthlyReport> reportOptional = monthlyReportRepository.findByChild_UserIdAndReportMonth(user.getUserId(), requestedMonth);
+            MonthlyReport report;
+            if (reportOptional.isPresent()) {
+                report = reportOptional.get();
+            } else {
+                // 해당 월의 전체 기간 (해당 월 1일 ~ 말일)
+                LocalDateTime startDateTime = requestedMonth.atStartOfDay();
+                LocalDateTime endDateTime = requestedMonth.withDayOfMonth(requestedMonth.lengthOfMonth()).atTime(LocalTime.MAX);
 
+                // 해당 월의 거래 내역 조회
+                List<Transaction> transactions = transactionRepository.findByUserAndCreatedAtBetween(user, startDateTime, endDateTime);
+
+                if (!transactions.isEmpty()) {
+                    // 총 수입: DEPOSIT 거래 합계
+                    long totalIncome = transactions.stream()
+                            .filter(t -> t.getTransactionType() == TransactionType.DEPOSIT)
+                            .mapToLong(Transaction::getTransactionAmount)
+                            .sum();
+
+                    // 총 지출: WITHDRAWAL 거래 합계
+                    long totalExpense = transactions.stream()
+                            .filter(t -> t.getTransactionType() == TransactionType.WITHDRAWAL)
+                            .mapToLong(Transaction::getTransactionAmount)
+                            .sum();
+
+                    // 카테고리별 지출 집계
+                    Map<String, Long> categoryExpenseMap = transactions.stream()
+                            .filter(t -> t.getTransactionType() == TransactionType.WITHDRAWAL)
+                            .collect(Collectors.groupingBy(
+                                    t -> t.getTransactionCategory().getTransactionCategoryName(),
+                                    Collectors.summingLong(Transaction::getTransactionAmount)
+                            ));
+
+                    List<CategoryExpenseDto> categoryExpenseList = new ArrayList<>();
+                    for (Map.Entry<String, Long> entry : categoryExpenseMap.entrySet()) {
+                        int percentage = totalExpense > 0 ? (int) (entry.getValue() * 100 / totalExpense) : 0;
+                        List<Transaction> transactionsForCategory = transactions.stream()
+                                .filter(t -> t.getTransactionType() == TransactionType.WITHDRAWAL &&
+                                        t.getTransactionCategory().getTransactionCategoryName().equals(entry.getKey()))
+                                .collect(Collectors.toList());
+                        List<MonthlyReportResponse.TransactionDetailDto> transactionDetailList = transactionsForCategory.stream()
+                                .map(t -> MonthlyReportResponse.TransactionDetailDto.builder()
+                                        .transactionId(t.getTransactionId())
+                                        .amount(t.getTransactionAmount())
+                                        .createdAt(t.getCreatedAt().toString())
+                                        .transactionType(t.getTransactionType().name())
+                                        .transactionContent(t.getTransactionContent() != null
+                                                ? t.getTransactionContent().getContentName()
+                                                : null)
+                                        .build())
+                                .collect(Collectors.toList());
+
+                        categoryExpenseList.add(CategoryExpenseDto.builder()
+                                .category(entry.getKey())
+                                .amount(entry.getValue())
+                                .percentage(percentage)
+                                .transactions(transactionDetailList)
+                                .build());
+                    }
+
+                    // 퀘스트 관련 계산: 거래 카테고리가 "퀘스트"인 거래 (DEPOSIT 기준)
+                    List<Transaction> questTransactions = transactions.stream()
+                            .filter(t -> "퀘스트".equals(t.getTransactionCategory().getTransactionCategoryName()))
+                            .collect(Collectors.toList());
+                    int questCompleted = (int) questTransactions.stream()
+                            .filter(t -> t.getTransactionType() == TransactionType.DEPOSIT)
+                            .count();
+                    long questIncome = questTransactions.stream()
+                            .filter(t -> t.getTransactionType() == TransactionType.DEPOSIT)
+                            .mapToLong(Transaction::getTransactionAmount)
+                            .sum();
+
+                    int incomeRatio = (totalIncome + totalExpense) > 0 ? (int) (totalIncome * 100 / (totalIncome + totalExpense)) : 0;
+                    int expenseRatio = (totalIncome + totalExpense) > 0 ? (int) (totalExpense * 100 / (totalIncome + totalExpense)) : 0;
+
+                    String categoryExpenseJson;
+                    try {
+                        categoryExpenseJson = objectMapper.writeValueAsString(categoryExpenseList);
+                    } catch (Exception e) {
+                        throw new RuntimeException("카테고리별 지출 내역 JSON 파싱 에러", e);
+                    }
+
+                    // 새 월간 레포트 생성 및 저장 (reportMonth는 해당 월의 1일)
+                    report = MonthlyReport.builder()
+                            .child(user)
+                            .reportMonth(requestedMonth)
+                            .totalIncome(totalIncome)
+                            .totalExpense(totalExpense)
+                            .incomeRatio(incomeRatio)
+                            .expenseRatio(expenseRatio)
+                            .categoryExpense(categoryExpenseJson)
+                            .questCompleted(questCompleted)
+                            .questIncome(questIncome)
+                            .build();
+
+                    monthlyReportRepository.save(report);
+                } else {
+                    throw new MonthlyReportNotFoundException("월간 레포트가 존재하지 않습니다. (월: " + requestedMonth + ")");
+                }
+            }
+
+
+            // 이후 기존 코드와 동일하게, report의 categoryExpense를 파싱하고 3개월 추이 데이터를 구성하여 반환
             List<CategoryExpenseDto> categoryExpenseList;
             try {
                 categoryExpenseList = objectMapper.readValue(report.getCategoryExpense(), new TypeReference<List<CategoryExpenseDto>>() {});
@@ -209,6 +310,7 @@ public class MonthlyReportService {
                     .completedQuests(completedQuests)
                     .threeMonthsTrend(threeMonthsTrend)
                     .build();
+
         }
     }
 }
