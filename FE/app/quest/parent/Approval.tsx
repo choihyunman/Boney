@@ -3,10 +3,18 @@ import { router } from "expo-router";
 import { useQuestApprovalStore } from "@/stores/useQuestStore";
 import { View, Image } from "react-native";
 import { getQuestIcon } from "@/utils/getQuestIcon";
+import { useEffect } from "react";
 
 export default function ReqComplete() {
   const { questTitle, childName, approvalDate, amount } =
     useQuestApprovalStore();
+
+  // 데이터가 없는 경우 퀘스트 목록 페이지로 리다이렉트
+  useEffect(() => {
+    if (!questTitle || !childName || !approvalDate || amount === 0) {
+      router.replace("/quest/parent");
+    }
+  }, [questTitle, childName, approvalDate, amount]);
 
   const handleConfirm = () => {
     router.replace("/quest/parent");

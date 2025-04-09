@@ -6,9 +6,7 @@ import { getQuestDetail, redoQuest } from "@/apis/questApi";
 import { getQuestIcon } from "@/utils/getQuestIcon";
 import { Modal, View, TouchableOpacity } from "react-native";
 import PopupModal from "@/components/PopupModal";
-import { useQuestApprovalStore } from "@/stores/useQuestStore";
 import GlobalText from "@/components/GlobalText";
-import Toast from "react-native-toast-message";
 
 interface QuestDetailResponse {
   questId: number;
