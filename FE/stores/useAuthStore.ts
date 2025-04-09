@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { zustandSecureStorage } from "@/lib/secureStorage";
 import * as SecureStore from "expo-secure-store";
+import { Alert } from "react-native"; // 꼭 추가!
 import {
   checkUserRegistered,
   createAccount,
@@ -56,26 +57,23 @@ export const useAuthStore = create<AuthStore>()(
       setAccount: (account) => set({ account }),
       resetAuth: () => set({ user: null, token: null, account: null }),
       logout: async () => {
-        console.log("👋 로그아웃 실행");
-
         try {
-          // FCM 토큰 등록 해제
-          const fcmToken = await SecureStore.getItemAsync("fcmToken");
-          if (fcmToken) {
-            try {
-              await fcmApi.unregisterToken(fcmToken);
-              await SecureStore.deleteItemAsync("fcmToken");
-            } catch (error) {
-              console.error("❌ FCM 토큰 등록 해제 실패:", error);
-            }
-          }
-          
-          await SecureStore.deleteItemAsync("userToken");
-        } catch (error) {
-          console.error("❌ SecureStore 토큰 삭제 실패:", error);
-        }
+          console.log("👋 로그아웃 실행");
 
-        set({ user: null, token: null, account: null });
+          const currentUser = useAuthStore.getState().user;
+
+          // SecureStore 삭제
+          await SecureStore.deleteItemAsync("userToken");
+          console.log("✅ SecureStore 토큰 삭제 완료");
+
+          // zustand 초기화
+          set({ user: null, token: null, account: null });
+
+          // (선택) 로그아웃 후 /auth로 이동하려면 router.replace("/auth") 호출
+          // router.replace("/auth");  // 필요하면 추가
+        } catch (error: any) {
+          console.error("❌ 로그아웃 중 에러:", error);
+        }
       },
       kakaoLogin: async (code: string) => {
         let userData;
