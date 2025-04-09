@@ -34,6 +34,7 @@ export default function Signature({
   const signatureRef = useRef<SignatureCanvas>(null);
   const [signatureImage, setSignatureImage] = useState<string | null>(null);
   const [showPinInput, setShowPinInput] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const pinInputRef = useRef<PinInputRef>(null);
   const { setApprove } = useApproveStore();
   const [showErrorModal, setShowErrorModal] = useState(false);
@@ -188,8 +189,13 @@ export default function Signature({
   };
 
   const handleSubmit = () => {
+    if (isSubmitted) {
+      return;
+    }
+
     console.log("📤 서명 완료 버튼 누름");
     if (signatureRef.current) {
+      setIsSubmitted(true);
       signatureRef.current.readSignature();
     } else {
       Alert.alert("오류", "서명 참조를 가져올 수 없습니다.");
@@ -309,9 +315,10 @@ export default function Signature({
           <TouchableOpacity
             className="flex-1 bg-[#4FC985] py-4 rounded-lg"
             onPress={handleSubmit}
+            disabled={isSubmitted}
           >
             <GlobalText className="text-center text-white">
-              서명 완료
+              {isSubmitted ? "서명 제출 중" : "서명 완료"}
             </GlobalText>
           </TouchableOpacity>
         </View>
