@@ -178,7 +178,7 @@ pipeline {
             steps {
                 echo "🛑 기존 컨테이너 중지 및 삭제 중..."
                 sh '''
-                docker compose down --remove-orphans || true
+                docker compose down || true
                 docker rm -f frontend || true
                 docker rm -f backend || true
                 docker rm -f mysql || true
