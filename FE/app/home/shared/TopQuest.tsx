@@ -26,7 +26,8 @@ export default function MissionSection() {
   // Find in-progress or waiting reward quest
   const inProgressQuest = quest?.find(
     (quest: Quest) =>
-      quest.quest_status === "IN_PROGRESS" || quest.quest_status === "WAITING_REWARD"
+      quest.quest_status === "IN_PROGRESS" ||
+      quest.quest_status === "WAITING_REWARD"
   );
 
   // Log in-progress quest
@@ -45,7 +46,13 @@ export default function MissionSection() {
     const diffTime = dueDate.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    return diffDays;
+    if (diffDays === 0) {
+      return "-DAY";
+    } else if (diffDays > 0) {
+      return `-${diffDays}`;
+    } else {
+      return `+${Math.abs(diffDays)}`;
+    }
   };
 
   return (
@@ -82,9 +89,11 @@ export default function MissionSection() {
                 <GlobalText className="font-medium text-base">
                   {inProgressQuest.quest_title}
                 </GlobalText>
-                <GlobalText className="text-sm bg-[#4FC985]/10 text-[#4FC985] font-bold px-3 py-1 rounded-full">
-                  D-{calculateDday(inProgressQuest.end_date)}
-                </GlobalText>
+                {inProgressQuest.quest_status !== "WAITING_REWARD" && (
+                  <GlobalText className="text-sm bg-[#4FC985]/10 text-[#4FC985] font-bold px-3 py-1 rounded-full">
+                    D{calculateDday(inProgressQuest.end_date)}
+                  </GlobalText>
+                )}
               </View>
               <GlobalText className="text-[#4FC985] font-bold mt-1 text-base">
                 {inProgressQuest.quest_reward.toLocaleString()}원

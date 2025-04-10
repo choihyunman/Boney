@@ -2,6 +2,7 @@ import { View, TouchableOpacity } from "react-native";
 import GlobalText from "@/components/GlobalText";
 import { HandCoins } from "lucide-react-native";
 import { useHomeStore } from "@/stores/useHomeStore";
+import { router } from "expo-router";
 
 export default function LoanAmount() {
   const { childData } = useHomeStore();
@@ -16,7 +17,10 @@ export default function LoanAmount() {
           {Number(childData.all_loan).toLocaleString()}원
         </GlobalText>
       </View>
-      <TouchableOpacity className="bg-gray-600 px-4 py-2 rounded-full flex-row items-center gap-1 mt-1">
+      <TouchableOpacity
+        onPress={() => router.push("/loan/child")}
+        className="bg-gray-600 px-4 py-2 rounded-full flex-row items-center gap-1 mt-1"
+      >
         <HandCoins size={16} color="white" />
         <GlobalText className="text-white text-base">상환</GlobalText>
       </TouchableOpacity>
