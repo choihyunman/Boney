@@ -5,6 +5,7 @@ import PopupModal from "../../../components/PopupModal";
 import { useLoanReqListQuery } from "@/hooks/useLoanReqListChildQuery";
 import { useLoanReqListStore } from "@/stores/useLoanChildStore";
 import { cancelLoan } from "@/apis/loanChildApi";
+import { Clock } from "lucide-react-native";
 
 export default function ChildLoanRequestsPage() {
   const { data: queryData, error, refetch } = useLoanReqListQuery();
@@ -65,7 +66,6 @@ export default function ChildLoanRequestsPage() {
         keyExtractor={(item) => item.loan_id.toString()}
         contentContainerStyle={{
           paddingHorizontal: 24,
-          paddingTop: 24,
           paddingBottom: 100,
         }}
         keyboardShouldPersistTaps="handled"
@@ -135,9 +135,12 @@ export default function ChildLoanRequestsPage() {
           </View>
         )}
         ListEmptyComponent={() => (
-          <View className="flex-col items-center justify-center py-12">
+          <View className="items-center justify-center py-12">
+            <Clock size={48} color="#D1D5DB" className="mb-4" />
             <GlobalText className="text-gray-500">
-              요청 중인 대출이 없습니다.
+              {error
+                ? "대기 중인 대출이 없습니다."
+                : "대기 중인 대출이 없습니다."}
             </GlobalText>
           </View>
         )}

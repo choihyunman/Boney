@@ -290,7 +290,7 @@ export default function MenuScreen() {
   // 로그아웃 처리
   const handleLogout = async () => {
     try {
-      await api.delete("/delete/kakao");
+      await api.delete("/auth/delete/kakao");
       await logout();
       router.replace("/auth");
     } catch (err) {

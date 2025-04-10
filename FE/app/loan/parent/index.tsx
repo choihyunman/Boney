@@ -12,6 +12,13 @@ export default function LoanListParent() {
   const loanList = useLoanListParentStore((state) => state.loanList);
   const [isMounted, setIsMounted] = useState(false);
 
+  // 대출 목록을 마감 날짜가 빠른 순으로 정렬
+  const sortedLoanList = [...loanList].sort((a, b) => {
+    if (!a.due_date) return 1; // 날짜가 없는 항목은 뒤로
+    if (!b.due_date) return -1;
+    return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
+  });
+
   useEffect(() => {
     setIsMounted(true);
     return () => setIsMounted(false);
@@ -33,19 +40,23 @@ export default function LoanListParent() {
     }, [refetch, isMounted])
   );
 
-  const totalAmount = loanList.reduce((sum, loan) => sum + loan.last_amount, 0);
+  const totalAmount = sortedLoanList.reduce(
+    (sum, loan) => sum + loan.last_amount,
+    0
+  );
 
   return (
     <ScrollView className="flex-1 bg-[#F5F6F8]">
       <LoanSummary
         title="진행 중인 대출"
-        count={loanList.length}
+        count={sortedLoanList.length}
         totalAmount={totalAmount}
       />
       <LoanListSection
         title="대출 목록"
-        loans={loanList}
+        loans={sortedLoanList}
         showCreditorTitle={true}
+        error={!!error}
         onPress={(loanId, color) =>
           router.push({
             pathname: `/loan/parent/${loanId}`,

@@ -13,7 +13,7 @@ export default function QuestListPage() {
   const fromComplete = params.fromComplete;
   const fromApproval = params.fromApproval;
 
-  const { data, isLoading } = useCustomQuery({
+  const { data, isLoading, isError } = useCustomQuery({
     queryKey: ["quests"],
     queryFn: getQuestListParent,
     staleTime: 1000 * 60 * 3,
@@ -96,11 +96,11 @@ export default function QuestListPage() {
 
   return (
     <View className="flex-1 bg-[#F5F6F8]">
-      <ScrollView className="flex-1 px-6 mt-6 pb-20">
+      <ScrollView className="flex-1 px-6 pb-20">
         {/* 헤더 */}
         <View className="flex-row justify-between items-center mb-6">
           <View className="flex-row items-center">
-            <GlobalText weight="bold" className="text-xl text-gray-800">
+            <GlobalText weight="bold" className="text-2xl text-gray-800">
               진행 중인 퀘스트
             </GlobalText>
             <View className="ml-3 bg-[#4FC985] px-3 py-1 rounded-lg">
@@ -130,7 +130,7 @@ export default function QuestListPage() {
             </GlobalText>
             {pendingRewardCount > 0 && (
               <View className="bg-[#FFE2EC] px-3 py-1 rounded-lg">
-                <GlobalText className="text-[#D6456B] text-sm">
+                <GlobalText weight="bold" className="text-[#D6456B] text-sm">
                   보상 대기 {pendingRewardCount}건
                 </GlobalText>
               </View>
@@ -142,7 +142,7 @@ export default function QuestListPage() {
               <GlobalText className="text-center text-gray-400">
                 로딩 중...
               </GlobalText>
-            ) : sortedQuests.length === 0 ? (
+            ) : isError || sortedQuests.length === 0 ? (
               <View className="items-center justify-center py-12">
                 <Clock size={48} color="#D1D5DB" className="mb-4" />
                 <GlobalText className="text-gray-500">
