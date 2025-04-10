@@ -97,21 +97,21 @@ public class TransferService {
             throw new CustomException(TransactionErrorCode.INSUFFICIENT_BALANCE);
         }
 
-        // 5. 수취인 이름 조회
-        String recipientName;
-        try {
-            recipientName = bankingApiService.getAccountHolderName(request.getRecipientAccountNumber());
-        } catch (RuntimeException e) {
+        // 5. 수취인 이름 설정 (계좌 조회에 입력한 이름)
+        String recipientName = request.getRecipientAccountHolder();
+        if (recipientName == null || recipientName.trim().isEmpty()) {
             throw new CustomException(TransactionErrorCode.ACCOUNT_NOT_FOUND);
         }
 
         // 6. SSAFY API 계좌 이체 - summary에 보낸 사람(보호자)의 이름 포함
-        String summary = "이체 " + sender.getUserName();
+        String depositSummary = "이체 " + sender.getUserName();
+        String withdrawalSummary = "이체 " + recipientName;
         TransferApiResponseDto transferApiResponse = bankingApiService.transfer(
                 senderAccount.getAccountNumber(),
                 request.getRecipientAccountNumber(),
                 request.getAmount(),
-                summary
+                depositSummary,
+                withdrawalSummary
         );
 
         // 7. transfer API 응답에서 거래 고유번호 추출 (예시: Header 필드의 institutionTransactionUniqueNo)
@@ -226,12 +226,14 @@ public class TransferService {
                 .orElseThrow(() -> new CustomException(TransactionErrorCode.ACCOUNT_NOT_FOUND));
 
         // 7. SSAFY API 계좌 이체
-        String summary = "용돈 " + parent.getUserName();
+        String depositSummary = "용돈 " + parent.getUserName();
+        String withdrawalSummary = "용돈 " + child.getUserName();
         bankingApiService.transfer(
                 parentAccount.getAccountNumber(),
                 childAccount.getAccountNumber(),
                 request.getAmount(),
-                summary
+                depositSummary,
+                withdrawalSummary
         );
 
         // 8. 응답 생성
@@ -283,12 +285,17 @@ public class TransferService {
         if (availableBalance < amount) {
             throw new CustomException(TransactionErrorCode.INSUFFICIENT_BALANCE);
         }
+
+        String depositSummary = "용돈 " + parent.getUserName();
+        String withdrawalSummary = "용돈 " + child.getUserName();
+
         // 송금 실행 (자동 송금이므로 비밀번호 검증 생략)
         TransferApiResponseDto response = bankingApiService.transfer(
                 parentAccount.getAccountNumber(),
                 childAccount.getAccountNumber(),
                 amount,
-                summary
+                depositSummary,
+                withdrawalSummary
         );
         // 추가 후속 처리가 없다면 여기서 종료 (로그 기록 등을 할 수 있음)
     }
