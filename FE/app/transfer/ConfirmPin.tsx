@@ -30,6 +30,7 @@ export default function PinInputScreen() {
           sendPassword: password,
           amount: Number(transferData.amount),
           recipientBank: transferData.recipient.bankName,
+          recipientAccountHolder: transferData.recipient.accountHolder,
           recipientAccountNumber: transferData.recipient.accountNumber.replace(
             /-/g,
             ""
