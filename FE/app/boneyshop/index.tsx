@@ -73,7 +73,7 @@ const MenuScreen = () => {
         title: "결제 완료",
         message: `${
           item.name
-        } ${item.price.toLocaleString()}원이 결제되었습니다\n\n이용해 주셔서 감사합니다!`,
+        } ${item.price.toLocaleString()}원이 결제되었습니다\n이용해 주셔서 감사합니다!`,
         onClose: () => setAlertVisible(false),
       });
       setAlertVisible(true);
@@ -81,13 +81,13 @@ const MenuScreen = () => {
       if (error?.response?.status === 400) {
         setAlertConfig({
           title: "결제 실패",
-          message: "잔액이 부족합니다.\n\n다시 시도해 주세요.",
+          message: "잔액이 부족합니다.\n다시 시도해 주세요.",
           onClose: () => setAlertVisible(false),
         });
       } else {
         setAlertConfig({
           title: "결제 실패",
-          message: "결제 처리 중 오류가 발생했습니다.\n\n다시 시도해 주세요.",
+          message: "결제 처리 중 오류가 발생했습니다.\n다시 시도해 주세요.",
           onClose: () => setAlertVisible(false),
         });
       }

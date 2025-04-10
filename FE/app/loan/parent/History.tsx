@@ -33,7 +33,7 @@ export default function ParentLoanHistoryPage() {
   return (
     <View className="flex-1 bg-[#F5F6F8]">
       <View className="flex-1">
-        <View className="bg-white mt-1">
+        <View className="bg-white">
           {sortedLoans.map((loan) => (
             <HistoryItem
               key={loan.loan_id}
