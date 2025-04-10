@@ -15,10 +15,17 @@ import { menuItems, categories, getBgStyle } from "./_layout";
 import { processPayment } from "../../apis/boneyshopApi";
 import { useHomeStore } from "../../stores/useHomeStore";
 import { useAuthStore } from "../../stores/useAuthStore";
+import { CustomAlert } from "@/components/CustomAlert";
 
 const MenuScreen = () => {
   const [selectedCategory, setSelectedCategory] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertConfig, setAlertConfig] = useState({
+    title: "",
+    message: "",
+    onClose: () => {},
+  });
   const childData = useHomeStore((state) => state.childData);
   const parentData = useHomeStore((state) => state.parentData);
   const user = useAuthStore((state) => state.user);
@@ -51,16 +58,41 @@ const MenuScreen = () => {
   const handlePayment = async (item: { name: string; price: number }) => {
     const accountNumber = getAccountNumber();
     if (!accountNumber) {
-      Alert.alert("오류", "계좌 정보를 찾을 수 없습니다.");
+      setAlertConfig({
+        title: "오류",
+        message: "계좌 정보를 찾을 수 없습니다.",
+        onClose: () => setAlertVisible(false),
+      });
+      setAlertVisible(true);
       return;
     }
 
     try {
       setIsLoading(true);
       await processPayment(item.name, item.price, accountNumber);
-      Alert.alert("결제 성공", `${item.name} 결제가 완료되었습니다.`);
-    } catch (error) {
-      Alert.alert("결제 실패", "결제 처리 중 오류가 발생했습니다.");
+      setAlertConfig({
+        title: "결제 완료",
+        message: `${
+          item.name
+        } ${item.price.toLocaleString()}원이 결제되었습니다\n\n이용해 주셔서 감사합니다!`,
+        onClose: () => setAlertVisible(false),
+      });
+      setAlertVisible(true);
+    } catch (error: any) {
+      if (error?.response?.status === 400) {
+        setAlertConfig({
+          title: "결제 실패",
+          message: "잔액이 부족합니다.\n\n다시 시도해 주세요.",
+          onClose: () => setAlertVisible(false),
+        });
+      } else {
+        setAlertConfig({
+          title: "결제 실패",
+          message: "결제 처리 중 오류가 발생했습니다.\n\n다시 시도해 주세요.",
+          onClose: () => setAlertVisible(false),
+        });
+      }
+      setAlertVisible(true);
       console.error(error);
     } finally {
       setIsLoading(false);
@@ -212,6 +244,13 @@ const MenuScreen = () => {
           })}
         </ScrollView>
       </ScrollView>
+      <CustomAlert
+        visible={alertVisible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        onClose={alertConfig.onClose}
+        type={alertConfig.title === "결제 완료" ? "success" : "error"}
+      />
     </SafeAreaView>
   );
 };

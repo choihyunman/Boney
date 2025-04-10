@@ -36,8 +36,8 @@ import {
 import GlobalText from "@/components/GlobalText";
 import { getLoanValidation } from "@/apis/loanChildApi";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { WebView } from "react-native-webview";
 import { api } from "@/lib/api";
+import { getTransactionHistory } from "@/apis/transactionApi";
 
 // 프로필 이미지
 const profileImages = {
@@ -279,6 +279,31 @@ export default function MenuScreen() {
       } catch (err) {
         console.error("대출 가능 여부 확인 실패:", err);
         Alert.alert("알림", "대출 요청 확인 중 오류가 발생했어요.");
+      }
+      return;
+    }
+
+    // 월간 리포트 메뉴인 경우 거래내역 조회 후 이동
+    if (id === "monthly-report") {
+      try {
+        const token = useAuthStore.getState().token;
+        if (!token) {
+          Alert.alert("알림", "인증 정보가 없습니다. 다시 로그인해주세요.");
+          return;
+        }
+
+        const now = new Date();
+        const year = now.getFullYear().toString();
+        const month = (now.getMonth() + 1).toString().padStart(2, "0");
+
+        // 거래내역 조회 API 호출
+        await getTransactionHistory({ year, month, type: "all" }, token);
+
+        // 거래내역 조회 성공 후 리포트 페이지로 이동
+        router.push(route as any);
+      } catch (err) {
+        console.error("거래내역 조회 실패:", err);
+        Alert.alert("알림", "거래내역 조회 중 오류가 발생했어요.");
       }
       return;
     }

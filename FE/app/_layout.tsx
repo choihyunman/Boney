@@ -185,9 +185,6 @@ function RootLayoutNav() {
   useEffect(() => {
     if (hasHydrated) {
       fetchNotifications();
-      // 5초마다 알림 목록 새로고침
-      const interval = setInterval(fetchNotifications, 5000);
-      return () => clearInterval(interval);
     }
   }, [hasHydrated]);
 
