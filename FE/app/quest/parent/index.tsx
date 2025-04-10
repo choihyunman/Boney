@@ -21,9 +21,6 @@ export default function QuestListPage() {
   });
   const questList = data?.quests || [];
 
-  // 404 에러를 별도로 처리
-  const isNotFoundError = error?.message?.includes("404");
-
   useFocusEffect(
     useCallback(() => {
       const onBackPress = () => {
