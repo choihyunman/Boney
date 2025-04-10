@@ -81,7 +81,11 @@ public class ParentQuestApprovalService {
 
         // 6. 송금 실행
         String summary = "퀘스트 " + quest.getQuestTitle();
-        bankingApiService.transfer(fromAccount, toAccount, quest.getQuestReward(), summary);
+
+        String depositSummary = "퀘스트 " + quest.getQuestTitle();
+        String withdrawalSummary = "퀘스트 " + quest.getQuestTitle();
+
+        bankingApiService.transfer(fromAccount, toAccount, quest.getQuestReward(), depositSummary, withdrawalSummary);
 
         // 6. 송금 결과 데이터 생성
         LocalDateTime now = LocalDateTime.now();
