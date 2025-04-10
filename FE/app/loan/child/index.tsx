@@ -12,15 +12,15 @@ export default function LoanListChild() {
   const { fromRepayment } = useLocalSearchParams();
   const { data: queryData, error, refetch } = useLoanListChildQuery();
   const loanList = useLoanListStore((state) => state.loanList);
+
   const [repaymentHistory, setRepaymentHistory] = useState<
     RepaymentHistoryItem[]
   >([]);
   const [key, setKey] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
 
-  // 대출 목록을 마감 날짜가 빠른 순으로 정렬
   const sortedLoanList = [...loanList].sort((a, b) => {
-    if (!a.due_date) return 1; // 날짜가 없는 항목은 뒤로
+    if (!a.due_date) return 1;
     if (!b.due_date) return -1;
     return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
   });
@@ -30,28 +30,26 @@ export default function LoanListChild() {
     return () => setIsMounted(false);
   }, []);
 
-  // queryData 변경 시 상태 업데이트
+  // 서버에서 받아온 대출 목록 및 상환 기록을 로컬 상태에 저장
   useEffect(() => {
     if (queryData) {
-      if (queryData.loan_repayment_history) {
-        setRepaymentHistory(queryData.loan_repayment_history);
-      }
-
-      if (queryData.active_loans) {
-        useLoanListStore.getState().setLoanList(queryData.active_loans);
-      } else {
-        useLoanListStore.getState().setLoanList([]); // 혹시 없으면 빈 리스트로 초기화
-      }
-
+      setRepaymentHistory(queryData.loan_repayment_history || []);
+      useLoanListStore.getState().setLoanList(queryData.active_loans || []);
       setKey((prev) => prev + 1);
-    } else {
-      // 🔥 queryData 자체가 없는 경우: (ex. 404가 와서 에러났을 때)
-      console.log("queryData 없음 - 대출 목록 초기화");
-      useLoanListStore.getState().setLoanList([]);
     }
   }, [queryData]);
 
-  // Use useFocusEffect to refetch data when the screen comes into focus
+  // 서버 에러가 발생했을 때 로컬 상태 초기화 (특히 404 에러)
+  useEffect(() => {
+    if (
+      error?.message.includes("아이에 해당하는 대출 내역이 존재하지 않습니다.")
+    ) {
+      console.warn("404 감지 - 대출 목록과 히스토리 초기화");
+      useLoanListStore.getState().setLoanList([]);
+      setRepaymentHistory([]);
+    }
+  }, [error]);
+
   useFocusEffect(
     useCallback(() => {
       if (!isMounted) return;
@@ -59,24 +57,6 @@ export default function LoanListChild() {
       refetch();
     }, [refetch, isMounted])
   );
-
-  // 3초마다 자동 새로고침
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     if (!isMounted) return;
-  //     // console.log("대출 목록 자동 새로고침");
-  //     refetch();
-  //   }, 3000);
-
-  //   return () => clearInterval(interval);
-  // }, [refetch, isMounted]);
-
-  // 에러 핸들링 useEffect
-  useEffect(() => {
-    if (error) {
-      console.error("대출 목록 조회 실패:", error.message);
-    }
-  }, [error]);
 
   useFocusEffect(
     useCallback(() => {
@@ -89,9 +69,8 @@ export default function LoanListChild() {
       };
 
       BackHandler.addEventListener("hardwareBackPress", onBackPress);
-      return () => {
+      return () =>
         BackHandler.removeEventListener("hardwareBackPress", onBackPress);
-      };
     }, [fromRepayment])
   );
 
@@ -99,8 +78,6 @@ export default function LoanListChild() {
     (sum, loan) => sum + loan.last_amount,
     0
   );
-
-  // 차트 데이터 유효성 확인
   const hasValidChartData =
     sortedLoanList.length > 0 && repaymentHistory.length > 0;
 

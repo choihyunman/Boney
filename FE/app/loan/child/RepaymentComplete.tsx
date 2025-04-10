@@ -52,11 +52,6 @@ export default function RepaymentComplete() {
     <Complete
       title="상환이 완료되었습니다"
       onConfirm={() => {
-        queryClient.setQueryData(["loan-list-child"], {
-          active_loans: [],
-          loan_repayment_history: [],
-        }); // ✅ 바로 화면 데이터 비워버림
-        queryClient.invalidateQueries({ queryKey: ["loan-list-child"] });
         router.replace({
           pathname: "/loan/child",
           params: {
