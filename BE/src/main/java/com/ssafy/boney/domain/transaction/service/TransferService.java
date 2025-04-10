@@ -279,17 +279,14 @@ public class TransferService {
      * 보호자 -> 자식 자동 송금
      */
     @Transactional
-    public void processParentChildTransferAuto(User parent, Account parentAccount, User child, Account childAccount, Long amount, String summary) {
+    public void processParentChildTransferAuto(User parent, Account parentAccount, User child, Account childAccount, Long amount, String depositSummary, String withdrawalSummary) {
         // 부모 계좌 잔액 확인
         Long availableBalance = bankingApiService.getAccountBalance(parentAccount.getAccountNumber());
         if (availableBalance < amount) {
             throw new CustomException(TransactionErrorCode.INSUFFICIENT_BALANCE);
         }
 
-        String depositSummary = "용돈 " + parent.getUserName();
-        String withdrawalSummary = "용돈 " + child.getUserName();
-
-        // 송금 실행 (자동 송금이므로 비밀번호 검증 생략)
+        // 전달받은 depositSummary와 withdrawalSummary를 그대로 사용
         TransferApiResponseDto response = bankingApiService.transfer(
                 parentAccount.getAccountNumber(),
                 childAccount.getAccountNumber(),
