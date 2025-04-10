@@ -187,7 +187,7 @@ export default function MonthlyExpenseDonut({
         </Text>
         <View className="h-64 items-center justify-center">
           <CalendarX size={48} color="#D1D5DB" />
-          <Text className="text-gray-500 mt-4">이번 달 내역이 없습니다</Text>
+          <Text className="text-gray-500 mt-4">이번 달 지출 내역이 없습니다</Text>
         </View>
       </View>
     );

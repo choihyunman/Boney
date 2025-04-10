@@ -33,9 +33,7 @@ const MonthSelector = ({
   return (
     <View className="bg-white rounded-xl mx-4 mt-2">
       <View className="flex-row items-center justify-between p-4">
-        <TouchableOpacity
-          onPress={() => changeMonth("prev")}
-        >
+        <TouchableOpacity onPress={() => changeMonth("prev")}>
           <ChevronLeft size={20} color="#000000" />
         </TouchableOpacity>
 
@@ -244,9 +242,9 @@ export default function MonthlyReport() {
           <Text className="text-xl font-semibold mb-4">수입/지출 비교</Text>
           {monthlyReport.totalIncome === 0 &&
           monthlyReport.totalExpense === 0 ? (
-            <View className="h-16 items-center justify-center">
-              <Circle size={32} color="#D1D5DB" />
-              <Text className="text-gray-500 mt-2">거래 내역이 없습니다</Text>
+            <View className="h-16 items-center justify-center mb-4">
+              <CalendarX size={48} color="#D1D5DB" />
+              <Text className="text-gray-500 mt-2">이번 달 거래 내역이 없습니다</Text>
             </View>
           ) : (
             <View className="h-16 bg-gray-100 rounded-xl overflow-hidden flex-row">

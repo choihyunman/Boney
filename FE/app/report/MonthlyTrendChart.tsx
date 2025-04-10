@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, Dimensions } from "react-native";
 import { BarChart } from "react-native-gifted-charts";
 import { useColorScheme } from "nativewind";
-import { Circle } from "lucide-react-native";
+import { Circle, CalendarX } from "lucide-react-native";
 
 interface TrendData {
   month: string;
@@ -69,8 +69,8 @@ export default function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
 
   if (!isReady) {
     return (
-      <View className="bg-white dark:bg-gray-800 rounded-xl p-4 my-2">
-        <Text className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+      <View className="bg-white rounded-xl p-4 my-2">
+        <Text className="text-xl font-bold text-gray-900 mb-4">
           최근 수입/지출 추이
         </Text>
         <View className="h-64 items-center justify-center">
@@ -84,12 +84,14 @@ export default function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
   if (data.length === 0) {
     return (
       <View className="bg-white dark:bg-gray-800 rounded-xl p-4 my-2">
-        <Text className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+        <Text className="text-xl font-bold text-gray-900 mb-4">
           최근 수입/지출 추이
         </Text>
         <View className="h-64 items-center justify-center">
-          <Circle size={48} color="#D1D5DB" />
-          <Text className="text-gray-500 mt-4">이번 달 내역이 없습니다</Text>
+          <CalendarX size={48} color="#D1D5DB" />
+          <Text className="text-gray-500 mt-4">
+            이번 달 거래 내역이 없습니다
+          </Text>
         </View>
       </View>
     );
