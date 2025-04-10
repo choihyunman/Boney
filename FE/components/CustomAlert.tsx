@@ -1,12 +1,14 @@
-import React from "react";
-import { Modal, View, TouchableOpacity, StyleSheet } from "react-native";
+import React, { useRef, useEffect, useState } from "react";
+import { Modal, View, TouchableOpacity, LayoutChangeEvent } from "react-native";
 import GlobalText from "./GlobalText";
+import { CheckCircle, XCircle } from "lucide-react-native";
 
 interface CustomAlertProps {
   visible: boolean;
   title: string;
   message: string;
   onClose: () => void;
+  type?: "success" | "error";
 }
 
 export const CustomAlert: React.FC<CustomAlertProps> = ({
@@ -14,7 +16,28 @@ export const CustomAlert: React.FC<CustomAlertProps> = ({
   title,
   message,
   onClose,
+  type = "success",
 }) => {
+  const [titleWidth, setTitleWidth] = useState(0);
+  const titleRef = useRef<View>(null);
+
+  const getColor = () => {
+    return type === "success" ? "#4FC985" : "#FF4B4B";
+  };
+
+  const getIcon = () => {
+    return type === "success" ? (
+      <CheckCircle size={60} color={getColor()} />
+    ) : (
+      <XCircle size={60} color={getColor()} />
+    );
+  };
+
+  const handleTitleLayout = (event: LayoutChangeEvent) => {
+    const { width } = event.nativeEvent.layout;
+    setTitleWidth(width);
+  };
+
   return (
     <Modal
       transparent
@@ -22,14 +45,23 @@ export const CustomAlert: React.FC<CustomAlertProps> = ({
       animationType="fade"
       onRequestClose={onClose}
     >
-      <View style={styles.overlay}>
-        <View style={styles.alertContainer}>
-          <GlobalText weight="bold" style={styles.title}>
-            {title}
+      <View className="flex-1 bg-black/50 justify-center items-center">
+        <View className="bg-white rounded-xl p-5 w-4/5 min-h-[200px] items-center justify-center">
+          <View className="mb-4">{getIcon()}</View>
+          <View onLayout={handleTitleLayout}>
+            <GlobalText weight="bold" className="text-2xl mb-4 text-center">
+              {title}
+            </GlobalText>
+          </View>
+          <GlobalText className="text-lg mb-6 text-center leading-6">
+            {message}
           </GlobalText>
-          <GlobalText style={styles.message}>{message}</GlobalText>
-          <TouchableOpacity style={styles.button} onPress={onClose}>
-            <GlobalText weight="bold" style={styles.buttonText}>
+          <TouchableOpacity
+            className="px-6 py-3 rounded-lg"
+            style={{ backgroundColor: getColor() }}
+            onPress={onClose}
+          >
+            <GlobalText weight="bold" className="text-white text-base">
               확인
             </GlobalText>
           </TouchableOpacity>
@@ -38,42 +70,3 @@ export const CustomAlert: React.FC<CustomAlertProps> = ({
     </Modal>
   );
 };
-
-const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  alertContainer: {
-    backgroundColor: "white",
-    borderRadius: 12,
-    padding: 10,
-    width: "80%",
-    height: "25%",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  title: {
-    fontSize: 16,
-    marginBottom: 20,
-    textAlign: "center",
-  },
-  message: {
-    fontSize: 14,
-    marginBottom: 20,
-    textAlign: "center",
-    lineHeight: 24,
-  },
-  button: {
-    backgroundColor: "#4FC985",
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
-  buttonText: {
-    color: "white",
-    fontSize: 16,
-  },
-});

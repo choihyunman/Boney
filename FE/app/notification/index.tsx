@@ -118,12 +118,11 @@ export default function NotificationsPage() {
 
         case "LOAN_APPLICATION":
           // 대출 신청 상세 페이지로 이동 (보호자)
-          router.push(`/loan/parent/${notification.referenceId}` as any);
+          router.push("/loan/parent/ReqList" as any);
           break;
 
         case "LOAN_REPAYMENT_COMPLETED":
-          // 대출 상환 완료 상세 페이지로 이동
-          router.push(`/loan/parent/${notification.referenceId}` as any);
+          // 대출 상환 완료 페이지 이동 없음
           break;
 
         case "ABNORMAL_TRANSACTION":

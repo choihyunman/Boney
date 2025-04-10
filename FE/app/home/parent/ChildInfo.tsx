@@ -1,12 +1,16 @@
 import { View, TouchableOpacity } from "react-native";
 import { User, Coins, PlusCircle } from "lucide-react-native";
 import GlobalText from "@/components/GlobalText";
+import { router } from "expo-router";
+import { getChildDetail } from "@/apis/childApi";
+import { useChildDetailStore } from "@/stores/useChildDetailStore";
 
 interface ChildInfoCardProps {
+  child_id: number;
   name: string;
   creditScore: number;
   loanAmount: number;
-  onAllowanceClick: () => void;
+  onAllowanceClick?: () => void;
 }
 
 interface ChildInfoProps {
@@ -18,6 +22,29 @@ export default function ChildInfo({
   children = [],
   onAddChild,
 }: ChildInfoProps) {
+  const { setChildDetail } = useChildDetailStore();
+
+  const handleAllowanceClick = async (child: ChildInfoCardProps) => {
+    try {
+      // Fetch child details from API
+      const response = await getChildDetail(child.child_id);
+
+      // Store child details in the store
+      setChildDetail(response.data);
+
+      // Navigate to RegularAllowance screen with child info
+      router.push({
+        pathname: "/child/RegularAllowance",
+        params: {
+          childName: child.name,
+          childGender: response.data.childGender || "MALE", // Default to MALE if not provided
+        },
+      });
+    } catch (error) {
+      console.error("Failed to fetch child details:", error);
+    }
+  };
+
   return (
     <View className="bg-white rounded-xl p-5">
       <View className="flex-row justify-between items-center mb-4">
@@ -48,11 +75,11 @@ export default function ChildInfo({
                   </GlobalText>
                 </View>
                 <TouchableOpacity
-                  onPress={child.onAllowanceClick}
+                  onPress={() => handleAllowanceClick(child)}
                   className="bg-[#4FC985] px-3 py-1.5 rounded-full flex-row items-center gap-1"
                 >
                   <Coins size={14} color="white" />
-                  <GlobalText className="text-white text-sm">용돈</GlobalText>
+                  <GlobalText className="text-white text-sm">정기 용돈</GlobalText>
                 </TouchableOpacity>
               </View>
 

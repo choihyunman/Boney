@@ -1,10 +1,5 @@
 import React, { useEffect } from "react";
-import {
-  ScrollView,
-  View,
-  ActivityIndicator,
-  TouchableOpacity,
-} from "react-native";
+import { ScrollView, View, ActivityIndicator } from "react-native";
 import { useRouter, useFocusEffect } from "expo-router";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useHome } from "@/hooks/useHome";
@@ -13,6 +8,8 @@ import CreditScore from "./child/CreditScore";
 import TopQuest from "./shared/TopQuest";
 import ChildInfo from "./parent/ChildInfo";
 import GlobalText from "@/components/GlobalText";
+import { useNotificationStore } from "@/stores/useNotificationStore";
+import { notificationApi } from "@/apis/notificationApi";
 
 export default function Home() {
   const router = useRouter();
@@ -20,6 +17,7 @@ export default function Home() {
   const user = useAuthStore((state) => state.user);
   const { isLoading, childData, parentData, refetchChild, refetchParent } =
     useHome();
+  const { setUnreadCount } = useNotificationStore();
 
   // Log user and data state
   useEffect(() => {
@@ -43,6 +41,18 @@ export default function Home() {
         console.log("🔄 Home - Refetching parent data");
         refetchParent();
       }
+
+      // Fetch notifications when entering home page
+      const fetchNotifications = async () => {
+        try {
+          const response = await notificationApi.getNotifications();
+          const unreadCount = response.data.filter((n) => !n.readStatus).length;
+          setUnreadCount(unreadCount);
+        } catch (error) {
+          console.error("❌ 알림 목록 조회 실패:", error);
+        }
+      };
+      fetchNotifications();
     }, [user?.role])
   );
 
@@ -95,10 +105,10 @@ export default function Home() {
             <ChildInfo
               children={
                 parentData?.child.map((child) => ({
+                  child_id: child.child_id,
                   name: child.child_name || "",
                   creditScore: Number(child.credit_score) || 0,
                   loanAmount: Number(child.total_child_loan) || 0,
-                  onAllowanceClick: () => {},
                 })) || []
               }
               onAddChild={() => router.push("/child/Register")}
