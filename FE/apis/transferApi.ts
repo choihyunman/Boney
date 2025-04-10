@@ -26,6 +26,7 @@ interface TransferRequest {
   sendPassword: string;
   amount: number;
   recipientBank: string;
+  recipientAccountHolder: string;
   recipientAccountNumber: string;
 }
 
