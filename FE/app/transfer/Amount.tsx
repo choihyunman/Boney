@@ -25,6 +25,10 @@ export default function SendMoneyAmount() {
           return;
         }
 
+        // 금액 초기화
+        setAmount("");
+        setLocalAmount("");
+
         // 잔액 조회
         const balanceData = await getBalance();
         setBalance(balanceData.balance);
@@ -126,7 +130,7 @@ export default function SendMoneyAmount() {
               송금 금액
             </GlobalText>
             <View className="flex-row items-center">
-              <GlobalText className="text-3xl font-bold mr-2">
+              <GlobalText weight="bold" className="text-3xl mr-2">
                 {formatAmount(localAmount)}
               </GlobalText>
               <GlobalText className="text-xl">원</GlobalText>

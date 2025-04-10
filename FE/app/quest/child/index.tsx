@@ -130,7 +130,17 @@ export default function ChildQuestListPage() {
           </View>
 
           <View className="space-y-4">
-            {isError || questList.length === 0 ? (
+            {isLoading ? (
+              <View className="items-center justify-center py-12">
+                <GlobalText className="text-gray-500">로딩 중...</GlobalText>
+              </View>
+            ) : isError ? (
+              <View className="items-center justify-center py-12">
+                <GlobalText className="text-gray-500">
+                  퀘스트를 불러오는 중 오류가 발생했습니다.
+                </GlobalText>
+              </View>
+            ) : questList.length === 0 ? (
               <View className="items-center justify-center py-12">
                 <Clock size={48} color="#D1D5DB" className="mb-4" />
                 <GlobalText className="text-gray-500">

@@ -1,6 +1,7 @@
 import { Stack } from "expo-router";
-import { View, Text } from "react-native";
+import { View } from "react-native";
 import { useAuthStore } from "@/stores/useAuthStore";
+import GlobalText from "@/components/GlobalText";
 
 export type AuthStackParamList = {
   "/auth": undefined;
@@ -16,7 +17,7 @@ export default function AuthLayout() {
   if (!hasHydrated) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <Text>로딩 중입니다...</Text>
+        <GlobalText>로딩 중입니다...</GlobalText>
       </View>
     );
   }

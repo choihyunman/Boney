@@ -19,7 +19,10 @@ export default function BalanceSection() {
         <View className="flex-row items-center gap-2 bg-[#4FC985]/10 px-4 py-2 my-1 rounded-full">
           <Wallet size={24} color="#4FC985" />
           <View className="flex-row items-center">
-            <GlobalText className="font-bold leading-[1.3] text-gray-800 text-lg">
+            <GlobalText
+              weight="bold"
+              className="leading-[1.3] text-gray-800 text-lg"
+            >
               {user?.userName}
             </GlobalText>
             <GlobalText className="text-gray-800">님의 지갑</GlobalText>
@@ -33,7 +36,7 @@ export default function BalanceSection() {
               <GlobalText className="text-base text-gray-500">
                 현재 잔액
               </GlobalText>
-              <GlobalText className="text-2xl font-bold">
+              <GlobalText weight="bold" className="text-2xl">
                 {Number(data.account_balance).toLocaleString()}원
               </GlobalText>
             </View>

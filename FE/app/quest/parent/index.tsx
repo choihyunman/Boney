@@ -13,13 +13,16 @@ export default function QuestListPage() {
   const fromComplete = params.fromComplete;
   const fromApproval = params.fromApproval;
 
-  const { data, isLoading, isError } = useCustomQuery({
+  const { data, isLoading, isError, error } = useCustomQuery({
     queryKey: ["quests"],
     queryFn: getQuestListParent,
     staleTime: 1000 * 60 * 3,
     refetchInterval: 1000,
   });
   const questList = data?.quests || [];
+
+  // 404 에러를 별도로 처리
+  const isNotFoundError = error?.message?.includes("404");
 
   useFocusEffect(
     useCallback(() => {
@@ -100,7 +103,7 @@ export default function QuestListPage() {
         {/* 헤더 */}
         <View className="flex-row justify-between items-center mb-6">
           <View className="flex-row items-center">
-            <GlobalText weight="bold" className="text-2xl text-gray-800">
+            <GlobalText weight="bold" className="text-xl text-gray-800">
               진행 중인 퀘스트
             </GlobalText>
             <View className="ml-3 bg-[#4FC985] px-3 py-1 rounded-lg">
@@ -139,10 +142,16 @@ export default function QuestListPage() {
 
           <View className="space-y-4">
             {isLoading ? (
-              <GlobalText className="text-center text-gray-400">
-                로딩 중...
-              </GlobalText>
-            ) : isError || sortedQuests.length === 0 ? (
+              <View className="items-center justify-center py-12">
+                <GlobalText className="text-gray-500">로딩 중...</GlobalText>
+              </View>
+            ) : isError ? (
+              <View className="items-center justify-center py-12">
+                <GlobalText className="text-gray-500">
+                  퀘스트를 불러오는 중 오류가 발생했습니다.
+                </GlobalText>
+              </View>
+            ) : questList.length === 0 ? (
               <View className="items-center justify-center py-12">
                 <Clock size={48} color="#D1D5DB" className="mb-4" />
                 <GlobalText className="text-gray-500">

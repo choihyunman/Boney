@@ -304,7 +304,7 @@ export default function LoanTrendChart({
   if (!hasValidData) {
     return (
       <View className="bg-white rounded-xl p-4 my-2 mx-6">
-        <GlobalText className="text-lg font-bold text-gray-800 mb-4">
+        <GlobalText weight="bold" className="text-lg text-gray-800 mb-4">
           대출 추이
         </GlobalText>
         <View className="h-64 items-center justify-center">
@@ -318,7 +318,7 @@ export default function LoanTrendChart({
 
   return (
     <View className="bg-white rounded-xl p-4 my-2 mx-6">
-      <GlobalText className="text-lg font-bold text-gray-800 mb-4">
+      <GlobalText weight="bold" className="text-lg text-gray-800 mb-4">
         대출 추이
       </GlobalText>
       <View className="h-64 items-center">

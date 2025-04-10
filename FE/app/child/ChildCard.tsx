@@ -1,6 +1,7 @@
 import React from "react";
-import { View, Text, Image } from "react-native";
+import { View, Image } from "react-native";
 import { User } from "lucide-react-native";
+import GlobalText from "@/components/GlobalText";
 
 type Props = {
   name: string;
@@ -17,7 +18,9 @@ const ChildCard = ({ name, imageUri }: Props) => {
           <User size={32} color="#ffffff" />
         </View>
       )}
-      <Text className="mt-3 text-black text-lg font-bold">{name}</Text>
+      <GlobalText weight="bold" className="mt-3 text-black text-lg">
+        {name}
+      </GlobalText>
     </View>
   );
 };

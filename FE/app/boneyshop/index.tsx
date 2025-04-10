@@ -15,6 +15,7 @@ import { menuItems, categories, getBgStyle } from "./_layout";
 import { processPayment } from "../../apis/boneyshopApi";
 import { useHomeStore } from "../../stores/useHomeStore";
 import { useAuthStore } from "../../stores/useAuthStore";
+import GlobalText from "@/components/GlobalText";
 
 const MenuScreen = () => {
   const [selectedCategory, setSelectedCategory] = useState(1);
@@ -98,13 +99,13 @@ const MenuScreen = () => {
                   size={16}
                   color={isSelected ? "white" : categoryInfo.iconColor}
                 />
-                <Text
+                <GlobalText
                   className={`ml-2 font-medium ${
                     isSelected ? "text-white" : "text-gray-700"
                   }`}
                 >
                   {category.name}
-                </Text>
+                </GlobalText>
               </TouchableOpacity>
             );
           })}
@@ -113,9 +114,9 @@ const MenuScreen = () => {
 
       {/* 메뉴 아이템 */}
       <ScrollView className="flex-1 px-4 pt-4">
-        <Text className="text-xl font-bold text-gray-800 mb-4">
+        <GlobalText weight="bold" className="text-xl text-gray-800 mb-4">
           {categories.find((c) => c.id === selectedCategory)?.name} 메뉴
-        </Text>
+        </GlobalText>
 
         <View className="space-y-4">
           {filteredItems.map((item) => (
@@ -126,26 +127,32 @@ const MenuScreen = () => {
               disabled={isLoading}
             >
               <View className="w-24 h-24 bg-gray-200 justify-center items-center">
-                <Text className="text-center text-gray-500">{item.name}</Text>
+                <GlobalText className="text-center text-gray-500">
+                  {item.name}
+                </GlobalText>
               </View>
 
               <View className="flex-1 p-3 justify-between">
                 <View>
-                  <Text className="text-lg font-semibold text-gray-800">
+                  <GlobalText weight="bold" className="text-lg text-gray-800">
                     {item.name}
-                  </Text>
+                  </GlobalText>
                   <View className="flex-row items-center mt-1">
                     <Star size={14} color="#FBBF24" fill="#FBBF24" />
-                    <Text className="text-sm text-gray-500 ml-1">
+                    <GlobalText className="text-sm text-gray-500 ml-1">
                       {item.rating}
-                    </Text>
+                    </GlobalText>
                   </View>
                 </View>
 
                 <View className="flex-row justify-between items-center mt-2">
-                  <Text className="font-bold" style={{ color: "#4FC985" }}>
+                  <GlobalText
+                    weight="bold"
+                    className="text-gray-800"
+                    style={{ color: "#4FC985" }}
+                  >
                     {item.price.toLocaleString()}원
-                  </Text>
+                  </GlobalText>
                   {isLoading && (
                     <ActivityIndicator size="small" color="#4FC985" />
                   )}
@@ -156,9 +163,9 @@ const MenuScreen = () => {
         </View>
 
         {/* 추천 메뉴 섹션 */}
-        <Text className="text-xl font-bold text-gray-800 mt-8 mb-4">
+        <GlobalText weight="bold" className="text-xl text-gray-800 mt-8 mb-4">
           추천 메뉴
-        </Text>
+        </GlobalText>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -178,34 +185,40 @@ const MenuScreen = () => {
                 disabled={isLoading}
               >
                 <View className="w-full h-32 bg-gray-200 relative justify-center items-center">
-                  <Text className="text-center text-gray-500">{item.name}</Text>
+                  <GlobalText className="text-center text-gray-500">
+                    {item.name}
+                  </GlobalText>
                   {categoryInfo && (
                     <View
                       className="absolute top-2 right-2 px-2 py-1 rounded-full"
                       style={getBgStyle(categoryInfo.backgroundColor)}
                     >
-                      <Text
+                      <GlobalText
                         style={{ color: categoryInfo.iconColor, fontSize: 10 }}
                       >
                         {category?.name}
-                      </Text>
+                      </GlobalText>
                     </View>
                   )}
                 </View>
 
                 <View className="p-3">
-                  <Text className="text-base font-semibold text-gray-800">
+                  <GlobalText weight="bold" className="text-base text-gray-800">
                     {item.name}
-                  </Text>
+                  </GlobalText>
                   <View className="flex-row items-center mt-1">
                     <Star size={12} color="#FBBF24" fill="#FBBF24" />
-                    <Text className="text-xs text-gray-500 ml-1">
+                    <GlobalText className="text-xs text-gray-500 ml-1">
                       {item.rating}
-                    </Text>
+                    </GlobalText>
                   </View>
-                  <Text className="font-bold mt-2" style={{ color: "#4FC985" }}>
+                  <GlobalText
+                    weight="bold"
+                    className="mt-2"
+                    style={{ color: "#4FC985" }}
+                  >
                     {item.price.toLocaleString()}원
-                  </Text>
+                  </GlobalText>
                 </View>
               </TouchableOpacity>
             );

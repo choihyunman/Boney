@@ -103,12 +103,12 @@ export default function MyPage() {
                   }}
                 />
               ) : (
-                <GlobalText className="text-lg font-bold text-blue-500">
+                <GlobalText weight="bold" className="text-lg text-blue-500">
                   {user?.userName?.[0] || "?"}
                 </GlobalText>
               )}
             </View>
-            <GlobalText className="mt-4 text-xl font-bold text-[#020817]">
+            <GlobalText weight="bold" className="mt-4 text-xl text-[#020817]">
               {user?.userName || "사용자"}
             </GlobalText>
           </View>
@@ -125,7 +125,7 @@ export default function MyPage() {
                 <GlobalText className="text-sm text-gray-500">
                   생년월일
                 </GlobalText>
-                <GlobalText className="text-lg font-bold text-[#020817]">
+                <GlobalText weight="bold" className="text-lg text-[#020817]">
                   {user?.userBirth || "생년월일 없음"}
                 </GlobalText>
               </View>
@@ -141,7 +141,7 @@ export default function MyPage() {
                 <GlobalText className="text-sm text-gray-500">
                   핸드폰 번호
                 </GlobalText>
-                <GlobalText className="text-lg font-bold text-[#020817]">
+                <GlobalText weight="bold" className="text-lg text-[#020817]">
                   {user?.userPhone || "전화번호 없음"}
                 </GlobalText>
               </View>
@@ -157,7 +157,7 @@ export default function MyPage() {
                 <GlobalText className="text-sm text-gray-500">
                   이메일
                 </GlobalText>
-                <GlobalText className="text-lg font-bold text-[#020817]">
+                <GlobalText weight="bold" className="text-lg text-[#020817]">
                   {user?.userEmail || "이메일 없음"}
                 </GlobalText>
               </View>
@@ -167,20 +167,19 @@ export default function MyPage() {
       </ScrollView>
 
       {/* Bottom Buttons Container */}
-      <View className="px-5 pb-5">
+      <View className="px-5 pb-5 gap-y-2">
         <TouchableOpacity
           onPress={() => router.push("/mypage/ChangePassword")}
           className="p-4 flex-row items-center justify-between bg-white"
           style={{
-            borderTopLeftRadius: 16,
-            borderTopRightRadius: 16,
+            borderRadius: 16,
           }}
         >
           <View className="flex-row items-center gap-2.5">
             <View className="bg-white rounded-full items-center justify-center">
               <Lock size={18} color="#020817" />
             </View>
-            <GlobalText className="text-base font-bold text-[#020817]">
+            <GlobalText weight="bold" className="text-base text-[#020817]">
               앱 비밀번호 변경하기
             </GlobalText>
           </View>
@@ -191,15 +190,14 @@ export default function MyPage() {
           onPress={handleDeleteAccount}
           className="p-4 flex-row items-center justify-between bg-[#FEF2F2]"
           style={{
-            borderBottomLeftRadius: 16,
-            borderBottomRightRadius: 16,
+            borderRadius: 16,
           }}
         >
           <View className="flex-row items-center">
             <View className="items-center justify-center">
               <UserX size={18} color="#EF4444" />
             </View>
-            <GlobalText className="text-base font-bold text-[#EF4444] ml-3">
+            <GlobalText weight="bold" className="text-base text-[#EF4444] ml-3">
               회원탈퇴
             </GlobalText>
           </View>

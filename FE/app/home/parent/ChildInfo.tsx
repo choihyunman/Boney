@@ -21,7 +21,9 @@ export default function ChildInfo({
   return (
     <View className="bg-white rounded-xl p-5">
       <View className="flex-row justify-between items-center mb-4">
-        <GlobalText className="font-bold text-lg">내 아이</GlobalText>
+        <GlobalText weight="bold" className="text-lg">
+          내 아이
+        </GlobalText>
         <TouchableOpacity
           onPress={onAddChild}
           className="flex-row items-center gap-1"
@@ -41,7 +43,7 @@ export default function ChildInfo({
                   <View className="w-8 h-8 rounded-full bg-[#4FC985]/20 items-center justify-center">
                     <User size={18} color="#4FC985" />
                   </View>
-                  <GlobalText className="font-bold text-lg">
+                  <GlobalText weight="bold" className="text-lg">
                     {child.name}
                   </GlobalText>
                 </View>
@@ -59,7 +61,7 @@ export default function ChildInfo({
                 <GlobalText className="text-base text-gray-500">
                   신용 점수
                 </GlobalText>
-                <GlobalText className="font-bold text-[#4FC985] text-base">
+                <GlobalText weight="bold" className="text-[#4FC985] text-base">
                   {child.creditScore}점
                 </GlobalText>
               </View>
@@ -69,7 +71,7 @@ export default function ChildInfo({
                 <GlobalText className="text-base text-gray-500">
                   대출 총액
                 </GlobalText>
-                <GlobalText className="text-base font-bold">
+                <GlobalText weight="bold" className="text-base">
                   {child.loanAmount.toLocaleString()}원
                 </GlobalText>
               </View>

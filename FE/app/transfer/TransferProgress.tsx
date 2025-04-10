@@ -1,6 +1,7 @@
 import React from "react";
-import { View, Text } from "react-native";
+import { View } from "react-native";
 import { Check } from "lucide-react-native";
+import GlobalText from "@/components/GlobalText";
 
 interface TransferProgressProps {
   currentStep: number;
@@ -29,7 +30,7 @@ export default function TransferProgress({
                 {step.number < currentStep ? (
                   <Check size={20} color="white" />
                 ) : (
-                  <Text
+                  <GlobalText
                     style={{
                       color: step.number <= currentStep ? "white" : "#9CA3AF",
                       fontSize: 16,
@@ -37,10 +38,10 @@ export default function TransferProgress({
                     }}
                   >
                     {step.number}
-                  </Text>
+                  </GlobalText>
                 )}
               </View>
-              <Text
+              <GlobalText
                 className={`text-xs mt-1 ${
                   step.number <= currentStep
                     ? "font-medium text-[#4FC985]"
@@ -48,7 +49,7 @@ export default function TransferProgress({
                 }`}
               >
                 {step.label}
-              </Text>
+              </GlobalText>
             </View>
             {index < steps.length - 1 && (
               <View

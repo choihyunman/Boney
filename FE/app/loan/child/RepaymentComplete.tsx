@@ -35,8 +35,7 @@ export default function RepaymentComplete() {
 
   return (
     <Complete
-      title="상환 완료"
-      description="상환이 완료되었습니다."
+      title="상환이 완료되었습니다"
       onConfirm={() => {
         resetRepaymentResult(); // 완료 데이터 초기화
         router.replace("/"); // 먼저 루트로 이동
