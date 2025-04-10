@@ -1,4 +1,4 @@
-import { View } from "react-native";
+import { ScrollView, View } from "react-native";
 import GlobalText from "@/components/GlobalText";
 import HistoryItem from "@/components/HistoryItem";
 import { useQuery } from "@tanstack/react-query";
@@ -32,7 +32,7 @@ export default function ChildQuestHistoryPage() {
 
   return (
     <View className="flex-1 bg-[#F5F6F8]">
-      <View className="flex-1">
+      <ScrollView className="flex-1">
         <View className="bg-white mt-1">
           {sortedQuests.map((quest) => (
             <HistoryItem
@@ -61,7 +61,7 @@ export default function ChildQuestHistoryPage() {
             </View>
           )}
         </View>
-      </View>
+      </ScrollView>
     </View>
   );
 }
