@@ -16,7 +16,6 @@ import com.ssafy.boney.domain.loan.repository.LoanRepository;
 import com.ssafy.boney.domain.loan.repository.LoanSignatureRepository;
 import com.ssafy.boney.domain.notification.dto.NotificationRequest;
 import com.ssafy.boney.domain.notification.service.NotificationService;
-import com.ssafy.boney.domain.transaction.entity.Transaction;
 import com.ssafy.boney.domain.transaction.exception.CustomException;
 import com.ssafy.boney.domain.transaction.exception.TransactionErrorCode;
 import com.ssafy.boney.domain.transaction.repository.TransactionRepository;
@@ -36,7 +35,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 import org.apache.commons.codec.binary.Base64;
 
 import java.io.ByteArrayInputStream;
