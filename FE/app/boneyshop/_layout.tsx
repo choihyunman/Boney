@@ -148,7 +148,7 @@ export const menuItems = [
     name: "버스 정기권",
     price: 55000,
     category: 2,
-    rating: 4.9,
+    rating: 4.1,
   },
   {
     id: 5,
@@ -159,8 +159,8 @@ export const menuItems = [
   },
   {
     id: 6,
-    name: "택시 이용권",
-    price: 10000,
+    name: "비행기 티켓",
+    price: 100000,
     category: 2,
     rating: 4.5,
   },
@@ -183,9 +183,9 @@ export const menuItems = [
   {
     id: 9,
     name: "온라인 강의",
-    price: 50000,
+    price: 77000,
     category: 3,
-    rating: 4.9,
+    rating: 4.6,
   },
 
   // 문구
@@ -231,7 +231,7 @@ export const menuItems = [
     name: "콘서트 티켓",
     price: 55000,
     category: 5,
-    rating: 4.9,
+    rating: 4.1,
   },
 
   // 카페/간식
@@ -251,7 +251,7 @@ export const menuItems = [
   },
   {
     id: 18,
-    name: "크로플",
+    name: "버니 세트",
     price: 5500,
     category: 6,
     rating: 4.7,
@@ -320,10 +320,10 @@ export const menuItems = [
   },
   {
     id: 27,
-    name: "멀티 충전기",
+    name: "기계식 키보드",
     price: 18000,
     category: 9,
-    rating: 4.7,
+    rating: 4.8,
   },
 
   // 기타
@@ -346,7 +346,7 @@ export const menuItems = [
     name: "기부 포인트",
     price: 5000,
     category: 10,
-    rating: 5.0,
+    rating: 4.2,
   },
 ];
 

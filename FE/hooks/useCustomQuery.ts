@@ -39,9 +39,16 @@ export function useCustomQuery<TData, TError = Error>({
     refetchOnWindowFocus,
   });
 
+  // 이전 데이터를 저장하는 ref
+  const prevDataRef = useRef<TData | null>(null);
+
   useEffect(() => {
     if (query.isSuccess && query.data && onSuccessAction) {
-      onSuccessAction(query.data);
+      // 이전 데이터와 현재 데이터가 다른 경우에만 onSuccessAction 호출
+      if (JSON.stringify(prevDataRef.current) !== JSON.stringify(query.data)) {
+        prevDataRef.current = query.data;
+        onSuccessAction(query.data);
+      }
     }
   }, [query.isSuccess, query.data, onSuccessAction]);
 

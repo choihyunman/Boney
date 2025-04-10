@@ -432,7 +432,7 @@ export default function MenuScreen() {
                 weight="bold"
                 className="text-base text-[#374151] dark:text-white ml-3"
               >
-                버니가게
+                버니 상점
               </GlobalText>
             </View>
           </TouchableOpacity>
