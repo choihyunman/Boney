@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from "react";
 import {
   View,
-  Text,
   ScrollView,
   TouchableOpacity,
   SafeAreaView,
   StatusBar,
-  Alert,
   ActivityIndicator,
 } from "react-native";
 import { Star } from "lucide-react-native";
@@ -16,6 +14,7 @@ import { processPayment } from "../../apis/boneyshopApi";
 import { useHomeStore } from "../../stores/useHomeStore";
 import { useAuthStore } from "../../stores/useAuthStore";
 import { CustomAlert } from "@/components/CustomAlert";
+import GlobalText from "@/components/GlobalText";
 
 const MenuScreen = () => {
   const [selectedCategory, setSelectedCategory] = useState(1);
@@ -153,7 +152,7 @@ const MenuScreen = () => {
           {filteredItems.map((item) => (
             <TouchableOpacity
               key={item.id}
-              className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 flex-row"
+              className="bg-white rounded-xl overflow-hidden border border-gray-100 flex-row"
               onPress={() => handlePayment(item)}
               disabled={isLoading}
             >
@@ -211,7 +210,7 @@ const MenuScreen = () => {
             return (
               <TouchableOpacity
                 key={`recommended-${item.id}`}
-                className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 w-40"
+                className="bg-white rounded-xl overflow-hidden border border-gray-100 w-40"
                 onPress={() => handlePayment(item)}
                 disabled={isLoading}
               >

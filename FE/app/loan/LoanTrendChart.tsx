@@ -16,10 +16,10 @@ export default function LoanTrendChart({
   loans,
   repaymentHistory = [],
 }: LoanTrendChartProps) {
-  // Validate input data
+  // Validate input data - only require loans to be present
   const hasValidData = useMemo(() => {
-    return loans.length > 0 && repaymentHistory.length > 0;
-  }, [loans, repaymentHistory]);
+    return loans.length > 0;
+  }, [loans]);
 
   // Group repayment history by loan_id using useMemo
   const repaymentByLoanId = useMemo(() => {
@@ -38,6 +38,101 @@ export default function LoanTrendChart({
   // Create datasets for individual loans
   const datasets = useMemo(() => {
     if (!hasValidData) return [];
+
+    // Check if there's any repayment history
+    const hasRepaymentHistory = repaymentHistory.length > 0;
+
+    // If there's no repayment history, create a dataset with due date as reference
+    if (!hasRepaymentHistory) {
+      // Create datasets for individual loans
+      const individualDatasets = loans.map((loan, index) => {
+        const colors = ["#5E1675", "#EE4266", "#FFD23F", "#3E77E9"];
+        const color = colors[index % colors.length];
+
+        // Create data points for the loan
+        const dataPoints = [];
+
+        // Add initial point with loan amount
+        dataPoints.push({
+          value: loan.loan_amount,
+          label: "",
+          dataPointText: "",
+        });
+
+        // Add current point with last_amount
+        if (loan.due_date) {
+          const dueDate = new Date(loan.due_date);
+          dataPoints.push({
+            value: loan.last_amount,
+            label: `${dueDate.getMonth() + 1}.${dueDate.getDate()}`,
+            dataPointText: "",
+          });
+        } else {
+          // If no due date, just show current amount
+          dataPoints.push({
+            value: loan.last_amount,
+            label: "",
+            dataPointText: "",
+          });
+        }
+
+        return {
+          data: dataPoints,
+          color: () => color,
+          strokeWidth: 2,
+        };
+      });
+
+      // Create dataset for total amount
+      const totalInitialAmount = loans.reduce(
+        (sum, loan) => sum + loan.loan_amount,
+        0
+      );
+      const totalCurrentAmount = loans.reduce(
+        (sum, loan) => sum + loan.last_amount,
+        0
+      );
+
+      // Find the earliest due date for the total line
+      const dueDates = loans
+        .filter((loan) => loan.due_date)
+        .map((loan) => new Date(loan.due_date))
+        .sort((a, b) => a.getTime() - b.getTime());
+
+      const earliestDueDate = dueDates.length > 0 ? dueDates[0] : null;
+
+      const totalDataPoints = [
+        {
+          value: totalInitialAmount,
+          label: "",
+          dataPointText: "",
+        },
+      ];
+
+      if (earliestDueDate) {
+        totalDataPoints.push({
+          value: totalCurrentAmount,
+          label: `${
+            earliestDueDate.getMonth() + 1
+          }.${earliestDueDate.getDate()}`,
+          dataPointText: "",
+        });
+      } else {
+        totalDataPoints.push({
+          value: totalCurrentAmount,
+          label: "",
+          dataPointText: "",
+        });
+      }
+
+      const totalDataset = {
+        data: totalDataPoints,
+        color: () => "#4FC985",
+        strokeWidth: 2,
+      };
+
+      return [totalDataset, ...individualDatasets];
+    }
 
     // Get all unique dates from all repayments
     const allDates = [
@@ -174,6 +269,30 @@ export default function LoanTrendChart({
   // Calculate max value for y-axis using useMemo
   const maxValue = useMemo(() => {
     if (!hasValidData) return 0;
+
+    // Check if there's any repayment history
+    const hasRepaymentHistory = repaymentHistory.length > 0;
+
+    if (!hasRepaymentHistory) {
+      // If no repayment history, use the current loan amounts
+      const totalInitialAmount = loans.reduce(
+        (sum, loan) => sum + loan.loan_amount,
+        0
+      );
+      const totalCurrentAmount = loans.reduce(
+        (sum, loan) => sum + loan.last_amount,
+        0
+      );
+      const maxLoanAmount = Math.max(...loans.map((loan) => loan.loan_amount));
+      const actualMax = Math.max(
+        totalInitialAmount,
+        totalCurrentAmount,
+        maxLoanAmount
+      );
+
+      // Round up to the nearest 10000 (1만)
+      return Math.ceil(actualMax / 10000) * 10000;
+    }
 
     // Find the actual maximum value from total amounts
     const totalInitialAmount = loans.reduce(
