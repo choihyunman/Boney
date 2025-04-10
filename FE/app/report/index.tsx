@@ -248,11 +248,9 @@ export default function MonthlyReport() {
           </GlobalText>
           {monthlyReport.totalIncome === 0 &&
           monthlyReport.totalExpense === 0 ? (
-            <View className="h-16 items-center justify-center">
-              <Circle size={32} color="#D1D5DB" />
-              <GlobalText className="text-gray-500 mt-2">
-                거래 내역이 없습니다
-              </GlobalText>
+            <View className="h-16 items-center justify-center mb-4">
+              <CalendarX size={48} color="#D1D5DB" />
+              <GlobalText className="text-gray-500 mt-2">이번 달 거래 내역이 없습니다</GlobalText>
             </View>
           ) : (
             <View className="h-16 bg-gray-100 rounded-xl overflow-hidden flex-row">

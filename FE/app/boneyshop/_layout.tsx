@@ -10,6 +10,8 @@ import {
   Home,
   MoreHorizontal,
 } from "lucide-react-native";
+import { Stack } from "expo-router";
+import { View } from "react-native";
 
 // 배경색 클래스를 스타일 객체로 변환하는 함수
 export const getBgStyle = (bgClass: string | undefined) => {
@@ -347,3 +349,20 @@ export const menuItems = [
     rating: 5.0,
   },
 ];
+
+export default function BoneyshopLayout() {
+  return (
+    <View style={{ flex: 1 }}>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: {
+            backgroundColor: "#FFFFFF",
+          },
+        }}
+      >
+        <Stack.Screen name="index" />
+      </Stack>
+    </View>
+  );
+}
