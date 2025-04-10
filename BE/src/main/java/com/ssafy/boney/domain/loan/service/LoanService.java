@@ -315,6 +315,7 @@ public class LoanService {
 
         loan.setStatus(LoanStatus.APPROVED);
         loan.setApprovedAt(LocalDateTime.now());
+        loan.setLastAmount(loan.getLoanAmount());
 
         return ResponseEntity.ok(Map.of(
                 "status", "200",
