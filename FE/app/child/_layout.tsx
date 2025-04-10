@@ -25,6 +25,7 @@ export default function ChildLayout() {
             },
           }}
         />
+        <Stack.Screen name="RegularAllowance" />
       </Stack>
     </View>
   );

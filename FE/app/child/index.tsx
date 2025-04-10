@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   Image,
   Dimensions,
+  BackHandler,
 } from "react-native";
 import { router, useFocusEffect, Stack } from "expo-router";
 import { useAuthStore } from "../../stores/useAuthStore";
@@ -76,7 +77,15 @@ export default function ChildList() {
 
   useFocusEffect(
     useCallback(() => {
-      fetchChildren();
+      const backHandler = BackHandler.addEventListener(
+        "hardwareBackPress",
+        () => {
+          router.replace("/menu");
+          return true;
+        }
+      );
+
+      return () => backHandler.remove();
     }, [])
   );
 
