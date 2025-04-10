@@ -14,6 +14,7 @@ import MonthlyTrendChart from "./MonthlyTrendChart";
 import { useRouter } from "expo-router";
 import { useReportStore } from "@/stores/useReportStore";
 import { getCategoryIcon } from "@/utils/categoryUtils";
+import GlobalText from "@/components/GlobalText";
 
 // 월 선택기 컴포넌트
 const MonthSelector = ({
@@ -38,9 +39,9 @@ const MonthSelector = ({
         </TouchableOpacity>
 
         <View className="flex-row items-center">
-          <Text className="text-xl font-bold text-gray-800">
+          <GlobalText weight="bold" className="text-xl text-gray-800">
             {formatMonth(`${currentDate.year}-${currentDate.month}`)}
-          </Text>
+          </GlobalText>
         </View>
 
         <TouchableOpacity
@@ -111,7 +112,7 @@ export default function MonthlyReport() {
   if (isLoading) {
     return (
       <View className="flex-1 items-center justify-center">
-        <Text>로딩 중...</Text>
+        <GlobalText>로딩 중...</GlobalText>
       </View>
     );
   }
@@ -126,9 +127,9 @@ export default function MonthlyReport() {
         />
         <View className="flex-1 items-center justify-center p-4">
           <CalendarX size={64} color="#D1D5DB" />
-          <Text className="text-gray-500 mt-4 text-lg">
+          <GlobalText className="text-gray-500 mt-4 text-lg">
             이번 달 내역이 없습니다
-          </Text>
+          </GlobalText>
         </View>
       </View>
     );
@@ -137,7 +138,7 @@ export default function MonthlyReport() {
   if (error) {
     return (
       <View className="flex-1 items-center justify-center">
-        <Text className="text-red-500">{error}</Text>
+        <GlobalText className="text-red-500">{error}</GlobalText>
       </View>
     );
   }
@@ -206,13 +207,16 @@ export default function MonthlyReport() {
                     );
                   })()}
                 </View>
-                <Text className="text-lg font-semibold">
+                <GlobalText weight="bold" className="text-lg">
                   {selectedCategory} 지출 내역
-                </Text>
+                </GlobalText>
               </View>
-              <Text className="text-base font-semibold text-[#4FC985] pr-4">
+              <GlobalText
+                weight="bold"
+                className="text-base text-[#4FC985] pr-4"
+              >
                 {selectedCategoryData.amount.toLocaleString()}원
-              </Text>
+              </GlobalText>
             </View>
             <View className="space-y-4 gap-2">
               {selectedCategoryData.transactions.map((transaction) => (
@@ -221,16 +225,16 @@ export default function MonthlyReport() {
                   className="bg-gray-50 p-4 rounded-lg flex-row justify-between items-center"
                 >
                   <View>
-                    <Text className="text-base font-medium">
+                    <GlobalText className="text-base">
                       {transaction.transactionContent}
-                    </Text>
-                    <Text className="text-sm text-gray-500 mt-1">
+                    </GlobalText>
+                    <GlobalText className="text-sm text-gray-500 mt-1">
                       {new Date(transaction.createdAt).toLocaleDateString()}
-                    </Text>
+                    </GlobalText>
                   </View>
-                  <Text className="text-base font-semibold">
+                  <GlobalText weight="bold" className="text-base">
                     {transaction.amount.toLocaleString()}원
-                  </Text>
+                  </GlobalText>
                 </View>
               ))}
             </View>
@@ -239,12 +243,14 @@ export default function MonthlyReport() {
 
         {/* 3. 수입/지출 비교 막대 */}
         <View className="bg-white rounded-xl p-4 mb-4">
-          <Text className="text-xl font-semibold mb-4">수입/지출 비교</Text>
+          <GlobalText className="text-xl font-semibold mb-4">
+            수입/지출 비교
+          </GlobalText>
           {monthlyReport.totalIncome === 0 &&
           monthlyReport.totalExpense === 0 ? (
             <View className="h-16 items-center justify-center mb-4">
               <CalendarX size={48} color="#D1D5DB" />
-              <Text className="text-gray-500 mt-2">이번 달 거래 내역이 없습니다</Text>
+              <GlobalText className="text-gray-500 mt-2">이번 달 거래 내역이 없습니다</GlobalText>
             </View>
           ) : (
             <View className="h-16 bg-gray-100 rounded-xl overflow-hidden flex-row">
@@ -260,21 +266,22 @@ export default function MonthlyReport() {
                       size={12}
                       color={isIncomeHigher ? "#FFFFFF" : "#374151"}
                     />
-                    <Text
-                      className={`text-xs font-medium ${
+                    <GlobalText
+                      className={`text-xs ${
                         isIncomeHigher ? "text-white" : "text-gray-700"
                       }`}
                     >
                       수입 {incomeRatio}%
-                    </Text>
+                    </GlobalText>
                   </View>
-                  <Text
-                    className={`text-sm font-bold mt-1 ${
+                  <GlobalText
+                    weight="bold"
+                    className={`text-sm mt-1 ${
                       isIncomeHigher ? "text-white" : "text-gray-700"
                     }`}
                   >
                     {monthlyReport.totalIncome.toLocaleString()}원
-                  </Text>
+                  </GlobalText>
                 </View>
               </View>
               <View
@@ -289,21 +296,22 @@ export default function MonthlyReport() {
                       size={12}
                       color={!isIncomeHigher ? "#FFFFFF" : "#374151"}
                     />
-                    <Text
-                      className={`text-xs font-medium ${
+                    <GlobalText
+                      className={`text-xs ${
                         !isIncomeHigher ? "text-white" : "text-gray-700"
                       }`}
                     >
                       지출 {expenseRatio}%
-                    </Text>
+                    </GlobalText>
                   </View>
-                  <Text
-                    className={`text-sm font-bold mt-1 ${
+                  <GlobalText
+                    weight="bold"
+                    className={`text-sm mt-1 ${
                       !isIncomeHigher ? "text-white" : "text-gray-700"
                     }`}
                   >
                     {monthlyReport.totalExpense.toLocaleString()}원
-                  </Text>
+                  </GlobalText>
                 </View>
               </View>
             </View>
@@ -322,23 +330,29 @@ export default function MonthlyReport() {
         </View>
         {/* 5. 이번 달 퀘스트 완료 건수 카드 */}
         <View className="bg-white rounded-xl p-6">
-          <Text className="text-xl font-semibold mb-4">이번 달 퀘스트</Text>
+          <GlobalText className="text-xl font-semibold mb-4">
+            이번 달 퀘스트
+          </GlobalText>
           <View className="flex-row items-center gap-6">
             <View className="w-16 h-16 rounded-full bg-[#4FC985]/20 items-center justify-center">
               <Trophy size={32} color="#4FC985" />
             </View>
             <View className="flex-1">
               <View className="flex-row justify-between items-center mb-2">
-                <Text className="text-base text-gray-500">완료 건수</Text>
-                <Text className="text-lg font-semibold">
+                <GlobalText className="text-base text-gray-500">
+                  완료 건수
+                </GlobalText>
+                <GlobalText className="text-lg font-semibold">
                   {monthlyReport.completedQuests.count}건
-                </Text>
+                </GlobalText>
               </View>
               <View className="flex-row justify-between items-center">
-                <Text className="text-base text-gray-500">총 수입액</Text>
-                <Text className="text-lg font-semibold text-[#4FC985]">
+                <GlobalText className="text-base text-gray-500">
+                  총 수입액
+                </GlobalText>
+                <GlobalText weight="bold" className="text-lg text-[#4FC985]">
                   {monthlyReport.completedQuests.totalIncome.toLocaleString()}원
-                </Text>
+                </GlobalText>
               </View>
             </View>
           </View>

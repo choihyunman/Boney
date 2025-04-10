@@ -357,13 +357,19 @@ export default function MenuScreen() {
                     resizeMode="cover"
                   />
                 ) : (
-                  <GlobalText className="text-lg font-bold text-blue-500 dark:text-blue-300">
+                  <GlobalText
+                    weight="bold"
+                    className="text-lg text-blue-500 dark:text-blue-300"
+                  >
                     {user?.userName?.[0] || "?"}
                   </GlobalText>
                 )}
               </View>
               <View className="ml-3">
-                <GlobalText className="text-lg font-bold text-gray-900 dark:text-white">
+                <GlobalText
+                  weight="bold"
+                  className="text-lg text-gray-900 dark:text-white"
+                >
                   {user?.userName || "사용자"}
                 </GlobalText>
                 <GlobalText className="text-base text-gray-500 dark:text-gray-400">
@@ -381,7 +387,10 @@ export default function MenuScreen() {
                 {/* 메인 메뉴 항목 */}
                 <View className="flex-row items-center p-4 dark:bg-gray-700 gap-2">
                   <View className="w-6">{menuItem.icon}</View>
-                  <GlobalText className="text-base font-bold text-gray-900 dark:text-white">
+                  <GlobalText
+                    weight="bold"
+                    className="text-base text-gray-900 dark:text-white"
+                  >
                     {menuItem.title}
                   </GlobalText>
                 </View>
@@ -419,7 +428,10 @@ export default function MenuScreen() {
               <View className="items-center justify-center ml-2">
                 <Utensils size={18} color={isDark ? "#E5E7EB" : "#374151"} />
               </View>
-              <GlobalText className="text-base font-bold text-[#374151] dark:text-white ml-3">
+              <GlobalText
+                weight="bold"
+                className="text-base text-[#374151] dark:text-white ml-3"
+              >
                 버니가게
               </GlobalText>
             </View>
@@ -435,7 +447,10 @@ export default function MenuScreen() {
               <View className="items-center justify-center ml-2">
                 <LogOut size={18} color={isDark ? "#E5E7EB" : "#374151"} />
               </View>
-              <GlobalText className="text-base font-bold text-[#374151] dark:text-white ml-3">
+              <GlobalText
+                weight="bold"
+                className="text-base text-[#374151] dark:text-white ml-3"
+              >
                 로그아웃
               </GlobalText>
             </View>

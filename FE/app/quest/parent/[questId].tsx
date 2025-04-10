@@ -150,7 +150,7 @@ export default function QuestDetailPage() {
           >
             <View className="flex-1 justify-center items-center bg-black/50">
               <View className="bg-white rounded-xl p-6 w-[80%] max-w-md">
-                <GlobalText className="text-lg font-bold text-center mb-4">
+                <GlobalText weight="bold" className="text-lg text-center mb-4">
                   결제 실패
                 </GlobalText>
                 <GlobalText className="text-base text-center mb-6">
@@ -160,7 +160,7 @@ export default function QuestDetailPage() {
                   className="bg-[#4FC985] py-3 rounded-lg"
                   onPress={handleModalConfirm}
                 >
-                  <GlobalText className="text-white text-center font-bold">
+                  <GlobalText weight="bold" className="text-white text-center">
                     확인
                   </GlobalText>
                 </TouchableOpacity>

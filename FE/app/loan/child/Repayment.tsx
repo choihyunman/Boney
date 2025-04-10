@@ -224,7 +224,7 @@ export default function Repayment() {
                   상환 금액
                 </GlobalText>
                 <View className="flex-row items-center">
-                  <GlobalText className="text-3xl font-bold mr-2">
+                  <GlobalText weight="bold" className="text-3xl mr-2">
                     {formatAmount(String(localAmount))}
                   </GlobalText>
                   <GlobalText className="text-xl">원</GlobalText>

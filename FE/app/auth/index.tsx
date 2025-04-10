@@ -5,7 +5,6 @@ import {
   Image,
   Modal,
   ActivityIndicator,
-  Alert,
   ImageSourcePropType,
 } from "react-native";
 import { WebView } from "react-native-webview";
@@ -14,6 +13,7 @@ import kakaoLoginBtn from "../../assets/icons/kakao_login_large_wide.png";
 import fullLogo from "../../assets/icons/full-logo.png";
 import GlobalText from "../../components/GlobalText";
 import { router } from "expo-router";
+import { CustomAlert } from "@/components/CustomAlert";
 
 const KAKAO_REST_API_KEY = process.env.EXPO_PUBLIC_KAKAO_CLIENT_ID!;
 const REDIRECT_URI =
@@ -22,6 +22,8 @@ const REDIRECT_URI =
 export default function KakaoLogin() {
   const kakaoLogin = useAuthStore((state) => state.kakaoLogin);
   const [showWebView, setShowWebView] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
   const webViewRef = useRef(null);
   const handled = useRef(false);
 
@@ -62,7 +64,8 @@ export default function KakaoLogin() {
           }
         } catch (error) {
           console.error("❌ KakaoLogin 에러:", error);
-          Alert.alert("로그인 실패", "문제가 발생했습니다. 다시 시도해주세요.");
+          setAlertMessage("문제가 발생했습니다. 관리자에게 문의해주세요.");
+          setShowAlert(true);
         }
       }
     }
@@ -111,6 +114,13 @@ export default function KakaoLogin() {
           )}
         />
       </Modal>
+
+      <CustomAlert
+        visible={showAlert}
+        title="로그인 실패"
+        message={alertMessage}
+        onClose={() => setShowAlert(false)}
+      />
     </View>
   );
 }

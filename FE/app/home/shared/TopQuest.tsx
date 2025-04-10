@@ -5,10 +5,12 @@ import { useHomeStore } from "@/stores/useHomeStore";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { Quest } from "@/apis/homeApi";
 import { useEffect } from "react";
+import { useRouter } from "expo-router";
 
 export default function MissionSection() {
   const user = useAuthStore((state) => state.user);
   const { childData, parentData } = useHomeStore();
+  const router = useRouter();
 
   // Get quests based on user role
   const quest = user?.role === "CHILD" ? childData?.quest : parentData?.quest;
@@ -26,7 +28,8 @@ export default function MissionSection() {
   // Find in-progress or waiting reward quest
   const inProgressQuest = quest?.find(
     (quest: Quest) =>
-      quest.quest_status === "IN_PROGRESS" || quest.quest_status === "WAITING_REWARD"
+      quest.quest_status === "IN_PROGRESS" ||
+      quest.quest_status === "WAITING_REWARD"
   );
 
   // Log in-progress quest
@@ -45,19 +48,34 @@ export default function MissionSection() {
     const diffTime = dueDate.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    return diffDays;
+    if (diffDays === 0) {
+      return "-DAY";
+    } else if (diffDays > 0) {
+      return `-${diffDays}`;
+    } else {
+      return `+${Math.abs(diffDays)}`;
+    }
   };
 
   return (
     <View className="mt-4 bg-white rounded-xl p-4">
       <View className="flex-row justify-between items-center mb-4">
         {/* 퀘스트 상태에 따라 타이틀 변경 */}
-        <GlobalText className="font-bold text-lg">
+        <GlobalText weight="bold" className="text-lg">
           {inProgressQuest?.quest_status === "WAITING_REWARD"
             ? "보상 대기중인 퀘스트"
             : "진행 중인 퀘스트"}
         </GlobalText>
-        <TouchableOpacity className="flex-row items-center">
+        <TouchableOpacity
+          className="flex-row items-center"
+          onPress={() => {
+            if (user?.role === "CHILD") {
+              router.push("/quest/child");
+            } else if (user?.role === "PARENT") {
+              router.push("/quest/parent");
+            }
+          }}
+        >
           <GlobalText className="text-sm text-gray-400 font-medium">
             더보기
           </GlobalText>
@@ -82,11 +100,19 @@ export default function MissionSection() {
                 <GlobalText className="font-medium text-base">
                   {inProgressQuest.quest_title}
                 </GlobalText>
-                <GlobalText className="text-sm bg-[#4FC985]/10 text-[#4FC985] font-bold px-3 py-1 rounded-full">
-                  D-{calculateDday(inProgressQuest.end_date)}
-                </GlobalText>
+                {inProgressQuest.quest_status !== "WAITING_REWARD" && (
+                  <GlobalText
+                    weight="bold"
+                    className="text-sm bg-[#4FC985]/10 text-[#4FC985] px-3 py-1 rounded-full"
+                  >
+                    D{calculateDday(inProgressQuest.end_date)}
+                  </GlobalText>
+                )}
               </View>
-              <GlobalText className="text-[#4FC985] font-bold mt-1 text-base">
+              <GlobalText
+                weight="bold"
+                className="text-[#4FC985] mt-1 text-base"
+              >
                 {inProgressQuest.quest_reward.toLocaleString()}원
               </GlobalText>
             </View>

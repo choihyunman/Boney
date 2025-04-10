@@ -4,6 +4,7 @@ import { PieChart } from "react-native-gifted-charts";
 import { useColorScheme } from "nativewind";
 import { CalendarX, Circle } from "lucide-react-native";
 import { LucideIcon } from "lucide-react-native";
+import GlobalText from "@/components/GlobalText";
 
 interface CategoryExpense {
   category: string;
@@ -78,7 +79,7 @@ function ChartLabelComponent({
         }}
       >
         {!isRight && (
-          <Text
+          <GlobalText
             style={{
               color: isDark ? "#E5E7EB" : "#374151",
               fontSize: 10,
@@ -86,7 +87,7 @@ function ChartLabelComponent({
             }}
           >
             {`${label.category} ${label.percentage}%`}
-          </Text>
+          </GlobalText>
         )}
         <View
           style={{
@@ -97,7 +98,7 @@ function ChartLabelComponent({
           }}
         />
         {isRight && (
-          <Text
+          <GlobalText
             style={{
               color: isDark ? "#E5E7EB" : "#374151",
               fontSize: 10,
@@ -105,7 +106,7 @@ function ChartLabelComponent({
             }}
           >
             {`${label.category} ${label.percentage}%`}
-          </Text>
+          </GlobalText>
         )}
       </View>
     </View>
@@ -168,11 +169,11 @@ export default function MonthlyExpenseDonut({
   if (!isReady) {
     return (
       <View className="bg-white dark:bg-gray-800 rounded-xl p-4">
-        <Text className="text-2xl font-bold text-gray-900">
+        <GlobalText weight="bold" className="text-2xl text-gray-900">
           지출 카테고리 분포
-        </Text>
+        </GlobalText>
         <View className="h-64 items-center justify-center">
-          <Text className="text-gray-500">로딩 중...</Text>
+          <GlobalText className="text-gray-500">로딩 중...</GlobalText>
         </View>
       </View>
     );
@@ -182,12 +183,17 @@ export default function MonthlyExpenseDonut({
   if (categories.length === 0) {
     return (
       <View className="bg-white dark:bg-gray-800 rounded-xl p-4">
-        <Text className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+        <GlobalText
+          weight="bold"
+          className="text-xl text-gray-900 dark:text-white mb-4"
+        >
           지출 카테고리 분포
-        </Text>
+        </GlobalText>
         <View className="h-64 items-center justify-center">
           <CalendarX size={48} color="#D1D5DB" />
-          <Text className="text-gray-500 mt-4">이번 달 지출 내역이 없습니다</Text>
+          <GlobalText className="text-gray-500 mt-4">
+            이번 달 지출 내역이 없습니다
+          </GlobalText>
         </View>
       </View>
     );
@@ -195,9 +201,12 @@ export default function MonthlyExpenseDonut({
 
   return (
     <View className="bg-white dark:bg-gray-800 rounded-xl p-4">
-      <Text className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+      <GlobalText
+        weight="bold"
+        className="text-xl text-gray-900 dark:text-white mb-4"
+      >
         지출 카테고리 분포
-      </Text>
+      </GlobalText>
 
       <View className="items-center">
         <View
@@ -242,12 +251,12 @@ export default function MonthlyExpenseDonut({
                 );
                 return (
                   <View className="items-center">
-                    <Text className="text-base text-gray-500 dark:text-gray-400">
+                    <GlobalText className="text-base text-gray-500 dark:text-gray-400">
                       총 지출
-                    </Text>
-                    <Text className="text-lg font-bold text-gray-900 dark:text-white">
+                    </GlobalText>
+                    <GlobalText className="text-lg text-gray-900 dark:text-white">
                       {totalExpense.toLocaleString()}원
-                    </Text>
+                    </GlobalText>
                   </View>
                 );
               }}
@@ -276,7 +285,7 @@ export default function MonthlyExpenseDonut({
               style={{ width: (width - 80) / 4 }} // 3개씩 배치하기 위한 너비 계산
             >
               <Circle size={10} fill={category.color} color={category.color} />
-              <Text
+              <GlobalText
                 className={`text-base ml-2 ${
                   selectedCategory === category.category
                     ? "text-gray-900 dark:text-white font-medium"
@@ -285,7 +294,7 @@ export default function MonthlyExpenseDonut({
                 numberOfLines={1}
               >
                 {category.category}
-              </Text>
+              </GlobalText>
             </Pressable>
           ))}
         </View>
