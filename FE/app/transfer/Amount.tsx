@@ -130,7 +130,7 @@ export default function SendMoneyAmount() {
               송금 금액
             </GlobalText>
             <View className="flex-row items-center">
-              <GlobalText className="text-3xl font-bold mr-2">
+              <GlobalText weight="bold" className="text-3xl mr-2">
                 {formatAmount(localAmount)}
               </GlobalText>
               <GlobalText className="text-xl">원</GlobalText>

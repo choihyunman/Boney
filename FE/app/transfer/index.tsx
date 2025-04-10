@@ -94,7 +94,7 @@ export default function SendMoneyRecipient() {
         <ScrollView className="flex-1">
           {/* 등록된 계좌 목록 */}
           <View className="mx-5 mt-6 mb-24">
-            <GlobalText className="text-lg font-bold mb-3">
+            <GlobalText weight="bold" className="text-lg mb-3">
               등록된 계좌
             </GlobalText>
             <View className="gap-2">

@@ -21,7 +21,7 @@ function CreditScoreDonut({
     if (score <= 30) {
       color = "#EF4444"; // Red for low scores
     } else if (score <= 79) {
-      color = "#FFD700"; // Yellow for medium scores 
+      color = "#FFD700"; // Yellow for medium scores
     } else {
       color = "#4FC985"; // Green for high scores
     }
@@ -45,7 +45,7 @@ function CreditScoreDonut({
         focusOnPress
         centerLabelComponent={() => (
           <View className="items-center">
-            <GlobalText className="text-2xl font-bold" style={{ color }}>
+            <GlobalText weight="bold" className="text-2xl" style={{ color }}>
               {score}
             </GlobalText>
             <GlobalText className="text-sm text-gray-600">{label}</GlobalText>
@@ -63,7 +63,9 @@ export default function CreditScoreSection() {
 
   return (
     <View className="bg-white rounded-xl p-4">
-      <GlobalText className="font-bold text-lg mb-4">신용 점수</GlobalText>
+      <GlobalText weight="bold" className="text-lg mb-4">
+        신용 점수
+      </GlobalText>
       <View className="flex-row justify-around">
         <View className="items-center">
           <CreditScoreDonut score={childData.credit_score} label="나의 점수" />

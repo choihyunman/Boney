@@ -84,12 +84,18 @@ export default function Signature({ onClose }: SignatureProps) {
 
   return (
     <View className="flex-1 bg-white">
-      <View className="p-4 bg-gray-50 border-b border-gray-200">
-        <GlobalText className="text-gray-600 text-center mb-2">
+      <View className="p-4 mt-2 bg-gray-50 border-b border-gray-200">
+        <GlobalText
+          weight="bold"
+          className="text-xl text-gray-700 text-center mb-3"
+        >
           서명 안내
         </GlobalText>
-        <GlobalText className="text-gray-500 text-sm text-center">
-          여기에 서명해 주세요. 정해진 날짜 안에 꼭 갚겠다는 소중한 약속이에요.
+        <GlobalText className="text-gray-500 text-md text-center">
+          여기에 서명해 주세요{"\n"}
+        </GlobalText>
+        <GlobalText className="text-gray-500 text-md text-center">
+          정해진 날짜 안에 꼭 갚겠다는 소중한 약속이에요
         </GlobalText>
       </View>
 
@@ -127,9 +133,12 @@ export default function Signature({ onClose }: SignatureProps) {
           />
         </View>
 
-        {signatureImage && (
+        {/* {signatureImage && (
           <View className="mb-4 p-2 border border-gray-200 rounded-lg">
-            <GlobalText className="text-gray-600 mb-2">
+            <GlobalText
+              weight="bold"
+              className="text-center text-gray-600 mb-2"
+            >
               서명 미리보기
             </GlobalText>
             <Image
@@ -138,16 +147,14 @@ export default function Signature({ onClose }: SignatureProps) {
               resizeMode="contain"
             />
           </View>
-        )}
+        )} */}
 
         <View className="flex-row justify-between px-4">
           <TouchableOpacity
             onPress={handleClear}
             className="bg-gray-100 px-6 py-3 rounded-lg"
           >
-            <GlobalText className="text-gray-700 font-medium">
-              다시 작성
-            </GlobalText>
+            <GlobalText className="text-gray-700">다시 작성</GlobalText>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={handleSubmit}
@@ -157,6 +164,7 @@ export default function Signature({ onClose }: SignatureProps) {
             }`}
           >
             <GlobalText
+              weight="bold"
               className={`font-medium ${
                 isSubmitted ? "text-gray-500" : "text-white"
               }`}

@@ -13,7 +13,7 @@ export default function LoanAmount() {
     <View className="flex-row justify-between items-center mb-2">
       <View>
         <GlobalText className="text-base text-gray-500">대출 총액</GlobalText>
-        <GlobalText className="text-2xl font-bold">
+        <GlobalText weight="bold" className="text-2xl">
           {Number(childData.all_loan).toLocaleString()}원
         </GlobalText>
       </View>

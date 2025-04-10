@@ -646,7 +646,7 @@ export default function RootLayout() {
         }}
       >
         <View style={{ flex: 1 }}>
-          <Text
+          <GlobalText
             style={{
               color: "#1F2937",
               fontSize: 16,
@@ -655,11 +655,11 @@ export default function RootLayout() {
             }}
           >
             {props.text1}
-          </Text>
+          </GlobalText>
           {props.text2 && (
-            <Text style={{ color: "#6B7280", fontSize: 14 }}>
+            <GlobalText style={{ color: "#6B7280", fontSize: 14 }}>
               {props.text2}
-            </Text>
+            </GlobalText>
           )}
         </View>
       </View>
@@ -683,13 +683,13 @@ export default function RootLayout() {
           borderLeftColor: "#EF4444",
         }}
       >
-        <Text style={{ color: "#333", fontSize: 16, fontWeight: "600" }}>
+        <GlobalText style={{ color: "#333", fontSize: 16, fontWeight: "600" }}>
           {props.text1}
-        </Text>
+        </GlobalText>
         {props.text2 && (
-          <Text style={{ color: "#666", fontSize: 14, marginTop: 4 }}>
+          <GlobalText style={{ color: "#666", fontSize: 14, marginTop: 4 }}>
             {props.text2}
-          </Text>
+          </GlobalText>
         )}
       </View>
     ),

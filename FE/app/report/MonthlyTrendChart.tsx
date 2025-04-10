@@ -3,7 +3,7 @@ import { View, Text, Dimensions } from "react-native";
 import { BarChart } from "react-native-gifted-charts";
 import { useColorScheme } from "nativewind";
 import { Circle } from "lucide-react-native";
-
+import GlobalText from "@/components/GlobalText";
 interface TrendData {
   month: string;
   income: number;
@@ -70,11 +70,14 @@ export default function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
   if (!isReady) {
     return (
       <View className="bg-white dark:bg-gray-800 rounded-xl p-4 my-2">
-        <Text className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+        <GlobalText
+          weight="bold"
+          className="text-2xl text-gray-900 dark:text-white mb-4"
+        >
           최근 수입/지출 추이
-        </Text>
+        </GlobalText>
         <View className="h-64 items-center justify-center">
-          <Text className="text-gray-500">로딩 중...</Text>
+          <GlobalText className="text-gray-500">로딩 중...</GlobalText>
         </View>
       </View>
     );
@@ -84,12 +87,17 @@ export default function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
   if (data.length === 0) {
     return (
       <View className="bg-white dark:bg-gray-800 rounded-xl p-4 my-2">
-        <Text className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+        <GlobalText
+          weight="bold"
+          className="text-2xl text-gray-900 dark:text-white mb-4"
+        >
           최근 수입/지출 추이
-        </Text>
+        </GlobalText>
         <View className="h-64 items-center justify-center">
           <Circle size={48} color="#D1D5DB" />
-          <Text className="text-gray-500 mt-4">이번 달 내역이 없습니다</Text>
+          <GlobalText className="text-gray-500 mt-4">
+            이번 달 내역이 없습니다
+          </GlobalText>
         </View>
       </View>
     );
@@ -97,9 +105,12 @@ export default function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
 
   return (
     <View className="bg-white dark:bg-gray-800 rounded-xl p-4 my-2">
-      <Text className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+      <GlobalText
+        weight="bold"
+        className="text-2xl text-gray-900 dark:text-white mb-4"
+      >
         최근 수입/지출 추이
-      </Text>
+      </GlobalText>
 
       <View className="h-64 items-center">
         <BarChart
@@ -139,9 +150,9 @@ export default function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
       <View className="flex-row justify-center items-center my-1">
         <View className="flex-row items-center mr-4">
           <Circle size={10} fill="#4FC985" color="#4FC985" />
-          <Text className="text-sm text-gray-700 dark:text-gray-300 ml-1">
+          <GlobalText className="text-sm text-gray-700 dark:text-gray-300 ml-1">
             수입
-          </Text>
+          </GlobalText>
         </View>
         <View className="flex-row items-center">
           <Circle
@@ -149,9 +160,9 @@ export default function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
             fill={isDark ? "#4B5563" : "#E2E8F0"}
             color={isDark ? "#4B5563" : "#E2E8F0"}
           />
-          <Text className="text-sm text-gray-700 dark:text-gray-300 ml-1">
+          <GlobalText className="text-sm text-gray-700 dark:text-gray-300 ml-1">
             지출
-          </Text>
+          </GlobalText>
         </View>
       </View>
     </View>

@@ -59,7 +59,7 @@ export default function MissionSection() {
     <View className="mt-4 bg-white rounded-xl p-4">
       <View className="flex-row justify-between items-center mb-4">
         {/* 퀘스트 상태에 따라 타이틀 변경 */}
-        <GlobalText className="font-bold text-lg">
+        <GlobalText weight="bold" className="text-lg">
           {inProgressQuest?.quest_status === "WAITING_REWARD"
             ? "보상 대기중인 퀘스트"
             : "진행 중인 퀘스트"}
@@ -90,12 +90,18 @@ export default function MissionSection() {
                   {inProgressQuest.quest_title}
                 </GlobalText>
                 {inProgressQuest.quest_status !== "WAITING_REWARD" && (
-                  <GlobalText className="text-sm bg-[#4FC985]/10 text-[#4FC985] font-bold px-3 py-1 rounded-full">
+                  <GlobalText
+                    weight="bold"
+                    className="text-sm bg-[#4FC985]/10 text-[#4FC985] px-3 py-1 rounded-full"
+                  >
                     D{calculateDday(inProgressQuest.end_date)}
                   </GlobalText>
                 )}
               </View>
-              <GlobalText className="text-[#4FC985] font-bold mt-1 text-base">
+              <GlobalText
+                weight="bold"
+                className="text-[#4FC985] mt-1 text-base"
+              >
                 {inProgressQuest.quest_reward.toLocaleString()}원
               </GlobalText>
             </View>

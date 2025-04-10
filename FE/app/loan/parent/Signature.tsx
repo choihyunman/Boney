@@ -234,7 +234,7 @@ export default function Signature({
         >
           <View className="flex-1 justify-center items-center bg-black/50">
             <View className="bg-white rounded-xl p-6 w-[80%] max-w-md">
-              <GlobalText className="text-lg font-bold text-center mb-4">
+              <GlobalText weight="bold" className="text-lg text-center mb-4">
                 결제 실패
               </GlobalText>
               <GlobalText className="text-base text-center mb-6">
@@ -244,7 +244,7 @@ export default function Signature({
                 className="bg-[#4FC985] py-3 rounded-lg"
                 onPress={handleModalConfirm}
               >
-                <GlobalText className="text-white text-center font-bold">
+                <GlobalText weight="bold" className="text-white text-center">
                   확인
                 </GlobalText>
               </TouchableOpacity>
@@ -258,13 +258,16 @@ export default function Signature({
   return (
     <View className="flex-1 bg-[#F5F6F8]">
       <View className="pb-6 bg-white">
-        <GlobalText className="text-xl text-gray-700 text-center mb-3">
+        <GlobalText
+          weight="bold"
+          className="text-xl text-gray-700 text-center mb-3"
+        >
           서명 안내
         </GlobalText>
-        <GlobalText className="text-gray-500 text-sm text-center">
-          여기에 서명해 주세요
+        <GlobalText className="text-gray-500 text-md text-center">
+          여기에 서명해 주세요{"\n"}
         </GlobalText>
-        <GlobalText className="text-gray-500 text-sm text-center">
+        <GlobalText className="text-gray-500 text-md text-center">
           정해진 날짜 안에 꼭 갚겠다는 소중한 약속이에요
         </GlobalText>
       </View>
@@ -317,7 +320,7 @@ export default function Signature({
             onPress={handleSubmit}
             disabled={isSubmitted}
           >
-            <GlobalText className="text-center text-white">
+            <GlobalText weight="bold" className="text-center text-white">
               {isSubmitted ? "서명 제출 중" : "서명 완료"}
             </GlobalText>
           </TouchableOpacity>
