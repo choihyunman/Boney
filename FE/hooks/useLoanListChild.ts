@@ -40,6 +40,7 @@ export const useLoanListChildQuery = () => {
     staleTime: 1000,
     refetchOnMount: true,
     refetchOnWindowFocus: true,
+    retry: false,
     onSuccessAction: (data: LoanListResponse) => {
       setLoanList(data.active_loans);
     },

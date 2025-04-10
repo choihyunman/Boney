@@ -3,9 +3,7 @@ import PromissoryNote from "../PromissoryNote";
 import { ScrollView, TouchableOpacity, View } from "react-native";
 import { useEffect, useState } from "react";
 import GlobalText from "@/components/GlobalText";
-import { useLoanDetailParentStore } from "@/stores/useLoanParentStore";
 import { useLoanDetailParent } from "@/hooks/useLoanDetailParent";
-import Signature from "./Signature";
 
 export default function LoanDetailParent() {
   const { loanId, color } = useLocalSearchParams<{
@@ -14,7 +12,6 @@ export default function LoanDetailParent() {
   }>();
   const { data: loanDetail } = useLoanDetailParent(Number(loanId));
   const [currentTime, setCurrentTime] = useState("");
-  const { hydrated } = useLoanDetailParentStore((state) => state);
 
   const repaymentDate = loanDetail?.due_date;
   const loanAmount = loanDetail?.loan_amount;
@@ -24,10 +21,6 @@ export default function LoanDetailParent() {
   const approvedAt = loanDetail?.approved_at;
   const childSignature = loanDetail?.child_signature;
   const parentSignature = loanDetail?.parent_signature;
-
-  if (!hydrated) {
-    return null;
-  }
 
   // 마감 날짜 포맷팅
   const formatRepaymentDate = () => {

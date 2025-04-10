@@ -13,6 +13,7 @@ type CustomQueryOptions<TData, TError> = {
   refetchInterval?: number | false;
   refetchOnMount?: boolean;
   refetchOnWindowFocus?: boolean;
+  retry?: number | false;
 
   onSuccessAction?: (data: TData) => void;
   onErrorAction?: (error: TError) => void;
@@ -28,6 +29,7 @@ export function useCustomQuery<TData, TError = Error>({
   refetchOnWindowFocus,
   onSuccessAction,
   onErrorAction,
+  retry,
 }: CustomQueryOptions<TData, TError>): UseQueryResult<TData, TError> {
   const query = useQuery<TData, TError>({
     queryKey,
@@ -37,6 +39,7 @@ export function useCustomQuery<TData, TError = Error>({
     refetchInterval,
     refetchOnMount,
     refetchOnWindowFocus,
+    retry, 
   });
 
   // 이전 데이터를 저장하는 ref

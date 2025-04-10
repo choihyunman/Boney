@@ -27,15 +27,14 @@ export default function LoanDetailChild() {
     error,
   } = useLoanDetailParent(Number(loanId));
   const [currentTime, setCurrentTime] = useState("");
-  const { hydrated } = useLoanDetailParentStore((state) => state);
   const { setLoanInfo } = useLoanStateStore((state) => state);
 
   // 모든 hooks를 최상위에 배치
   useEffect(() => {
-    if (hydrated && !isLoading) {
+    if (!isLoading) {
       refetch();
     }
-  }, [hydrated, isLoading, refetch]);
+  }, [ isLoading, refetch]);
 
   useEffect(() => {
     const updateTime = () => {
