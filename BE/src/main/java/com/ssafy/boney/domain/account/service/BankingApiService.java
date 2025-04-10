@@ -6,7 +6,7 @@ import com.ssafy.boney.domain.transaction.dto.TransferApiResponseDto;
 public interface BankingApiService {
 
     // 계좌 이체
-    TransferApiResponseDto transfer(String fromAccount, String toAccount, Long amount, String summary);
+    TransferApiResponseDto transfer(String fromAccount, String toAccount, Long amount, String depositSummary, String withdrawalSummary);
 
     // 예금주 이름 조회
     String getAccountHolderName(String accountNumber);
