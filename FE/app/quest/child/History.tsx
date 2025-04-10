@@ -17,7 +17,7 @@ export default function ChildQuestHistoryPage() {
 
   // 날짜 포맷팅 함수
   const formatDate = (dateString?: string) => {
-    if (!dateString) return "미완료";
+    if (!dateString) return "날짜 없음";
 
     const date = new Date(dateString);
     return `${date.getFullYear()}년 ${
@@ -27,7 +27,7 @@ export default function ChildQuestHistoryPage() {
 
   // 퀘스트 정렬: 최근 완료된 퀘스트가 상단에 위치하도록 정렬
   const sortedQuests = [...pastQuests].sort((a, b) => {
-    return new Date(b.endDate).getTime() - new Date(a.endDate).getTime();
+    return new Date(b.finishDate).getTime() - new Date(a.finishDate).getTime();
   });
 
   return (
@@ -47,7 +47,7 @@ export default function ChildQuestHistoryPage() {
               }
               subValue={
                 quest.questStatus === "SUCCESS"
-                  ? formatDate(quest.endDate)
+                  ? formatDate(quest.finishDate)
                   : "미완료"
               }
             />
