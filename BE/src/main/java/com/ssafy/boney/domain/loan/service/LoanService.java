@@ -304,11 +304,15 @@ public class LoanService {
         }
 
         // 송금 처리
+        String depositSummary = "대출 승인 " + parent.getUserName();
+        String withdrawalSummary = "대출 승인 " + child.getUserName();
+
         bankingApiService.transfer(
                 parentAccount.getAccountNumber(),
                 childAccount.getAccountNumber(),
                 loanAmount,
-                "대출 승인 " + parent.getUserName()
+                depositSummary,
+                withdrawalSummary
         );
 
         loan.setStatus(LoanStatus.APPROVED);
@@ -421,12 +425,15 @@ public class LoanService {
         }
 
         // 송금 처리
-        String summary = "대출 " + relation.getParent().getUserName();
+        String depositSummary = "대출 " + relation.getParent().getUserName();
+        String withdrawalSummary = "대출 " + child.getUserName();
+
         bankingApiService.transfer(
                 parentAccount.getAccountNumber(),
                 childAccount.getAccountNumber(),
                 request.getLoanAmount(),
-                summary
+                depositSummary,
+                withdrawalSummary
         );
 
         return ResponseEntity.ok(Map.of(
@@ -721,12 +728,15 @@ public class LoanService {
         }
 
         // 6. 송금 처리
-        String summary = "대출상환 " + child.getUserName();
+        String depositSummary = "대출상환 " + child.getUserName();
+        String withdrawalSummary = "대출상환 " + loan.getParentChild().getParent().getUserName();
+
         bankingApiService.transfer(
                 childAccount.getAccountNumber(),
                 parentAccount.getAccountNumber(),
                 repaymentAmount,
-                summary
+                depositSummary,
+                withdrawalSummary
         );
 
         // 7. 상환 기록 저장 (loan_repayment)
