@@ -9,7 +9,7 @@ type Props = {
 
 export default function LoanSummary({ title, count, totalAmount }: Props) {
   return (
-    <View className="mt-8 px-6 mb-3">
+    <View className="px-6 mb-3">
       <View className="flex-row items-center gap-x-1 mb-1">
         <GlobalText weight="bold" className="text-2xl text-gray-800">
           {title}

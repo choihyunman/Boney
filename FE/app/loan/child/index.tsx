@@ -17,6 +17,13 @@ export default function LoanListChild() {
   const [key, setKey] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
 
+  // 대출 목록을 마감 날짜가 빠른 순으로 정렬
+  const sortedLoanList = [...loanList].sort((a, b) => {
+    if (!a.due_date) return 1; // 날짜가 없는 항목은 뒤로
+    if (!b.due_date) return -1;
+    return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
+  });
+
   useEffect(() => {
     setIsMounted(true);
     return () => setIsMounted(false);
@@ -58,29 +65,35 @@ export default function LoanListChild() {
     }
   }, [error]);
 
-  const totalAmount = loanList.reduce((sum, loan) => sum + loan.last_amount, 0);
+  const totalAmount = sortedLoanList.reduce(
+    (sum, loan) => sum + loan.last_amount,
+    0
+  );
 
   // 차트 데이터 유효성 확인
-  const hasValidChartData = loanList.length > 0 && repaymentHistory.length > 0;
+  const hasValidChartData =
+    sortedLoanList.length > 0 && repaymentHistory.length > 0;
 
   return (
     <ScrollView className="flex-1 bg-[#F5F6F8]">
       <LoanSummary
         title="보유 중인 대출"
-        count={loanList.length}
+        count={sortedLoanList.length}
         totalAmount={totalAmount}
       />
       {hasValidChartData && (
         <LoanTrendChart
-          key={`trend-chart-${key}-${loanList.length}-${repaymentHistory.length}`}
-          loans={loanList}
+          key={`trend-chart-${key}-${sortedLoanList.length}-${repaymentHistory.length}`}
+          loans={sortedLoanList}
           repaymentHistory={repaymentHistory}
         />
       )}
       <LoanListSection
         title="대출 목록"
-        loans={loanList}
+        loans={sortedLoanList}
         showCreditorTitle={false}
+        error={!!error}
+        emptyMessage="보유 중인 대출이 없습니다."
         onPress={(loanId, color) =>
           router.push({
             pathname: `/loan/child/${loanId}`,

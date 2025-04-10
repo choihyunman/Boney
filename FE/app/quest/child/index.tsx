@@ -10,7 +10,7 @@ export default function ChildQuestListPage() {
   const params = useLocalSearchParams();
   const fromComplete = params.fromComplete;
 
-  const { data, isLoading } = useCustomQuery({
+  const { data, isLoading, isError } = useCustomQuery({
     queryKey: ["quests"],
     queryFn: getQuestListChild,
     staleTime: 1000 * 60 * 3,
@@ -99,11 +99,11 @@ export default function ChildQuestListPage() {
   return (
     <View className="flex-1 bg-[#F5F6F8]">
       {/* 앱 컨텐츠 */}
-      <ScrollView className="flex-1 px-6 mt-6 pb-20">
+      <ScrollView className="flex-1 px-6 pb-20">
         {/* 퀘스트 요약 */}
         <View className="flex-row justify-between items-center mb-6">
           <View className="flex-row items-center">
-            <GlobalText weight="bold" className="text-xl text-gray-800">
+            <GlobalText weight="bold" className="text-2xl text-gray-800">
               진행 중인 퀘스트
             </GlobalText>
             <View className="ml-3 bg-[#4FC985] px-3 py-1 rounded-lg">
@@ -112,128 +112,130 @@ export default function ChildQuestListPage() {
               </GlobalText>
             </View>
           </View>
-          {pendingRewardCount > 0 && (
-            <View className="bg-[#FFE2EC] px-3 py-1 rounded-lg">
-              <GlobalText weight="bold" className="text-[#D6456B] text-sm">
-                보상 대기 {pendingRewardCount}건
-              </GlobalText>
-            </View>
-          )}
         </View>
 
         {/* 퀘스트 목록 */}
         <View className="bg-white rounded-xl p-5">
-          <GlobalText weight="bold" className="text-lg text-gray-800 mb-4">
-            퀘스트 목록
-          </GlobalText>
+          <View className="flex-row justify-between items-center mb-4">
+            <GlobalText weight="bold" className="text-lg text-gray-800 mb-4">
+              퀘스트 목록
+            </GlobalText>
+            {pendingRewardCount > 0 && (
+              <View className="bg-[#FFE2EC] px-3 py-1 rounded-lg">
+                <GlobalText weight="bold" className="text-[#D6456B] text-sm">
+                  보상 대기 {pendingRewardCount}건
+                </GlobalText>
+              </View>
+            )}
+          </View>
 
           <View className="space-y-4">
-            {sortedQuests.map((quest) => (
-              <TouchableOpacity
-                key={quest.questId}
-                onPress={() => {
-                  router.push({
-                    pathname: "/quest/child/[questId]" as any,
-                    params: { questId: quest.questId.toString() },
-                  });
-                }}
-              >
-                <View
-                  className={`${
-                    quest.questStatus === "WAITING_REWARD"
-                      ? "bg-[#FFF8FA] border-2 border-[#FFE2EC]"
-                      : "bg-[#F9FAFB]"
-                  } rounded-xl p-4 mb-4`}
+            {isError || questList.length === 0 ? (
+              <View className="items-center justify-center py-12">
+                <Clock size={48} color="#D1D5DB" className="mb-4" />
+                <GlobalText className="text-gray-500">
+                  진행 중인 퀘스트가 없습니다.
+                </GlobalText>
+              </View>
+            ) : (
+              sortedQuests.map((quest) => (
+                <TouchableOpacity
+                  key={quest.questId}
+                  onPress={() => {
+                    router.push({
+                      pathname: "/quest/child/[questId]" as any,
+                      params: { questId: quest.questId.toString() },
+                    });
+                  }}
                 >
-                  <View className="flex-row justify-between items-start mb-3">
-                    <View>
-                      {quest.questStatus === "WAITING_REWARD" ? (
-                        <View className="bg-[#FFE2EC] px-3 py-1 rounded-full">
+                  <View
+                    className={`${
+                      quest.questStatus === "WAITING_REWARD"
+                        ? "bg-[#FFF8FA] border-2 border-[#FFE2EC]"
+                        : "bg-[#F9FAFB]"
+                    } rounded-xl p-4 mb-4`}
+                  >
+                    <View className="flex-row justify-between items-start mb-3">
+                      <View>
+                        {quest.questStatus === "WAITING_REWARD" ? (
+                          <View className="bg-[#FFE2EC] px-3 py-1 rounded-full">
+                            <GlobalText
+                              weight="bold"
+                              className="text-[#D6456B] text-xs"
+                            >
+                              보상 대기 중
+                            </GlobalText>
+                          </View>
+                        ) : (
+                          <GlobalText className="text-xs text-gray-800">
+                            {formatDate(quest.endDate)}
+                          </GlobalText>
+                        )}
+                      </View>
+                      {quest.questStatus !== "WAITING_REWARD" && (
+                        <View
+                          className={`px-2 py-1 rounded-full ${
+                            calculateDday(quest.endDate).includes("+")
+                              ? "bg-red-100"
+                              : "bg-[#e6f7ef]"
+                          }`}
+                        >
                           <GlobalText
                             weight="bold"
-                            className="text-[#D6456B] text-xs"
+                            className={`text-xs ${
+                              calculateDday(quest.endDate).includes("+")
+                                ? "text-red-600"
+                                : "text-[#4FC985]"
+                            }`}
                           >
-                            보상 대기 중
+                            {calculateDday(quest.endDate)}
                           </GlobalText>
                         </View>
-                      ) : (
-                        <GlobalText className="text-xs text-gray-800">
-                          {formatDate(quest.endDate)}
-                        </GlobalText>
                       )}
                     </View>
-                    {quest.questStatus !== "WAITING_REWARD" && (
-                      <View
-                        className={`px-2 py-1 rounded-full ${
-                          calculateDday(quest.endDate).includes("+")
-                            ? "bg-red-100"
-                            : "bg-[#e6f7ef]"
-                        }`}
-                      >
+
+                    <View className="items-center">
+                      <View className="h-16 w-16 rounded-full bg-[#e6f7ef] items-center justify-center mb-3">
+                        {(() => {
+                          const IconElement = getQuestIcon(quest.questTitle);
+                          return (
+                            <View
+                              className={`h-12 w-12 rounded-full items-center justify-center`}
+                            >
+                              {IconElement}
+                            </View>
+                          );
+                        })()}
+                      </View>
+                      <View className="items-center mb-3">
                         <GlobalText
                           weight="bold"
-                          className={`text-xs ${
-                            calculateDday(quest.endDate).includes("+")
-                              ? "text-red-600"
+                          className="text-base text-gray-800"
+                        >
+                          {quest.questTitle}
+                        </GlobalText>
+                        <GlobalText className="text-xs text-gray-800">
+                          {quest.questCategory}
+                        </GlobalText>
+                      </View>
+                      <View className="w-full items-center">
+                        <GlobalText
+                          weight="bold"
+                          className={`text-lg  ${
+                            quest.questStatus === "WAITING_REWARD"
+                              ? "text-[#D6456B]"
                               : "text-[#4FC985]"
                           }`}
                         >
-                          {calculateDday(quest.endDate)}
+                          {quest.questReward.toLocaleString()}원
                         </GlobalText>
                       </View>
-                    )}
-                  </View>
-
-                  <View className="items-center">
-                    <View className="h-16 w-16 rounded-full bg-[#e6f7ef] items-center justify-center mb-3">
-                      {(() => {
-                        const IconElement = getQuestIcon(quest.questTitle);
-                        return (
-                          <View
-                            className={`h-12 w-12 rounded-full items-center justify-center`}
-                          >
-                            {IconElement}
-                          </View>
-                        );
-                      })()}
-                    </View>
-                    <View className="items-center mb-3">
-                      <GlobalText
-                        weight="bold"
-                        className="text-base text-gray-800"
-                      >
-                        {quest.questTitle}
-                      </GlobalText>
-                      <GlobalText className="text-xs text-gray-800">
-                        {quest.questCategory}
-                      </GlobalText>
-                    </View>
-                    <View className="w-full items-center">
-                      <GlobalText
-                        weight="bold"
-                        className={`text-lg  ${
-                          quest.questStatus === "WAITING_REWARD"
-                            ? "text-[#D6456B]"
-                            : "text-[#4FC985]"
-                        }`}
-                      >
-                        {quest.questReward.toLocaleString()}원
-                      </GlobalText>
                     </View>
                   </View>
-                </View>
-              </TouchableOpacity>
-            ))}
+                </TouchableOpacity>
+              ))
+            )}
           </View>
-
-          {questList.length === 0 && (
-            <View className="items-center justify-center py-12">
-              <Clock size={48} color="#D1D5DB" className="mb-4" />
-              <GlobalText className="text-gray-500">
-                진행 중인 퀘스트가 없습니다.
-              </GlobalText>
-            </View>
-          )}
         </View>
       </ScrollView>
     </View>
