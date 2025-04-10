@@ -9,6 +9,7 @@ public class TransferRequest {
     private String sendPassword;
     private long amount;
     private String recipientBank;
+    private String recipientAccountHolder;
     private String recipientAccountNumber;
 
 

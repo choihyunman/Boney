@@ -29,22 +29,21 @@ public class BankingApiServiceImpl implements BankingApiService {
     private String userKey;
 
     // 계좌 송금
-    @Override
-    public TransferApiResponseDto transfer(String fromAccount, String toAccount, Long amount, String summary) {
+    public TransferApiResponseDto transfer(String fromAccount, String toAccount, Long amount,
+                                           String depositSummary, String withdrawalSummary) {
         String url = baseUrl + "/demandDeposit/updateDemandDepositAccountTransfer";
 
         Map<String, Object> body = new HashMap<>();
         body.put("depositAccountNo", toAccount);
-        body.put("depositTransactionSummary", summary);
+        body.put("depositTransactionSummary", depositSummary);   // 입금계좌 요약: 보낸 사람 이름이 들어감
         body.put("transactionBalance", amount);
         body.put("withdrawalAccountNo", fromAccount);
-        body.put("withdrawalTransactionSummary", summary);
+        body.put("withdrawalTransactionSummary", withdrawalSummary); // 출금계좌 요약: 받는 사람 이름이 들어감
         body.put("Header", generateHeader("updateDemandDepositAccountTransfer"));
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        // RestTemplate으로 응답을 DTO로 변환 (적절한 ObjectMapper 설정 필요)
         TransferApiResponseDto response = restTemplate.postForObject(url, new HttpEntity<>(body, headers), TransferApiResponseDto.class);
         return response;
     }

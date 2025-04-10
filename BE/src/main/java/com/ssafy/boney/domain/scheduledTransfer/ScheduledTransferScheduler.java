@@ -87,9 +87,17 @@ public class ScheduledTransferScheduler {
         Account childAccount = accountRepository.findByUser(child)
                 .orElseThrow(() -> new RuntimeException("자식 계좌가 존재하지 않습니다."));
 
-        String summary = "정기 용돈 송금 " + parent.getUserName() + " -> " + child.getUserName();
+        // 입금/출금 summary를 별도로 생성
+        String depositSummary = "정기 용돈 " + parent.getUserName();
+        String withdrawalSummary = "정기 용돈 " + child.getUserName();
 
-        // TransferService의 자동 송금 메서드 호출
-        transferService.processParentChildTransferAuto(parent, parentAccount, child, childAccount, st.getTransferAmount(), summary);
+        // TransferService의 자동 송금 메서드 호출 (수정된 파라미터)
+        transferService.processParentChildTransferAuto(
+                parent, parentAccount,
+                child, childAccount,
+                st.getTransferAmount(),
+                depositSummary,
+                withdrawalSummary
+        );
     }
 }

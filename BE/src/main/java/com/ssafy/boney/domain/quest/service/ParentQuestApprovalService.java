@@ -18,7 +18,6 @@ import com.ssafy.boney.domain.transaction.exception.TransactionErrorCode;
 import com.ssafy.boney.domain.user.entity.CreditScore;
 import com.ssafy.boney.domain.user.entity.User;
 import com.ssafy.boney.domain.user.repository.CreditScoreRepository;
-import com.ssafy.boney.domain.user.service.CreditScoreService;
 import com.ssafy.boney.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -80,8 +79,10 @@ public class ParentQuestApprovalService {
         }
 
         // 6. 송금 실행
-        String summary = "퀘스트 " + quest.getQuestTitle();
-        bankingApiService.transfer(fromAccount, toAccount, quest.getQuestReward(), summary);
+        String depositSummary = "퀘스트 " + quest.getQuestTitle();
+        String withdrawalSummary = "퀘스트 " + quest.getQuestTitle();
+
+        bankingApiService.transfer(fromAccount, toAccount, quest.getQuestReward(), depositSummary, withdrawalSummary);
 
         // 6. 송금 결과 데이터 생성
         LocalDateTime now = LocalDateTime.now();
