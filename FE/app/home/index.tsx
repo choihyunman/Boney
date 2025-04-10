@@ -60,7 +60,7 @@ export default function Home() {
     return (
       <View className="flex-1 items-center justify-center">
         <GlobalText className="text-gray-500">
-          데이터를 불러올 수 없습니다.
+          데이턄을 불러올 수 없습니다.
         </GlobalText>
       </View>
     );
@@ -93,15 +93,14 @@ export default function Home() {
           <View>
             <Wallet />
             <ChildInfo
-              children={[
-                {
-                  name: parentData?.child[0]?.child_name || "",
-                  creditScore: Number(parentData?.child[0]?.credit_score) || 0,
-                  loanAmount:
-                    Number(parentData?.child[0]?.total_child_loan) || 0,
+              children={
+                parentData?.child.map((child) => ({
+                  name: child.child_name || "",
+                  creditScore: Number(child.credit_score) || 0,
+                  loanAmount: Number(child.total_child_loan) || 0,
                   onAllowanceClick: () => {},
-                },
-              ]}
+                })) || []
+              }
               onAddChild={() => router.push("/child/Register")}
             />
             <TopQuest />

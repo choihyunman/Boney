@@ -34,7 +34,7 @@ export default function ChildInfo({
       <View className="space-y-4">
         {children && children.length > 0 ? (
           children.map((child, index) => (
-            <View key={index} className="bg-[#F5F6F8] rounded-xl p-4">
+            <View key={index} className="bg-[#F5F6F8] rounded-xl p-4 mb-4">
               {/* 상단: 이름과 용돈지급 버튼 */}
               <View className="flex-row justify-between items-center mb-3">
                 <View className="flex-row items-center gap-2">

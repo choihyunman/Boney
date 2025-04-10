@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -126,12 +126,8 @@ const MenuScreen = () => {
               onPress={() => handlePayment(item)}
               disabled={isLoading}
             >
-              <View className="w-24 h-24 bg-gray-200">
-                <Image
-                  source={item.image}
-                  className="w-full h-full"
-                  defaultSource={require("../../assets/icons/logo.png")}
-                />
+              <View className="w-24 h-24 bg-gray-200 justify-center items-center">
+                <Text className="text-center text-gray-500">{item.name}</Text>
               </View>
 
               <View className="flex-1 p-3 justify-between">
@@ -182,12 +178,8 @@ const MenuScreen = () => {
                 onPress={() => handlePayment(item)}
                 disabled={isLoading}
               >
-                <View className="w-full h-32 bg-gray-200 relative">
-                  <Image
-                    source={item.image}
-                    className="w-full h-full"
-                    defaultSource={require("../../assets/icons/logo.png")}
-                  />
+                <View className="w-full h-32 bg-gray-200 relative justify-center items-center">
+                  <Text className="text-center text-gray-500">{item.name}</Text>
                   {categoryInfo && (
                     <View
                       className="absolute top-2 right-2 px-2 py-1 rounded-full"
