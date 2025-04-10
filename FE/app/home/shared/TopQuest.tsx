@@ -5,10 +5,12 @@ import { useHomeStore } from "@/stores/useHomeStore";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { Quest } from "@/apis/homeApi";
 import { useEffect } from "react";
+import { useRouter } from "expo-router";
 
 export default function MissionSection() {
   const user = useAuthStore((state) => state.user);
   const { childData, parentData } = useHomeStore();
+  const router = useRouter();
 
   // Get quests based on user role
   const quest = user?.role === "CHILD" ? childData?.quest : parentData?.quest;
@@ -64,7 +66,16 @@ export default function MissionSection() {
             ? "보상 대기중인 퀘스트"
             : "진행 중인 퀘스트"}
         </GlobalText>
-        <TouchableOpacity className="flex-row items-center">
+        <TouchableOpacity
+          className="flex-row items-center"
+          onPress={() => {
+            if (user?.role === "CHILD") {
+              router.push("/quest/child");
+            } else if (user?.role === "PARENT") {
+              router.push("/quest/parent");
+            }
+          }}
+        >
           <GlobalText className="text-sm text-gray-400 font-medium">
             더보기
           </GlobalText>
