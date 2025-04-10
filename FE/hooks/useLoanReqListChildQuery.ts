@@ -17,7 +17,7 @@ export const useLoanReqListQuery = () => {
       return res;
     },
     staleTime: 1000,
-    refetchInterval: 1000,
+    refetchInterval: 2000,
     enabled: isFocused,
   });
 

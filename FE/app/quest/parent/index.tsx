@@ -17,7 +17,7 @@ export default function QuestListPage() {
     queryKey: ["quests"],
     queryFn: getQuestListParent,
     staleTime: 1000 * 60 * 3,
-    refetchInterval: 1000,
+    refetchInterval: 2000,
   });
   const questList = data?.quests || [];
 

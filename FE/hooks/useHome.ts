@@ -23,6 +23,7 @@ export const useHome = () => {
     enabled: user?.role === "CHILD",
     retry: 1,
     staleTime: 0, // 데이터를 항상 새로 가져오도록 설정
+    refetchInterval: 2000,
   });
 
   const {
