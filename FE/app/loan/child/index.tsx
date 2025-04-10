@@ -1,14 +1,15 @@
 import { useEffect, useState, useCallback } from "react";
-import { ScrollView } from "react-native";
+import { BackHandler, ScrollView } from "react-native";
 import LoanSummary from "../LoanSummary";
 import LoanListSection from "../LoanListSection";
 import { useLoanListStore } from "@/stores/useLoanChildStore";
 import { useLoanListChildQuery } from "@/hooks/useLoanListChild";
-import { router, useFocusEffect } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import LoanTrendChart from "../LoanTrendChart";
 import { RepaymentHistoryItem } from "@/apis/loanChildApi";
 
 export default function LoanListChild() {
+  const { fromRepayment } = useLocalSearchParams();
   const { data: queryData, error, refetch } = useLoanListChildQuery();
   const loanList = useLoanListStore((state) => state.loanList);
   const [repaymentHistory, setRepaymentHistory] = useState<
@@ -31,9 +32,22 @@ export default function LoanListChild() {
 
   // queryData 변경 시 상태 업데이트
   useEffect(() => {
-    if (queryData?.loan_repayment_history) {
-      setRepaymentHistory(queryData.loan_repayment_history);
+    if (queryData) {
+      if (queryData.loan_repayment_history) {
+        setRepaymentHistory(queryData.loan_repayment_history);
+      }
+
+      if (queryData.active_loans) {
+        useLoanListStore.getState().setLoanList(queryData.active_loans);
+      } else {
+        useLoanListStore.getState().setLoanList([]); // 혹시 없으면 빈 리스트로 초기화
+      }
+
       setKey((prev) => prev + 1);
+    } else {
+      // 🔥 queryData 자체가 없는 경우: (ex. 404가 와서 에러났을 때)
+      console.log("queryData 없음 - 대출 목록 초기화");
+      useLoanListStore.getState().setLoanList([]);
     }
   }, [queryData]);
 
@@ -47,23 +61,39 @@ export default function LoanListChild() {
   );
 
   // 3초마다 자동 새로고침
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (!isMounted) return;
-      // console.log("대출 목록 자동 새로고침");
-      refetch();
-    }, 3000);
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     if (!isMounted) return;
+  //     // console.log("대출 목록 자동 새로고침");
+  //     refetch();
+  //   }, 3000);
 
-    return () => clearInterval(interval);
-  }, [refetch, isMounted]);
+  //   return () => clearInterval(interval);
+  // }, [refetch, isMounted]);
 
   // 에러 핸들링 useEffect
   useEffect(() => {
     if (error) {
       console.error("대출 목록 조회 실패:", error.message);
-      setRepaymentHistory([]);
     }
   }, [error]);
+
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        if (fromRepayment) {
+          router.replace("/menu");
+          return true;
+        }
+        return false;
+      };
+
+      BackHandler.addEventListener("hardwareBackPress", onBackPress);
+      return () => {
+        BackHandler.removeEventListener("hardwareBackPress", onBackPress);
+      };
+    }, [fromRepayment])
+  );
 
   const totalAmount = sortedLoanList.reduce(
     (sum, loan) => sum + loan.last_amount,

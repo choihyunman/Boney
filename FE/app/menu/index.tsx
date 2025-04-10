@@ -6,8 +6,6 @@ import {
   SafeAreaView,
   Alert,
   Image,
-  Linking,
-  Modal,
 } from "react-native";
 import { useColorScheme } from "nativewind";
 import { useRouter } from "expo-router";
@@ -21,12 +19,10 @@ import {
   Landmark,
   CalendarFold,
   FileClock,
-  FileCheck2,
   Banknote,
   ChevronRight,
   UserPlus,
   Users,
-  Coins,
   FilePlus2,
   Award,
   LogOut,
@@ -69,7 +65,6 @@ export default function MenuScreen() {
   const user = useAuthStore((state) => state.user);
   const isParent = user?.role === "PARENT";
   const logout = useAuthStore((state) => state.logout);
-  const [showWebView, setShowWebView] = React.useState(false);
 
   const KAKAO_REST_API_KEY = process.env.EXPO_PUBLIC_KAKAO_CLIENT_ID!;
   const REDIRECT_URI = "https://j12b208.p.ssafy.io/api/v1/auth/logout/redirect";

@@ -1,10 +1,25 @@
 import Complete, { DetailItem } from "@/components/Complete";
-import { useRepaymentResultStore } from "@/stores/useLoanChildStore";
+import {
+  useRepaymentResultStore,
+  useLoanListStore,
+} from "@/stores/useLoanChildStore";
+import { useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
+import { useEffect } from "react";
+import { BackHandler } from "react-native";
 
 export default function RepaymentComplete() {
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      () => true
+    );
+    return () => backHandler.remove();
+  }, []);
+
   const { repaymentResult, reset: resetRepaymentResult } =
     useRepaymentResultStore();
+  const queryClient = useQueryClient();
 
   // 신용 점수에 따른 색상 결정
   const getCreditScoreColor = (score: number) => {
@@ -37,9 +52,17 @@ export default function RepaymentComplete() {
     <Complete
       title="상환이 완료되었습니다"
       onConfirm={() => {
-        resetRepaymentResult(); // 완료 데이터 초기화
-        router.replace("/"); // 먼저 루트로 이동
-        router.replace("/loan/child"); // 그 다음 목록 페이지로 이동
+        queryClient.setQueryData(["loan-list-child"], {
+          active_loans: [],
+          loan_repayment_history: [],
+        }); // ✅ 바로 화면 데이터 비워버림
+        queryClient.invalidateQueries({ queryKey: ["loan-list-child"] });
+        router.replace({
+          pathname: "/loan/child",
+          params: {
+            fromRepayment: "true",
+          },
+        });
       }}
       details={detailItems}
     />

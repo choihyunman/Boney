@@ -45,7 +45,6 @@ export const useLoanListChildQuery = () => {
     },
     onErrorAction: (error: Error) => {
       console.error("Query failed:", error.message);
-      setLoanList([]);
     },
   });
 };
