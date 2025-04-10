@@ -433,7 +433,7 @@ export default function MenuScreen() {
           </TouchableOpacity>
 
           {/* 로그아웃 카드 */}
-          <TouchableOpacity
+          {/* <TouchableOpacity
             onPress={handleLogout}
             className="bg-white dark:bg-gray-800 rounded-xl p-4 mb-4 flex-row items-center justify-between"
             activeOpacity={0.7}
@@ -449,7 +449,7 @@ export default function MenuScreen() {
                 로그아웃
               </GlobalText>
             </View>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </ScrollView>
       {/* WebView for Logout */}
