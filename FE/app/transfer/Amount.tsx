@@ -25,6 +25,10 @@ export default function SendMoneyAmount() {
           return;
         }
 
+        // 금액 초기화
+        setAmount("");
+        setLocalAmount("");
+
         // 잔액 조회
         const balanceData = await getBalance();
         setBalance(balanceData.balance);

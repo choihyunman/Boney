@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { View, TouchableOpacity, ScrollView, SafeAreaView } from "react-native";
+import {
+  View,
+  TouchableOpacity,
+  ScrollView,
+  SafeAreaView,
+  BackHandler,
+} from "react-native";
 import { useRouter } from "expo-router";
 import { CheckCircle } from "lucide-react-native";
 import GlobalText from "@/components/GlobalText";
@@ -40,6 +46,14 @@ export default function CompleteTransfer() {
     };
   }, []);
 
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      () => true
+    );
+    return () => backHandler.remove();
+  }, []);
+
   const formatAmount = (value: string) => {
     if (!value) return "0";
     return Number.parseInt(value).toLocaleString();
@@ -57,11 +71,15 @@ export default function CompleteTransfer() {
   };
 
   const handleViewDetails = () => {
-    router.push("/transaction");
+    router.replace({
+      pathname: "/transaction",
+    });
   };
 
   const handleHome = () => {
-    router.push("/home");
+    router.replace({
+      pathname: "/home",
+    });
   };
 
   // 데이터가 없으면 아무것도 표시하지 않음
