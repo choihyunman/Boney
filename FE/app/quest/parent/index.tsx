@@ -17,12 +17,9 @@ export default function QuestListPage() {
     queryKey: ["quests"],
     queryFn: getQuestListParent,
     staleTime: 1000 * 60 * 3,
-    refetchInterval: 1000,
+    refetchInterval: 2000,
   });
   const questList = data?.quests || [];
-
-  // 404 에러를 별도로 처리
-  const isNotFoundError = error?.message?.includes("404");
 
   useFocusEffect(
     useCallback(() => {

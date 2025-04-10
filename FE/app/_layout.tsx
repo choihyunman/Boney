@@ -528,7 +528,7 @@ function RootLayoutNav() {
           backgroundColor: "#F5F6F8",
           leftButton: {
             icon: <ChevronLeft size={24} color="#000000" />,
-            onPress: () => router.back(),
+            onPress: () => router.replace("/home"),
           },
           rightButton: {
             icon: <History size={24} color="#000000" />,
@@ -540,7 +540,7 @@ function RootLayoutNav() {
           backgroundColor: "#F5F6F8",
           leftButton: {
             icon: <ChevronLeft size={24} color="#000000" />,
-            onPress: () => router.back(),
+            onPress: () => router.replace("/home"),
           },
           rightButton: {
             icon: <History size={24} color="#000000" />,

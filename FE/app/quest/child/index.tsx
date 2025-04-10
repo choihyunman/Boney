@@ -14,7 +14,7 @@ export default function ChildQuestListPage() {
     queryKey: ["quests"],
     queryFn: getQuestListChild,
     staleTime: 1000 * 60 * 3,
-    refetchInterval: 1000,
+    refetchInterval: 2000,
   });
 
   useFocusEffect(

@@ -14,7 +14,7 @@ export const useLoanListChildQuery = () => {
     staleTime: 1000,
     refetchOnMount: true,
     refetchOnWindowFocus: true,
-    refetchInterval: 1000,
+    refetchInterval: 2000,
     onSuccessAction: (data) => {
       setChildren(data.children);
     },

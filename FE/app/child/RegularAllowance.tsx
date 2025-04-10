@@ -42,11 +42,28 @@ export default function RegularAllowance() {
   const childGender = params.childGender as string;
   const { childDetail } = useChildDetailStore();
 
-  const [isWeekly, setIsWeekly] = useState(true);
-  const [selectedDay, setSelectedDay] = useState(DAYS[0]);
-  const [selectedDate, setSelectedDate] = useState(DATES[0]);
+  const [isWeekly, setIsWeekly] = useState(
+    childDetail?.regularTransfer?.scheduledFrequency === "weekly"
+  );
+  const [selectedDay, setSelectedDay] = useState(
+    childDetail?.regularTransfer?.scheduledFrequency === "weekly"
+      ? DAYS.find((day) => day.id === childDetail.regularTransfer?.startDate) ||
+          DAYS[0]
+      : DAYS[0]
+  );
+  const [selectedDate, setSelectedDate] = useState(
+    childDetail?.regularTransfer?.scheduledFrequency === "monthly"
+      ? DATES.find(
+          (date) => date.id === childDetail.regularTransfer?.startDate
+        ) || DATES[0]
+      : DATES[0]
+  );
   const [isDayPickerVisible, setIsDayPickerVisible] = useState(false);
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState(
+    childDetail?.regularTransfer?.scheduledAmount
+      ? childDetail.regularTransfer.scheduledAmount.toLocaleString()
+      : ""
+  );
   const [loading, setLoading] = useState(false);
   const [showPinInput, setShowPinInput] = useState(false);
   const [actionType, setActionType] = useState<"save" | "cancel">("save");
@@ -106,13 +123,25 @@ export default function RegularAllowance() {
     setShowPinInput(false);
   };
 
+  const handleAmountChange = (text: string) => {
+    // 쉼표를 제거하고 숫자만 남김
+    const numericValue = text.replace(/,/g, "");
+    // 숫자가 아닌 문자는 제거
+    const cleanValue = numericValue.replace(/[^0-9]/g, "");
+    // 숫자를 쉼표가 포함된 문자열로 변환
+    const formattedValue = cleanValue
+      ? Number(cleanValue).toLocaleString()
+      : "";
+    setAmount(formattedValue);
+  };
+
   const handleSaveAction = async () => {
     if (!childDetail?.childId) return;
 
     try {
       setLoading(true);
       const data = {
-        scheduledAmount: Number(amount),
+        scheduledAmount: amount.replace(/,/g, ""),
         scheduledFrequency: isWeekly
           ? ("weekly" as const)
           : ("monthly" as const),
@@ -273,12 +302,12 @@ export default function RegularAllowance() {
           </GlobalText>
           <View className="flex-row items-center">
             <TextInput
-              className="flex-1 h-11 px-3 bg-white rounded-lg border border-gray-200 text-sm"
+              className="flex-1 h-11 px-3 bg-white rounded-lg border border-gray-200 text-md"
               placeholder="금액을 입력해주세요"
               keyboardType="numeric"
               placeholderTextColor="#9CA3AF"
               value={amount}
-              onChangeText={setAmount}
+              onChangeText={handleAmountChange}
               style={{ fontFamily: "NEXONLv1Gothic-Regular" }}
             />
             <GlobalText className="ml-2 text-md text-[#020817]">원</GlobalText>
