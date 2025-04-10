@@ -241,7 +241,7 @@ function RootLayoutNav() {
         backgroundColor: "#F5F6F8",
         leftButton: {
           icon: <ChevronLeft size={24} color="#000000" />,
-          onPress: () => router.back(),
+          onPress: () => router.replace("/loan/child"),
         },
       };
     }
@@ -375,13 +375,13 @@ function RootLayoutNav() {
           backgroundColor: "#F5F6F8",
           leftButton: {
             icon: <ChevronLeft size={24} color="#000000" />,
-            onPress: () => router.back(),
+            onPress: () => router.replace("/menu"),
           },
         };
       case "/loan/child/Request":
-      case "/loan/child/PromissoryNote":
+      case "/loan/child/ReqNote":
         return {
-          title: "대출 신청하기",
+          title: "대출 요청하기",
           backgroundColor: "#F5F6F8",
           leftButton: {
             icon: <ChevronLeft size={24} color="#000000" />,
@@ -393,7 +393,7 @@ function RootLayoutNav() {
           backgroundColor: "#F5F6F8",
           leftButton: {
             icon: <ChevronLeft size={24} color="#000000" />,
-            onPress: () => router.back(),
+            onPress: () => router.replace("/menu"),
           },
           rightButton: {
             icon: <History size={24} color="#000000" />,
@@ -410,6 +410,15 @@ function RootLayoutNav() {
           rightButton: {
             icon: <History size={24} color="#000000" />,
             onPress: () => router.push("/loan/parent/History"),
+          },
+        };
+      case "/loan/child/Repayment":
+        return {
+          title: "대출 상환하기",
+          backgroundColor: "#F5F6F8",
+          leftButton: {
+            icon: <ChevronLeft size={24} color="#000000" />,
+            onPress: () => router.back(),
           },
         };
       case "/loan/parent/History":

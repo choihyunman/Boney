@@ -155,12 +155,14 @@ export default function Signature({
 
       if (!signatureImage || signatureImage.trim().length === 0) {
         Alert.alert("알림", "서명을 해주세요.");
+        setIsSubmitted(false);
         return;
       }
 
       // 데이터 URL 형식 확인 및 처리
       if (!signatureImage.startsWith("data:image/png;base64,")) {
         Alert.alert("오류", "서명 이미지 형식이 올바르지 않습니다.");
+        setIsSubmitted(false);
         return;
       }
 
@@ -183,8 +185,10 @@ export default function Signature({
     if (signatureRef.current) {
       signatureRef.current.clearSignature();
       setSignatureImage(null);
+      setIsSubmitted(false);
     } else {
       setSignatureKey(Date.now());
+      setIsSubmitted(false);
     }
   };
 
@@ -199,7 +203,13 @@ export default function Signature({
       signatureRef.current.readSignature();
     } else {
       Alert.alert("오류", "서명 참조를 가져올 수 없습니다.");
+      setIsSubmitted(false);
     }
+  };
+
+  const handleEmpty = () => {
+    Alert.alert("알림", "서명을 해주세요.");
+    setIsSubmitted(false);
   };
 
   // Back button handler
@@ -278,9 +288,7 @@ export default function Signature({
             ref={signatureRef}
             key={signatureKey}
             onOK={handleSignature}
-            onEmpty={() => {
-              Alert.alert("알림", "서명을 해주세요.");
-            }}
+            onEmpty={handleEmpty}
             descriptionText=""
             clearText=""
             confirmText=""

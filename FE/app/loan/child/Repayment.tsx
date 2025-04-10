@@ -58,16 +58,19 @@ export default function Repayment() {
       try {
         // 대출 상세 정보 조회
         const loanDetailData = await getLoanDetail(Number(loanId));
+        console.log("대출 상세 정보: ", loanDetailData);
         setLoanDetail(loanDetailData);
         setTotalAmount(loanDetailData.loan_amount);
         setRemainingAmount(loanDetailData.last_amount);
+        console.log("초기 설정 - 총 대출액: ", loanDetailData.loan_amount);
+        console.log("초기 설정 - 남은 대출액: ", loanDetailData.last_amount);
         const ddayInfo = getDdayInfo(loanDetailData.due_date);
         setRemainingDays(ddayInfo.text);
         setRemainingDaysColor(ddayInfo.color);
 
         // 잔액 조회
         const balanceData = await getBalance();
-        console.log("balanceData: ", balanceData);
+        console.log("잔액 정보: ", balanceData);
         setBalance(balanceData.balance);
       } catch (error) {
         console.error("Error initializing data:", error);
@@ -100,11 +103,14 @@ export default function Repayment() {
     let newAmount: number;
 
     if (value === "전액") {
+      console.log("전액 선택 시 - 남은 대출액: ", remainingAmount);
+      console.log("전액 선택 시 - 총 대출액: ", totalAmount);
       newAmount = remainingAmount;
     } else {
       newAmount = currentAmount + (value as number);
     }
 
+    console.log("설정될 금액: ", newAmount);
     setRepaymentAmount(newAmount);
     setLocalAmount(newAmount);
   };
@@ -132,13 +138,7 @@ export default function Repayment() {
           password
         );
         setRepaymentResult(res);
-
-        // 대출 목록 새로고침
-        const updatedLoanList = await getLoanList();
-        useLoanListStore
-          .getState()
-          .setLoanList(updatedLoanList.data.active_loans);
-
+        
         router.replace("./RepaymentComplete");
       } catch (error) {
         console.error("대출 상환 실패:", error);
@@ -224,7 +224,7 @@ export default function Repayment() {
                   상환 금액
                 </GlobalText>
                 <View className="flex-row items-center">
-                  <GlobalText weight="bold" className="text-3xl mr-2">
+                  <GlobalText className="text-3xl font-bold mr-2">
                     {formatAmount(String(localAmount))}
                   </GlobalText>
                   <GlobalText className="text-xl">원</GlobalText>

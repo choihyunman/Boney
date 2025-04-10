@@ -125,12 +125,14 @@ export const getLoanList = async (): Promise<{
     const res = await api.get("/loan/child/approved");
     // 응답 구조 확인
     if (res.data && res.data.data) {
-      res.data.data.active_loans.forEach((loan: any, index: number) => {
-      });
+      res.data.data.active_loans.forEach((loan: any, index: number) => {});
     }
 
     return res.data;
   } catch (error: any) {
+    if (error.response?.status === 404) {
+      console.warn("❗️대출 목록이 비어 있습니다 (404). 빈 데이터 반환");
+    }
     const message =
       error.response?.data?.message ??
       "❌ 아이 대출 목록 조회 중 알 수 없는 오류입니다.";
