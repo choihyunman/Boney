@@ -126,6 +126,7 @@ export const menuItems = [
     price: 7500,
     category: 1,
     rating: 4.8,
+    image: require("../../assets/icons/boneyshop/bento.png"),
   },
   {
     id: 2,
@@ -133,13 +134,15 @@ export const menuItems = [
     price: 8000,
     category: 1,
     rating: 4.7,
+    image: require("../../assets/icons/boneyshop/kimchi-jjigae.png"),
   },
   {
     id: 3,
-    name: "제육볶음",
-    price: 8500,
+    name: "라면",
+    price: 4500,
     category: 1,
-    rating: 4.6,
+    rating: 4.8,
+    image: require("../../assets/icons/boneyshop/ramen.png"),
   },
 
   // 교통비
@@ -149,6 +152,7 @@ export const menuItems = [
     price: 55000,
     category: 2,
     rating: 4.1,
+    image: require("../../assets/icons/boneyshop/bus.png"),
   },
   {
     id: 5,
@@ -156,6 +160,7 @@ export const menuItems = [
     price: 60000,
     category: 2,
     rating: 4.8,
+    image: require("../../assets/icons/boneyshop/train-station.png"),
   },
   {
     id: 6,
@@ -163,6 +168,7 @@ export const menuItems = [
     price: 100000,
     category: 2,
     rating: 4.5,
+    image: require("../../assets/icons/boneyshop/plane.png"),
   },
 
   // 학습
@@ -172,6 +178,7 @@ export const menuItems = [
     price: 15000,
     category: 3,
     rating: 4.7,
+    image: require("../../assets/icons/boneyshop/math-book.png"),
   },
   {
     id: 8,
@@ -179,6 +186,7 @@ export const menuItems = [
     price: 12000,
     category: 3,
     rating: 4.6,
+    image: require("../../assets/icons/boneyshop/eng.png"),
   },
   {
     id: 9,
@@ -186,6 +194,7 @@ export const menuItems = [
     price: 77000,
     category: 3,
     rating: 4.6,
+    image: require("../../assets/icons/boneyshop/online-lesson.png"),
   },
 
   // 문구
@@ -195,20 +204,23 @@ export const menuItems = [
     price: 8500,
     category: 4,
     rating: 4.5,
+    image: require("../../assets/icons/boneyshop/pencil-case.png"),
   },
   {
     id: 11,
-    name: "노트 3종 세트",
-    price: 6000,
+    name: "노트",
+    price: 2000,
     category: 4,
     rating: 4.4,
+    image: require("../../assets/icons/boneyshop/notebook.png"),
   },
   {
     id: 12,
-    name: "형광펜 세트",
-    price: 4500,
+    name: "색연필 세트",
+    price: 10000,
     category: 4,
     rating: 4.3,
+    image: require("../../assets/icons/boneyshop/crayon.png"),
   },
 
   // 문화
@@ -218,6 +230,7 @@ export const menuItems = [
     price: 12000,
     category: 5,
     rating: 4.8,
+    image: require("../../assets/icons/boneyshop/movies.png"),
   },
   {
     id: 14,
@@ -225,6 +238,7 @@ export const menuItems = [
     price: 15000,
     category: 5,
     rating: 4.7,
+    image: require("../../assets/icons/boneyshop/exhibition.png"),
   },
   {
     id: 15,
@@ -232,6 +246,7 @@ export const menuItems = [
     price: 55000,
     category: 5,
     rating: 4.1,
+    image: require("../../assets/icons/boneyshop/concert.png"),
   },
 
   // 카페/간식
@@ -241,6 +256,7 @@ export const menuItems = [
     price: 4500,
     category: 6,
     rating: 4.6,
+    image: require("../../assets/icons/boneyshop/coffee.png"),
   },
   {
     id: 17,
@@ -248,6 +264,7 @@ export const menuItems = [
     price: 5000,
     category: 6,
     rating: 4.5,
+    image: require("../../assets/icons/boneyshop/coffee-cup.png"),
   },
   {
     id: 18,
@@ -255,6 +272,7 @@ export const menuItems = [
     price: 5500,
     category: 6,
     rating: 4.7,
+    image: require("../../assets/icons/boneyshop/gift-basket.png"),
   },
 
   // 의류/미용
@@ -264,6 +282,7 @@ export const menuItems = [
     price: 15000,
     category: 7,
     rating: 4.4,
+    image: require("../../assets/icons/boneyshop/tshirt.png"),
   },
   {
     id: 20,
@@ -271,6 +290,7 @@ export const menuItems = [
     price: 25000,
     category: 7,
     rating: 4.6,
+    image: require("../../assets/icons/boneyshop/shampoo.png"),
   },
   {
     id: 21,
@@ -278,6 +298,7 @@ export const menuItems = [
     price: 35000,
     category: 7,
     rating: 4.8,
+    image: require("../../assets/icons/boneyshop/skincare.png"),
   },
 
   // 의료
@@ -287,6 +308,7 @@ export const menuItems = [
     price: 8000,
     category: 8,
     rating: 4.7,
+    image: require("../../assets/icons/boneyshop/drugs.png"),
   },
   {
     id: 23,
@@ -294,6 +316,7 @@ export const menuItems = [
     price: 25000,
     category: 8,
     rating: 4.8,
+    image: require("../../assets/icons/boneyshop/supplement.png"),
   },
   {
     id: 24,
@@ -301,6 +324,7 @@ export const menuItems = [
     price: 12000,
     category: 8,
     rating: 4.6,
+    image: require("../../assets/icons/boneyshop/mask.png"),
   },
 
   // 생활/잡화
@@ -310,6 +334,7 @@ export const menuItems = [
     price: 15000,
     category: 9,
     rating: 4.5,
+    image: require("../../assets/icons/boneyshop/fan.png"),
   },
   {
     id: 26,
@@ -317,6 +342,7 @@ export const menuItems = [
     price: 22000,
     category: 9,
     rating: 4.6,
+    image: require("../../assets/icons/boneyshop/humidifier.png"),
   },
   {
     id: 27,
@@ -324,6 +350,7 @@ export const menuItems = [
     price: 18000,
     category: 9,
     rating: 4.8,
+    image: require("../../assets/icons/boneyshop/keyboard.png"),
   },
 
   // 기타
@@ -333,6 +360,7 @@ export const menuItems = [
     price: 10000,
     category: 10,
     rating: 4.9,
+    image: require("../../assets/icons/boneyshop/gift-card.png"),
   },
   {
     id: 29,
@@ -340,13 +368,15 @@ export const menuItems = [
     price: 30000,
     category: 10,
     rating: 4.8,
+    image: require("../../assets/icons/boneyshop/gift.png"),
   },
   {
     id: 30,
-    name: "기부 포인트",
-    price: 5000,
+    name: "구독권",
+    price: 15000,
     category: 10,
     rating: 4.2,
+    image: require("../../assets/icons/boneyshop/subscription.png"),
   },
 ];
 

@@ -184,8 +184,7 @@ export default function MonthlyExpenseDonut({
     return (
       <View className="bg-white dark:bg-gray-800 rounded-xl p-4">
         <GlobalText
-          weight="bold"
-          className="text-xl text-gray-900 dark:text-white mb-4"
+          className="font-bold text-xl text-gray-900 dark:text-white mb-4"
         >
           지출 카테고리 분포
         </GlobalText>
@@ -202,8 +201,7 @@ export default function MonthlyExpenseDonut({
   return (
     <View className="bg-white dark:bg-gray-800 rounded-xl p-4">
       <GlobalText
-        weight="bold"
-        className="text-xl text-gray-900 dark:text-white mb-4"
+        className="font-bold text-xl text-gray-900 dark:text-white mb-4"
       >
         지출 카테고리 분포
       </GlobalText>
@@ -282,11 +280,11 @@ export default function MonthlyExpenseDonut({
                   ? "bg-gray-100 dark:bg-gray-700"
                   : ""
               }`}
-              style={{ width: (width - 80) / 4 }} // 3개씩 배치하기 위한 너비 계산
+              style={{ width: (width - 40) / 4 }} // 3개씩 배치하기 위한 너비 계산
             >
-              <Circle size={10} fill={category.color} color={category.color} />
+              <Circle size={8} fill={category.color} color={category.color} />
               <GlobalText
-                className={`text-base ml-2 ${
+                className={`text-sm ml-2 ${
                   selectedCategory === category.category
                     ? "text-gray-900 dark:text-white font-medium"
                     : "text-gray-600 dark:text-gray-400"

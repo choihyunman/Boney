@@ -243,7 +243,7 @@ export default function MonthlyReport() {
 
         {/* 3. 수입/지출 비교 막대 */}
         <View className="bg-white rounded-xl p-4 mb-4">
-          <GlobalText className="text-xl font-semibold mb-4">
+          <GlobalText className="text-xl font-bold mb-4">
             수입/지출 비교
           </GlobalText>
           {monthlyReport.totalIncome === 0 &&
@@ -262,10 +262,6 @@ export default function MonthlyReport() {
               >
                 <View className="items-center">
                   <View className="flex-row items-center">
-                    <ArrowUp
-                      size={12}
-                      color={isIncomeHigher ? "#FFFFFF" : "#374151"}
-                    />
                     <GlobalText
                       className={`text-xs ${
                         isIncomeHigher ? "text-white" : "text-gray-700"
@@ -292,10 +288,6 @@ export default function MonthlyReport() {
               >
                 <View className="items-center">
                   <View className="flex-row items-center">
-                    <ArrowDown
-                      size={12}
-                      color={!isIncomeHigher ? "#FFFFFF" : "#374151"}
-                    />
                     <GlobalText
                       className={`text-xs ${
                         !isIncomeHigher ? "text-white" : "text-gray-700"
@@ -330,19 +322,19 @@ export default function MonthlyReport() {
         </View>
         {/* 5. 이번 달 퀘스트 완료 건수 카드 */}
         <View className="bg-white rounded-xl p-6">
-          <GlobalText className="text-xl font-semibold mb-4">
+          <GlobalText className="text-xl font-bold mb-4">
             이번 달 퀘스트
           </GlobalText>
           <View className="flex-row items-center gap-6">
             <View className="w-16 h-16 rounded-full bg-[#4FC985]/20 items-center justify-center">
-              <Trophy size={32} color="#4FC985" />
+              <Trophy size={32} color="#4FC985" />  
             </View>
             <View className="flex-1">
               <View className="flex-row justify-between items-center mb-2">
                 <GlobalText className="text-base text-gray-500">
                   완료 건수
                 </GlobalText>
-                <GlobalText className="text-lg font-semibold">
+                <GlobalText className="text-lg font-bold">
                   {monthlyReport.completedQuests.count}건
                 </GlobalText>
               </View>
@@ -350,7 +342,7 @@ export default function MonthlyReport() {
                 <GlobalText className="text-base text-gray-500">
                   총 수입액
                 </GlobalText>
-                <GlobalText weight="bold" className="text-lg text-[#4FC985]">
+                <GlobalText className="text-lg font-bold text-[#4FC985]">
                   {monthlyReport.completedQuests.totalIncome.toLocaleString()}원
                 </GlobalText>
               </View>

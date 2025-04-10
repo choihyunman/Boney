@@ -6,6 +6,7 @@ import {
   SafeAreaView,
   StatusBar,
   ActivityIndicator,
+  Image,
 } from "react-native";
 import { Star } from "lucide-react-native";
 import { getCategoryIcon } from "../../utils/categoryUtils";
@@ -156,10 +157,18 @@ const MenuScreen = () => {
               onPress={() => handlePayment(item)}
               disabled={isLoading}
             >
-              <View className="w-24 h-24 bg-gray-200 justify-center items-center">
-                <GlobalText className="text-center text-gray-500">
-                  {item.name}
-                </GlobalText>
+              <View className="w-24 h-24 bg-gray-200 justify-center items-center overflow-hidden">
+                {item.image ? (
+                  <Image
+                    source={item.image}
+                    className="w-full h-full"
+                    resizeMode="cover"
+                  />
+                ) : (
+                  <GlobalText className="text-center text-gray-500">
+                    {item.name}
+                  </GlobalText>
+                )}
               </View>
 
               <View className="flex-1 p-3 justify-between">
@@ -214,10 +223,18 @@ const MenuScreen = () => {
                 onPress={() => handlePayment(item)}
                 disabled={isLoading}
               >
-                <View className="w-full h-32 bg-gray-200 relative justify-center items-center">
-                  <GlobalText className="text-center text-gray-500">
-                    {item.name}
-                  </GlobalText>
+                <View className="w-full h-32 bg-gray-200 relative justify-center items-center overflow-hidden">
+                  {item.image ? (
+                    <Image
+                      source={item.image}
+                      className="w-full h-full"
+                      resizeMode="cover"
+                    />
+                  ) : (
+                    <GlobalText className="text-center text-gray-500">
+                      {item.name}
+                    </GlobalText>
+                  )}
                   {categoryInfo && (
                     <View
                       className="absolute top-2 right-2 px-2 py-1 rounded-full"
