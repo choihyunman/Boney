@@ -47,6 +47,7 @@ public class TransactionController {
         transactionService.syncExternalTransactions(account.getAccountNumber(), year, month);
         List<TransactionResponse> data = transactionService.getTransactions(year, month, type, user);
 
+
         // 정상 응답 반환
         return ResponseEntity.ok(Map.of(
                 "status", "200",

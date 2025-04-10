@@ -74,16 +74,19 @@ public class TransactionService {
             if (summary != null) {
                 if (summary.contains("이체")) {
                     contentName = "이체";
+                    summary = summary.replaceFirst("이체\\s+", "");
                 } else if (summary.contains("용돈")) {
                     contentName = "용돈";
+                    summary = summary.replaceFirst("용돈\\s+", "");
                 } else if (summary.contains("퀘스트")) {
                     contentName = "퀘스트";
-                } else if (summary.contains("용돈")) {
-                    contentName = "용돈";
+                    summary = summary.replaceFirst("퀘스트\\s+", "");
                 } else if (summary.contains("대출")) {
                     contentName = "대출";
+                    summary = summary.replaceFirst("대출\\s+", "");
                 } else if (summary.contains("대출상환")) {
                     contentName = "대출상환";
+                    summary = summary.replaceFirst("대출상환\\s+", "");
                 } else {
                     contentName = summary;
                 }
