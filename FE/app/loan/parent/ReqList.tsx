@@ -18,7 +18,6 @@ import { Clock } from "lucide-react-native";
 export default function ParentLoanRequestsPage() {
   const { data: queryData, error, refetch } = useLoanReqListParentQuery();
   const reqList = useReqListParentStore((state) => state.reqList);
-  const hydrated = useReqListParentStore((state) => state.hydrated);
   const setPromissoryNoteData = usePromissoryNoteStore(
     (state) => state.setPromissoryNoteData
   );
@@ -99,11 +98,6 @@ export default function ParentLoanRequestsPage() {
     if (score >= 31) return "text-[#FFD700]";
     return "text-[#EF4444]";
   };
-
-  // 스토리지 복원 전에는 아무것도 안 그리기
-  if (!hydrated) {
-    return null; // 혹은 return <ActivityIndicator /> 로딩 표시
-  }
 
   return (
     <View className="flex-1 bg-[#F5F6F8]">

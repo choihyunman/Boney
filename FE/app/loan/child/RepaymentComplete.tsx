@@ -19,7 +19,6 @@ export default function RepaymentComplete() {
 
   const { repaymentResult, reset: resetRepaymentResult } =
     useRepaymentResultStore();
-  const queryClient = useQueryClient();
 
   // 신용 점수에 따른 색상 결정
   const getCreditScoreColor = (score: number) => {

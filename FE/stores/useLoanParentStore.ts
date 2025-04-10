@@ -1,30 +1,25 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
 import {
   LoanItem,
   ReqItem,
   LoanDetail,
   ApproveLoanResponse,
 } from "@/apis/loanParentApi";
-import { zustandSecureStorage } from "@/lib/secureStorage";
 
 // 요청 목록
 type LoanParentStore = {
   reqList: ReqItem[];
   setReqList: (data: ReqItem[]) => void;
-  hydrated: boolean;
 };
 
 type LoanList = {
   loanList: LoanItem[];
   setLoanList: (data: LoanItem[]) => void;
-  hydrated: boolean;
 };
 
 type LoanDetailStore = {
   loanDetail: LoanDetail | null;
   setLoanDetail: (data: LoanDetail) => void;
-  hydrated: boolean;
 };
 
 type LoanApproveStore = {
@@ -56,77 +51,20 @@ type PromissoryNoteStore = {
   clearPromissoryNoteData: () => void;
 };
 
-export const useReqListParentStore = create<LoanParentStore>()(
-  persist(
-    (set) => ({
-      reqList: [],
-      setReqList: (data) => set({ reqList: data }),
-      hydrated: false,
-    }),
-    {
-      name: "loan-req-list-parent",
-      storage: zustandSecureStorage,
-      onRehydrateStorage: () => {
-        return (_, error) => {
-          if (!error) {
-            useReqListParentStore.setState((state) => ({
-              ...state,
-              hydrated: true,
-            }));
-          }
-        };
-      },
-    }
-  )
-);
+export const useReqListParentStore = create<LoanParentStore>((set) => ({
+  reqList: [],
+  setReqList: (data) => set({ reqList: data }),
+}));
 
-export const useLoanListParentStore = create<LoanList>()(
-  persist(
-    (set) => ({
-      loanList: [],
-      setLoanList: (data) => set({ loanList: data }),
-      hydrated: false,
-    }),
-    {
-      name: "loan-list-parent",
-      storage: zustandSecureStorage,
-      onRehydrateStorage: () => {
-        return (_, error) => {
-          if (!error) {
-            useLoanListParentStore.setState((state) => ({
-              ...state,
-              hydrated: true,
-            }));
-          }
-        };
-      },
-    }
-  )
-);
+export const useLoanListParentStore = create<LoanList>((set) => ({
+  loanList: [],
+  setLoanList: (data) => set({ loanList: data }),
+}));
 
-export const useLoanDetailParentStore = create<LoanDetailStore>()(
-  persist(
-    (set) => ({
-      loanDetail: null,
-      setLoanDetail: (data) => set({ loanDetail: data }),
-      hydrated: false,
-    }),
-    {
-      name: "loan-detail-parent",
-      storage: zustandSecureStorage,
-      onRehydrateStorage: () => {
-        return (_, error) => {
-          if (!error) {
-            useLoanDetailParentStore.setState((state) => ({
-              ...state,
-              hydrated: true,
-            }));
-          }
-        };
-      },
-    }
-  )
-);
+export const useLoanDetailParentStore = create<LoanDetailStore>((set) => ({
+  loanDetail: null,
+  setLoanDetail: (data) => set({ loanDetail: data }),
+}));
 
 export const useApproveStore = create<LoanApproveStore>((set) => ({
   approve: {},

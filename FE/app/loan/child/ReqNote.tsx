@@ -7,7 +7,6 @@ import { useLoanRequestStore, useLoanStore } from "@/stores/useLoanChildStore";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { createLoan } from "@/apis/loanChildApi";
 import { useMutation } from "@tanstack/react-query";
-import { getKSTEndOfDayString } from "@/utils/date";
 import Signature from "./Signature";
 
 export default function PromissoryNotePage() {
