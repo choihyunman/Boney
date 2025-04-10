@@ -43,7 +43,7 @@ public class ParentQuestHistoryService {
                         q.getQuestCategory().getCategoryName(),
                         q.getQuestReward(),
                         q.getQuestStatus().name(),
-                        q.getEndDate()
+                        q.getFinishDate()
                 ))
                 .collect(Collectors.toList());
     }

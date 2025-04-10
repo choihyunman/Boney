@@ -40,7 +40,7 @@ public class ChildQuestHistoryService {
                         .questCategory(q.getQuestCategory().getCategoryName())
                         .questReward(q.getQuestReward())
                         .questStatus(q.getQuestStatus().name())
-                        .endDate(q.getEndDate())
+                        .finishDate(q.getFinishDate())
                         .build())
                 .collect(Collectors.toList());
     }

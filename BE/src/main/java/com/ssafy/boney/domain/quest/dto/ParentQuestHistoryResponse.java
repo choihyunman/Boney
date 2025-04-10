@@ -14,5 +14,5 @@ public class ParentQuestHistoryResponse {
     private String questCategory;
     private Long questReward;
     private String questStatus;
-    private LocalDateTime endDate;
+    private LocalDateTime finishDate;
 }
