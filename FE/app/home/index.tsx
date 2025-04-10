@@ -105,10 +105,10 @@ export default function Home() {
             <ChildInfo
               children={
                 parentData?.child.map((child) => ({
+                  child_id: child.child_id,
                   name: child.child_name || "",
                   creditScore: Number(child.credit_score) || 0,
                   loanAmount: Number(child.total_child_loan) || 0,
-                  onAllowanceClick: () => {},
                 })) || []
               }
               onAddChild={() => router.push("/child/Register")}

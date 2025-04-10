@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   TouchableOpacity,
@@ -6,7 +6,6 @@ import {
   Modal,
   ScrollView,
   Image,
-  Alert,
 } from "react-native";
 import GlobalText from "../../components/GlobalText";
 import { Calendar, ChevronDown } from "lucide-react-native";
@@ -20,6 +19,7 @@ import {
 import { useChildDetailStore } from "../../stores/useChildDetailStore";
 import { PinInput } from "../../components/PinInput";
 import { getChildProfileImage } from "@/utils/getChildProfileImage";
+import { CustomAlert } from "../../components/CustomAlert";
 
 const DAYS = [
   { id: 1, name: "월요일" },
@@ -51,6 +51,36 @@ export default function RegularAllowance() {
   const [showPinInput, setShowPinInput] = useState(false);
   const [actionType, setActionType] = useState<"save" | "cancel">("save");
 
+  // Alert states
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertTitle, setAlertTitle] = useState("");
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertType, setAlertType] = useState<"success" | "error">("success");
+  const [shouldNavigate, setShouldNavigate] = useState(false);
+
+  // Initialize form with data from childDetail if available
+  useEffect(() => {
+    if (childDetail?.regularTransfer) {
+      const { scheduledAmount, scheduledFrequency, startDate } =
+        childDetail.regularTransfer;
+
+      // Set amount
+      setAmount(scheduledAmount.toString());
+
+      // Set frequency
+      setIsWeekly(scheduledFrequency === "weekly");
+
+      // Set day/date
+      if (scheduledFrequency === "weekly") {
+        const day = DAYS.find((day) => day.id === startDate) || DAYS[0];
+        setSelectedDay(day);
+      } else {
+        const date = DATES.find((date) => date.id === startDate) || DATES[0];
+        setSelectedDate(date);
+      }
+    }
+  }, [childDetail]);
+
   const handlePinComplete = async (password: string) => {
     try {
       const response = await verifyPassword(password);
@@ -61,11 +91,17 @@ export default function RegularAllowance() {
           await handleCancelAction();
         }
       } else {
-        Alert.alert("오류", "비밀번호가 일치하지 않습니다.");
+        setAlertTitle("오류");
+        setAlertMessage("비밀번호가 일치하지 않습니다");
+        setAlertType("error");
+        setShowAlert(true);
       }
     } catch (error) {
       console.error("비밀번호 검증 실패:", error);
-      Alert.alert("오류", "비밀번호 검증에 실패했습니다.");
+      setAlertTitle("오류");
+      setAlertMessage("비밀번호 검증에 실패했습니다");
+      setAlertType("error");
+      setShowAlert(true);
     }
     setShowPinInput(false);
   };
@@ -80,20 +116,30 @@ export default function RegularAllowance() {
         scheduledFrequency: isWeekly
           ? ("weekly" as const)
           : ("monthly" as const),
-        startDate: selectedDay.id,
+        startDate: isWeekly ? selectedDay.id : selectedDate.id,
       };
 
       if (childDetail.regularTransfer === null) {
         await createRegularAllowance(childDetail.childId, data);
-        Alert.alert("알림", "정기 용돈이 설정되었습니다.");
+        setAlertTitle("알림");
+        setAlertMessage("정기 용돈이 설정되었습니다");
+        setAlertType("success");
+        setShowAlert(true);
+        setShouldNavigate(true);
       } else {
         await updateRegularAllowance(childDetail.childId, data);
-        Alert.alert("알림", "정기 용돈 설정이 수정되었습니다.");
+        setAlertTitle("알림");
+        setAlertMessage("정기 용돈이 설정이 수정되었습니다");
+        setAlertType("success");
+        setShowAlert(true);
+        setShouldNavigate(true);
       }
-      router.replace("/child");
     } catch (error) {
       console.error("정기 용돈 설정 실패:", error);
-      Alert.alert("오류", "정기 용돈 설정에 실패했습니다.");
+      setAlertTitle("오류");
+      setAlertMessage("정기 용돈 설정에 실패했습니다");
+      setAlertType("error");
+      setShowAlert(true);
     } finally {
       setLoading(false);
     }
@@ -105,11 +151,17 @@ export default function RegularAllowance() {
 
       setLoading(true);
       await deleteRegularAllowance(childDetail.childId);
-      Alert.alert("알림", "정기 용돈이 해지되었습니다.");
-      router.replace("/child");
+      setAlertTitle("알림");
+      setAlertMessage("정기 용돈이 해지되었습니다");
+      setAlertType("success");
+      setShowAlert(true);
+      setShouldNavigate(true);
     } catch (error) {
       console.error("정기 용돈 해지 실패:", error);
-      Alert.alert("오류", "정기 용돈 해지에 실패했습니다.");
+      setAlertTitle("오류");
+      setAlertMessage("정기 용돈 해지에 실패했습니다");
+      setAlertType("error");
+      setShowAlert(true);
     } finally {
       setLoading(false);
     }
@@ -123,6 +175,13 @@ export default function RegularAllowance() {
   const handleCancel = () => {
     setActionType("cancel");
     setShowPinInput(true);
+  };
+
+  const handleAlertClose = () => {
+    setShowAlert(false);
+    if (shouldNavigate) {
+      router.replace("/child");
+    }
   };
 
   if (showPinInput) {
@@ -231,8 +290,8 @@ export default function RegularAllowance() {
           <Calendar size={12} color="#9CA3AF" />
           <GlobalText className="ml-2 text-sm text-gray-500">
             {isWeekly
-              ? `매주 ${selectedDay.name}에 자동으로 지급됩니다.`
-              : `매월 ${selectedDate.name}에 자동으로 지급됩니다.`}
+              ? `매주 ${selectedDay.name}에 자동으로 지급됩니다`
+              : `매월 ${selectedDate.name}에 자동으로 지급됩니다`}
           </GlobalText>
         </View>
 
@@ -332,6 +391,15 @@ export default function RegularAllowance() {
           ))}
         </View>
       </View>
+
+      {/* Custom Alert */}
+      <CustomAlert
+        visible={showAlert}
+        title={alertTitle}
+        message={alertMessage}
+        type={alertType}
+        onClose={handleAlertClose}
+      />
     </View>
   );
 }

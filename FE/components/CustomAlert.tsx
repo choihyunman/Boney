@@ -1,6 +1,7 @@
-import React from "react";
-import { Modal, View, TouchableOpacity } from "react-native";
+import React, { useRef, useEffect, useState } from "react";
+import { Modal, View, TouchableOpacity, LayoutChangeEvent } from "react-native";
 import GlobalText from "./GlobalText";
+import { CheckCircle, XCircle } from "lucide-react-native";
 
 interface CustomAlertProps {
   visible: boolean;
@@ -17,8 +18,24 @@ export const CustomAlert: React.FC<CustomAlertProps> = ({
   onClose,
   type = "success",
 }) => {
+  const [titleWidth, setTitleWidth] = useState(0);
+  const titleRef = useRef<View>(null);
+
   const getColor = () => {
     return type === "success" ? "#4FC985" : "#FF4B4B";
+  };
+
+  const getIcon = () => {
+    return type === "success" ? (
+      <CheckCircle size={60} color={getColor()} />
+    ) : (
+      <XCircle size={60} color={getColor()} />
+    );
+  };
+
+  const handleTitleLayout = (event: LayoutChangeEvent) => {
+    const { width } = event.nativeEvent.layout;
+    setTitleWidth(width);
   };
 
   return (
@@ -30,13 +47,12 @@ export const CustomAlert: React.FC<CustomAlertProps> = ({
     >
       <View className="flex-1 bg-black/50 justify-center items-center">
         <View className="bg-white rounded-xl p-5 w-4/5 min-h-[200px] items-center justify-center">
-          <View
-            className="w-3 h-2 rounded-full mb-4"
-            style={{ backgroundColor: getColor() }}
-          />
-          <GlobalText weight="bold" className="text-xl mb-4 text-center">
-            {title}
-          </GlobalText>
+          <View className="mb-4">{getIcon()}</View>
+          <View onLayout={handleTitleLayout}>
+            <GlobalText weight="bold" className="text-2xl mb-4 text-center">
+              {title}
+            </GlobalText>
+          </View>
           <GlobalText className="text-lg mb-6 text-center leading-6">
             {message}
           </GlobalText>
