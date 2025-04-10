@@ -3,7 +3,12 @@ import { api } from "@/lib/api";
 export const getChildren = async () => {
   try {
     const response = await api.get("/parents/quests/children");
-    console.log("여기 조회: ", response.data);
+    console.log(
+      "여기 조회: ",
+      response.data,
+      "아이 정보",
+      response.data.data.children
+    );
     return response.data;
   } catch (error) {
     console.error("아이 목록 조회 실패:", error);
@@ -24,7 +29,7 @@ export const getChildDetail = async (childId: number) => {
 export const createRegularAllowance = async (
   childId: number,
   data: {
-    scheduledAmount: number;
+    scheduledAmount: string;
     scheduledFrequency: "weekly" | "monthly";
     startDate: number;
   }
@@ -41,7 +46,7 @@ export const createRegularAllowance = async (
 export const updateRegularAllowance = async (
   childId: number,
   data: {
-    scheduledAmount: number;
+    scheduledAmount: string;
     scheduledFrequency: "weekly" | "monthly";
     startDate: number;
   }

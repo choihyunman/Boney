@@ -141,6 +141,11 @@ export default function ChildDetail() {
                       childName: childData.childName,
                       childId: childData.childId,
                       childGender: childData.childGender,
+                      scheduledAmount:
+                        childData.regularTransfer?.scheduledAmount,
+                      scheduledFrequency:
+                        childData.regularTransfer?.scheduledFrequency,
+                      startDate: childData.regularTransfer?.startDate,
                     },
                   })
                 }
