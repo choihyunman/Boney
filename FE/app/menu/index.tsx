@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   ScrollView,
@@ -65,6 +65,15 @@ export default function MenuScreen() {
   const user = useAuthStore((state) => state.user);
   const isParent = user?.role === "PARENT";
   const logout = useAuthStore((state) => state.logout);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  if (isLoggingOut) {
+    return (
+      <View className="flex-1 justify-center items-center bg-white">
+        <GlobalText>로그아웃 중...</GlobalText>
+      </View>
+    );
+  }
 
   const KAKAO_REST_API_KEY = process.env.EXPO_PUBLIC_KAKAO_CLIENT_ID!;
   const REDIRECT_URI = "https://j12b208.p.ssafy.io/api/v1/auth/logout/redirect";
@@ -310,11 +319,14 @@ export default function MenuScreen() {
   // 로그아웃 처리
   const handleLogout = async () => {
     try {
+      setIsLoggingOut(true);
       await api.delete("/auth/delete/kakao");
       await logout();
+
       router.replace("/auth");
     } catch (err) {
       console.log("로그아웃 중 오류:", err);
+      setIsLoggingOut(false);
     }
 
     // WebView 열기
@@ -433,7 +445,7 @@ export default function MenuScreen() {
           </TouchableOpacity>
 
           {/* 로그아웃 카드 */}
-          {/* <TouchableOpacity
+          <TouchableOpacity
             onPress={handleLogout}
             className="bg-white dark:bg-gray-800 rounded-xl p-4 mb-4 flex-row items-center justify-between"
             activeOpacity={0.7}
@@ -449,7 +461,7 @@ export default function MenuScreen() {
                 로그아웃
               </GlobalText>
             </View>
-          </TouchableOpacity> */}
+          </TouchableOpacity>
         </View>
       </ScrollView>
       {/* WebView for Logout */}
