@@ -250,7 +250,9 @@ export default function MonthlyReport() {
           monthlyReport.totalExpense === 0 ? (
             <View className="h-16 items-center justify-center mb-4">
               <CalendarX size={48} color="#D1D5DB" />
-              <GlobalText className="text-gray-500 mt-2">이번 달 거래 내역이 없습니다</GlobalText>
+              <GlobalText className="text-gray-500 mt-2">
+                이번 달 거래 내역이 없습니다
+              </GlobalText>
             </View>
           ) : (
             <View className="h-16 bg-gray-100 rounded-xl overflow-hidden flex-row">
@@ -327,7 +329,7 @@ export default function MonthlyReport() {
           </GlobalText>
           <View className="flex-row items-center gap-6">
             <View className="w-16 h-16 rounded-full bg-[#4FC985]/20 items-center justify-center">
-              <Trophy size={32} color="#4FC985" />  
+              <Trophy size={32} color="#4FC985" />
             </View>
             <View className="flex-1">
               <View className="flex-row justify-between items-center mb-2">
