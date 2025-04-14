@@ -15,7 +15,8 @@ interface MonthlyTrendChartProps {
 }
 
 const { width } = Dimensions.get("window");
-const chartWidth = width - 50; // 좌우 패딩을 더 늘림
+// 차트 너비를 화면에 딱 맞게 조정 (패딩 고려)
+const chartWidth = width - 32; // 좌우 패딩 16px씩 고려
 
 export default function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
   const { colorScheme } = useColorScheme();
@@ -23,6 +24,11 @@ export default function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
   const [isReady, setIsReady] = useState(false);
 
   const [chartData, setChartData] = useState<any[]>([]);
+  // 기기 크기에 따라 spacing 값을 동적으로 조정
+  const spacing = width < 360 ? 15 : 22;
+  const barWidth = width < 360 ? 18 : 22;
+  // x축 선 길이 조정 (차트 너비의 90%로 설정)
+  const xAxisLength = chartWidth * 0.79;
 
   useEffect(() => {
     // 데이터가 있는 항목만 필터링
@@ -49,7 +55,7 @@ export default function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
         value: item.income / 10000, // 만원 단위로 변환
         label: monthLabel,
         frontColor: "#4FC985",
-        spacing: 12,
+        spacing: spacing,
         labelTextStyle: {
           color: isDark ? "#4FC985" : "#374151",
           fontSize: 13,
@@ -65,7 +71,7 @@ export default function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
 
     setChartData(formattedData);
     setIsReady(true);
-  }, [data, isDark]);
+  }, [data, isDark, spacing]);
 
   if (!isReady) {
     return (
@@ -99,17 +105,15 @@ export default function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
 
   return (
     <View className="bg-white dark:bg-gray-800 rounded-xl p-4 my-2">
-      <GlobalText
-        className="font-bold text-xl text-gray-900 dark:text-white mb-4"
-      >
+      <GlobalText className="font-bold text-xl text-gray-900 dark:text-white mb-4">
         최근 수입/지출 추이
       </GlobalText>
 
       <View className="h-64 items-center">
         <BarChart
           data={chartData}
-          barWidth={25}
-          spacing={38}
+          barWidth={barWidth}
+          spacing={spacing}
           roundedTop
           hideRules
           xAxisThickness={1}
@@ -135,7 +139,8 @@ export default function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
           height={180}
           isAnimated
           animationDuration={500}
-          initialSpacing={30} // 왼쪽 여백을 다른 막대 사이 간격과 동일하게 설정
+          initialSpacing={spacing} // 왼쪽 여백을 다른 막대 사이 간격과 동일하게 설정
+          xAxisLength={xAxisLength} // x축 선 길이 조정
         />
       </View>
 
