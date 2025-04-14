@@ -6,6 +6,8 @@ import {
   SafeAreaView,
   Alert,
   Image,
+  Modal,
+  ActivityIndicator,
 } from "react-native";
 import { useColorScheme } from "nativewind";
 import { useRouter } from "expo-router";
@@ -34,6 +36,8 @@ import { getLoanValidation } from "@/apis/loanChildApi";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { api } from "@/lib/api";
 import { getTransactionHistory } from "@/apis/transactionApi";
+import WebView from "react-native-webview";
+import LottieView from "lottie-react-native";
 
 // 프로필 이미지
 const profileImages = {
@@ -66,11 +70,17 @@ export default function MenuScreen() {
   const isParent = user?.role === "PARENT";
   const logout = useAuthStore((state) => state.logout);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [showWebView, setShowWebView] = useState(false);
 
   if (isLoggingOut) {
     return (
-      <View className="flex-1 justify-center items-center bg-white">
-        <GlobalText>로그아웃 중...</GlobalText>
+      <View className="flex-1 justify-center items-center bg-white pt-20">
+        <LottieView
+          source={require("@/assets/animations/loading.json")}
+          autoPlay
+          loop
+          style={{ width: 150, height: 150 }}
+        />
       </View>
     );
   }
@@ -318,31 +328,24 @@ export default function MenuScreen() {
 
   // 로그아웃 처리
   const handleLogout = async () => {
-    try {
-      setIsLoggingOut(true);
-      await api.delete("/auth/delete/kakao");
-      await logout();
-
-      router.replace("/auth");
-    } catch (err) {
-      console.log("로그아웃 중 오류:", err);
-      setIsLoggingOut(false);
-    }
-
     // WebView 열기
-    // setShowWebView(true);
+    console.log("🔄 로그아웃 웹뷰 열기");
+    setShowWebView(true);
   };
 
-  // const handleWebViewNavigation = async (navState: any) => {
-  //   const { url } = navState;
-  //   if (url.startsWith(REDIRECT_URI)) {
-  //     console.log("✅ 카카오 로그아웃 완료, 앱 상태 초기화");
-
-  //     setShowWebView(false);
-  //     await logout();
-  //     router.replace("/auth");
-  //   }
-  // };
+  const handleWebViewNavigation = async (navState: any) => {
+    console.log("🔄 웹뷰 네비게이션 처리");
+    const { url } = navState;
+    if (url.startsWith(REDIRECT_URI)) {
+      console.log("✅ 카카오 로그아웃 완료");
+      setShowWebView(false);
+      setIsLoggingOut(true);
+      console.log("✨ 초기화 시작");
+      await logout();
+      console.log("🎈 로그인 화면으로 이동");
+      router.replace("/auth");
+    }
+  };
   // 사용자 역할에 따라 메뉴 아이템 선택
   const menuItems = isParent ? parentMenuItems : childMenuItems;
 
@@ -465,7 +468,7 @@ export default function MenuScreen() {
         </View>
       </ScrollView>
       {/* WebView for Logout */}
-      {/* <Modal
+      <Modal
         visible={showWebView}
         animationType="slide"
         onRequestClose={() => setShowWebView(false)}
@@ -480,11 +483,16 @@ export default function MenuScreen() {
           startInLoadingState
           renderLoading={() => (
             <View className="flex-1 justify-center items-center bg-white">
-              <GlobalText className="text-gray-500">로그아웃 중...</GlobalText>
+              <LottieView
+                source={require("@/assets/animations/loading.json")}
+                autoPlay
+                loop
+                style={{ width: 150, height: 150 }}
+              />
             </View>
           )}
         />
-      </Modal> */}
+      </Modal>
     </SafeAreaView>
   );
 }
