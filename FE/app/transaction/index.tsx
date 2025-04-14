@@ -11,6 +11,7 @@ import { getTransactionHistory, Transaction } from "../../apis/transactionApi";
 import { useRouter, useFocusEffect } from "expo-router";
 import { useAuthStore } from "@/stores/useAuthStore";
 import GlobalText from "@/components/GlobalText";
+import LottieView from "lottie-react-native";
 
 export default function TransactionHistory() {
   const router = useRouter();
@@ -214,7 +215,14 @@ export default function TransactionHistory() {
       {/* 거래 내역 목록 */}
       <ScrollView className="flex-1 bg-white">
         {loading ? (
-          <View style={{ flex: 1, backgroundColor: "white" }} />
+          <View className="flex-1 justify-center items-center bg-white pt-40">
+            <LottieView
+              source={require("@/assets/animations/loading.json")}
+              autoPlay
+              loop
+              style={{ width: 150, height: 150 }}
+            />
+          </View>
         ) : error ? (
           <View className="flex-1 items-center justify-center py-40">
             <CalendarX size={64} color="#9CA3AF" />
