@@ -324,56 +324,19 @@ export default function LoanTrendChart({
       return null;
     }
 
-    // Format number to Korean '만원' format
-    const formatToKoreanWon = (value: number) => {
-      const won = Math.floor(value / 10000);
-      if (won === 0) return "0";
-      return `${won}만`;
+    // Simple format function that just adds commas and "원"
+    const formatAmount = (value: number) => {
+      return value.toLocaleString() + "원";
     };
 
-    // Format number to Korean '천원' format
-    const formatToKoreanThousandWon = (value: number) => {
-      const thousand = Math.floor(value / 1000);
-      if (thousand === 0) return "0";
-      if (thousand === 10) return "1만";
-      return `${thousand}천`;
-    };
-
-    // Calculate section values in exact 1만원 units
-    const maxWon = Math.ceil(maxValue / 10000);
+    // Calculate section values based on the actual max value
+    const maxAmount = maxValue;
     const sectionCount = 5;
 
-    // 대출 총액이 5만원 이하인 경우에도 적절한 최대값 설정
-    let sectionValues;
-    let formatYLabel;
-
-    if (maxWon <= 1) {
-      // 1만원 이하인 경우 천 단위로 나누기
-      // 예: 1만원이면 0, 2천, 4천, 6천, 8천, 1만
-      const thousandPerSection = Math.ceil(maxValue / 1000) / sectionCount;
-      sectionValues = Array.from(
-        { length: sectionCount + 1 },
-        (_, i) => i * thousandPerSection * 1000
-      );
-      formatYLabel = formatToKoreanThousandWon;
-    } else if (maxWon <= 5) {
-      // 1만원 초과 5만원 이하인 경우 만 단위로 나누기
-      // 예: 3만원이면 0, 0.6만, 1.2만, 1.8만, 2.4만, 3만
-      const wonPerSection = maxWon / sectionCount;
-      sectionValues = Array.from(
-        { length: sectionCount + 1 },
-        (_, i) => i * wonPerSection * 10000
-      );
-      formatYLabel = formatToKoreanWon;
-    } else {
-      // 5만원 초과인 경우 기존 로직 유지
-      const wonPerSection = Math.max(1, Math.ceil(maxWon / sectionCount));
-      sectionValues = Array.from(
-        { length: sectionCount + 1 },
-        (_, i) => i * wonPerSection * 10000
-      );
-      formatYLabel = formatToKoreanWon;
-    }
+    // Create evenly spaced section values
+    const sectionValues = Array.from({ length: sectionCount + 1 }, (_, i) =>
+      Math.round((i * maxAmount) / sectionCount)
+    );
 
     const props: any = {
       data: datasets[0]?.data || [],
@@ -396,9 +359,9 @@ export default function LoanTrendChart({
       dataPointsColor1: "#4FC985",
       dataPointsRadius: 0,
       noOfSections: sectionCount,
-      maxValue: Math.max(...sectionValues),
+      maxValue: maxAmount,
       minValue: 0,
-      yAxisLabelTexts: sectionValues.map(formatYLabel),
+      yAxisLabelTexts: sectionValues.map(formatAmount),
       isAnimated: true,
       animationDuration: 300,
       animationStartTime: 0,
@@ -420,7 +383,6 @@ export default function LoanTrendChart({
       rulesColor: "transparent",
       showFractionalValues: false,
       roundToDigits: 0,
-      formatYLabel: (value: number) => formatYLabel(value),
       horizSections: sectionValues.map((value) => ({ value })),
     };
 
