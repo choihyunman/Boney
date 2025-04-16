@@ -173,7 +173,7 @@ export default function QuestDetailPage() {
             onClose={() => setIsRedoModalVisible(false)}
             onConfirm={handleRedoQuest}
             title="퀘스트 다시 하기"
-            content="정말로 다시 하기를 보내시겠습니까까?"
+            content="정말로 다시 하기를 보내시겠습니까?"
             confirmText="다시 하기"
             cancelText="취소"
             confirmColor="#4FC985"
