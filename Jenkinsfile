@@ -1,6 +1,8 @@
+import groovy.json.JsonOutput
+
 def getLastCommitInfo() {
-    def author = sh(script: "git log -1 --pretty=format:'%an'", returnStdout: true).trim()
-    def message = sh(script: "git log -1 --pretty=format:'%s'", returnStdout: true).trim()
+    def author = sh(script: "git log -1 --pretty=format:%an", returnStdout: true).trim()
+    def message = sh(script: "git log -1 --pretty=format:%s", returnStdout: true).trim()
     return "[🧑 ${author}] - \"${message}\""
 }
 
@@ -8,19 +10,19 @@ def notifyMattermost(message, success = true) {
     def color = success ? "#00c853" : "#d50000"
     def commitInfo = getLastCommitInfo()
 
+    def payload = JsonOutput.toJson([
+        username: "Jenkins Bot",
+        icon_emoji: ":rocket:",
+        attachments: [[
+            fallback: message,
+            color: color,
+            text: "${message}\n${commitInfo}"
+        ]]
+    ])
+
     withCredentials([string(credentialsId: 'mattermost-webhook', variable: 'WEBHOOK_URL')]) {
-        sh """
-        curl -X POST -H 'Content-Type: application/json' \
-        -d '{
-            "username": "Jenkins Bot",
-            "icon_emoji": ":rocket:",
-            "attachments": [{
-                "fallback": "${message}",
-                "color": "${color}",
-                "text": "${message}\\\\n${commitInfo}"
-            }]
-        }' $WEBHOOK_URL
-        """
+        writeFile file: 'mattermost_payload.json', text: payload
+        sh "curl -X POST -H 'Content-Type: application/json' -d @mattermost_payload.json $WEBHOOK_URL"
     }
 }
 
@@ -135,7 +137,7 @@ pipeline {
             steps {
                 echo "🔎 백엔드 SonarQube 정적 분석 시작..."
                 withCredentials([string(credentialsId: 'sonarqube', variable: 'SONARQUBE_TOKEN')]) {
-                    withSonarQubeEnv('SonarQube') {
+                    withSonarQubeEnv('sonarqube') {
                         sh '''
                         cd BE
                         ./gradlew sonarqube -Dsonar.token=$SONARQUBE_TOKEN
