@@ -1,5 +1,13 @@
+def getLastCommitInfo() {
+    def author = sh(script: "git log -1 --pretty=format:'%an'", returnStdout: true).trim()
+    def message = sh(script: "git log -1 --pretty=format:'%s'", returnStdout: true).trim()
+    return "[🧑 ${author}] - \"${message}\""
+}
+
 def notifyMattermost(message, success = true) {
     def color = success ? "#00c853" : "#d50000"
+    def commitInfo = getLastCommitInfo()
+
     withCredentials([string(credentialsId: 'mattermost-webhook', variable: 'WEBHOOK_URL')]) {
         sh """
         curl -X POST -H 'Content-Type: application/json' \
@@ -9,7 +17,7 @@ def notifyMattermost(message, success = true) {
             "attachments": [{
                 "fallback": "${message}",
                 "color": "${color}",
-                "text": "${message}"
+                "text": "${message}\\\\n${commitInfo}"
             }]
         }' $WEBHOOK_URL
         """
@@ -42,9 +50,7 @@ pipeline {
         }
 
         stage('Force Fix Permissions Before Clean') {
-            when {
-                expression { env.gitlabTargetBranch == 'release' }
-            }
+            when { expression { env.gitlabTargetBranch == 'release' } }
             steps {
                 echo "🔐 deleteDir 전에 퍼미션 강제 수정"
                 sh '''
@@ -55,9 +61,7 @@ pipeline {
         }
 
         stage('Clean Workspace') {
-            when {
-                expression { env.gitlabTargetBranch == 'release' }
-            }
+            when { expression { env.gitlabTargetBranch == 'release' } }
             steps {
                 echo "🧹 이전 워크스페이스 정리 중..."
                 deleteDir()
@@ -65,9 +69,7 @@ pipeline {
         }
 
         stage('Checkout Source') {
-            when {
-                expression { env.gitlabTargetBranch == 'release' }
-            }
+            when { expression { env.gitlabTargetBranch == 'release' } }
             steps {
                 echo "📦 Git 리포지토리 클론 중..."
                 git branch: 'release',
@@ -77,9 +79,7 @@ pipeline {
         }
 
         stage('Load 운영용 .env File') {
-            when {
-                expression { env.gitlabTargetBranch == 'release' }
-            }
+            when { expression { env.gitlabTargetBranch == 'release' } }
             steps {
                 echo "🔐 운영용 .env 파일 로딩 중..."
                 withCredentials([file(credentialsId: 'choi', variable: 'ENV_FILE')]) {
@@ -92,9 +92,7 @@ pipeline {
         }
 
         stage('Copy application.yml') {
-            when {
-                expression { env.gitlabTargetBranch == 'release' }
-            }
+            when { expression { env.gitlabTargetBranch == 'release' } }
             steps {
                 echo "📄 application.yml 복사 중..."
                 withCredentials([file(credentialsId: 'app-yml', variable: 'APP_YML')]) {
@@ -107,9 +105,7 @@ pipeline {
         }
 
         stage('Copy Firebase Key') {
-            when {
-                expression { env.gitlabTargetBranch == 'release' }
-            }
+            when { expression { env.gitlabTargetBranch == 'release' } }
             steps {
                 echo "🔑 Firebase serviceAccountKey 복사 중..."
                 withCredentials([file(credentialsId: 'firebase-key', variable: 'FIREBASE_KEY')]) {
@@ -122,9 +118,7 @@ pipeline {
         }
 
         stage('Copy application-test.yml') {
-            when {
-                expression { env.gitlabTargetBranch == 'release' }
-            }
+            when { expression { env.gitlabTargetBranch == 'release' } }
             steps {
                 echo "🧪 application-test.yml 복사 중..."
                 withCredentials([file(credentialsId: 'app-test-yml', variable: 'APP_TEST_YML')]) {
@@ -136,10 +130,23 @@ pipeline {
             }
         }
 
-        stage('Run Backend Tests via Docker') {
-            when {
-                expression { env.gitlabTargetBranch == 'release' }
+        stage('Backend SonarQube 분석') {
+            when { expression { env.gitlabTargetBranch == 'release' } }
+            steps {
+                echo "🔎 백엔드 SonarQube 정적 분석 시작..."
+                withCredentials([string(credentialsId: 'sonarqube', variable: 'SONARQUBE_TOKEN')]) {
+                    withSonarQubeEnv('SonarQube') {
+                        sh '''
+                        cd BE
+                        ./gradlew sonarqube -Dsonar.token=$SONARQUBE_TOKEN
+                        '''
+                    }
+                }
             }
+        }
+
+        stage('Run Backend Tests via Docker') {
+            when { expression { env.gitlabTargetBranch == 'release' } }
             steps {
                 echo "🧪 테스트용 .env.test 주입 + 테스트 컨테이너 실행 중..."
                 withCredentials([file(credentialsId: 'choi-test', variable: 'TEST_ENV_FILE')]) {
@@ -162,9 +169,7 @@ pipeline {
         }
 
         stage('Stop Test Containers') {
-            when {
-                expression { env.gitlabTargetBranch == 'release' }
-            }
+            when { expression { env.gitlabTargetBranch == 'release' } }
             steps {
                 echo "🧹 테스트 컨테이너 정리 중...."
                 sh 'docker compose -f docker-compose.test.yml down --remove-orphans || true'
@@ -172,9 +177,7 @@ pipeline {
         }
 
         stage('Stop Existing Containers') {
-            when {
-                expression { env.gitlabTargetBranch == 'release' }
-            }
+            when { expression { env.gitlabTargetBranch == 'release' } }
             steps {
                 echo "🛑 기존 컨테이너 중지 및 삭제 중..."
                 sh '''
@@ -187,9 +190,7 @@ pipeline {
         }
 
         stage('Build & Deploy') {
-            when {
-                expression { env.gitlabTargetBranch == 'release' }
-            }
+            when { expression { env.gitlabTargetBranch == 'release' } }
             steps {
                 echo "⚙️ 운영용 .env 기반 이미지 빌드 & 컨테이너 실행 중..."
                 sh 'docker compose build'
@@ -202,7 +203,6 @@ pipeline {
         success {
             script {
                 if (env.gitlabTargetBranch == 'release') {
-                    echo '✅ 배포 성공!'
                     notifyMattermost("✅ *배포 성공!* `release` 브랜치 기준 자동 배포 완료되었습니다. 🎉", true)
                 }
             }
@@ -210,7 +210,6 @@ pipeline {
         failure {
             script {
                 if (env.gitlabTargetBranch == 'release') {
-                    echo '❌ 배포 실패!'
                     notifyMattermost("❌ *배포 실패!* `release` 브랜치 기준 자동 배포에 실패했습니다. 🔥", false)
                 }
             }
