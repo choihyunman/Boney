@@ -125,7 +125,7 @@
 
 | 이름 | 포지션 | 주요 담당 |
 |------|--------|-----------|
-| **최현만** | Infra, Frontend | Docker, Jenkins, Nginx 배포 구성, 정기 송금, 전자서명 UX |
+| **최현만** | 팀장, Infra, Frontend | Docker, Jenkins, Nginx 배포 구성, 정기 송금, 전자서명 UX |
 | **백기찬** | Backend | 인증, 대출, 전자서명 API 개발 |
 | **김세림** | Backend | 거래, 계좌, 알림, 퀘스트 API 개발|
 | **황대규** | Backend, AI | 정기 송금 이체, 통계 및 리포트 API, FDS 개발 |
