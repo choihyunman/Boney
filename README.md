@@ -107,6 +107,9 @@
 ---
 
 ## 서비스 아키텍처
+<div align="center">
+  <img src="images/architecture.png" alt="서비스 아키텍처" width="600"/>
+</div>
 
 ---
 
