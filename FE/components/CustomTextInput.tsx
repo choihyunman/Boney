@@ -1,0 +1,74 @@
+import { TextInput, TextInputProps, View } from "react-native";
+import GlobalText from "./GlobalText";
+import { useEffect, useRef, useState } from "react";
+
+interface CustomTextAreaProps extends TextInputProps {
+  value: string;
+  onChangeText: (text: string) => void;
+  placeholder: string;
+  maxLength?: number;
+  height?: number;
+  placeholderFontSize?: number;
+  inputFontSize?: number;
+}
+
+export default function CustomTextArea({
+  value,
+  onChangeText,
+  placeholder,
+  maxLength,
+  height = 100,
+  placeholderFontSize = 14,
+  inputFontSize = 16,
+  ...rest
+}: CustomTextAreaProps) {
+  const inputRef = useRef<TextInput>(null);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setIsMounted(true); // 렌더링 되고 난 뒤 true
+    }, 0);
+
+    return () => clearTimeout(timeout);
+  }, []);
+
+  return (
+    <View
+      className="relative w-full rounded-lg border border-gray-200 bg-white"
+      style={{ height }}
+    >
+      {/* 커스텀 placeholder */}
+      {isMounted && value.length === 0 && (
+        <GlobalText
+          onPress={() => inputRef.current?.focus()}
+          className="absolute left-4 top-3 text-gray-400"
+          style={{
+            fontFamily: "NEXONLv1Gothic-Regular",
+            fontSize: placeholderFontSize,
+            lineHeight: 24,
+            maxWidth: "95%",
+          }}
+        >
+          {placeholder}
+        </GlobalText>
+      )}
+
+      <TextInput
+        ref={inputRef}
+        value={value}
+        onChangeText={onChangeText}
+        multiline
+        maxLength={maxLength}
+        textAlignVertical="top"
+        className="w-full px-4 py-3 text-base"
+        style={{
+          fontFamily: "NEXONLv1Gothic-Regular",
+          fontSize: inputFontSize,
+          lineHeight: 24,
+        }}
+        {...rest}
+      />
+    </View>
+  );
+}
